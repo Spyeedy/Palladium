@@ -1,18 +1,15 @@
 package net.threetag.palladium.power.ability;
 
 import net.minecraft.network.chat.Component;
-import net.minecraft.util.Mth;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.damagesource.DamageTypes;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
 import net.threetag.palladium.entity.PalladiumAttributes;
-import net.threetag.palladium.power.SuperpowerUtil;
 import net.threetag.palladiumcore.event.EventResult;
 import net.threetag.palladiumcore.event.LivingEntityEvents;
 import net.threetag.palladiumcore.event.PlayerEvents;
 
-import java.util.Collection;
 import java.util.concurrent.atomic.AtomicReference;
 
 public class AbilityEventHandler implements LivingEntityEvents.Hurt, LivingEntityEvents.Attack, PlayerEvents.NameFormat {
@@ -51,7 +48,7 @@ public class AbilityEventHandler implements LivingEntityEvents.Hurt, LivingEntit
 
     @Override
     public EventResult livingEntityAttack(LivingEntity entity, DamageSource damageSource, float amount) {
-        if (damageSource.getEntity() instanceof LivingEntity sourceEntity && !AbilityUtil.getEnabledEntries(sourceEntity, Abilities.FIRE_ASPECT.get()).isEmpty()) {
+        if (damageSource.getEntity() instanceof LivingEntity sourceEntity && AbilityUtil.isTypeEnabled(sourceEntity, Abilities.FIRE_ASPECT.get())) {
             boolean hasAddedExistingFire = false;
             int fireSeconds = 0;
             for (AbilityEntry entry : AbilityUtil.getEnabledEntries(sourceEntity, Abilities.FIRE_ASPECT.get())) {

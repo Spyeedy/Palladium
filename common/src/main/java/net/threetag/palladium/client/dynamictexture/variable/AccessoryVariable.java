@@ -14,33 +14,42 @@ import net.threetag.palladium.util.context.DataContext;
 import net.threetag.palladium.util.json.GsonUtil;
 
 import java.util.Collection;
-import java.util.Collections;
-import java.util.Comparator;
 import java.util.Optional;
 
 public class AccessoryVariable implements ITextureVariable {
+
     private final AccessorySlot accessorySlot;
     private final String fallbackValue, splitValue;
+    private final boolean path;
 
-    public AccessoryVariable(AccessorySlot accessorySlot, String fallbackValue, String splitValue) {
+    public AccessoryVariable(AccessorySlot accessorySlot, String fallbackValue, String splitValue, boolean path) {
         this.accessorySlot = accessorySlot;
         this.fallbackValue = fallbackValue;
         this.splitValue = splitValue;
+        this.path = path;
     }
 
     @Override
     public Object get(DataContext context) {
         Optional<AccessoryPlayerData> dataOptional = Accessory.getPlayerData(context.getPlayer());
-        if (dataOptional.isEmpty()) return "";
+
+        if (dataOptional.isEmpty()) {
+            return this.fallbackValue;
+        }
+
         AccessoryPlayerData data = dataOptional.get();
-        Collection<Accessory> accessories = data.accessories.get(accessorySlot);
-        if (accessories == null || accessories.isEmpty()) return fallbackValue;
+        Collection<Accessory> accessories = data.accessories.get(this.accessorySlot);
+
+        if (accessories == null || accessories.isEmpty()) {
+            return this.fallbackValue;
+        }
 
         StringBuilder result = new StringBuilder();
         for (Object o : accessories.stream().sorted(Ordering.usingToString()).toArray()) {
-            result.append(o.toString().split(":")[1]);
+            result.append(o.toString().split(":")[this.path ? 1 : 0]);
             result.append(splitValue);
         }
+
         result.deleteCharAt(result.length() - splitValue.length());
         return result;
     }
@@ -52,7 +61,8 @@ public class AccessoryVariable implements ITextureVariable {
             return new AccessoryVariable(
                     GsonUtil.getAsAccessorySlot(json, "accessory_slot"),
                     GsonHelper.getAsString(json, "fallback_value", ""),
-                    GsonHelper.getAsString(json, "split_value", "_")
+                    GsonHelper.getAsString(json, "split_value", "_"),
+                    GsonHelper.getAsBoolean(json, "use_path", true)
             );
         }
 
@@ -74,11 +84,15 @@ public class AccessoryVariable implements ITextureVariable {
                     .description("If multiple accessories are selected, they'll be returned in a list in alphabetical order separated by this string")
                     .fallback("_")
                     .exampleJson(new JsonPrimitive("_"));
+
+            builder.addProperty("use_path", Boolean.class)
+                    .description("Determines if the namespace or the path will be returned from the accessory ID. Example: the accessory ID is 'test:stone_hat'. If 'use_path' is set to true, you'll get 'stone_hat'. If it's set to false, you'll get 'test'.")
+                    .fallback(true).exampleJson(new JsonPrimitive(true));
         }
 
         @Override
         public String getDocumentationDescription() {
-            return "Returns the ID of the selected accessory in the specified slot (the namespace is not included because it would contain a \":\").";
+            return "Returns the ID of the selected accessory in the specified slot.";
         }
 
         @Override

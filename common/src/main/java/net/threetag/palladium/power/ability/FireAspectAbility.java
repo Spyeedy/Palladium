@@ -14,7 +14,6 @@ public class FireAspectAbility extends Ability {
 
     public FireAspectAbility() {
         this.withProperty(ICON, new ItemIcon(Items.FLINT_AND_STEEL));
-
         this.withProperty(TIME, 5);
         this.withProperty(SHOULD_STACK_TIME, false);
         this.withProperty(MAX_TIME, 5);

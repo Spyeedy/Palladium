@@ -1,18 +1,14 @@
 package net.threetag.palladium.client.dynamictexture.transformer;
 
-import com.google.gson.JsonArray;
-import com.google.gson.JsonElement;
 import com.mojang.blaze3d.platform.NativeImage;
-import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.packs.resources.ResourceManager;
 import net.minecraft.util.FastColor;
 
+import java.awt.*;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.function.Function;
 
-public record ColorTextureTransformer(JsonArray RGBA, boolean ignoreBlank) implements ITextureTransformer {
+public record ColorTextureTransformer(Color color, boolean ignoreBlank) implements ITextureTransformer {
 
     @Override
     public NativeImage transform(NativeImage texture, ResourceManager manager, Function<String, String> stringConverter) throws IOException {
@@ -29,25 +25,14 @@ public record ColorTextureTransformer(JsonArray RGBA, boolean ignoreBlank) imple
     public void blendPixel(NativeImage texture, int x, int y, Function<String, String> stringConverter) {
         if (texture.format() != NativeImage.Format.RGBA) {
             throw new UnsupportedOperationException("Can only call blendPixel with RGBA format");
-        } else if (RGBA.asList().size() != 4) {
-            throw new IllegalArgumentException("RGBA array must be of length four");
         } else {
             int i = texture.getPixelRGBA(x, y);
-            if (FastColor.ABGR32.alpha(i) == 0 & ignoreBlank) return;
+            if (FastColor.ABGR32.alpha(i) == 0 & this.ignoreBlank) return;
 
-            List<JsonElement> jsonList = RGBA.asList();
-            List<Integer> list = new ArrayList<>();
-            jsonList.forEach(jsonElement -> {
-                if (!jsonElement.isJsonPrimitive()) throw new IllegalArgumentException("Expected RGBA array to contain JSON primitives, got " + jsonElement);
-                if (jsonElement.getAsJsonPrimitive().isString()) list.add(Integer.parseInt(stringConverter.apply(jsonElement.getAsString())));
-                else list.add(jsonElement.getAsJsonPrimitive().getAsInt());
-            });
-            int R = list.get(0), G = list.get(1), B = list.get(2), A = list.get(3);
-
-            float f = A / 255.0F;
-            float g = B / 255.0F;
-            float h = G / 255.0F;
-            float j = R / 255.0F;
+            float f = this.color.getAlpha() / 255.0F;
+            float g = this.color.getBlue() / 255.0F;
+            float h = this.color.getGreen() / 255.0F;
+            float j = this.color.getRed() / 255.0F;
             // skip base texture alpha
             float l = (float) FastColor.ABGR32.blue(i) / 255.0F;
             float m = (float) FastColor.ABGR32.green(i) / 255.0F;

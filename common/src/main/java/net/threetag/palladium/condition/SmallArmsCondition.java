@@ -1,17 +1,26 @@
 package net.threetag.palladium.condition;
 
 import com.google.gson.JsonObject;
-import net.minecraft.world.entity.Entity;
+import net.fabricmc.api.EnvType;
+import net.fabricmc.api.Environment;
 import net.minecraft.world.entity.player.Player;
 import net.threetag.palladium.util.PlayerUtil;
 import net.threetag.palladium.util.context.DataContext;
+import net.threetag.palladiumcore.util.Platform;
 
 public class SmallArmsCondition extends Condition {
 
     @Override
     public boolean active(DataContext context) {
-        Entity entity = context.getEntity();
-        if (!(entity instanceof Player player)) return false;
+        if (Platform.isClient()) {
+            return this.has(context.getPlayer());
+        } else {
+            return false;
+        }
+    }
+
+    @Environment(EnvType.CLIENT)
+    private boolean has(Player player) {
         return PlayerUtil.hasSmallArms(player);
     }
 
@@ -25,6 +34,11 @@ public class SmallArmsCondition extends Condition {
         @Override
         public Condition make(JsonObject json) {
             return new SmallArmsCondition();
+        }
+
+        @Override
+        public ConditionEnvironment getContextEnvironment() {
+            return ConditionEnvironment.ASSETS;
         }
 
         @Override

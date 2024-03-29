@@ -404,6 +404,7 @@ public class GsonUtil {
         return json.has(memberName) ? getAsColor(json, memberName) : fallback;
     }
 
+    @Nullable
     public static AccessorySlot getAsAccessorySlot(JsonObject json, String memberName) {
         if (json.has(memberName)) {
             return AccessorySlot.getSlotByName(getAsResourceLocation(json, memberName));

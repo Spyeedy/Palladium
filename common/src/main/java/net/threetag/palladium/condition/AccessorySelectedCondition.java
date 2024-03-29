@@ -13,6 +13,7 @@ import java.util.Collection;
 import java.util.Optional;
 
 public class AccessorySelectedCondition extends Condition {
+
     private final AccessorySlot accessorySlot;
     private final String accessory;
 
@@ -24,13 +25,24 @@ public class AccessorySelectedCondition extends Condition {
     @Override
     public boolean active(DataContext context) {
         Optional<AccessoryPlayerData> dataOptional = Accessory.getPlayerData(context.getPlayer());
-        if (dataOptional.isEmpty()) return false;
-        AccessoryPlayerData data = dataOptional.get();
-        Collection<Accessory> accessories = data.accessories.get(accessorySlot);
-        if (accessories == null || accessories.isEmpty()) return accessory.equals("");
-        for (Accessory accessory : accessories) {
-            if (accessory.toString().equals(this.accessory)) return true;
+
+        if (dataOptional.isEmpty()) {
+            return false;
         }
+
+        AccessoryPlayerData data = dataOptional.get();
+        Collection<Accessory> accessories = data.accessories.get(this.accessorySlot);
+
+        if (accessories == null || accessories.isEmpty()) {
+            return this.accessory.isEmpty();
+        }
+
+        for (Accessory accessory : accessories) {
+            if (accessory.toString().equals(this.accessory)) {
+                return true;
+            }
+        }
+
         return false;
     }
 
@@ -40,6 +52,7 @@ public class AccessorySelectedCondition extends Condition {
     }
 
     public static class Serializer extends ConditionSerializer {
+
         public static final PalladiumProperty<AccessorySlot> ACCESSORY_SLOT = new AccessorySlotProperty("accessory_slot").configurable("The ID of the accessory slot to read from");
         public static final PalladiumProperty<String> ACCESSORY = new StringProperty("accessory").configurable("The accessory which needs to be selected in order for the condition to return true (include the namespace!)");
 
