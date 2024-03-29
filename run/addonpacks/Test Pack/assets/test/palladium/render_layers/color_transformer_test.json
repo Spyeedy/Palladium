@@ -8,17 +8,10 @@
         "color": [
           0,
           255,
-          0,
-          "#I"
+          0
         ],
         "ignore_blank": true
       }
-    ],
-    "variables": {
-      "I": {
-        "type": "palladium:entity_ticks",
-        "modulo": 255
-      }
-    }
+    ]
   }
 }
