@@ -287,6 +287,10 @@ pose</a>
 scoreboard_score_buyable</a>
 </li>
 <li>
+<a href="#palladium:size">
+size</a>
+</li>
+<li>
 <a href="#palladium:small_arms">
 small_arms</a>
 </li>
@@ -3007,6 +3011,62 @@ literal{Scoreboard Score}</td>
 Example:</h3>
 <pre class="json-snippet">
 {"type":"palladium:scoreboard_score_buyable","objective":"objective_name","score":3,"icon":"minecraft:command_block","description":{"text":"Scoreboard Score"}}</pre>
+</div>
+<hr>
+
+<div id="palladium:size">
+<h2>
+size</h2>
+<p>
+Checks if an entity is within a certain size (requires Pehkui for real effect). It checks for the "average " size, which is the average of the width and height scale. Usually they are the same.<br><br>Applicable for: all</p>
+<h3>
+Settings:</h3>
+<table>
+<thead>
+<tr>
+<th>
+Setting</th>
+<th>
+Type</th>
+<th>
+Description</th>
+<th>
+Required</th>
+<th>
+Fallback Value</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>
+min</td>
+<td>
+Float</td>
+<td>
+Minimum required average size</td>
+<td style="background-color: lightcoral">
+false</td>
+<td>
+0.0</td>
+</tr>
+<tr>
+<td>
+max</td>
+<td>
+Float</td>
+<td>
+Minimum required average size</td>
+<td style="background-color: lightcoral">
+false</td>
+<td>
+3.4028235E38</td>
+</tr>
+</tbody>
+</table>
+<h3>
+Example:</h3>
+<pre class="json-snippet">
+{"type":"palladium:size","min":0.0,"max":3.4028235E38}</pre>
 </div>
 <hr>
 
