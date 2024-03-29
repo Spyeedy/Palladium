@@ -54,6 +54,7 @@ public abstract class DynamicTexture {
         registerVariable(new AnimationTimerAbilityVariable.Serializer());
         registerVariable(new EnergyBarTextureVariable.Serializer());
         registerVariable(new AccessoryVariable.Serializer());
+        registerVariable(new StringPropertyVariable.Serializer());
     }
 
     public abstract ResourceLocation getTexture(DataContext context);
