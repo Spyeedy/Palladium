@@ -8,7 +8,7 @@ import net.minecraft.util.FastColor;
 import java.io.IOException;
 import java.util.function.Function;
 
-public record OverlayTextureTransformer(String overlayLocation) implements ITextureTransformer {
+public record OverlayTextureTransformer(String overlayLocation, boolean ignoreBlank) implements ITextureTransformer {
 
     @Override
     public NativeImage transform(NativeImage texture, ResourceManager manager, Function<String, String> stringConverter) throws IOException {
@@ -37,6 +37,7 @@ public record OverlayTextureTransformer(String overlayLocation) implements IText
             float l = (float) FastColor.ABGR32.blue(i) / 255.0F;
             float m = (float) FastColor.ABGR32.green(i) / 255.0F;
             float n = (float) FastColor.ABGR32.red(i) / 255.0F;
+            if (k == 0 & ignoreBlank) return;
             float p = 1.0F - f;
             float q = f * f + k * p;
             float r = g * f + l * p;

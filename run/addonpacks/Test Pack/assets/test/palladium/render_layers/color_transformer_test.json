@@ -1,0 +1,24 @@
+{
+  "model_layer": "minecraft:player#inner_armor",
+  "texture": {
+    "base": "test:textures/models/test_layer.png",
+    "transformers": [
+      {
+        "type": "palladium:color",
+        "color": [
+          0,
+          255,
+          0,
+          "#I"
+        ],
+        "ignore_blank": true
+      }
+    ],
+    "variables": {
+      "I": {
+        "type": "palladium:entity_ticks",
+        "modulo": 255
+      }
+    }
+  }
+}
