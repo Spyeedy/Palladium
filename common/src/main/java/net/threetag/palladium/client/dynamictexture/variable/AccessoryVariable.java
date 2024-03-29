@@ -78,7 +78,7 @@ public class AccessoryVariable implements ITextureVariable {
 
         @Override
         public String getDocumentationDescription() {
-            return "Returns the ID of the selected accessory in the specified slot (the namespace is not included because it would contain a \":\")";
+            return "Returns the ID of the selected accessory in the specified slot (the namespace is not included because it would contain a \":\").";
         }
 
         @Override
