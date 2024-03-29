@@ -1,4 +1,7 @@
-- Added Trails! Check wiki for more info
-- Added "lightning_sparks" render layer type
-- Palladium can now load Bedrock's entity models! No more need for the Palladium BlockBench plugin
-- Added config option to disable accessory button in inventory
+- Fixed issues with BetterCombat (and other mods using PlayerAnimator animations in first person)
+- Fixed flight animations not working in multiplayer
+- Fixed action conditions going on cooldown even when other conditions aren't met
+- New texture variables: accessory, string_property (by PhantomPig)
+- New conditions: size, accessory_selected, small_arms (only usable in assets-stuff) (by PhantomPig)
+- New ability: fire_aspect (by PhantomPig)
+- New texture transformer: color (by PhantomPig)
