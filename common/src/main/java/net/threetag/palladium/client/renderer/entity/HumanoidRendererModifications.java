@@ -2,6 +2,7 @@ package net.threetag.palladium.client.renderer.entity;
 
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
+import dev.kosmx.playerAnim.api.firstPerson.FirstPersonMode;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.model.HumanoidModel;
 import net.minecraft.client.model.geom.ModelPart;
@@ -48,7 +49,9 @@ public class HumanoidRendererModifications {
         }
 
         // visibility
-        BodyPart.resetBodyParts(entity, model);
+        if (!FirstPersonMode.isFirstPersonPass()) {
+            BodyPart.resetBodyParts(entity, model);
+        }
         CACHED_HIDE_RESULT = BodyPart.getModifiedBodyParts(entity, false);
         BodyPart.hideHiddenOrRemovedParts(model, entity, CACHED_HIDE_RESULT);
 

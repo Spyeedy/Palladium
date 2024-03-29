@@ -59,11 +59,11 @@ public class PlayerRendererMixin {
         var bodyPart = rendererArm == playerRenderer.getModel().rightArm ? BodyPart.RIGHT_ARM : BodyPart.LEFT_ARM;
         var bodyPartOverlay = rendererArm == playerRenderer.getModel().rightArm ? BodyPart.RIGHT_ARM_OVERLAY : BodyPart.LEFT_ARM_OVERLAY;
 
-        if(this.cachedHideResult.isHiddenOrRemoved(bodyPart)) {
+        if (this.cachedHideResult.isHiddenOrRemoved(bodyPart)) {
             rendererArm.visible = false;
         }
 
-        if(this.cachedHideResult.isHiddenOrRemoved(bodyPartOverlay)) {
+        if (this.cachedHideResult.isHiddenOrRemoved(bodyPartOverlay)) {
             rendererArmwear.visible = false;
         }
 
