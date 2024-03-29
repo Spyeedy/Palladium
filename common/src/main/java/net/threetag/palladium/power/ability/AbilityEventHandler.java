@@ -48,6 +48,19 @@ public class AbilityEventHandler implements LivingEntityEvents.Hurt, LivingEntit
 
     @Override
     public EventResult livingEntityAttack(LivingEntity entity, DamageSource damageSource, float amount) {
+        if (damageSource.getEntity() instanceof LivingEntity sourceEntity && AbilityUtil.isTypeEnabled(sourceEntity, Abilities.FIRE_ASPECT.get())) {
+            boolean hasAddedExistingFire = false;
+            int fireSeconds = 0;
+            for (AbilityEntry entry : AbilityUtil.getEnabledEntries(sourceEntity, Abilities.FIRE_ASPECT.get())) {
+                int time = Math.max(entry.getProperty(FireAspectAbility.TIME), 0);
+                if (!hasAddedExistingFire && entry.getProperty(FireAspectAbility.SHOULD_STACK_TIME)) {
+                    fireSeconds = Math.min(fireSeconds + (entity.getRemainingFireTicks() / 20), entry.getProperty(FireAspectAbility.MAX_TIME));
+                    hasAddedExistingFire = true;
+                }
+                fireSeconds += time;
+            }
+            entity.setSecondsOnFire(fireSeconds);
+        }
         return this.livingEntityHurt(entity, damageSource, new AtomicReference<>(amount));
     }
 

@@ -1,0 +1,10 @@
+{
+  "name": "Color Transformer Test",
+  "icon": "minecraft:pink_dye",
+  "abilities": {
+    "action": {
+      "type": "palladium:render_layer",
+      "render_layer": "test:color_transformer_test"
+    }
+  }
+}

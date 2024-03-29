@@ -1,22 +1,20 @@
 package net.threetag.palladium.client.dynamictexture.transformer;
 
 import com.mojang.blaze3d.platform.NativeImage;
-import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.packs.resources.ResourceManager;
 import net.minecraft.util.FastColor;
 
+import java.awt.*;
 import java.io.IOException;
 import java.util.function.Function;
 
-public record OverlayTextureTransformer(String overlayLocation, boolean ignoreBlank) implements ITextureTransformer {
+public record ColorTextureTransformer(Color color, boolean ignoreBlank) implements ITextureTransformer {
 
     @Override
     public NativeImage transform(NativeImage texture, ResourceManager manager, Function<String, String> stringConverter) throws IOException {
-        NativeImage overlay = NativeImage.read(manager.getResource(new ResourceLocation(stringConverter.apply(this.overlayLocation))).get().open());
-
-        for (int y = 0; y < overlay.getHeight(); ++y) {
-            for (int x = 0; x < overlay.getWidth(); ++x) {
-                blendPixel(texture, x, y, overlay.getPixelRGBA(x, y));
+        for (int y = 0; y < texture.getHeight(); ++y) {
+            for (int x = 0; x < texture.getWidth(); ++x) {
+                blendPixel(texture, x, y, stringConverter);
             }
         }
 
@@ -24,28 +22,26 @@ public record OverlayTextureTransformer(String overlayLocation, boolean ignoreBl
     }
 
 
-    public void blendPixel(NativeImage texture, int x, int y, int abgrColor) {
+    public void blendPixel(NativeImage texture, int x, int y, Function<String, String> stringConverter) {
         if (texture.format() != NativeImage.Format.RGBA) {
             throw new UnsupportedOperationException("Can only call blendPixel with RGBA format");
         } else {
             int i = texture.getPixelRGBA(x, y);
-            float f = (float) FastColor.ABGR32.alpha(abgrColor) / 255.0F;
-            float g = (float) FastColor.ABGR32.blue(abgrColor) / 255.0F;
-            float h = (float) FastColor.ABGR32.green(abgrColor) / 255.0F;
-            float j = (float) FastColor.ABGR32.red(abgrColor) / 255.0F;
-            float k = (float) FastColor.ABGR32.alpha(i) / 255.0F;
+            if (FastColor.ABGR32.alpha(i) == 0 & this.ignoreBlank) return;
+
+            float f = this.color.getAlpha() / 255.0F;
+            float g = this.color.getBlue() / 255.0F;
+            float h = this.color.getGreen() / 255.0F;
+            float j = this.color.getRed() / 255.0F;
+            // skip base texture alpha
             float l = (float) FastColor.ABGR32.blue(i) / 255.0F;
             float m = (float) FastColor.ABGR32.green(i) / 255.0F;
             float n = (float) FastColor.ABGR32.red(i) / 255.0F;
-            if (k == 0 & ignoreBlank) return;
+
             float p = 1.0F - f;
-            float q = f * f + k * p;
             float r = g * f + l * p;
             float s = h * f + m * p;
             float t = j * f + n * p;
-            if (q > 1.0F) {
-                q = 1.0F;
-            }
 
             if (r > 1.0F) {
                 r = 1.0F;
@@ -59,11 +55,10 @@ public record OverlayTextureTransformer(String overlayLocation, boolean ignoreBl
                 t = 1.0F;
             }
 
-            int u = (int)(q * 255.0F);
             int v = (int)(r * 255.0F);
             int w = (int)(s * 255.0F);
             int z = (int)(t * 255.0F);
-            texture.setPixelRGBA(x, y, FastColor.ABGR32.color(u, v, w, z));
+            texture.setPixelRGBA(x, y, FastColor.ABGR32.color(FastColor.ABGR32.alpha(i), v, w, z));
         }
     }
 }

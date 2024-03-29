@@ -9,6 +9,7 @@ import net.minecraft.util.GsonHelper;
 import net.threetag.palladium.Palladium;
 import net.threetag.palladium.addonpack.log.AddonPackLog;
 import net.threetag.palladium.client.dynamictexture.transformer.AlphaMaskTextureTransformer;
+import net.threetag.palladium.client.dynamictexture.transformer.ColorTextureTransformer;
 import net.threetag.palladium.client.dynamictexture.transformer.ITextureTransformer;
 import net.threetag.palladium.client.dynamictexture.transformer.OverlayTextureTransformer;
 import net.threetag.palladium.client.dynamictexture.variable.*;
@@ -34,7 +35,8 @@ public abstract class DynamicTexture {
         registerType(Palladium.id("entity"), j -> new EntityDynamicTexture(GsonHelper.getAsBoolean(j, "ignore_skin_change", false)));
 
         registerTransformer(Palladium.id("alpha_mask"), j -> new AlphaMaskTextureTransformer(GsonHelper.getAsString(j, "mask")));
-        registerTransformer(Palladium.id("overlay"), j -> new OverlayTextureTransformer(GsonHelper.getAsString(j, "overlay")));
+        registerTransformer(Palladium.id("overlay"), j -> new OverlayTextureTransformer(GsonHelper.getAsString(j, "overlay"), GsonHelper.getAsBoolean(j, "ignore_blank", false)));
+        registerTransformer(Palladium.id("color"), j -> new ColorTextureTransformer(GsonUtil.getAsColor(j, "color"), GsonHelper.getAsBoolean(j, "ignore_blank")));
 
         registerVariable(new ConditionTextureVariable.Serializer());
         registerVariable(new CrouchingTextureVariable.Serializer());
@@ -53,6 +55,8 @@ public abstract class DynamicTexture {
         registerVariable(new ObjectiveScoreTextureVariable.Serializer());
         registerVariable(new AnimationTimerAbilityVariable.Serializer());
         registerVariable(new EnergyBarTextureVariable.Serializer());
+        registerVariable(new AccessoryVariable.Serializer());
+        registerVariable(new StringPropertyVariable.Serializer());
     }
 
     public abstract ResourceLocation getTexture(DataContext context);
