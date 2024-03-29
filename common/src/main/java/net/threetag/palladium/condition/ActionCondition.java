@@ -2,12 +2,12 @@ package net.threetag.palladium.condition;
 
 import com.google.gson.JsonObject;
 import net.minecraft.world.entity.LivingEntity;
-import net.threetag.palladium.util.context.DataContext;
-import net.threetag.palladium.util.context.DataContextType;
 import net.threetag.palladium.power.IPowerHolder;
 import net.threetag.palladium.power.Power;
 import net.threetag.palladium.power.ability.AbilityConfiguration;
 import net.threetag.palladium.power.ability.AbilityEntry;
+import net.threetag.palladium.util.context.DataContext;
+import net.threetag.palladium.util.context.DataContextType;
 import net.threetag.palladium.util.property.IntegerProperty;
 import net.threetag.palladium.util.property.PalladiumProperty;
 
@@ -21,7 +21,7 @@ public class ActionCondition extends KeyCondition {
 
     @Override
     public boolean active(DataContext context) {
-        var entity = context.get(DataContextType.ENTITY);
+        var entity = context.getLivingEntity();
         var entry = context.get(DataContextType.ABILITY);
 
         if (entity == null || entry == null) {
@@ -30,8 +30,12 @@ public class ActionCondition extends KeyCondition {
 
         if (Objects.requireNonNull(entry).keyPressed) {
             entry.keyPressed = false;
+            if (entry.getEnabledTicks() == 0 && this.cooldown != 0) {
+                entry.startCooldown(entity, this.cooldown);
+            }
             return true;
         }
+
         return false;
     }
 
@@ -39,10 +43,6 @@ public class ActionCondition extends KeyCondition {
     public void onKeyPressed(LivingEntity entity, AbilityEntry entry, Power power, IPowerHolder holder) {
         if (entry.cooldown == 0) {
             entry.keyPressed = true;
-
-            if (this.cooldown != 0) {
-                entry.startCooldown(entity, this.cooldown);
-            }
         }
     }
 

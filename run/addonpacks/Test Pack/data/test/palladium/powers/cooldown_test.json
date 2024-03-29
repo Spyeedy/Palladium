@@ -12,6 +12,9 @@
       "conditions": {
         "enabling": [
           {
+            "type": "palladium:night"
+          },
+          {
             "type": "palladium:action",
             "cooldown": 100,
             "key_type": "left_click",
