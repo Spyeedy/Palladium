@@ -46,7 +46,9 @@ public class ModelLayerManager extends SimpleJsonResourceReloadListener {
             ModelLayerLocation layerLocation = mapPathToModelLayerLoc(id);
             try {
                 LayerDefinition layerDefinition = parseLayerDefinition(jsonElement.getAsJsonObject());
-                jsonRoots.put(layerLocation, layerDefinition);
+                if (layerLocation != null)
+                    jsonRoots.put(layerLocation, layerDefinition);
+                jsonRoots.put(new ModelLayerLocation(id, "main"), layerDefinition);
             } catch (Exception e) {
                 AddonPackLog.error("Error parsing entity model json " + id, e);
             }
@@ -133,7 +135,6 @@ public class ModelLayerManager extends SimpleJsonResourceReloadListener {
     private static ModelLayerLocation mapPathToModelLayerLoc(ResourceLocation path) {
         int idx = path.getPath().indexOf('/');
         if (idx == -1) {
-            AddonPackLog.error("Entity model path of {} was invalid, must contain at least one folder", path);
             return null;
         }
 

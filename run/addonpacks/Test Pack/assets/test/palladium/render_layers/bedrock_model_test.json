@@ -1,4 +1,4 @@
 {
-  "model_layer": "test:main#bedrock_test",
+  "model_layer": "test:bedrock_test",
   "texture": "test:textures/models/iron_man_suit.png"
 }
