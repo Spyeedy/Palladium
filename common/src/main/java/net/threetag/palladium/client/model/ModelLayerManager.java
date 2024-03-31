@@ -43,7 +43,7 @@ public class ModelLayerManager extends SimpleJsonResourceReloadListener {
         object.forEach((id, jsonElement) -> {
             ModelLayerLocation layerLocation = mapPathToModelLayerLoc(id);
             try {
-                LayerDefinition layerDefinition = parseLayerDefinition(jsonElement.getAsJsonObject(), layerLocation.getModel());
+                LayerDefinition layerDefinition = parseLayerDefinition(jsonElement.getAsJsonObject(), layerLocation != null ? layerLocation.toString() : id.toString());
                 if (layerLocation != null)
                     jsonRoots.put(layerLocation, layerDefinition);
                 jsonRoots.put(new ModelLayerLocation(id, "main"), layerDefinition);
@@ -58,7 +58,7 @@ public class ModelLayerManager extends SimpleJsonResourceReloadListener {
         dumpLayers();
     }
 
-    public static LayerDefinition parseLayerDefinition(JsonObject json, ResourceLocation id) {
+    public static LayerDefinition parseLayerDefinition(JsonObject json, String id) {
         if (GsonHelper.isValidNode(json, "minecraft:geometry")) {
             return BedrockModelUtil.parseAsLayerDefinition(json);
         }
