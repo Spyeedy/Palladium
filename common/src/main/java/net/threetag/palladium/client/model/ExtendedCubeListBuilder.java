@@ -109,9 +109,9 @@ public class ExtendedCubeListBuilder extends CubeListBuilder {
         }
     }
 
-    private static class PerFaceCubeDefinition extends CubeDefinition {
+    public static class PerFaceCubeDefinition extends CubeDefinition {
 
-        private final Map<Direction, PerFaceUV> uvMap;
+        public final Map<Direction, PerFaceUV> uvMap;
 
         protected PerFaceCubeDefinition(@Nullable String comment, float originX, float originY, float originZ, float dimensionX, float dimensionY, float dimensionZ, CubeDeformation grow, boolean mirror, Map<Direction, PerFaceUV> uvMap, float texScaleU, float texScaleV) {
             super(comment, 0, 0, originX, originY, originZ, dimensionX, dimensionY, dimensionZ, grow, mirror, texScaleU, texScaleV, Collections.emptySet());
