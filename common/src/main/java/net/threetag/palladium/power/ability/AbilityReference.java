@@ -11,20 +11,31 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.Objects;
+import java.util.Optional;
 
 public class AbilityReference {
 
-    @NotNull
+    @Nullable
     private final ResourceLocation powerId;
     @NotNull
     private final String abilityId;
 
-    public AbilityReference(@NotNull ResourceLocation powerId, @NotNull String abilityId) {
+    public AbilityReference(@Nullable ResourceLocation powerId, @NotNull String abilityId) {
         this.powerId = powerId;
         this.abilityId = abilityId;
     }
 
-    @NotNull
+    public static AbilityReference fromString(String parse) {
+        String[] s = parse.split("#", 2);
+
+        if (s.length == 1) {
+            return new AbilityReference(null, s[0]);
+        } else {
+            return new AbilityReference(new ResourceLocation(s[0]), s[1]);
+        }
+    }
+
+    @Nullable
     public ResourceLocation getPowerId() {
         return powerId;
     }
@@ -36,47 +47,59 @@ public class AbilityReference {
 
     @Nullable
     public AbilityEntry getEntry(LivingEntity entity) {
-        IPowerHandler handler = PowerManager.getPowerHandler(entity).orElse(null);
-        Power power = PowerManager.getInstance(entity.level()).getPower(this.powerId);
+        return this.getEntry(entity, null);
+    }
 
-        if (power != null && handler != null) {
-            IPowerHolder holder = handler.getPowerHolder(power);
+    @Nullable
+    public AbilityEntry getEntry(LivingEntity entity, @Nullable IPowerHolder powerHolder) {
+        if (this.powerId != null) {
+            IPowerHandler handler = PowerManager.getPowerHandler(entity).orElse(null);
+            Power power = PowerManager.getInstance(entity.level()).getPower(this.powerId);
 
-            if (holder != null) {
-                return holder.getAbilities().get(this.abilityId);
+            if (power != null && handler != null) {
+                powerHolder = handler.getPowerHolder(power);
+            } else {
+                powerHolder = null;
             }
+        }
+
+        if (powerHolder != null) {
+            return powerHolder.getAbilities().get(this.abilityId);
         }
 
         return null;
     }
 
+    public Optional<AbilityEntry> optional(LivingEntity entity, @Nullable IPowerHolder powerHolder) {
+        return Optional.ofNullable(this.getEntry(entity, powerHolder));
+    }
+
     public void toBuffer(FriendlyByteBuf buf) {
-        buf.writeResourceLocation(this.powerId);
+        buf.writeNullable(this.powerId, (buf1, resourceLocation) -> buf.writeResourceLocation(resourceLocation));
         buf.writeUtf(this.abilityId);
     }
 
     public static AbilityReference fromBuffer(FriendlyByteBuf buf) {
-        return new AbilityReference(buf.readResourceLocation(), buf.readUtf());
+        return new AbilityReference(buf.readNullable(FriendlyByteBuf::readResourceLocation), buf.readUtf());
     }
 
     @Override
     public String toString() {
+        if (this.powerId == null) {
+            return this.abilityId;
+        }
         return this.powerId + "#" + this.abilityId;
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(powerId, abilityId);
+        return Objects.hash(this.powerId, this.abilityId);
     }
 
     @Override
-    public boolean equals(Object object) {
-        if (this == object) {
-            return true;
-        } else if (!(object instanceof AbilityReference reference)) {
-            return false;
-        } else {
-            return this.powerId.equals(reference.powerId) && this.abilityId.equals(reference.abilityId);
-        }
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof AbilityReference that)) return false;
+        return Objects.equals(this.powerId, that.powerId) && Objects.equals(this.abilityId, that.abilityId);
     }
 }
