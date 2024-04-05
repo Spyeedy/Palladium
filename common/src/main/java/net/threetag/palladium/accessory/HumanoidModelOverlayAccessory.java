@@ -127,8 +127,11 @@ public class HumanoidModelOverlayAccessory extends OverlayAccessory {
             renderLayerParent.getModel().copyPropertiesTo(model);
             this.setVisibility(model, player, slot);
             ResourceLocation texture = (PlayerUtil.hasSmallArms(player) ? this.textureSlim : this.texture).getTexture(DataContext.forEntity(player));
-            var buffer = bufferSource.getBuffer(this.glowing ? RenderType.eyes(texture) : Objects.requireNonNull(getRenderType(player, texture, renderLayerParent.getModel())));
-            model.renderToBuffer(poseStack, buffer, packedLightIn, OverlayTexture.NO_OVERLAY, 1F, 1F, 1F, 1F);
+            var renderType = getRenderType(player, texture, renderLayerParent.getModel());
+            if (renderType != null) {
+                var buffer = bufferSource.getBuffer(this.glowing ? RenderType.eyes(texture) : renderType);
+                model.renderToBuffer(poseStack, buffer, packedLightIn, OverlayTexture.NO_OVERLAY, 1F, 1F, 1F, 1F);
+            }
         }
     }
 
