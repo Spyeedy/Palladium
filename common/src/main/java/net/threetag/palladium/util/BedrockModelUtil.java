@@ -76,13 +76,18 @@ public class BedrockModelUtil {
             }
 
             cache.put(name, new BedrockModelPartCache(name, parent, new Vector3f(pivot[0], pivot[1], pivot[2]),
-                    new Vector3f((float) Math.toRadians(rotation[0]), (float) Math.toRadians(rotation[1]), (float) Math.toRadians(rotation[2])), cubes).convert());
+                    new Vector3f((float) Math.toRadians(rotation[0]), (float) Math.toRadians(rotation[1]), (float) Math.toRadians(rotation[2])), cubes));
         }
 
         // Validate parents
         for (Map.Entry<String, BedrockModelPartCache> e : cache.entrySet()) {
-            if (e.getValue().parent != null && !cache.containsKey(e.getValue().parent)) {
-                throw new JsonParseException("Unknown parent '" + e.getValue().parent + "'");
+            if (e.getValue().parentName != null) {
+                if (!cache.containsKey(e.getValue().parentName)) {
+                    throw new JsonParseException("Unknown parent '" + e.getValue().parentName + "'");
+                } else {
+                    e.getValue().parent = cache.get(e.getValue().parentName);
+                    cache.get(e.getValue().parentName).children.add(e.getValue());
+                }
             }
         }
 
@@ -91,11 +96,12 @@ public class BedrockModelUtil {
             var copy = new HashMap<>(cache);
 
             for (Map.Entry<String, BedrockModelPartCache> e : copy.entrySet()) {
-                if (e.getValue().parent == null) {
+                if (e.getValue().parentName == null) {
+                    convertHierarchy(e.getValue(), "");
                     modelParts.put(e.getKey(), e.getValue().add(root));
                     cache.remove(e.getKey());
                 } else {
-                    var parent = modelParts.get(e.getValue().parent);
+                    var parent = modelParts.get(e.getValue().parentName);
 
                     if (parent != null) {
                         modelParts.put(e.getKey(), e.getValue().add(parent));
@@ -106,6 +112,13 @@ public class BedrockModelUtil {
         }
 
         return LayerDefinition.create(meshDefinition, textureWidth, textureHeight);
+    }
+
+    private static void convertHierarchy(BedrockModelPartCache part, String prefix) {
+        part.convert();
+        for (BedrockModelPartCache child : part.children) {
+            convertHierarchy(child, prefix + "  ");
+        }
     }
 
     public static JsonObject toJsonModel(LayerDefinition layerDefinition, @Nullable String identifier) {
@@ -123,7 +136,7 @@ public class BedrockModelUtil {
 
         // Bones
         var bones = new JsonArray();
-        layerDefinition.mesh.getRoot().children.forEach((s, part) -> addBoneToArray(bones, s, part, null));
+        layerDefinition.mesh.getRoot().children.forEach((s, part) -> addBoneToArray(bones, s, part, new ArrayList<>(), null));
         geometry.add("bones", bones);
 
         geometryArray.add(geometry);
@@ -131,14 +144,18 @@ public class BedrockModelUtil {
         return json;
     }
 
-    private static void addBoneToArray(JsonArray array, String name, PartDefinition part, @Nullable String parent) {
+    private static void addBoneToArray(JsonArray array, String name, PartDefinition part, List<PartDefinition> parents, @Nullable String parent) {
         var json = new JsonObject();
 
         json.addProperty("name", name);
         if (parent != null) {
             json.addProperty("parent", parent);
         }
-        var fixedPivot = new Vector3f(part.partPose.x, (part.partPose.y - 24) * -1, part.partPose.z);
+        var fixedPivot = new Vector3f(part.partPose.x, part.partPose.y, part.partPose.z);
+        for (PartDefinition parentPart : parents) {
+            fixedPivot.add(parentPart.partPose.x, parentPart.partPose.y, parentPart.partPose.z);
+        }
+        fixedPivot.sub(0, 24, 0).mul(1, -1, 1);
         json.add("pivot", vec3ToJsonArray(fixedPivot));
         json.add("rotation", vec3ToJsonArray(Math.toDegrees(part.partPose.xRot), Math.toDegrees(part.partPose.yRot), Math.toDegrees(part.partPose.zRot)));
 
@@ -172,7 +189,9 @@ public class BedrockModelUtil {
 
         json.add("cubes", cubes);
         array.add(json);
-        part.children.forEach((n, p) -> addBoneToArray(array, n, p, name));
+        List<PartDefinition> newParents = new ArrayList<>(parents);
+        newParents.add(part);
+        part.children.forEach((n, p) -> addBoneToArray(array, n, p, newParents, name));
     }
 
     private static JsonArray vec3ToJsonArray(Vector3f vec) {
@@ -202,14 +221,18 @@ public class BedrockModelUtil {
 
         private final String name;
         @Nullable
-        public final String parent;
+        public final String parentName;
+        public BedrockModelPartCache parent;
+        public List<BedrockModelPartCache> children = new ArrayList<>();
+        private final Vector3f unconvertedPivot;
         private final Vector3f pivot;
         private final Vector3f rotation;
         private final List<BedrockModelCube> cubes;
 
-        public BedrockModelPartCache(String name, @Nullable String parent, Vector3f pivot, Vector3f rotation, List<BedrockModelCube> cubes) {
+        public BedrockModelPartCache(String name, @Nullable String parentName, Vector3f pivot, Vector3f rotation, List<BedrockModelCube> cubes) {
             this.name = name;
-            this.parent = parent;
+            this.parentName = parentName;
+            this.unconvertedPivot = pivot;
             this.pivot = pivot;
             this.rotation = rotation;
             this.cubes = cubes;
@@ -229,8 +252,15 @@ public class BedrockModelUtil {
         }
 
         public BedrockModelPartCache convert() {
-            this.cubes.forEach(c -> c.convert(this.pivot));
+            this.cubes.forEach(c -> c.convert(this.pivot, this.name));
             this.pivot.mul(1, -1, 1).add(0, 24, 0);
+            var parent = this.parent;
+
+            while (parent != null) {
+                this.pivot.sub(parent.unconvertedPivot);
+                parent = parent.parent;
+            }
+
             return this;
         }
     }
@@ -277,7 +307,7 @@ public class BedrockModelUtil {
             }
         }
 
-        public void convert(Vector3f pivot) {
+        public void convert(Vector3f pivot, String name) {
             this.origin.sub(pivot.x, 0, pivot.z);
             this.origin.y = pivot.y - this.origin.y - this.size.y;
         }
