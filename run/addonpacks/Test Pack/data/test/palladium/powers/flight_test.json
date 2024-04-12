@@ -21,6 +21,10 @@
       "attribute": "palladium:heroic_flight_type",
       "hidden": true,
       "amount": 1
+    },
+    "thrusters": {
+      "type": "palladium:render_layer",
+      "render_layer": "test:thruster_test"
     }
   }
 }

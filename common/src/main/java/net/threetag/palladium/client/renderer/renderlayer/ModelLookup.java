@@ -8,6 +8,7 @@ import net.threetag.palladium.Palladium;
 import net.threetag.palladium.client.model.BasicModel;
 import net.threetag.palladium.client.model.CapedHumanoidModel;
 import net.threetag.palladium.client.model.ImprovedHumanoidModel;
+import net.threetag.palladium.client.model.ThrusterHumanoidModel;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -71,6 +72,7 @@ public class ModelLookup {
         register(new ResourceLocation("frog"), new Model(FrogModel::new, (en, model) -> model instanceof FrogModel));
 
         register(Palladium.id("caped_humanoid"), new Model(CapedHumanoidModel::new, (en, model) -> model instanceof HumanoidModel));
+        register(Palladium.id("thruster_humanoid"), new Model(ThrusterHumanoidModel::new, (en, model) -> model instanceof HumanoidModel));
     }
 
     public static Model register(ResourceLocation id, Model model) {
