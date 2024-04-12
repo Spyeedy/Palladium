@@ -3,27 +3,20 @@ package net.threetag.palladium.condition;
 import com.google.gson.JsonObject;
 import net.minecraft.resources.ResourceLocation;
 import net.threetag.palladium.power.energybar.EnergyBar;
-import net.threetag.palladium.power.IPowerHolder;
-import net.threetag.palladium.power.PowerManager;
+import net.threetag.palladium.power.energybar.EnergyBarReference;
 import net.threetag.palladium.util.context.DataContext;
 import net.threetag.palladium.util.property.IntegerProperty;
 import net.threetag.palladium.util.property.PalladiumProperty;
 import net.threetag.palladium.util.property.ResourceLocationProperty;
 import net.threetag.palladium.util.property.StringProperty;
-import org.jetbrains.annotations.Nullable;
-
-import java.util.concurrent.atomic.AtomicReference;
 
 public class EnergyBarCondition extends Condition {
 
-    @Nullable
-    private final ResourceLocation power;
-    private final String energyBarId;
+    private final EnergyBarReference energyBar;
     private final int min, max;
 
-    public EnergyBarCondition(@Nullable ResourceLocation power, String energyBarId, int min, int max) {
-        this.power = power;
-        this.energyBarId = energyBarId;
+    public EnergyBarCondition(EnergyBarReference energyBar, int min, int max) {
+        this.energyBar = energyBar;
         this.min = min;
         this.max = max;
     }
@@ -31,23 +24,7 @@ public class EnergyBarCondition extends Condition {
     @Override
     public boolean active(DataContext context) {
         var entity = context.getLivingEntity();
-        AtomicReference<IPowerHolder> holder = new AtomicReference<>(context.getPowerHolder());
-
-        if (entity == null) {
-            return false;
-        }
-
-        if (this.power != null) {
-            PowerManager.getPowerHandler(entity).ifPresent(powerHandler -> {
-                holder.set(powerHandler.getPowerHolders().get(this.power));
-            });
-        }
-
-        if (holder.get() == null) {
-            return false;
-        }
-
-        EnergyBar energyBar = holder.get().getEnergyBars().get(this.energyBarId);
+        EnergyBar energyBar = this.energyBar.getEntry(entity, context.getPowerHolder());
 
         if (energyBar == null) {
             return false;
@@ -63,6 +40,7 @@ public class EnergyBarCondition extends Condition {
 
     public static class Serializer extends ConditionSerializer {
 
+        // TODO remove in 1.21
         public static final PalladiumProperty<ResourceLocation> POWER = new ResourceLocationProperty("power").configurable("ID of the power where is the desired energy bar is located. Can be null IF used for abilities, then it will look into the current power");
         public static final PalladiumProperty<String> ENERGY_BAR = new StringProperty("energy_bar").configurable("ID of the desired energy bar");
         public static final PalladiumProperty<Integer> MIN = new IntegerProperty("min").configurable("Minimum required amount of the energy in the energy bar");
@@ -77,8 +55,13 @@ public class EnergyBarCondition extends Condition {
 
         @Override
         public Condition make(JsonObject json) {
-            return new EnergyBarCondition(this.getProperty(json, POWER),
-                    this.getProperty(json, ENERGY_BAR),
+            EnergyBarReference energyBar = EnergyBarReference.fromString(this.getProperty(json, ENERGY_BAR));
+
+            if (this.getProperty(json, POWER) != null) {
+                energyBar = new EnergyBarReference(this.getProperty(json, POWER), this.getProperty(json, ENERGY_BAR));
+            }
+
+            return new EnergyBarCondition(energyBar,
                     this.getProperty(json, MIN),
                     this.getProperty(json, MAX));
         }

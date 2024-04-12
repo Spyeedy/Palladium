@@ -11,20 +11,31 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.Objects;
+import java.util.Optional;
 
 public class EnergyBarReference {
 
-    @NotNull
+    @Nullable
     private final ResourceLocation powerId;
     @NotNull
     private final String energyBarName;
 
-    public EnergyBarReference(@NotNull ResourceLocation powerId, @NotNull String energyBarName) {
+    public EnergyBarReference(@Nullable ResourceLocation powerId, @NotNull String energyBarName) {
         this.powerId = powerId;
         this.energyBarName = energyBarName;
     }
 
-    @NotNull
+    public static EnergyBarReference fromString(String parse) {
+        String[] s = parse.split("#", 2);
+
+        if (s.length == 1) {
+            return new EnergyBarReference(null, s[0]);
+        } else {
+            return new EnergyBarReference(new ResourceLocation(s[0]), s[1]);
+        }
+    }
+
+    @Nullable
     public ResourceLocation getPowerId() {
         return this.powerId;
     }
@@ -36,47 +47,59 @@ public class EnergyBarReference {
 
     @Nullable
     public EnergyBar getEntry(LivingEntity entity) {
-        IPowerHandler handler = PowerManager.getPowerHandler(entity).orElse(null);
-        Power power = PowerManager.getInstance(entity.level()).getPower(this.powerId);
+        return this.getEntry(entity, null);
+    }
 
-        if (power != null && handler != null) {
-            IPowerHolder holder = handler.getPowerHolder(power);
+    @Nullable
+    public EnergyBar getEntry(LivingEntity entity, @Nullable IPowerHolder powerHolder) {
+        if (this.powerId != null) {
+            IPowerHandler handler = PowerManager.getPowerHandler(entity).orElse(null);
+            Power power = PowerManager.getInstance(entity.level()).getPower(this.powerId);
 
-            if (holder != null) {
-                return holder.getEnergyBars().get(this.energyBarName);
+            if (power != null && handler != null) {
+                powerHolder = handler.getPowerHolder(power);
+            } else {
+                powerHolder = null;
             }
+        }
+
+        if (powerHolder != null) {
+            return powerHolder.getEnergyBars().get(this.energyBarName);
         }
 
         return null;
     }
 
+    public Optional<EnergyBar> optional(LivingEntity entity, @Nullable IPowerHolder powerHolder) {
+        return Optional.ofNullable(this.getEntry(entity, powerHolder));
+    }
+
     public void toBuffer(FriendlyByteBuf buf) {
-        buf.writeResourceLocation(this.powerId);
+        buf.writeNullable(this.powerId, (buf1, resourceLocation) -> buf.writeResourceLocation(resourceLocation));
         buf.writeUtf(this.energyBarName);
     }
 
     public static EnergyBarReference fromBuffer(FriendlyByteBuf buf) {
-        return new EnergyBarReference(buf.readResourceLocation(), buf.readUtf());
+        return new EnergyBarReference(buf.readNullable(FriendlyByteBuf::readResourceLocation), buf.readUtf());
     }
 
     @Override
     public String toString() {
+        if (this.powerId == null) {
+            return this.energyBarName;
+        }
         return this.powerId + "#" + this.energyBarName;
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(powerId, energyBarName);
+        return Objects.hash(this.powerId, this.energyBarName);
     }
 
     @Override
-    public boolean equals(Object object) {
-        if (this == object) {
-            return true;
-        } else if (!(object instanceof EnergyBarReference reference)) {
-            return false;
-        } else {
-            return this.powerId.equals(reference.powerId) && this.energyBarName.equals(reference.energyBarName);
-        }
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof EnergyBarReference that)) return false;
+        return Objects.equals(this.powerId, that.powerId) && Objects.equals(this.energyBarName, that.energyBarName);
     }
 }
