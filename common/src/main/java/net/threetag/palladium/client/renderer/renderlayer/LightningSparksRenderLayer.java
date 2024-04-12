@@ -84,7 +84,7 @@ public class LightningSparksRenderLayer extends AbstractPackRenderLayer {
             }
         });
 
-        return layer;
+        return IPackRenderLayer.parseConditions(layer, json);
     }
 
     @Override
