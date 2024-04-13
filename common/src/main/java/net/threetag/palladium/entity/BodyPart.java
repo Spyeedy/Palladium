@@ -315,6 +315,14 @@ public enum BodyPart {
         return poseStack.last().pose();
     }
 
+    public static Matrix4f getTransformationMatrix(BodyPart part, Vector3f offset, AbstractClientPlayer player, float partialTicks) {
+        if (player instanceof PlayerModelCacheExtension ext) {
+            return getTransformationMatrix(part, offset, ext.palladium$getCachedModel(), player, partialTicks);
+        } else {
+            return new Matrix4f();
+        }
+    }
+
     public static Vec3 getInWorldPosition(BodyPart part, Vector3f offset, HumanoidModel<?> model, AbstractClientPlayer player, float partialTicks) {
         Vector3f vec = new Vector3f(0, 0, 0);
         vec = getTransformationMatrix(part, offset, model, player, partialTicks).transformPosition(vec);

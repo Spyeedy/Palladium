@@ -2,6 +2,7 @@ package net.threetag.palladium.util.property;
 
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
+import com.google.gson.JsonPrimitive;
 import net.minecraft.nbt.ListTag;
 import net.minecraft.nbt.StringTag;
 import net.minecraft.nbt.Tag;
@@ -36,6 +37,10 @@ public class ResourceLocationListProperty extends PalladiumProperty<List<Resourc
 
     @Override
     public JsonElement toJSON(List<ResourceLocation> value) {
+        if (value.size() == 1) {
+            return new JsonPrimitive(value.toString());
+        }
+
         JsonArray jsonArray = new JsonArray();
         for (ResourceLocation rl : value) {
             jsonArray.add(rl.toString());

@@ -15,19 +15,22 @@ import net.threetag.palladium.client.particleemitter.ParticleEmitterManager;
 import net.threetag.palladium.power.IPowerHolder;
 import net.threetag.palladium.util.property.PalladiumProperty;
 import net.threetag.palladium.util.property.ParticleTypeProperty;
-import net.threetag.palladium.util.property.ResourceLocationProperty;
+import net.threetag.palladium.util.property.ResourceLocationListProperty;
 import net.threetag.palladium.util.property.StringProperty;
+
+import java.util.Collections;
+import java.util.List;
 
 public class ParticleAbility extends Ability {
 
-    public static final PalladiumProperty<ResourceLocation> PARTICLE_EMITTER = new ResourceLocationProperty("emitter").configurable("Configuration for where the particle spawns at. Check wiki for information.");
+    public static final PalladiumProperty<List<ResourceLocation>> PARTICLE_EMITTER = new ResourceLocationListProperty("emitter").configurable("Configuration for where the particle spawns at. Check wiki for information.");
     public static final PalladiumProperty<ParticleType<?>> PARTICLE = new ParticleTypeProperty("particle").configurable("ID of the particle you want to spawn.");
     public static final PalladiumProperty<String> OPTIONS = new StringProperty("options").configurable("Additional options for the particle (like color of a dust particle)");
 
     public ParticleAbility() {
-        this.withProperty(PARTICLE_EMITTER, new ResourceLocation("example:emitter"))
+        this.withProperty(PARTICLE_EMITTER, Collections.singletonList(new ResourceLocation("example:emitter")))
                 .withProperty(PARTICLE, ParticleTypes.DUST)
-                .withProperty(OPTIONS, "255 40 40");
+                .withProperty(OPTIONS, "");
     }
 
     @Override
@@ -41,16 +44,19 @@ public class ParticleAbility extends Ability {
     @Environment(EnvType.CLIENT)
     private void tickClient(LivingEntity entity, AbilityEntry entry) {
         if (entity instanceof AbstractClientPlayer player) {
-            var emitter = ParticleEmitterManager.INSTANCE.get(entry.getProperty(PARTICLE_EMITTER));
+            try {
+                ParticleType type = entry.getProperty(PARTICLE);
+                ParticleOptions options = type.getDeserializer().fromCommand(type, new StringReader(" " + entry.getProperty(OPTIONS).trim() + " "));
 
-            if (emitter != null) {
-                try {
-                    ParticleType type = entry.getProperty(PARTICLE);
-                    ParticleOptions options = type.getDeserializer().fromCommand(type, new StringReader(" " + entry.getProperty(OPTIONS).trim() + " "));
-                    emitter.spawnParticle(entity.level(), player, options, Minecraft.getInstance().getDeltaFrameTime());
-                } catch (CommandSyntaxException ignored) {
-                    ignored.printStackTrace();
+                for (ResourceLocation id : entry.getProperty(PARTICLE_EMITTER)) {
+                    var emitter = ParticleEmitterManager.INSTANCE.get(id);
+
+                    if (emitter != null) {
+                        emitter.spawnParticles(entity.level(), player, options, Minecraft.getInstance().getDeltaFrameTime());
+                    }
                 }
+            } catch (CommandSyntaxException ignored) {
+
             }
         }
     }

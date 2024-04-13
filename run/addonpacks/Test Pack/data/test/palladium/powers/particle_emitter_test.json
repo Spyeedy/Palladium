@@ -4,9 +4,11 @@
   "abilities": {
     "right_hand": {
       "type": "palladium:particles",
-      "emitter": "test:right_hand",
-      "particle": "minecraft:dust",
-      "options": "0.82 0.2 0.2 1.3",
+      "emitter": [
+        "test:right_hand",
+        "test:left_hand"
+      ],
+      "particle": "minecraft:flame",
       "conditions": {
         "enabling": {
           "type": "palladium:is_hovering_or_flying"
@@ -15,12 +17,18 @@
     },
     "left_hand": {
       "type": "palladium:particles",
-      "emitter": "test:left_hand",
+      "emitter": [
+        "test:right_hand",
+        "test:left_hand"
+      ],
       "particle": "minecraft:dust",
       "options": "0.82 0.2 0.2 1.3",
       "conditions": {
         "enabling": {
-          "type": "palladium:is_hovering_or_flying"
+          "type": "palladium:not",
+          "conditions": {
+            "type": "palladium:is_hovering_or_flying"
+          }
         }
       }
     },

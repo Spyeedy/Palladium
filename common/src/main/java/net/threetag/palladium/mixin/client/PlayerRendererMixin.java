@@ -6,8 +6,11 @@ import net.minecraft.client.model.PlayerModel;
 import net.minecraft.client.model.geom.ModelPart;
 import net.minecraft.client.player.AbstractClientPlayer;
 import net.minecraft.client.renderer.MultiBufferSource;
+import net.minecraft.client.renderer.entity.LivingEntityRenderer;
 import net.minecraft.client.renderer.entity.player.PlayerRenderer;
+import net.minecraft.util.Mth;
 import net.minecraft.world.entity.HumanoidArm;
+import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.phys.Vec3;
 import net.threetag.palladium.accessory.Accessory;
 import net.threetag.palladium.client.model.animation.PalladiumAnimationRegistry;
@@ -15,6 +18,7 @@ import net.threetag.palladium.client.renderer.item.armor.ArmorRendererManager;
 import net.threetag.palladium.client.renderer.renderlayer.PackRenderLayerManager;
 import net.threetag.palladium.entity.BodyPart;
 import net.threetag.palladium.entity.PalladiumPlayerExtension;
+import net.threetag.palladium.entity.PlayerModelCacheExtension;
 import net.threetag.palladium.power.ability.Abilities;
 import net.threetag.palladium.power.ability.AnimationTimer;
 import net.threetag.palladium.util.Easing;
@@ -113,6 +117,60 @@ public class PlayerRendererMixin {
             this.cachedHandShrink = 0F;
             Vector3f vec = new Vector3f(f, f, f);
             rendererArmwear.offsetScale(vec);
+        }
+
+        // Apply model animations in first person
+        if (player instanceof PlayerModelCacheExtension ext) {
+            float partialTick = Minecraft.getInstance().getFrameTime();
+            float f = Mth.rotLerp(partialTick, player.yBodyRotO, player.yBodyRot);
+            float g = Mth.rotLerp(partialTick, player.yHeadRotO, player.yHeadRot);
+            float h = g - f;
+            float k = 0.0F;
+            float l = 0.0F;
+            float i;
+            if (!player.isPassenger() && player.isAlive()) {
+                k = player.walkAnimation.speed(partialTick);
+                l = player.walkAnimation.position(partialTick);
+                if (player.isBaby()) {
+                    l *= 3.0F;
+                }
+
+                if (k > 1.0F) {
+                    k = 1.0F;
+                }
+            }
+
+            if (player.isPassenger() && player.getVehicle() instanceof LivingEntity livingEntity) {
+                f = Mth.rotLerp(partialTick, livingEntity.yBodyRotO, livingEntity.yBodyRot);
+                h = g - f;
+                i = Mth.wrapDegrees(h);
+                if (i < -85.0F) {
+                    i = -85.0F;
+                }
+
+                if (i >= 85.0F) {
+                    i = 85.0F;
+                }
+
+                f = g - i;
+                if (i * i > 2500.0F) {
+                    f += i * 0.2F;
+                }
+
+                h = g - f;
+            }
+
+            float j = Mth.lerp(partialTick, player.xRotO, player.getXRot());
+            if (LivingEntityRenderer.isEntityUpsideDown(player)) {
+                j *= -1.0F;
+                h *= -1.0F;
+            }
+
+            ext.palladium$getCachedModel().prepareMobModel(player, l, k, partialTick);
+            ext.palladium$getCachedModel().setupAnim(player, l, k, player.tickCount + partialTick, h, j);
+            if (!PalladiumAnimationRegistry.SKIP_ANIMATIONS) {
+                PalladiumAnimationRegistry.applyAnimations(ext.palladium$getCachedModel(), player, l, k, player.tickCount + partialTick, h, j);
+            }
         }
     }
 
