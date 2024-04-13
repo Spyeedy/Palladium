@@ -29,6 +29,7 @@ import net.threetag.palladium.client.dynamictexture.DynamicTextureManager;
 import net.threetag.palladium.client.model.SuitStandBasePlateModel;
 import net.threetag.palladium.client.model.SuitStandModel;
 import net.threetag.palladium.client.model.animation.*;
+import net.threetag.palladium.client.particleemitter.ParticleEmitterManager;
 import net.threetag.palladium.client.renderer.entity.CustomProjectileRenderer;
 import net.threetag.palladium.client.renderer.entity.EffectEntityRenderer;
 import net.threetag.palladium.client.renderer.entity.SuitStandRenderer;
@@ -112,6 +113,7 @@ public class PalladiumClient {
         ReloadListenerRegistry.register(PackType.CLIENT_RESOURCES, Palladium.id("accessory_renderers"), new Accessory.ReloadManager());
         ReloadListenerRegistry.register(PackType.CLIENT_RESOURCES, Palladium.id("humanoid_animations"), PalladiumAnimationRegistry.INSTANCE);
         ReloadListenerRegistry.register(PackType.CLIENT_RESOURCES, Palladium.id("trail_renderers"), TrailRendererManager.INSTANCE);
+        ReloadListenerRegistry.register(PackType.CLIENT_RESOURCES, Palladium.id("particle_emitters"), ParticleEmitterManager.INSTANCE);
 
         // Gecko
         if (Platform.isModLoaded("geckolib")) {

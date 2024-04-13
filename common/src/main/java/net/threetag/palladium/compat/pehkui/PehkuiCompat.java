@@ -77,6 +77,26 @@ public class PehkuiCompat extends SizeUtil {
     }
 
     @Override
+    public float getModelWidthScale(Entity entity) {
+        return ScaleTypes.MODEL_WIDTH.getScaleData(entity).getScale();
+    }
+
+    @Override
+    public float getModelWidthScale(Entity entity, float delta) {
+        return ScaleTypes.MODEL_WIDTH.getScaleData(entity).getScale(delta);
+    }
+
+    @Override
+    public float getModelHeightScale(Entity entity) {
+        return ScaleTypes.MODEL_HEIGHT.getScaleData(entity).getScale();
+    }
+
+    @Override
+    public float getModelHeightScale(Entity entity, float delta) {
+        return ScaleTypes.MODEL_HEIGHT.getScaleData(entity).getScale(delta);
+    }
+
+    @Override
     public float getEyeHeightScale(Entity entity) {
         return ScaleTypes.EYE_HEIGHT.getScaleData(entity).getScale();
     }

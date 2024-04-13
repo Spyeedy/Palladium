@@ -45,6 +45,7 @@ public class Abilities {
     public static final RegistrySupplier<Ability> SCULK_IMMUNITY = ABILITIES.register("sculk_immunity", () -> new Ability().withProperty(Ability.ICON, new ItemIcon(Items.SCULK)).setDocumentationDescription("When enabled, the player will not cause any walk-related sculk vibrations anymore."));
     public static final RegistrySupplier<Ability> TRAIL = ABILITIES.register("trail", TrailAbility::new);
     public static final RegistrySupplier<Ability> FIRE_ASPECT = ABILITIES.register("fire_aspect", FireAspectAbility::new);
+    public static final RegistrySupplier<Ability> PARTICLES = ABILITIES.register("particles", ParticleAbility::new);
 
     public static void init() {
 

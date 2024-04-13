@@ -18,6 +18,7 @@
     "client.MinecraftMixin",
     "client.ModelPartMixin",
     "client.PlayerInfoMixin",
+    "client.PlayerRendererInvoker",
     "client.PlayerRendererMixin",
     "client.RenderTypeMixin",
     "client.ScreenEffectRendererMixin",

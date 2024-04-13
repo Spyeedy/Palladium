@@ -38,6 +38,22 @@ public class SizeUtil {
         return 1F;
     }
 
+    public float getModelWidthScale(Entity entity) {
+        return 1F;
+    }
+
+    public float getModelWidthScale(Entity entity, float delta) {
+        return 1F;
+    }
+
+    public float getModelHeightScale(Entity entity) {
+        return 1F;
+    }
+
+    public float getModelHeightScale(Entity entity, float delta) {
+        return 1F;
+    }
+
     public float getEyeHeightScale(Entity entity) {
         return 1F;
     }

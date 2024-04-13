@@ -11,12 +11,14 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.GsonHelper;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.phys.Vec3;
 import net.threetag.palladium.accessory.AccessorySlot;
 import net.threetag.palladium.client.dynamictexture.TextureReference;
 import net.threetag.palladium.power.ability.AbilityReference;
 import net.threetag.palladium.power.energybar.EnergyBarReference;
 import net.threetag.palladium.util.ModelLayerLocationUtil;
 import org.jetbrains.annotations.Nullable;
+import org.joml.Vector3f;
 
 import java.awt.*;
 import java.util.List;
@@ -420,6 +422,50 @@ public class GsonUtil {
         } else {
             throw new JsonSyntaxException("Missing " + memberName + ", expected to find an accessory slot");
         }
+    }
+
+    public static Vector3f getAsVector3f(JsonObject json, String memberName) {
+        if (json.has(memberName)) {
+            if (json.get(memberName).isJsonArray()) {
+                JsonArray array = json.get(memberName).getAsJsonArray();
+
+                if (array.size() != 3) {
+                    throw new JsonSyntaxException(memberName + " must have 3 floats");
+                }
+
+                return new Vector3f(array.get(0).getAsFloat(), array.get(1).getAsFloat(), array.get(2).getAsFloat());
+            } else {
+                throw new JsonSyntaxException(memberName + " must be an array to represent a 3-dimensional vector");
+            }
+        } else {
+            throw new JsonSyntaxException("Missing " + memberName + ", expected to find a vector");
+        }
+    }
+
+    public static Vector3f getAsVector3f(JsonObject json, String memberName, Vector3f fallback) {
+        return json.has(memberName) ? getAsVector3f(json, memberName) : fallback;
+    }
+
+    public static Vec3 getAsVec3(JsonObject json, String memberName) {
+        if (json.has(memberName)) {
+            if (json.get(memberName).isJsonArray()) {
+                JsonArray array = json.get(memberName).getAsJsonArray();
+
+                if (array.size() != 3) {
+                    throw new JsonSyntaxException(memberName + " must have 3 doubles");
+                }
+
+                return new Vec3(array.get(0).getAsDouble(), array.get(1).getAsDouble(), array.get(2).getAsDouble());
+            } else {
+                throw new JsonSyntaxException(memberName + " must be an array to represent a 3-dimensional vector");
+            }
+        } else {
+            throw new JsonSyntaxException("Missing " + memberName + ", expected to find a vector");
+        }
+    }
+
+    public static Vec3 getAsVec3(JsonObject json, String memberName, Vec3 fallback) {
+        return json.has(memberName) ? getAsVec3(json, memberName) : fallback;
     }
 
     public static void ifHasKey(JsonObject json, String memberName, Consumer<JsonElement> consumer) {

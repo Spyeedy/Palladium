@@ -1,23 +1,35 @@
 package net.threetag.palladium.entity;
 
 import com.google.gson.JsonParseException;
+import com.mojang.blaze3d.vertex.PoseStack;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
+import net.minecraft.client.Minecraft;
 import net.minecraft.client.model.HumanoidModel;
 import net.minecraft.client.model.PlayerModel;
 import net.minecraft.client.model.geom.ModelPart;
+import net.minecraft.client.player.AbstractClientPlayer;
+import net.minecraft.client.renderer.entity.EntityRenderer;
+import net.minecraft.client.renderer.entity.player.PlayerRenderer;
+import net.minecraft.util.Mth;
 import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.entity.player.PlayerModelPart;
 import net.minecraft.world.item.Item;
+import net.minecraft.world.phys.Vec3;
 import net.threetag.palladium.accessory.Accessory;
+import net.threetag.palladium.client.model.animation.PalladiumAnimationRegistry;
 import net.threetag.palladium.client.renderer.item.armor.ArmorRendererData;
 import net.threetag.palladium.client.renderer.renderlayer.PackRenderLayerManager;
 import net.threetag.palladium.item.ArmorWithRenderer;
+import net.threetag.palladium.mixin.client.PlayerRendererInvoker;
 import net.threetag.palladium.power.ability.*;
+import net.threetag.palladium.util.SizeUtil;
 import net.threetag.palladium.util.context.DataContext;
 import org.jetbrains.annotations.Nullable;
+import org.joml.Matrix4f;
+import org.joml.Vector3f;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -253,6 +265,68 @@ public enum BodyPart {
             return this.states.containsKey(bodyPart) && this.states.get(bodyPart) == 2;
         }
 
+    }
+
+    @SuppressWarnings("rawtypes")
+    public static Matrix4f getTransformationMatrix(BodyPart part, Vector3f offset, HumanoidModel<?> model, AbstractClientPlayer player, float partialTicks) {
+        var poseStack = new PoseStack();
+        var modelPart = part.getModelPart(model);
+
+        if (modelPart == null) {
+            return poseStack.last().pose();
+        }
+
+        EntityRenderer renderer = Minecraft.getInstance().getEntityRenderDispatcher().getRenderer(player);
+        if (renderer instanceof PlayerRendererInvoker invoker) {
+            // Pehkui Compat
+            float width = SizeUtil.getInstance().getModelWidthScale(player, partialTicks);
+            float height = SizeUtil.getInstance().getModelHeightScale(player, partialTicks);
+            poseStack.scale(width, height, width);
+
+            float f = Mth.rotLerp(partialTicks, player.yBodyRotO, player.yBodyRot);
+            float g = Mth.rotLerp(partialTicks, player.yHeadRotO, player.yHeadRot);
+            if (player.isPassenger() && player.getVehicle() instanceof LivingEntity livingEntity) {
+                f = Mth.rotLerp(partialTicks, livingEntity.yBodyRotO, livingEntity.yBodyRot);
+                float h = g - f;
+                float i = Mth.wrapDegrees(h);
+                if (i < -85.0F) {
+                    i = -85.0F;
+                }
+
+                if (i >= 85.0F) {
+                    i = 85.0F;
+                }
+
+                f = g - i;
+                if (i * i > 2500.0F) {
+                    f += i * 0.2F;
+                }
+            }
+
+            invoker.invokeSetupRotations(player, poseStack, player.tickCount + partialTicks, f, partialTicks);
+            PalladiumAnimationRegistry.setupRotations((PlayerRenderer) renderer, player, poseStack, partialTicks);
+            poseStack.scale(-1.0F, -1.0F, 1.0F);
+            invoker.invokeScale(player, poseStack, partialTicks);
+            poseStack.translate(0.0F, -1.501F, 0.0F);
+            modelPart.translateAndRotate(poseStack);
+            poseStack.translate(offset.x, offset.y, offset.z);
+        }
+
+        return poseStack.last().pose();
+    }
+
+    public static Vec3 getInWorldPosition(BodyPart part, Vector3f offset, HumanoidModel<?> model, AbstractClientPlayer player, float partialTicks) {
+        Vector3f vec = new Vector3f(0, 0, 0);
+        vec = getTransformationMatrix(part, offset, model, player, partialTicks).transformPosition(vec);
+        return player.getPosition(partialTicks).add(vec.x, vec.y, vec.z);
+    }
+
+    public static Vec3 getInWorldPosition(BodyPart part, Vector3f offset, AbstractClientPlayer player, float partialTicks) {
+        if (player instanceof PlayerModelCacheExtension ext) {
+            return getInWorldPosition(part, offset, ext.palladium$getCachedModel(), player, partialTicks);
+        } else {
+            return player.getPosition(partialTicks);
+        }
     }
 
 }

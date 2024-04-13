@@ -16,6 +16,7 @@ import net.minecraft.util.RandomSource;
 import net.minecraft.world.entity.LivingEntity;
 import net.threetag.palladium.client.model.animation.PalladiumAnimationRegistry;
 import net.threetag.palladium.entity.BodyPart;
+import net.threetag.palladium.entity.PlayerModelCacheExtension;
 import net.threetag.palladium.mixin.client.AgeableListModelInvoker;
 import net.threetag.palladium.power.ability.Abilities;
 import net.threetag.palladium.power.ability.AnimationTimer;
@@ -124,6 +125,17 @@ public class HumanoidRendererModifications {
                 poseStack.popPose();
             }
             ALPHA_MULTIPLIER = 1F;
+        }
+
+        if (entity instanceof PlayerModelCacheExtension ext) {
+            for (BodyPart part : BodyPart.values()) {
+                var orig = part.getModelPart(model);
+                var cache = part.getModelPart(ext.palladium$getCachedModel());
+
+                if (orig != null && cache != null) {
+                    cache.loadPose(orig.storePose());
+                }
+            }
         }
     }
 
