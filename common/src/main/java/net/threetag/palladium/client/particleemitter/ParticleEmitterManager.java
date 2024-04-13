@@ -7,7 +7,6 @@ import com.google.gson.JsonElement;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.packs.resources.ResourceManager;
 import net.minecraft.server.packs.resources.SimpleJsonResourceReloadListener;
-import net.minecraft.util.GsonHelper;
 import net.minecraft.util.profiling.ProfilerFiller;
 import net.threetag.palladium.addonpack.log.AddonPackLog;
 import org.jetbrains.annotations.Nullable;
@@ -19,7 +18,7 @@ public class ParticleEmitterManager extends SimpleJsonResourceReloadListener {
     private static final Gson GSON = new GsonBuilder().setPrettyPrinting().disableHtmlEscaping().create();
     public static ParticleEmitterManager INSTANCE = new ParticleEmitterManager();
 
-    public Map<ResourceLocation, ParticleEmitter> byName = ImmutableMap.of();
+    public Map<ResourceLocation, ParticleEmitterConfiguration> byName = ImmutableMap.of();
 
     public ParticleEmitterManager() {
         super(GSON, "palladium/particle_emitters");
@@ -27,10 +26,10 @@ public class ParticleEmitterManager extends SimpleJsonResourceReloadListener {
 
     @Override
     protected void apply(Map<ResourceLocation, JsonElement> object, ResourceManager resourceManager, ProfilerFiller profiler) {
-        ImmutableMap.Builder<ResourceLocation, ParticleEmitter> builder = ImmutableMap.builder();
+        ImmutableMap.Builder<ResourceLocation, ParticleEmitterConfiguration> builder = ImmutableMap.builder();
         object.forEach((id, json) -> {
             try {
-                builder.put(id, ParticleEmitter.fromJson(GsonHelper.convertToJsonObject(json, "$")));
+                builder.put(id, ParticleEmitterConfiguration.fromJson(json));
             } catch (Exception e) {
                 AddonPackLog.error("Parsing error loading particle emitter {}", id, e);
             }
@@ -40,7 +39,7 @@ public class ParticleEmitterManager extends SimpleJsonResourceReloadListener {
     }
 
     @Nullable
-    public ParticleEmitter get(ResourceLocation id) {
+    public ParticleEmitterConfiguration get(ResourceLocation id) {
         return this.byName.get(id);
     }
 }
