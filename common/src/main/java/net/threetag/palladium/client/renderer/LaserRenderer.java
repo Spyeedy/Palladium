@@ -43,6 +43,14 @@ public class LaserRenderer {
         return this;
     }
 
+    public Color getCoreColor() {
+        return this.coreColor;
+    }
+
+    public Color getGlowColor() {
+        return this.glowColor;
+    }
+
     public LaserRenderer opacity(float opacity) {
         this.glowOpacity = this.coreOpacity = opacity;
         return this;
@@ -54,14 +62,30 @@ public class LaserRenderer {
         return this;
     }
 
+    public float getCoreOpacity() {
+        return this.coreOpacity;
+    }
+
+    public float getGlowOpacity() {
+        return this.glowOpacity;
+    }
+
     public LaserRenderer thickness(float thickness) {
         this.thickness = thickness;
         return this;
     }
 
+    public float getThickness() {
+        return this.thickness;
+    }
+
     public LaserRenderer length(float length) {
         this.length = length;
         return this;
+    }
+
+    public float getLength() {
+        return this.length;
     }
 
     public LaserRenderer dimensions(float thickness, float length) {
@@ -80,9 +104,17 @@ public class LaserRenderer {
         return this;
     }
 
+    public boolean hasNormalTransparency() {
+        return this.normalTransparency;
+    }
+
     public LaserRenderer rotate(float rotation) {
         this.rotation = rotation;
         return this;
+    }
+
+    public float getRotation() {
+        return this.rotation;
     }
 
     public void face(PoseStack poseStack, Vec3 origin, Vec3 target) {

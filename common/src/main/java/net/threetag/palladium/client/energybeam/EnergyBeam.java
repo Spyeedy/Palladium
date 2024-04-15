@@ -18,6 +18,7 @@ import net.minecraft.world.phys.Vec3;
 import net.threetag.palladium.client.particleemitter.ParticleEmitter;
 import net.threetag.palladium.client.renderer.LaserRenderer;
 import net.threetag.palladium.entity.BodyPart;
+import net.threetag.palladium.util.SizeUtil;
 import net.threetag.palladium.util.json.GsonUtil;
 import org.joml.Vector3f;
 
@@ -62,9 +63,14 @@ public class EnergyBeam {
             this.laserRenderer.rotate((player.tickCount + partialTick) * rotationSpeed);
         }
 
+        var thickness = this.laserRenderer.getThickness();
+
         this.laserRenderer
+                .thickness((SizeUtil.getInstance().getModelHeightScale(player) + SizeUtil.getInstance().getModelWidthScale(player)) / 2F * thickness)
                 .length((float) origin.distanceTo(target))
                 .faceAndRender(poseStack, bufferSource, origin, target);
+
+        this.laserRenderer.thickness(thickness);
         poseStack.popPose();
     }
 
