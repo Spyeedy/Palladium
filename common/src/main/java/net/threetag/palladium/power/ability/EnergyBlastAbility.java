@@ -35,7 +35,7 @@ public class EnergyBlastAbility extends Ability implements AnimationTimer {
     @Override
     public void tick(LivingEntity entity, AbilityEntry entry, IPowerHolder holder, boolean enabled) {
         if (enabled && entity instanceof Player player) {
-            player.displayClientMessage(Component.literal("Energy Beam ability is deprecated, please switch to energy_beam!"), true);
+            player.displayClientMessage(Component.literal("Energy Blast ability is deprecated, please switch to energy_beam!"), true);
         }
     }
 
