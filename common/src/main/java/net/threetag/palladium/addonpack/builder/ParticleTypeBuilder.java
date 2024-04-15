@@ -80,6 +80,7 @@ public class ParticleTypeBuilder extends AddonBuilder<ParticleType<?>> {
 
         protected Particle(ClientLevel clientLevel, SpriteSet spriteSet, double x, double y, double z, double xd, double yd, double zd, ParticleTypeBuilder builder) {
             super(clientLevel, x, y, z, xd, yd, zd);
+            this.setParticleSpeed(xd, yd, zd);
             this.builder = builder;
             this.spriteSet = spriteSet;
             this.lifetime = this.builder.lifetime;
@@ -88,9 +89,7 @@ public class ParticleTypeBuilder extends AddonBuilder<ParticleType<?>> {
             this.quadSize = this.builder.quadSize;
 
             if (this.gravity == 0F) {
-                this.xd = 0F;
-                this.yd = 0F;
-                this.zd = 0F;
+                this.setParticleSpeed(0, 0, 0);
             }
 
             if (this.builder.textureType == TextureType.RANDOM) {
