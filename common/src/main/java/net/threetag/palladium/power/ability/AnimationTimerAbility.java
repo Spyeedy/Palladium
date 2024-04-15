@@ -53,7 +53,7 @@ public class AnimationTimerAbility extends Ability implements AnimationTimer {
     }
 
     public String getDocumentationDescription() {
-        return "This ability is used to create a timer that can be used for animations. It is not meant to be used directly. <a href=\"https://media.discordapp.net/attachments/954053032570683402/1120044643342635118/image.png\">Click here to see how this animation works exactly.</a>";
+        return "This ability is used to create a timer that can be used for animations. It is not meant to be used directly. <br><img style=\"width: 50%\" src=\"https://github.com/ThreeTAG/Palladium/blob/1.20/main/docu/images/animation_timer.png?raw=true\">";
     }
 
     @Override

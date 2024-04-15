@@ -64,7 +64,7 @@ public class RepeatingAnimationTimerAbility extends Ability implements Animation
     }
 
     public String getDocumentationDescription() {
-        return "This ability is used to create a timer that can be used for animations. It is not meant to be used directly. <a href=\"https://cdn.discordapp.com/attachments/954053032570683402/1120045044150325318/image.png\">Click here to see how this animation works exactly.</a>";
+        return "This ability is used to create a timer that can be used for animations. It is not meant to be used directly. <br><img style=\"width: 50%\" src=\"https://github.com/ThreeTAG/Palladium/blob/1.20/main/docu/images/repeating_animation_timer.png?raw=true\">";
     }
 
     @Override
