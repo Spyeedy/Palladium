@@ -1,0 +1,45 @@
+package net.threetag.palladium.client.energybeam;
+
+import com.google.common.collect.ImmutableMap;
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
+import com.google.gson.JsonElement;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.server.packs.resources.ResourceManager;
+import net.minecraft.server.packs.resources.SimpleJsonResourceReloadListener;
+import net.minecraft.util.profiling.ProfilerFiller;
+import net.threetag.palladium.addonpack.log.AddonPackLog;
+import org.jetbrains.annotations.Nullable;
+
+import java.util.Map;
+
+public class EnergyBeamManager extends SimpleJsonResourceReloadListener {
+
+    private static final Gson GSON = new GsonBuilder().setPrettyPrinting().disableHtmlEscaping().create();
+    public static EnergyBeamManager INSTANCE = new EnergyBeamManager();
+
+    public Map<ResourceLocation, EnergyBeamConfiguration> byName = ImmutableMap.of();
+
+    public EnergyBeamManager() {
+        super(GSON, "palladium/energy_beams");
+    }
+
+    @Override
+    protected void apply(Map<ResourceLocation, JsonElement> object, ResourceManager resourceManager, ProfilerFiller profiler) {
+        ImmutableMap.Builder<ResourceLocation, EnergyBeamConfiguration> builder = ImmutableMap.builder();
+        object.forEach((id, json) -> {
+            try {
+                builder.put(id, EnergyBeamConfiguration.fromJson(json));
+            } catch (Exception e) {
+                AddonPackLog.error("Parsing error loading energy beam {}", id, e);
+            }
+        });
+        this.byName = builder.build();
+        AddonPackLog.info("Loaded {} energy beams", this.byName.size());
+    }
+
+    @Nullable
+    public EnergyBeamConfiguration get(ResourceLocation id) {
+        return this.byName.get(id);
+    }
+}

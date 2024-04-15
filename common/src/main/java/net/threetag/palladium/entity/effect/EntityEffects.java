@@ -10,7 +10,7 @@ public class EntityEffects {
 
     public static final DeferredRegister<EntityEffect> EFFECTS = DeferredRegister.create(Palladium.MOD_ID, EntityEffect.REGISTRY);
 
-    public static final RegistrySupplier<EntityEffect> ENERGY_BLAST = EFFECTS.register("energy_blast", EnergyBlastEffect::new);
+    public static final RegistrySupplier<EntityEffect> ENERGY_BEAM = EFFECTS.register("energy_beam", EnergyBeamEffect::new);
 
     public static void init() {
         PalladiumEvents.REGISTER_PROPERTY.register(handler -> {

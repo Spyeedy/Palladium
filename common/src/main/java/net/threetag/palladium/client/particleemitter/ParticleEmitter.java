@@ -41,10 +41,10 @@ public class ParticleEmitter {
     public static ParticleEmitter fromJson(JsonObject json) {
         var bodyPart = BodyPart.byName(GsonHelper.getAsString(json, "body_part", ""));
         var amount = GsonUtil.getAsFloatMin(json, "amount", 0, 1);
-        var offset = GsonUtil.getAsVector3f(json, "offset", new Vector3f()).div(16);
-        var offsetRandom = GsonUtil.getAsVector3f(json, "offset_random", new Vector3f()).div(16);
-        var motion = GsonUtil.getAsVector3f(json, "motion", new Vector3f()).div(16);
-        var motionRandom = GsonUtil.getAsVector3f(json, "motion_random", new Vector3f()).div(16);
+        var offset = GsonUtil.getAsVector3f(json, "offset", new Vector3f()).div(16, -16, 16);
+        var offsetRandom = GsonUtil.getAsVector3f(json, "offset_random", new Vector3f()).div(16, -16, 16);
+        var motion = GsonUtil.getAsVector3f(json, "motion", new Vector3f()).div(16, -16, 16);
+        var motionRandom = GsonUtil.getAsVector3f(json, "motion_random", new Vector3f()).div(16, -16, 16);
         var visibleInFirstPerson = GsonHelper.getAsBoolean(json, "visible_in_first_person", true);
 
         return new ParticleEmitter(bodyPart, amount, offset, offsetRandom, motion, motionRandom, visibleInFirstPerson);
@@ -67,16 +67,30 @@ public class ParticleEmitter {
 
         if (this.amount < 1) {
             if (Math.random() < this.amount) {
-                this.spawnParticle(level, player, particleOptions, random, partialTick);
+                this.spawnParticleOnPlayer(level, player, particleOptions, random, partialTick);
             }
         } else {
             for (int i = 0; i < this.amount; i++) {
-                this.spawnParticle(level, player, particleOptions, random, partialTick);
+                this.spawnParticleOnPlayer(level, player, particleOptions, random, partialTick);
             }
         }
     }
 
-    private void spawnParticle(Level level, AbstractClientPlayer player, ParticleOptions particleOptions, RandomSource random, float partialTick) {
+    public void spawnAtPosition(Level level, Vec3 position, ParticleOptions particleOptions) {
+        var random = RandomSource.create();
+
+        if (this.amount < 1) {
+            if (Math.random() < this.amount) {
+                this.spawnParticleOnPosition(level, position, particleOptions, random);
+            }
+        } else {
+            for (int i = 0; i < this.amount; i++) {
+                this.spawnParticleOnPosition(level, position, particleOptions, random);
+            }
+        }
+    }
+
+    private void spawnParticleOnPlayer(Level level, AbstractClientPlayer player, ParticleOptions particleOptions, RandomSource random, float partialTick) {
         Vector3f offset = randomizeVector(random, this.offset, this.offsetRandom);
         var motion = randomizeVector(random, this.motion, this.motionRandom);
 
@@ -91,6 +105,13 @@ public class ParticleEmitter {
         } else {
             level.addParticle(particleOptions, pos.x, pos.y, pos.z, motion.x, motion.y, motion.z);
         }
+    }
+
+    private void spawnParticleOnPosition(Level level, Vec3 position, ParticleOptions particleOptions, RandomSource random) {
+        Vector3f offset = randomizeVector(random, this.offset, this.offsetRandom);
+        var motion = randomizeVector(random, this.motion, this.motionRandom);
+        Vec3 pos = position.add(offset.x, -offset.y, offset.z);
+        level.addParticle(particleOptions, pos.x, pos.y, pos.z, motion.x, -motion.y, motion.z);
     }
 
     private static Vector3f randomizeVector(RandomSource random, Vector3f center, Vector3f randomOffset) {

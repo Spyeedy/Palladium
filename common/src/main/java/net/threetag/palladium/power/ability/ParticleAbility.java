@@ -24,7 +24,7 @@ import java.util.List;
 public class ParticleAbility extends Ability {
 
     public static final PalladiumProperty<List<ResourceLocation>> PARTICLE_EMITTER = new ResourceLocationListProperty("emitter").configurable("Configuration for where the particle spawns at. Check wiki for information.");
-    public static final PalladiumProperty<ParticleType<?>> PARTICLE = new ParticleTypeProperty("particle").configurable("ID of the particle you want to spawn.");
+    public static final PalladiumProperty<ParticleType<?>> PARTICLE = new ParticleTypeProperty("particle_type").configurable("ID of the particle you want to spawn.");
     public static final PalladiumProperty<String> OPTIONS = new StringProperty("options").configurable("Additional options for the particle (like color of a dust particle)");
 
     public ParticleAbility() {

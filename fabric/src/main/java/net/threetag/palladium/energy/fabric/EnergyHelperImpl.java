@@ -16,7 +16,7 @@ import java.util.Optional;
 public class EnergyHelperImpl {
 
     public static Optional<IEnergyStorage> getFromItemStack(ItemStack stack) {
-        var storage = EnergyStorage.ITEM.find(stack, ContainerItemContext.withInitial(stack));
+        var storage = EnergyStorage.ITEM.find(stack, ContainerItemContext.withConstant(stack));
         return storage == null ? Optional.empty() : Optional.of(new Wrapper(storage));
     }
 

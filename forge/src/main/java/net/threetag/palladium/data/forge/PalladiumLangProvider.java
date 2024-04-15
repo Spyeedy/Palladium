@@ -97,6 +97,7 @@ public abstract class PalladiumLangProvider extends ExtendedLangProvider {
             this.addAbility(Abilities.SLOWFALL, "Slowfall");
             this.addAbility(Abilities.DAMAGE_IMMUNITY, "Damage Immunity");
             this.addAbility(Abilities.INVISIBILITY, "Invisibility");
+            this.addAbility(Abilities.ENERGY_BEAM, "Energy Beam");
             this.addAbility(Abilities.SIZE, "Size");
             this.addAbility(Abilities.PROJECTILE, "Projectile");
             this.addAbility(Abilities.SKIN_CHANGE, "Skin Change");
@@ -286,6 +287,7 @@ public abstract class PalladiumLangProvider extends ExtendedLangProvider {
             this.addAbility(Abilities.SLOWFALL, "Langsamer Fall");
             this.addAbility(Abilities.DAMAGE_IMMUNITY, "Schadensimmunität");
             this.addAbility(Abilities.INVISIBILITY, "Unsichtbarkeit");
+            this.addAbility(Abilities.ENERGY_BEAM, "Energiestrahl");
             this.addAbility(Abilities.SIZE, "Größe");
             this.addAbility(Abilities.PROJECTILE, "Projektil");
             this.addAbility(Abilities.SKIN_CHANGE, "Skin Änderung");
@@ -475,6 +477,7 @@ public abstract class PalladiumLangProvider extends ExtendedLangProvider {
             this.addAbility(Abilities.SLOWFALL, "Langsamer Fall");
             this.addAbility(Abilities.DAMAGE_IMMUNITY, "Schadensimmunität");
             this.addAbility(Abilities.INVISIBILITY, "Unsischtbarkeet");
+            this.addAbility(Abilities.ENERGY_BEAM, "Energiestrahl");
             this.addAbility(Abilities.SIZE, "Größe");
             this.addAbility(Abilities.PROJECTILE, "Projektil");
             this.addAbility(Abilities.SKIN_CHANGE, "Skin Änderung");

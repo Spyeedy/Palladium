@@ -3,6 +3,7 @@ package net.threetag.palladium.entity.effect;
 import com.mojang.blaze3d.vertex.PoseStack;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
+import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.world.entity.Entity;
 import net.threetag.palladium.Palladium;
@@ -12,6 +13,7 @@ import net.threetag.palladium.util.property.PalladiumProperty;
 import net.threetag.palladium.util.property.PropertyManager;
 import net.threetag.palladiumcore.registry.PalladiumRegistry;
 
+import java.util.Objects;
 import java.util.function.Predicate;
 
 public abstract class EntityEffect {
@@ -41,17 +43,23 @@ public abstract class EntityEffect {
         property.set(entity, value);
     }
 
-    public static void start(Entity anchor, EntityEffect entityEffect) {
-        if (!anchor.level().isClientSide) {
-            EffectEntity effectEntity = new EffectEntity(anchor.level(), anchor, entityEffect);
-            anchor.level().addFreshEntity(effectEntity);
-        }
+    public boolean isPlaying(EffectEntity entity) {
+        return !this.get(entity, IS_DONE_PLAYING);
     }
 
+    public void stopPlaying(EffectEntity entity) {
+        this.set(entity, IS_DONE_PLAYING, true);
+    }
+
+    @Environment(EnvType.CLIENT)
+    public static void start(Entity anchor, EntityEffect entityEffect) {
+        EffectEntity effectEntity = new EffectEntity(anchor.level(), anchor, entityEffect);
+        Objects.requireNonNull(Minecraft.getInstance().level).putNonPlayerEntity(0, effectEntity);
+    }
+
+    @Environment(EnvType.CLIENT)
     public static void stop(Entity anchor, Predicate<EntityEffect> predicate) {
-        if (!anchor.level().isClientSide) {
-            anchor.level().getEntities(anchor, anchor.getBoundingBox().inflate(2), entity -> entity instanceof EffectEntity && ((EffectEntity) entity).getAnchorEntity() == anchor && predicate.test(((EffectEntity) entity).entityEffect)).forEach(Entity::discard);
-        }
+        anchor.level().getEntities(anchor, anchor.getBoundingBox().inflate(2), entity -> entity instanceof EffectEntity && ((EffectEntity) entity).getAnchorEntity() == anchor && predicate.test(((EffectEntity) entity).entityEffect)).forEach(Entity::discard);
     }
 
     public static void stop(Entity anchor, EntityEffect entityEffectType) {

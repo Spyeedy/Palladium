@@ -1,0 +1,17 @@
+{
+  "body_part": "head",
+  "glow_color": "#00ff00",
+  "offset": [
+    5,
+    6,
+    0
+  ],
+  "particles": [
+    {
+      "particle_type": "minecraft:flame",
+      "amount": 20,
+      "motion": [0, 1, 0],
+      "motion_random": [1, 0, 1]
+    }
+  ]
+}

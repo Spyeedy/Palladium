@@ -1,0 +1,24 @@
+{
+  "name": "Energy Beam Test",
+  "icon": "minecraft:torch",
+  "abilities": {
+    "hands_laser": {
+      "type": "palladium:energy_beam",
+      "energy_beam": "test:hands_laser",
+      "conditions": {
+        "enabling": {
+          "type": "palladium:held"
+        }
+      }
+    },
+    "forehead_laser": {
+      "type": "palladium:energy_beam",
+      "energy_beam": "test:forehead_laser",
+      "conditions": {
+        "enabling": {
+          "type": "palladium:held"
+        }
+      }
+    }
+  }
+}

@@ -30,7 +30,7 @@ public class EffectEntity extends Entity implements ExtendedEntitySpawnData {
         this(PalladiumEntityTypes.EFFECT.get(), worldIn);
         this.anchorId = anchor.getId();
         this.entityEffect = entityEffect;
-        this.moveTo(anchor.getX(), anchor.getY() + anchor.getMyRidingOffset() + anchor.getEyeHeight(), anchor.getZ(), anchor.getYRot(), anchor.getXRot());
+        this.moveTo(anchor.getX(), anchor.getY(), anchor.getZ(), anchor.getYRot(), anchor.getXRot());
     }
 
     public Entity getAnchorEntity() {
@@ -45,13 +45,12 @@ public class EffectEntity extends Entity implements ExtendedEntitySpawnData {
         Entity anchor = getAnchorEntity();
         if (anchor != null && this.entityEffect != null) {
             if (!anchor.isAlive() || EntityEffect.IS_DONE_PLAYING.get(this)) {
-                if (!this.level().isClientSide)
-                    this.discard();
+                this.discard();
             } else {
                 this.entityEffect.tick(this, anchor);
-                this.moveTo(anchor.getX(), anchor.getY() + anchor.getMyRidingOffset() + anchor.getEyeHeight(), anchor.getZ(), anchor.getYRot(), anchor.getXRot());
+                this.moveTo(anchor.getX(), anchor.getY(), anchor.getZ(), anchor.getYRot(), anchor.getXRot());
             }
-        } else if (!this.level().isClientSide) {
+        } else {
             this.discard();
         }
     }

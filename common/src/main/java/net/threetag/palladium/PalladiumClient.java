@@ -14,7 +14,6 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.packs.PackType;
 import net.minecraft.world.entity.Entity;
-import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.item.CrossbowItem;
 import net.minecraft.world.item.DyeableLeatherItem;
 import net.minecraft.world.item.Item;
@@ -26,6 +25,7 @@ import net.threetag.palladium.block.IAddonBlock;
 import net.threetag.palladium.block.PalladiumBlocks;
 import net.threetag.palladium.client.PalladiumKeyMappings;
 import net.threetag.palladium.client.dynamictexture.DynamicTextureManager;
+import net.threetag.palladium.client.energybeam.EnergyBeamManager;
 import net.threetag.palladium.client.model.SuitStandBasePlateModel;
 import net.threetag.palladium.client.model.SuitStandModel;
 import net.threetag.palladium.client.model.animation.*;
@@ -35,7 +35,6 @@ import net.threetag.palladium.client.renderer.entity.EffectEntityRenderer;
 import net.threetag.palladium.client.renderer.entity.SuitStandRenderer;
 import net.threetag.palladium.client.renderer.entity.TrailSegmentEntityRenderer;
 import net.threetag.palladium.client.renderer.item.armor.ArmorRendererManager;
-import net.threetag.palladium.client.renderer.renderlayer.AbilityEffectsRenderLayer;
 import net.threetag.palladium.client.renderer.renderlayer.AccessoryRenderLayer;
 import net.threetag.palladium.client.renderer.renderlayer.PackRenderLayerManager;
 import net.threetag.palladium.client.renderer.renderlayer.PackRenderLayerRenderer;
@@ -91,7 +90,6 @@ public class PalladiumClient {
 
         // Entity Render Layers
         EntityRendererRegistry.addRenderLayer((e) -> true, renderLayerParent -> new PackRenderLayerRenderer((RenderLayerParent<Entity, EntityModel<Entity>>) renderLayerParent));
-        EntityRendererRegistry.addRenderLayer((e) -> true, renderLayerParent -> new AbilityEffectsRenderLayer((RenderLayerParent<LivingEntity, EntityModel<LivingEntity>>) renderLayerParent));
         EntityRendererRegistry.addRenderLayerToPlayer(renderLayerParent -> new AccessoryRenderLayer((RenderLayerParent<AbstractClientPlayer, PlayerModel<AbstractClientPlayer>>) renderLayerParent));
 
         // Animations
@@ -114,6 +112,7 @@ public class PalladiumClient {
         ReloadListenerRegistry.register(PackType.CLIENT_RESOURCES, Palladium.id("humanoid_animations"), PalladiumAnimationRegistry.INSTANCE);
         ReloadListenerRegistry.register(PackType.CLIENT_RESOURCES, Palladium.id("trail_renderers"), TrailRendererManager.INSTANCE);
         ReloadListenerRegistry.register(PackType.CLIENT_RESOURCES, Palladium.id("particle_emitters"), ParticleEmitterManager.INSTANCE);
+        ReloadListenerRegistry.register(PackType.CLIENT_RESOURCES, Palladium.id("energy_beams"), EnergyBeamManager.INSTANCE);
 
         // Gecko
         if (Platform.isModLoaded("geckolib")) {
