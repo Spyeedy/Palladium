@@ -1,11 +1,14 @@
 package net.threetag.palladium.client.renderer;
 
+import com.google.gson.JsonObject;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.math.Axis;
 import net.minecraft.client.renderer.MultiBufferSource;
+import net.minecraft.util.GsonHelper;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
 import net.threetag.palladium.util.RenderUtil;
+import net.threetag.palladium.util.json.GsonUtil;
 
 import java.awt.*;
 
@@ -109,5 +112,19 @@ public class LaserRenderer {
             RenderUtil.renderFilledBox(poseStack, consumer, box.inflate(i * 0.5F * 0.0625F), r, g, b, (1F / i / 2) * this.glowOpacity, 15728640);
         }
         poseStack.popPose();
+    }
+
+    public static LaserRenderer fromJson(JsonObject json) {
+        var laser = new LaserRenderer(
+                GsonUtil.getAsColor(json, "glow_color", Color.WHITE),
+                GsonUtil.getAsColor(json, "core_color", Color.WHITE));
+
+        return laser
+                .opacity(GsonUtil.getAsFloatRanged(json, "glow_opacity", 0F, 1F, 1F),
+                        GsonUtil.getAsFloatRanged(json, "core_opacity", 0F, 1F, 1F))
+                .thickness(GsonUtil.getAsFloatMin(json, "thickness", 0F, 1F) / 16F)
+                .length(GsonUtil.getAsFloatMin(json, "length", 0F, 1F) / 16F)
+                .normalTransparency(GsonHelper.getAsBoolean(json, "normal_transparency", false))
+                .rotate(GsonUtil.getAsFloatMin(json, "rotation", 0F, 0F));
     }
 }

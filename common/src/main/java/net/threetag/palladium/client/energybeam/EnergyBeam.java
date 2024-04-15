@@ -21,7 +21,6 @@ import net.threetag.palladium.entity.BodyPart;
 import net.threetag.palladium.util.json.GsonUtil;
 import org.joml.Vector3f;
 
-import java.awt.*;
 import java.util.Collections;
 import java.util.List;
 
@@ -34,14 +33,11 @@ public class EnergyBeam {
     private final LaserRenderer laserRenderer;
     private final List<Particle> particles;
 
-    public EnergyBeam(BodyPart anchor, Vector3f offset, float rotationSpeed, Color glowColor, Color coreColor, float glowOpacity, float coreOpacity, float thickness, boolean normalTransparency, List<Particle> particles) {
+    public EnergyBeam(BodyPart anchor, Vector3f offset, float rotationSpeed, LaserRenderer laserRenderer, List<Particle> particles) {
         this.anchor = anchor;
         this.offset = offset;
         this.rotationSpeed = rotationSpeed;
-        this.laserRenderer = new LaserRenderer(glowColor, coreColor)
-                .opacity(glowOpacity, coreOpacity)
-                .thickness(thickness)
-                .normalTransparency(normalTransparency);
+        this.laserRenderer = laserRenderer;
         this.particles = particles;
     }
 
@@ -73,16 +69,13 @@ public class EnergyBeam {
     }
 
     public static EnergyBeam fromJson(JsonObject json) {
+        var laserRenderer = LaserRenderer.fromJson(json);
+
         return new EnergyBeam(
                 BodyPart.fromJson(GsonHelper.getAsString(json, "body_part", "")),
                 GsonUtil.getAsVector3f(json, "offset", new Vector3f()).div(16, -16, 16),
                 GsonUtil.getAsIntMin(json, "rotation_speed", 0, 0),
-                GsonUtil.getAsColor(json, "glow_color", Color.WHITE),
-                GsonUtil.getAsColor(json, "core_color", Color.WHITE),
-                GsonUtil.getAsFloatRanged(json, "glow_opacity", 0F, 1F, 1F),
-                GsonUtil.getAsFloatRanged(json, "core_opacity", 0F, 1F, 1F),
-                GsonUtil.getAsFloatMin(json, "thickness", 0F, 1F) / 16F,
-                GsonHelper.getAsBoolean(json, "normal_transparency", false),
+                laserRenderer,
                 json.has("particles") ? GsonUtil.fromListOrPrimitive(json.get("particles"), jsonElement -> Particle.fromJson(GsonHelper.convertToJsonObject(jsonElement, "particles[].$"))) : Collections.emptyList()
         );
     }

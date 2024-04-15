@@ -8,7 +8,7 @@ import net.minecraft.client.model.geom.ModelLayerLocation;
 import net.minecraft.client.model.geom.ModelLayers;
 import net.minecraft.util.GsonHelper;
 import net.minecraft.world.entity.LivingEntity;
-import net.threetag.palladium.client.renderer.renderlayer.ModelLookup;
+import net.threetag.palladium.client.renderer.renderlayer.ModelTypes;
 import net.threetag.palladium.util.SkinTypedValue;
 import net.threetag.palladium.util.json.GsonUtil;
 import org.jetbrains.annotations.Nullable;
@@ -46,7 +46,7 @@ public class ArmorModelData {
         return this.modelByKey.containsKey(key);
     }
 
-    public void buildModels(ModelLookup.Model modelType, EntityModelSet modelSet) {
+    public void buildModels(ModelTypes.Model modelType, EntityModelSet modelSet) {
         this.modelByKey.forEach((key, layer) -> {
             HumanoidModel<?> normal = (HumanoidModel<?>) modelType.getModel(modelSet.bakeLayer(layer.getNormal()));
 

@@ -1,22 +1,16 @@
 package net.threetag.palladium.condition;
 
 import com.google.gson.JsonObject;
-import net.minecraft.resources.ResourceLocation;
-import net.threetag.palladium.util.context.DataContext;
-import net.threetag.palladium.util.context.DataContextType;
 import net.threetag.palladium.power.ability.AbilityEntry;
-import net.threetag.palladium.power.ability.AbilityUtil;
-import org.jetbrains.annotations.Nullable;
+import net.threetag.palladium.power.ability.AbilityReference;
+import net.threetag.palladium.util.context.DataContext;
 
 public class AbilityOnCooldownCondition extends Condition {
 
-    @Nullable
-    private final ResourceLocation power;
-    private final String abilityId;
+    private final AbilityReference ability;
 
-    public AbilityOnCooldownCondition(@Nullable ResourceLocation power, String abilityId) {
-        this.power = power;
-        this.abilityId = abilityId;
+    public AbilityOnCooldownCondition(AbilityReference ability) {
+        this.ability = ability;
     }
 
     @Override
@@ -28,12 +22,7 @@ public class AbilityOnCooldownCondition extends Condition {
             return false;
         }
 
-        AbilityEntry dependency = null;
-        if (this.power != null) {
-            dependency = AbilityUtil.getEntry(entity, this.power, this.abilityId);
-        } else if (holder != null) {
-            dependency = holder.getAbilities().get(this.abilityId);
-        }
+        AbilityEntry dependency = this.ability.getEntry(entity, holder);
         return dependency != null && dependency.isOnCooldown();
     }
 
@@ -56,7 +45,13 @@ public class AbilityOnCooldownCondition extends Condition {
 
         @Override
         public Condition make(JsonObject json) {
-            return new AbilityOnCooldownCondition(this.getProperty(json, AbilityEnabledCondition.Serializer.POWER), this.getProperty(json, AbilityEnabledCondition.Serializer.ABILITY));
+            AbilityReference abilityReference = AbilityReference.fromString(this.getProperty(json, AbilityEnabledCondition.Serializer.ABILITY));
+
+            if (this.getProperty(json, AbilityEnabledCondition.Serializer.POWER) != null) {
+                abilityReference = new AbilityReference(this.getProperty(json, AbilityEnabledCondition.Serializer.POWER), this.getProperty(json, AbilityEnabledCondition.Serializer.ABILITY));
+            }
+
+            return new AbilityOnCooldownCondition(abilityReference);
         }
 
     }

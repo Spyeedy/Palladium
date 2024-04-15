@@ -30,13 +30,13 @@ import java.util.function.Consumer;
 @SuppressWarnings({"rawtypes", "unchecked"})
 public class PackRenderLayer extends AbstractPackRenderLayer {
 
-    private final SkinTypedValue<ModelLookup.Model> modelLookup;
+    private final SkinTypedValue<ModelTypes.Model> modelLookup;
     private final SkinTypedValue<EntityModel<Entity>> model;
     private final SkinTypedValue<DynamicTexture> texture;
     private final RenderTypeFunction renderType;
 
     @SuppressWarnings({"unchecked", "rawtypes"})
-    public PackRenderLayer(SkinTypedValue<ModelLookup.Model> model, SkinTypedValue<ModelLayerLocation> modelLayerLocation, SkinTypedValue<DynamicTexture> texture, RenderTypeFunction renderType) {
+    public PackRenderLayer(SkinTypedValue<ModelTypes.Model> model, SkinTypedValue<ModelLayerLocation> modelLayerLocation, SkinTypedValue<DynamicTexture> texture, RenderTypeFunction renderType) {
         this.modelLookup = model;
         this.model = new SkinTypedValue(model.getNormal().getModel(Minecraft.getInstance().getEntityModels().bakeLayer(modelLayerLocation.getNormal())),
                 model.getSlim().getModel(Minecraft.getInstance().getEntityModels().bakeLayer(modelLayerLocation.getSlim())));
@@ -104,7 +104,7 @@ public class PackRenderLayer extends AbstractPackRenderLayer {
         SkinTypedValue<ModelLayerLocation> location = SkinTypedValue.fromJSON(json.get("model_layer"), js -> GsonUtil.convertToModelLayerLocation(js, "model_layer"));
         var renderType = PackRenderLayerManager.getRenderType(new ResourceLocation(GsonHelper.getAsString(json, "render_type", "solid")));
 
-        SkinTypedValue<ModelLookup.Model> model;
+        SkinTypedValue<ModelTypes.Model> model;
         String modelTypeKey = "model_type";
 
         if (!json.has(modelTypeKey) && json.has("model")) {
@@ -115,7 +115,7 @@ public class PackRenderLayer extends AbstractPackRenderLayer {
         if (GsonHelper.isValidNode(json, modelTypeKey)) {
             model = SkinTypedValue.fromJSON(json.get(modelTypeKey), jsonElement -> {
                 ResourceLocation modelId = new ResourceLocation(jsonElement.getAsString());
-                ModelLookup.Model m = ModelLookup.get(modelId);
+                ModelTypes.Model m = ModelTypes.get(modelId);
 
                 if (m == null) {
                     throw new JsonParseException("Unknown model type '" + modelId + "'");
@@ -124,7 +124,7 @@ public class PackRenderLayer extends AbstractPackRenderLayer {
                 return m;
             });
         } else {
-            model = new SkinTypedValue<>(ModelLookup.HUMANOID);
+            model = new SkinTypedValue<>(ModelTypes.HUMANOID);
         }
 
         if (renderType == null) {

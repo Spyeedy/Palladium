@@ -15,7 +15,7 @@ import java.util.Map;
 import java.util.function.BiPredicate;
 import java.util.function.Function;
 
-public class ModelLookup {
+public class ModelTypes {
 
     private static final Map<ResourceLocation, Model> MODELS = new HashMap<>();
     public static final Model HUMANOID;

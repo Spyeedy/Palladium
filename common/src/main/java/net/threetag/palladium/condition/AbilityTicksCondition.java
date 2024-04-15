@@ -1,25 +1,19 @@
 package net.threetag.palladium.condition;
 
 import com.google.gson.JsonObject;
-import net.minecraft.resources.ResourceLocation;
-import net.threetag.palladium.util.context.DataContext;
-import net.threetag.palladium.util.context.DataContextType;
 import net.threetag.palladium.power.ability.AbilityEntry;
-import net.threetag.palladium.power.ability.AbilityUtil;
+import net.threetag.palladium.power.ability.AbilityReference;
+import net.threetag.palladium.util.context.DataContext;
 import net.threetag.palladium.util.property.IntegerProperty;
 import net.threetag.palladium.util.property.PalladiumProperty;
-import org.jetbrains.annotations.Nullable;
 
 public class AbilityTicksCondition extends Condition {
 
-    @Nullable
-    private final ResourceLocation power;
-    private final String abilityId;
+    private final AbilityReference ability;
     private final int min, max;
 
-    public AbilityTicksCondition(@Nullable ResourceLocation power, String abilityId, int min, int max) {
-        this.power = power;
-        this.abilityId = abilityId;
+    public AbilityTicksCondition(AbilityReference ability, int min, int max) {
+        this.ability = ability;
         this.min = min;
         this.max = max;
     }
@@ -33,12 +27,7 @@ public class AbilityTicksCondition extends Condition {
             return false;
         }
 
-        AbilityEntry dependency = null;
-        if (this.power != null) {
-            dependency = AbilityUtil.getEntry(entity, this.power, this.abilityId);
-        } else if (holder != null) {
-            dependency = holder.getAbilities().get(this.abilityId);
-        }
+        AbilityEntry dependency = this.ability.getEntry(entity, holder);
 
         if (dependency == null) {
             return false;
@@ -66,8 +55,13 @@ public class AbilityTicksCondition extends Condition {
 
         @Override
         public Condition make(JsonObject json) {
-            return new AbilityTicksCondition(this.getProperty(json, AbilityEnabledCondition.Serializer.POWER),
-                    this.getProperty(json, AbilityEnabledCondition.Serializer.ABILITY),
+            AbilityReference abilityReference = AbilityReference.fromString(this.getProperty(json, AbilityEnabledCondition.Serializer.ABILITY));
+
+            if (this.getProperty(json, AbilityEnabledCondition.Serializer.POWER) != null) {
+                abilityReference = new AbilityReference(this.getProperty(json, AbilityEnabledCondition.Serializer.POWER), this.getProperty(json, AbilityEnabledCondition.Serializer.ABILITY));
+            }
+
+            return new AbilityTicksCondition(abilityReference,
                     this.getProperty(json, MIN),
                     this.getProperty(json, MAX));
         }

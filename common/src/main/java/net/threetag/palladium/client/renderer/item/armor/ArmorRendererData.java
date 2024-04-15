@@ -11,7 +11,7 @@ import net.minecraft.world.entity.LivingEntity;
 import net.threetag.palladium.Palladium;
 import net.threetag.palladium.addonpack.log.AddonPackLog;
 import net.threetag.palladium.client.renderer.renderlayer.IPackRenderLayer;
-import net.threetag.palladium.client.renderer.renderlayer.ModelLookup;
+import net.threetag.palladium.client.renderer.renderlayer.ModelTypes;
 import net.threetag.palladium.client.renderer.renderlayer.PackRenderLayerManager;
 import net.threetag.palladium.condition.Condition;
 import net.threetag.palladium.condition.ConditionEnvironment;
@@ -28,14 +28,14 @@ import java.util.List;
 
 public class ArmorRendererData {
 
-    private final ModelLookup.Model modelType;
+    private final ModelTypes.Model modelType;
     private final ArmorTextureData textures;
     private final ArmorModelData models;
     private final ArmorRendererConditions conditions;
     private final List<Condition> hideSecondLayer;
     private final List<IPackRenderLayer> renderLayers;
 
-    public ArmorRendererData(ModelLookup.Model modelType, ArmorTextureData textures, ArmorModelData models, ArmorRendererConditions conditions) {
+    public ArmorRendererData(ModelTypes.Model modelType, ArmorTextureData textures, ArmorModelData models, ArmorRendererConditions conditions) {
         this.modelType = modelType;
         this.textures = textures;
         this.models = models;
@@ -44,7 +44,7 @@ public class ArmorRendererData {
         this.renderLayers = Collections.emptyList();
     }
 
-    public ArmorRendererData(ModelLookup.Model modelType, ArmorTextureData textures, ArmorModelData models, ArmorRendererConditions conditions, List<Condition> hideSecondLayer, List<IPackRenderLayer> renderLayers) {
+    public ArmorRendererData(ModelTypes.Model modelType, ArmorTextureData textures, ArmorModelData models, ArmorRendererConditions conditions, List<Condition> hideSecondLayer, List<IPackRenderLayer> renderLayers) {
         this.modelType = modelType;
         this.textures = textures;
         this.models = models;
@@ -54,7 +54,7 @@ public class ArmorRendererData {
     }
 
     public static ArmorRendererData fromJson(JsonObject json) {
-        var modelType = ModelLookup.get(GsonUtil.getAsResourceLocation(json, "model_type", new ResourceLocation("humanoid")));
+        var modelType = ModelTypes.get(GsonUtil.getAsResourceLocation(json, "model_type", new ResourceLocation("humanoid")));
         var textures = ArmorTextureData.fromJson(json.get("textures"));
         var modelLayers = ArmorModelData.fromJson(json.get("model_layers"));
         var conditions = ArmorRendererConditions.fromJson(json.has("conditions") ? GsonHelper.getAsJsonArray(json, "conditions") : null);
