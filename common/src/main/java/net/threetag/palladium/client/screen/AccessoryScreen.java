@@ -123,7 +123,7 @@ public class AccessoryScreen extends OptionsSubScreen {
         guiGraphics.drawCenteredString(this.font, this.title, 80, 7, 16777215);
 
         InAccessorySlotMenuCondition.CURRENT_SLOT = this.currentSlot;
-        Quaternionf quaternionf = (new Quaternionf()).rotateX((float) Math.toRadians(180F)).rotateY((float) Math.toRadians(this.rotation));
+        Quaternionf quaternionf = (new Quaternionf()).rotateX((float) Math.toRadians(190F)).rotateY((float) Math.toRadians(this.rotation));
         var player = Objects.requireNonNull(Objects.requireNonNull(this.minecraft).player);
         float h = player.yBodyRot;
         float i = player.getYRot();

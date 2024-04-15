@@ -1,250 +1,350 @@
 {
-    "texture_width": 16,
-    "texture_height": 16,
-    "mesh": {
-        "right_arm": {
-            "part_pose": {
-                "offset": [
-                    -5,
-                    2,
-                    0
-                ]
+  "format_version": "1.12.0",
+  "minecraft:geometry": [
+    {
+      "description": {
+        "identifier": "palladium:hammond_cane/humanoid#main",
+        "texture_width": 16,
+        "texture_height": 16
+      },
+      "bones": [
+        {
+          "name": "right_arm",
+          "pivot": [
+            -5.0,
+            22.0,
+            0.0
+          ],
+          "rotation": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "cubes": []
+        },
+        {
+          "name": "bone2",
+          "parent": "right_arm",
+          "pivot": [
+            -5.5,
+            12.666667,
+            -2.5
+          ],
+          "rotation": [
+            0.21816615386863172,
+            0.0,
+            0.0
+          ],
+          "cubes": [
+            {
+              "origin": [
+                -6.5,
+                14.0,
+                -2.5
+              ],
+              "size": [
+                2.0,
+                3.0,
+                0.0
+              ],
+              "inflate": 0.0,
+              "uv": [
+                4.0,
+                5.0
+              ],
+              "mirror": false
             },
-            "cubes": [],
-            "children": {
-                "bone2": {
-                    "part_pose": {
-                        "offset": [
-                            -0.5,
-                            9.333333333333332,
-                            -2.5
-                        ],
-                        "rotation": [
-                            0.2181661564992912,
-                            0,
-                            0
-                        ]
-                    },
-                    "cubes": [
-                        {
-                            "origin": [
-                                -1,
-                                -4.333333333333332,
-                                0
-                            ],
-                            "dimensions": [
-                                2,
-                                3,
-                                0
-                            ],
-                            "texture_offset": [
-                                4,
-                                5
-                            ]
-                        },
-                        {
-                            "origin": [
-                                -1,
-                                -4.333333333333332,
-                                -1
-                            ],
-                            "dimensions": [
-                                2,
-                                3,
-                                2
-                            ],
-                            "texture_offset": [
-                                4,
-                                0
-                            ]
-                        },
-                        {
-                            "origin": [
-                                -0.5,
-                                -1.3333333333333321,
-                                -0.5
-                            ],
-                            "dimensions": [
-                                1,
-                                14,
-                                1
-                            ],
-                            "texture_offset": [
-                                0,
-                                0
-                            ]
-                        }
-                    ],
-                    "children": {}
-                }
+            {
+              "origin": [
+                -6.5,
+                14.0,
+                -3.5
+              ],
+              "size": [
+                2.0,
+                3.0,
+                2.0
+              ],
+              "inflate": 0.0,
+              "uv": [
+                4.0,
+                0.0
+              ],
+              "mirror": false
+            },
+            {
+              "origin": [
+                -6.0,
+                -0.0,
+                -3.0
+              ],
+              "size": [
+                1.0,
+                14.0,
+                1.0
+              ],
+              "inflate": 0.0,
+              "uv": [
+                0.0,
+                0.0
+              ],
+              "mirror": false
             }
+          ]
         },
-        "left_leg": {
-            "part_pose": {
-                "offset": [
-                    1.9,
-                    12,
-                    0
-                ]
+        {
+          "name": "left_leg",
+          "pivot": [
+            1.9,
+            12.0,
+            0.0
+          ],
+          "rotation": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "cubes": []
+        },
+        {
+          "name": "jacket",
+          "pivot": [
+            0.0,
+            24.0,
+            0.0
+          ],
+          "rotation": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "cubes": []
+        },
+        {
+          "name": "body",
+          "pivot": [
+            0.0,
+            24.0,
+            0.0
+          ],
+          "rotation": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "cubes": []
+        },
+        {
+          "name": "head",
+          "pivot": [
+            0.0,
+            24.0,
+            0.0
+          ],
+          "rotation": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "cubes": []
+        },
+        {
+          "name": "left_sleeve",
+          "pivot": [
+            5.0,
+            22.0,
+            0.0
+          ],
+          "rotation": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "cubes": []
+        },
+        {
+          "name": "right_sleeve",
+          "pivot": [
+            -5.0,
+            22.0,
+            0.0
+          ],
+          "rotation": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "cubes": []
+        },
+        {
+          "name": "left_arm",
+          "pivot": [
+            5.0,
+            22.0,
+            0.0
+          ],
+          "rotation": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "cubes": []
+        },
+        {
+          "name": "bone",
+          "parent": "left_arm",
+          "pivot": [
+            5.5,
+            12.666667,
+            -2.5
+          ],
+          "rotation": [
+            0.21816615386863172,
+            0.0,
+            0.0
+          ],
+          "cubes": [
+            {
+              "origin": [
+                4.5,
+                14.0,
+                -2.5
+              ],
+              "size": [
+                2.0,
+                3.0,
+                0.0
+              ],
+              "inflate": 0.0,
+              "uv": [
+                4.0,
+                5.0
+              ],
+              "mirror": false
             },
-            "cubes": [],
-            "children": {}
-        },
-        "jacket": {
-            "cubes": [],
-            "children": {}
-        },
-        "body": {
-            "cubes": [],
-            "children": {}
-        },
-        "head": {
-            "cubes": [],
-            "children": {}
-        },
-        "left_sleeve": {
-            "part_pose": {
-                "offset": [
-                    5,
-                    2,
-                    0
-                ]
+            {
+              "origin": [
+                4.5,
+                14.0,
+                -3.5
+              ],
+              "size": [
+                2.0,
+                3.0,
+                2.0
+              ],
+              "inflate": 0.0,
+              "uv": [
+                4.0,
+                0.0
+              ],
+              "mirror": false
             },
-            "cubes": [],
-            "children": {}
-        },
-        "right_sleeve": {
-            "part_pose": {
-                "offset": [
-                    -5,
-                    2,
-                    0
-                ]
-            },
-            "cubes": [],
-            "children": {}
-        },
-        "left_arm": {
-            "part_pose": {
-                "offset": [
-                    5,
-                    2,
-                    0
-                ]
-            },
-            "cubes": [],
-            "children": {
-                "bone": {
-                    "part_pose": {
-                        "offset": [
-                            0.5,
-                            9.333333333333332,
-                            -2.5
-                        ],
-                        "rotation": [
-                            0.2181661564992912,
-                            0,
-                            0
-                        ]
-                    },
-                    "cubes": [
-                        {
-                            "origin": [
-                                -1,
-                                -4.333333333333332,
-                                0
-                            ],
-                            "dimensions": [
-                                2,
-                                3,
-                                0
-                            ],
-                            "texture_offset": [
-                                4,
-                                5
-                            ]
-                        },
-                        {
-                            "origin": [
-                                -1,
-                                -4.333333333333332,
-                                -1
-                            ],
-                            "dimensions": [
-                                2,
-                                3,
-                                2
-                            ],
-                            "texture_offset": [
-                                4,
-                                0
-                            ]
-                        },
-                        {
-                            "origin": [
-                                -0.5,
-                                -1.3333333333333321,
-                                -0.5
-                            ],
-                            "dimensions": [
-                                1,
-                                14,
-                                1
-                            ],
-                            "texture_offset": [
-                                0,
-                                0
-                            ]
-                        }
-                    ],
-                    "children": {}
-                }
+            {
+              "origin": [
+                5.0,
+                -0.0,
+                -3.0
+              ],
+              "size": [
+                1.0,
+                14.0,
+                1.0
+              ],
+              "inflate": 0.0,
+              "uv": [
+                0.0,
+                0.0
+              ],
+              "mirror": false
             }
+          ]
         },
-        "right_leg": {
-            "part_pose": {
-                "offset": [
-                    -1.9,
-                    12,
-                    0
-                ]
-            },
-            "cubes": [],
-            "children": {}
+        {
+          "name": "right_leg",
+          "pivot": [
+            -1.9,
+            12.0,
+            0.0
+          ],
+          "rotation": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "cubes": []
         },
-        "cloak": {
-            "cubes": [],
-            "children": {}
+        {
+          "name": "cloak",
+          "pivot": [
+            0.0,
+            24.0,
+            0.0
+          ],
+          "rotation": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "cubes": []
         },
-        "ear": {
-            "cubes": [],
-            "children": {}
+        {
+          "name": "ear",
+          "pivot": [
+            0.0,
+            24.0,
+            0.0
+          ],
+          "rotation": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "cubes": []
         },
-        "right_pants": {
-            "part_pose": {
-                "offset": [
-                    -1.9,
-                    12,
-                    0
-                ]
-            },
-            "cubes": [],
-            "children": {}
+        {
+          "name": "right_pants",
+          "pivot": [
+            -1.9,
+            12.0,
+            0.0
+          ],
+          "rotation": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "cubes": []
         },
-        "hat": {
-            "cubes": [],
-            "children": {}
+        {
+          "name": "hat",
+          "pivot": [
+            0.0,
+            24.0,
+            0.0
+          ],
+          "rotation": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "cubes": []
         },
-        "left_pants": {
-            "part_pose": {
-                "offset": [
-                    1.9,
-                    12,
-                    0
-                ]
-            },
-            "cubes": [],
-            "children": {}
+        {
+          "name": "left_pants",
+          "pivot": [
+            1.9,
+            12.0,
+            0.0
+          ],
+          "rotation": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "cubes": []
         }
+      ]
     }
+  ]
 }
