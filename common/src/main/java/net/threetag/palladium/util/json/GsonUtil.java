@@ -415,6 +415,33 @@ public class GsonUtil {
         return json.has(memberName) ? getAsColor(json, memberName) : fallback;
     }
 
+    public static Object getAsRawColor(JsonObject json, String memberName) {
+        if (json.has(memberName)) {
+            var jsonElement = json.get(memberName);
+
+            if (jsonElement.isJsonPrimitive()) {
+                return jsonElement.getAsString();
+            } else if (jsonElement.isJsonArray()) {
+                JsonArray array = jsonElement.getAsJsonArray();
+                if (array.size() == 3) {
+                    return new Integer[]{array.get(0).getAsInt(), array.get(1).getAsInt(), array.get(2).getAsInt()};
+                } else if (array.size() == 4) {
+                    return new Integer[]{array.get(0).getAsInt(), array.get(1).getAsInt(), array.get(2).getAsInt(), array.get(3).getAsInt()};
+                } else {
+                    throw new JsonParseException("Color array must either have 3 (RGB) or 4 (RGBA) integers");
+                }
+            } else {
+                throw new JsonParseException("Color must either be defined as RGB-string or array of integers");
+            }
+        } else {
+            throw new JsonSyntaxException("Missing " + memberName + ", expected to find a color");
+        }
+    }
+
+    public static Object getAsRawColor(JsonObject json, String memberName, @org.jetbrains.annotations.Nullable Object fallback) {
+        return json.has(memberName) ? getAsRawColor(json, memberName) : fallback;
+    }
+
     @Nullable
     public static AccessorySlot getAsAccessorySlot(JsonObject json, String memberName) {
         if (json.has(memberName)) {

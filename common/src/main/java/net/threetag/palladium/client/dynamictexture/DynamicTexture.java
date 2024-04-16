@@ -36,7 +36,7 @@ public abstract class DynamicTexture {
 
         registerTransformer(Palladium.id("alpha_mask"), j -> new AlphaMaskTextureTransformer(GsonHelper.getAsString(j, "mask")));
         registerTransformer(Palladium.id("overlay"), j -> new OverlayTextureTransformer(GsonHelper.getAsString(j, "overlay"), GsonHelper.getAsBoolean(j, "ignore_blank", false)));
-        registerTransformer(Palladium.id("color"), j -> new ColorTextureTransformer(GsonUtil.getAsColor(j, "color"), GsonHelper.getAsBoolean(j, "ignore_blank")));
+        registerTransformer(Palladium.id("color"), j -> new ColorTextureTransformer(GsonUtil.getAsRawColor(j, "color"), GsonHelper.getAsBoolean(j, "ignore_blank")));
 
         registerVariable(new ConditionTextureVariable.Serializer());
         registerVariable(new CrouchingTextureVariable.Serializer());
