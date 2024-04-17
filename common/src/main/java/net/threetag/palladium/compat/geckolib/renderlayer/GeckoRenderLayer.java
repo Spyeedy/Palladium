@@ -17,6 +17,7 @@ import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.HumanoidArm;
 import net.minecraft.world.entity.LivingEntity;
 import net.threetag.palladium.client.dynamictexture.DynamicTexture;
+import net.threetag.palladium.client.dynamictexture.DynamicTextureManager;
 import net.threetag.palladium.client.renderer.renderlayer.*;
 import net.threetag.palladium.compat.geckolib.playeranimator.ParsedAnimationController;
 import net.threetag.palladium.entity.PalladiumLivingEntityExtension;
@@ -134,7 +135,7 @@ public class GeckoRenderLayer extends AbstractPackRenderLayer {
 
     public static GeckoRenderLayer parse(JsonObject json) {
         SkinTypedValue<ResourceLocation> modelLocation = SkinTypedValue.fromJSON(json.get("model"), js -> GsonUtil.convertToResourceLocation(js, "model"));
-        var texture = SkinTypedValue.fromJSON(json.get("texture"), DynamicTexture::parse);
+        var texture = SkinTypedValue.fromJSON(json.get("texture"), DynamicTextureManager::fromJson);
         var renderType = PackRenderLayerManager.getRenderType(new ResourceLocation(GsonHelper.getAsString(json, "render_type", "solid")));
 
         if (renderType == null) {

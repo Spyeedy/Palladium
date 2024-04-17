@@ -5,6 +5,7 @@ import com.google.gson.JsonParseException;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.GsonHelper;
 import net.threetag.palladium.client.dynamictexture.DynamicTexture;
+import net.threetag.palladium.client.dynamictexture.DynamicTextureManager;
 import net.threetag.palladium.util.SkinTypedValue;
 import net.threetag.palladium.util.context.DataContext;
 import org.jetbrains.annotations.NotNull;
@@ -41,7 +42,7 @@ public class ArmorTextureData {
 
         // If primitive, or if it's specifically skin-typed
         if (json.isJsonPrimitive() || (json.isJsonObject() && json.getAsJsonObject().entrySet().size() == 2 && GsonHelper.isValidNode(json.getAsJsonObject(), "normal") && GsonHelper.isValidNode(json.getAsJsonObject(), "slim"))) {
-            var texture = SkinTypedValue.fromJSON(json, DynamicTexture::parse);
+            var texture = SkinTypedValue.fromJSON(json, DynamicTextureManager::fromJson);
             data.add(ArmorRendererConditions.BASE_TEXTURE, texture);
         } else if (json.isJsonObject()) {
             var object = GsonHelper.convertToJsonObject(json, "textures");
@@ -49,7 +50,7 @@ public class ArmorTextureData {
             for (Map.Entry<String, JsonElement> e : object.entrySet()) {
                 var key = e.getKey();
                 var textureJson = e.getValue();
-                data.add(key, SkinTypedValue.fromJSON(textureJson, DynamicTexture::parse));
+                data.add(key, SkinTypedValue.fromJSON(textureJson, DynamicTextureManager::fromJson));
             }
         } else {
             throw new JsonParseException("Textures must be json primitive or json object");

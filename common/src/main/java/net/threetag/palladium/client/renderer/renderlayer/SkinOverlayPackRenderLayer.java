@@ -17,6 +17,7 @@ import net.minecraft.util.GsonHelper;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.HumanoidArm;
 import net.threetag.palladium.client.dynamictexture.DynamicTexture;
+import net.threetag.palladium.client.dynamictexture.DynamicTextureManager;
 import net.threetag.palladium.entity.BodyPart;
 import net.threetag.palladium.util.SkinTypedValue;
 import net.threetag.palladium.util.context.DataContext;
@@ -69,7 +70,7 @@ public class SkinOverlayPackRenderLayer extends AbstractPackRenderLayer {
             throw new JsonParseException("Unknown render type '" + new ResourceLocation(GsonHelper.getAsString(json, "render_type", "solid")) + "'");
         }
 
-        var layer = new SkinOverlayPackRenderLayer(SkinTypedValue.fromJSON(json.get("texture"), DynamicTexture::parse), renderType);
+        var layer = new SkinOverlayPackRenderLayer(SkinTypedValue.fromJSON(json.get("texture"), DynamicTextureManager::fromJson), renderType);
 
         GsonUtil.ifHasKey(json, "hidden_body_parts", el -> {
             if (el.isJsonPrimitive()) {

@@ -18,28 +18,31 @@ import net.minecraft.util.GsonHelper;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.HumanoidArm;
 import net.threetag.palladium.addonpack.log.AddonPackLog;
+import net.threetag.palladium.client.dynamictexture.DynamicModelLayerLocation;
 import net.threetag.palladium.client.dynamictexture.DynamicTexture;
+import net.threetag.palladium.client.dynamictexture.DynamicTextureManager;
 import net.threetag.palladium.client.model.ExtraAnimatedModel;
 import net.threetag.palladium.entity.BodyPart;
 import net.threetag.palladium.util.SkinTypedValue;
 import net.threetag.palladium.util.context.DataContext;
 import net.threetag.palladium.util.json.GsonUtil;
 
+import java.util.HashMap;
+import java.util.Map;
 import java.util.function.Consumer;
 
 @SuppressWarnings({"rawtypes", "unchecked"})
 public class PackRenderLayer extends AbstractPackRenderLayer {
 
     private final SkinTypedValue<ModelTypes.Model> modelLookup;
-    private final SkinTypedValue<EntityModel<Entity>> model;
+    private final SkinTypedValue<ModelCache> model;
     private final SkinTypedValue<DynamicTexture> texture;
     private final RenderTypeFunction renderType;
 
     @SuppressWarnings({"unchecked", "rawtypes"})
-    public PackRenderLayer(SkinTypedValue<ModelTypes.Model> model, SkinTypedValue<ModelLayerLocation> modelLayerLocation, SkinTypedValue<DynamicTexture> texture, RenderTypeFunction renderType) {
+    public PackRenderLayer(SkinTypedValue<ModelTypes.Model> model, SkinTypedValue<DynamicModelLayerLocation> modelLayerLocation, SkinTypedValue<DynamicTexture> texture, RenderTypeFunction renderType) {
         this.modelLookup = model;
-        this.model = new SkinTypedValue(model.getNormal().getModel(Minecraft.getInstance().getEntityModels().bakeLayer(modelLayerLocation.getNormal())),
-                model.getSlim().getModel(Minecraft.getInstance().getEntityModels().bakeLayer(modelLayerLocation.getSlim())));
+        this.model = new SkinTypedValue(new ModelCache(modelLayerLocation.getNormal()), new ModelCache(modelLayerLocation.getSlim()));
         this.texture = texture;
         this.renderType = renderType;
     }
@@ -48,7 +51,7 @@ public class PackRenderLayer extends AbstractPackRenderLayer {
     public void render(DataContext context, PoseStack poseStack, MultiBufferSource bufferSource, EntityModel<Entity> parentModel, int packedLight, float limbSwing, float limbSwingAmount, float partialTicks, float ageInTicks, float netHeadYaw, float headPitch) {
         var entity = context.getEntity();
         if (IPackRenderLayer.conditionsFulfilled(entity, this.conditions, this.thirdPersonConditions) && this.modelLookup.get(entity).fitsEntity(entity, parentModel)) {
-            EntityModel<Entity> entityModel = this.model.get(entity);
+            EntityModel<?> entityModel = this.model.get(entity).getModel(context, this.modelLookup.get(entity));
 
             if (entityModel instanceof HumanoidModel entityHumanoidModel && parentModel instanceof HumanoidModel parentHumanoid) {
                 IPackRenderLayer.copyModelProperties(entity, parentHumanoid, entityHumanoidModel);
@@ -68,7 +71,7 @@ public class PackRenderLayer extends AbstractPackRenderLayer {
     public void renderArm(DataContext context, HumanoidArm arm, PlayerRenderer playerRenderer, PoseStack poseStack, MultiBufferSource bufferSource, int packedLight) {
         var player = context.getEntity();
         if (IPackRenderLayer.conditionsFulfilled(player, this.conditions, this.firstPersonConditions) && this.modelLookup.get(player).fitsEntity(player, playerRenderer.getModel())) {
-            EntityModel<Entity> entityModel = this.model.get(player);
+            EntityModel<?> entityModel = this.model.get(player).getModel(context, this.modelLookup.get(player));
 
             if (entityModel instanceof HumanoidModel humanoidModel) {
                 playerRenderer.getModel().copyPropertiesTo(humanoidModel);
@@ -94,14 +97,13 @@ public class PackRenderLayer extends AbstractPackRenderLayer {
         var entity = context.getEntity();
 
         if (IPackRenderLayer.conditionsFulfilled(entity, this.conditions, this.firstPersonConditions) && this.modelLookup.get(entity).fitsEntity(entity, parentModel)) {
-            EntityModel<Entity> entityModel = this.model.get(entity);
+            EntityModel<?> entityModel = this.model.get(entity).getModel(context, this.modelLookup.get(entity));
             var texture = this.texture.get(entity).getTexture(context);
             consumer.accept(new Snapshot(entityModel, texture));
         }
     }
 
     public static PackRenderLayer parse(JsonObject json) {
-        SkinTypedValue<ModelLayerLocation> location = SkinTypedValue.fromJSON(json.get("model_layer"), js -> GsonUtil.convertToModelLayerLocation(js, "model_layer"));
         var renderType = PackRenderLayerManager.getRenderType(new ResourceLocation(GsonHelper.getAsString(json, "render_type", "solid")));
 
         SkinTypedValue<ModelTypes.Model> model;
@@ -131,7 +133,7 @@ public class PackRenderLayer extends AbstractPackRenderLayer {
             throw new JsonParseException("Unknown render type '" + new ResourceLocation(GsonHelper.getAsString(json, "render_type", "solid")) + "'");
         }
 
-        var layer = new PackRenderLayer(model, location, SkinTypedValue.fromJSON(json.get("texture"), DynamicTexture::parse), renderType);
+        var layer = new PackRenderLayer(model, SkinTypedValue.fromJSON(json.get("model_layer"), DynamicModelLayerLocation::fromJson), SkinTypedValue.fromJSON(json.get("texture"), DynamicTextureManager::fromJson), renderType);
 
         GsonUtil.ifHasKey(json, "hidden_body_parts", el -> {
             if (el.isJsonPrimitive()) {
@@ -154,6 +156,28 @@ public class PackRenderLayer extends AbstractPackRenderLayer {
         });
 
         return IPackRenderLayer.parseConditions(layer, json);
+    }
+
+    public static class ModelCache {
+
+        private final DynamicModelLayerLocation modelLayerLocation;
+        private final Map<ModelLayerLocation, EntityModel<?>> models = new HashMap<>();
+
+        public ModelCache(DynamicModelLayerLocation modelLayerLocation) {
+            this.modelLayerLocation = modelLayerLocation;
+        }
+
+        public EntityModel<?> getModel(DataContext context, ModelTypes.Model modelType) {
+            var modelLayer = this.modelLayerLocation.getModelLayer(context);
+
+            if (this.models.containsKey(modelLayer)) {
+                return this.models.get(modelLayer);
+            } else {
+                var model = modelType.getModel(Minecraft.getInstance().getEntityModels().bakeLayer(modelLayer));
+                this.models.put(modelLayer, model);
+                return model;
+            }
+        }
     }
 
 }
