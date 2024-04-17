@@ -11,12 +11,14 @@ import net.minecraft.util.profiling.ProfilerFiller;
 import net.threetag.palladium.addonpack.log.AddonPackLog;
 import org.jetbrains.annotations.Nullable;
 
+import java.util.HashMap;
 import java.util.Map;
 
 public class EnergyBeamManager extends SimpleJsonResourceReloadListener {
 
     private static final Gson GSON = new GsonBuilder().setPrettyPrinting().disableHtmlEscaping().create();
     public static EnergyBeamManager INSTANCE = new EnergyBeamManager();
+    private static final Map<ResourceLocation, EnergyBeamRenderer.Serializer> RENDERERS = new HashMap<>();
 
     public Map<ResourceLocation, EnergyBeamConfiguration> byName = ImmutableMap.of();
 
@@ -41,5 +43,17 @@ public class EnergyBeamManager extends SimpleJsonResourceReloadListener {
     @Nullable
     public EnergyBeamConfiguration get(ResourceLocation id) {
         return this.byName.get(id);
+    }
+
+    static {
+        registerRenderer(new LaserBeamRenderer.Serializer());
+    }
+
+    public static void registerRenderer(EnergyBeamRenderer.Serializer serializer) {
+        RENDERERS.put(serializer.getId(), serializer);
+    }
+
+    public static EnergyBeamRenderer.Serializer getRenderer(ResourceLocation id) {
+        return RENDERERS.get(id);
     }
 }

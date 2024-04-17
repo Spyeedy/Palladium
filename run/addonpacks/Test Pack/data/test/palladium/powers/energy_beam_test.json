@@ -19,6 +19,15 @@
           "type": "palladium:held"
         }
       }
+    },
+    "cyclops_laser": {
+      "type": "palladium:energy_beam",
+      "energy_beam": "test:cyclops_eye_laser",
+      "conditions": {
+        "enabling": {
+          "type": "palladium:held"
+        }
+      }
     }
   }
 }
