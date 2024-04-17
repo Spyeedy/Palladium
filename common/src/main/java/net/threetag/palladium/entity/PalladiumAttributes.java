@@ -56,6 +56,10 @@ public class PalladiumAttributes {
                 if (Attributes.ARMOR instanceof RangedAttributeAccessor accessor) {
                     accessor.palladium_setMaxValue(1024);
                 }
+
+                if (Attributes.ATTACK_KNOCKBACK instanceof RangedAttributeAccessor accessor) {
+                    accessor.palladium_setMaxValue(1024);
+                }
             });
         }
     }
