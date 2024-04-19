@@ -26,14 +26,14 @@ public class ShaderEffectAbility extends Ability {
     }
 
     @Override
-    public void firstTick(LivingEntity entity, AbilityEntry entry, IPowerHolder holder, boolean enabled) {
+    public void firstTick(LivingEntity entity, AbilityInstance entry, IPowerHolder holder, boolean enabled) {
         if (enabled && Platform.isClient()) {
             this.applyShader(entity, entry.getProperty(SHADER));
         }
     }
 
     @Override
-    public void lastTick(LivingEntity entity, AbilityEntry entry, IPowerHolder holder, boolean enabled) {
+    public void lastTick(LivingEntity entity, AbilityInstance entry, IPowerHolder holder, boolean enabled) {
         if (enabled && Platform.isClient()) {
             this.removeShader(entity, entry.getProperty(SHADER));
         }
@@ -59,7 +59,7 @@ public class ShaderEffectAbility extends Ability {
 
     @Environment(EnvType.CLIENT)
     public static ResourceLocation get(Player player) {
-        for (AbilityEntry entry : AbilityUtil.getEnabledEntries(player, Abilities.SHADER_EFFECT.get())) {
+        for (AbilityInstance entry : AbilityUtil.getEnabledEntries(player, Abilities.SHADER_EFFECT.get())) {
             return entry.getProperty(SHADER);
         }
         return null;

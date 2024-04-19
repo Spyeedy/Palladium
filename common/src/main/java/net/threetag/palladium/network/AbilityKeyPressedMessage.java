@@ -1,11 +1,7 @@
 package net.threetag.palladium.network;
 
 import net.minecraft.network.FriendlyByteBuf;
-import net.minecraft.resources.ResourceLocation;
-import net.threetag.palladium.power.IPowerHandler;
-import net.threetag.palladium.power.IPowerHolder;
-import net.threetag.palladium.power.PowerManager;
-import net.threetag.palladium.power.ability.AbilityEntry;
+import net.threetag.palladium.power.ability.AbilityInstance;
 import net.threetag.palladium.power.ability.AbilityReference;
 import net.threetag.palladiumcore.network.MessageC2S;
 import net.threetag.palladiumcore.network.MessageContext;
@@ -39,7 +35,7 @@ public class AbilityKeyPressedMessage extends MessageC2S {
 
     @Override
     public void handle(MessageContext context) {
-        AbilityEntry entry = this.reference.getEntry(context.getPlayer());
+        AbilityInstance entry = this.reference.getEntry(context.getPlayer());
 
         if (entry != null && entry.isUnlocked()) {
             entry.keyPressed(context.getPlayer(), this.pressed);

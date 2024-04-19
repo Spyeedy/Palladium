@@ -37,7 +37,7 @@ public class ProjectileAbility extends Ability {
     }
 
     @Override
-    public void tick(LivingEntity entity, AbilityEntry entry, IPowerHolder holder, boolean enabled) {
+    public void tick(LivingEntity entity, AbilityInstance entry, IPowerHolder holder, boolean enabled) {
         if (!entity.level().isClientSide && enabled) {
             CompoundTag compound = entry.getProperty(ENTITY_DATA);
             compound = compound == null ? new CompoundTag() : compound;

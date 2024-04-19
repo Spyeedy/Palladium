@@ -1,7 +1,7 @@
 package net.threetag.palladium.condition;
 
 import com.google.gson.JsonObject;
-import net.threetag.palladium.power.ability.AbilityEntry;
+import net.threetag.palladium.power.ability.AbilityInstance;
 import net.threetag.palladium.power.ability.AbilityReference;
 import net.threetag.palladium.util.context.DataContext;
 
@@ -22,7 +22,7 @@ public class AbilityOnCooldownCondition extends Condition {
             return false;
         }
 
-        AbilityEntry dependency = this.ability.getEntry(entity, holder);
+        AbilityInstance dependency = this.ability.getEntry(entity, holder);
         return dependency != null && dependency.isOnCooldown();
     }
 

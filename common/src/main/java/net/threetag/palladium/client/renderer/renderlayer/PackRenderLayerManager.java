@@ -23,7 +23,7 @@ import net.threetag.palladium.client.renderer.item.armor.ArmorRendererData;
 import net.threetag.palladium.entity.BodyPart;
 import net.threetag.palladium.item.ArmorWithRenderer;
 import net.threetag.palladium.item.IAddonItem;
-import net.threetag.palladium.power.ability.AbilityEntry;
+import net.threetag.palladium.power.ability.AbilityInstance;
 import net.threetag.palladium.power.ability.AbilityUtil;
 import net.threetag.palladium.power.ability.RenderLayerProviderAbility;
 import net.threetag.palladium.util.context.DataContext;
@@ -49,7 +49,7 @@ public class PackRenderLayerManager extends SimpleJsonResourceReloadListener {
         registerProvider((entity, layers) -> {
             if (entity instanceof LivingEntity livingEntity) {
                 var manager = PackRenderLayerManager.getInstance();
-                for (AbilityEntry entry : AbilityUtil.getEnabledRenderLayerEntries(livingEntity)) {
+                for (AbilityInstance entry : AbilityUtil.getEnabledRenderLayerEntries(livingEntity)) {
                     IPackRenderLayer layer = ((RenderLayerProviderAbility) entry.getConfiguration().getAbility()).getRenderLayer(entry, livingEntity, manager);
                     if (layer != null) {
                         layers.accept(DataContext.forAbility(livingEntity, entry), layer);

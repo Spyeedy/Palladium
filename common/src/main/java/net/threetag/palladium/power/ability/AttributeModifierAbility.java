@@ -31,7 +31,7 @@ public class AttributeModifierAbility extends Ability {
     }
 
     @Override
-    public void tick(LivingEntity entity, AbilityEntry entry, IPowerHolder holder, boolean enabled) {
+    public void tick(LivingEntity entity, AbilityInstance entry, IPowerHolder holder, boolean enabled) {
         if (enabled) {
             Attribute attribute = entry.getProperty(ATTRIBUTE);
             AttributeInstance instance = entity.getAttribute(attribute);
@@ -59,7 +59,7 @@ public class AttributeModifierAbility extends Ability {
     }
 
     @Override
-    public void lastTick(LivingEntity entity, AbilityEntry entry, IPowerHolder holder, boolean enabled) {
+    public void lastTick(LivingEntity entity, AbilityInstance entry, IPowerHolder holder, boolean enabled) {
         if (entity.getAttribute(entry.getProperty(ATTRIBUTE)) != null && entity.getAttribute(entry.getProperty(ATTRIBUTE)).getModifier(entry.getProperty(UUID)) != null) {
             entity.getAttribute(entry.getProperty(ATTRIBUTE)).removeModifier(entry.getProperty(UUID));
         }

@@ -205,7 +205,7 @@ public enum BodyPart {
             }
         }
 
-        for (AbilityEntry bodyPartHide : AbilityUtil.getEnabledEntries(entity, Abilities.HIDE_BODY_PART.get())) {
+        for (AbilityInstance bodyPartHide : AbilityUtil.getEnabledEntries(entity, Abilities.HIDE_BODY_PART.get())) {
             if (isFirstPerson ? bodyPartHide.getProperty(HideBodyPartAbility.AFFECTS_FIRST_PERSON) : true) {
                 for (BodyPart part : bodyPartHide.getProperty(HideBodyPartAbility.BODY_PARTS)) {
                     result.hide(part);
@@ -213,7 +213,7 @@ public enum BodyPart {
             }
         }
 
-        for (AbilityEntry bodyPartHide : AbilityUtil.getEnabledEntries(entity, Abilities.REMOVE_BODY_PART.get())) {
+        for (AbilityInstance bodyPartHide : AbilityUtil.getEnabledEntries(entity, Abilities.REMOVE_BODY_PART.get())) {
             if (isFirstPerson ? bodyPartHide.getProperty(RemoveBodyPartAbility.AFFECTS_FIRST_PERSON) : true) {
                 for (BodyPart part : bodyPartHide.getProperty(RemoveBodyPartAbility.BODY_PARTS)) {
                     result.remove(part);

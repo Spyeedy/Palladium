@@ -52,7 +52,7 @@ public class EnergyBeamAbility extends Ability {
     }
 
     @Override
-    public void firstTick(LivingEntity entity, AbilityEntry entry, IPowerHolder holder, boolean enabled) {
+    public void firstTick(LivingEntity entity, AbilityInstance entry, IPowerHolder holder, boolean enabled) {
         if (enabled && entity instanceof Player player && Platform.isClient()) {
             EnergyBeamEffect.start(player, entry.getReference());
         }
@@ -60,7 +60,7 @@ public class EnergyBeamAbility extends Ability {
 
     @SuppressWarnings("ConstantValue")
     @Override
-    public void tick(LivingEntity entity, AbilityEntry entry, IPowerHolder holder, boolean enabled) {
+    public void tick(LivingEntity entity, AbilityInstance entry, IPowerHolder holder, boolean enabled) {
         if (enabled) {
             var hit = updateTargetPos(entity, entry, 1F);
 
@@ -108,7 +108,7 @@ public class EnergyBeamAbility extends Ability {
     }
 
     @Environment(EnvType.CLIENT)
-    public void spawnParticles(Level level, Vec3 pos, AbilityEntry entry) {
+    public void spawnParticles(Level level, Vec3 pos, AbilityInstance entry) {
         var beam = EnergyBeamManager.INSTANCE.get(entry.getProperty(BEAM));
 
         if (beam != null) {
@@ -116,7 +116,7 @@ public class EnergyBeamAbility extends Ability {
         }
     }
 
-    public static HitResult updateTargetPos(LivingEntity living, AbilityEntry entry, float partialTick) {
+    public static HitResult updateTargetPos(LivingEntity living, AbilityInstance entry, float partialTick) {
         var start = living.getEyePosition(partialTick);
         var end = start.add(EntityUtil.getLookVector(living, partialTick).scale(entry.getProperty(MAX_DISTANCE)));
         HitResult endHit = EntityUtil.rayTraceWithEntities(living, start, end, start.distanceTo(end), ClipContext.Block.COLLIDER, ClipContext.Fluid.NONE, en -> true);

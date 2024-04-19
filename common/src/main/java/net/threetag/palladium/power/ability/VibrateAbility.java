@@ -20,7 +20,7 @@ public class VibrateAbility extends Ability implements AnimationTimer {
     }
 
     @Override
-    public void tick(LivingEntity entity, AbilityEntry entry, IPowerHolder holder, boolean enabled) {
+    public void tick(LivingEntity entity, AbilityInstance entry, IPowerHolder holder, boolean enabled) {
         int value = entry.getProperty(VALUE);
         entry.setUniqueProperty(PREV_VALUE, value);
 
@@ -32,12 +32,12 @@ public class VibrateAbility extends Ability implements AnimationTimer {
     }
 
     @Override
-    public float getAnimationValue(AbilityEntry entry, float partialTick) {
+    public float getAnimationValue(AbilityInstance entry, float partialTick) {
         return Mth.lerp(partialTick, entry.getProperty(PREV_VALUE), entry.getProperty(VALUE)) / 10;
     }
 
     @Override
-    public float getAnimationTimer(AbilityEntry entry, float partialTick, boolean maxedOut) {
+    public float getAnimationTimer(AbilityInstance entry, float partialTick, boolean maxedOut) {
         if (maxedOut) {
             return 10;
         }

@@ -33,7 +33,7 @@ public class EnergyBlastAbility extends Ability implements AnimationTimer {
     }
 
     @Override
-    public void tick(LivingEntity entity, AbilityEntry entry, IPowerHolder holder, boolean enabled) {
+    public void tick(LivingEntity entity, AbilityInstance entry, IPowerHolder holder, boolean enabled) {
         if (enabled && entity instanceof Player player) {
             player.displayClientMessage(Component.literal("Energy Blast ability is deprecated, please switch to energy_beam!"), true);
         }
@@ -45,12 +45,12 @@ public class EnergyBlastAbility extends Ability implements AnimationTimer {
     }
 
     @Override
-    public float getAnimationValue(AbilityEntry entry, float partialTick) {
+    public float getAnimationValue(AbilityInstance entry, float partialTick) {
         return entry.getProperty(ANIMATION_TIMER) / 5F;
     }
 
     @Override
-    public float getAnimationTimer(AbilityEntry entry, float partialTick, boolean maxedOut) {
+    public float getAnimationTimer(AbilityInstance entry, float partialTick, boolean maxedOut) {
         if (maxedOut) {
             return 5;
         }

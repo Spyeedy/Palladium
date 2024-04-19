@@ -27,7 +27,7 @@ public class CommandAbility extends Ability implements CommandSource {
     }
 
     @Override
-    public void firstTick(LivingEntity entity, AbilityEntry entry, IPowerHolder holder, boolean enabled) {
+    public void firstTick(LivingEntity entity, AbilityInstance entry, IPowerHolder holder, boolean enabled) {
         if (enabled && entity.level().getServer() != null && entry.getProperty(FIRST_TICK_COMMANDS) != null && entity.level() instanceof ServerLevel serverLevel) {
             for (String command : Objects.requireNonNull(entry.getProperty(FIRST_TICK_COMMANDS))) {
                 entity.level().getServer().getCommands().performPrefixedCommand(this.createCommandSourceStack(entity, serverLevel), command);
@@ -36,7 +36,7 @@ public class CommandAbility extends Ability implements CommandSource {
     }
 
     @Override
-    public void tick(LivingEntity entity, AbilityEntry entry, IPowerHolder holder, boolean enabled) {
+    public void tick(LivingEntity entity, AbilityInstance entry, IPowerHolder holder, boolean enabled) {
         if (enabled && entity.level().getServer() != null && entry.getProperty(COMMANDS) != null && entity.level() instanceof ServerLevel serverLevel) {
             for (String command : Objects.requireNonNull(entry.getProperty(COMMANDS))) {
                 entity.level().getServer().getCommands().performPrefixedCommand(this.createCommandSourceStack(entity, serverLevel), command);
@@ -45,7 +45,7 @@ public class CommandAbility extends Ability implements CommandSource {
     }
 
     @Override
-    public void lastTick(LivingEntity entity, AbilityEntry entry, IPowerHolder holder, boolean enabled) {
+    public void lastTick(LivingEntity entity, AbilityInstance entry, IPowerHolder holder, boolean enabled) {
         if (enabled && entity.level().getServer() != null && entry.getProperty(LAST_TICK_COMMANDS) != null && entity.level() instanceof ServerLevel serverLevel) {
             for (String command : Objects.requireNonNull(entry.getProperty(LAST_TICK_COMMANDS))) {
                 entity.level().getServer().getCommands().performPrefixedCommand(this.createCommandSourceStack(entity, serverLevel), command);

@@ -8,7 +8,7 @@ import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
 import net.threetag.palladium.client.screen.power.PowersScreen;
-import net.threetag.palladium.power.ability.AbilityEntry;
+import net.threetag.palladium.power.ability.AbilityInstance;
 import net.threetag.palladium.power.ability.AbilityReference;
 import net.threetag.palladium.util.property.PalladiumProperty;
 import net.threetag.palladiumcore.network.MessageContext;
@@ -62,7 +62,7 @@ public class SyncAbilityEntryPropertyMessage extends MessageS2C {
         var level = Objects.requireNonNull(Minecraft.getInstance().level);
         Entity entity = level.getEntity(this.entityId);
         if (entity instanceof LivingEntity livingEntity) {
-            AbilityEntry entry = this.reference.getEntry(livingEntity);
+            AbilityInstance entry = this.reference.getEntry(livingEntity);
 
             if (entry != null) {
                 PalladiumProperty property = entry.getPropertyManager().getPropertyByName(this.propertyKey);

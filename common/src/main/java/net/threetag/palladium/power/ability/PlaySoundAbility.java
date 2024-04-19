@@ -42,7 +42,7 @@ public class PlaySoundAbility extends Ability {
     }
 
     @Override
-    public void firstTick(LivingEntity entity, AbilityEntry entry, IPowerHolder holder, boolean enabled) {
+    public void firstTick(LivingEntity entity, AbilityInstance entry, IPowerHolder holder, boolean enabled) {
         if (enabled) {
             if (entry.getProperty(LOOPING)) {
                 if (Platform.isClient()) {
@@ -61,7 +61,7 @@ public class PlaySoundAbility extends Ability {
     }
 
     @Environment(EnvType.CLIENT)
-    public void startSound(LivingEntity entity, AbilityEntry entry) {
+    public void startSound(LivingEntity entity, AbilityInstance entry) {
         if (!entry.getProperty(PLAY_SELF) || Minecraft.getInstance().player == entity) {
             Minecraft.getInstance().getSoundManager().play(new AbilitySound(entry.getReference(), entity, entry.getProperty(SOUND), entity.getSoundSource(), entry.getProperty(VOLUME), entry.getProperty(PITCH)));
         }

@@ -29,7 +29,7 @@ public class RenderLayerAbility extends Ability implements RenderLayerProviderAb
 
     @Override
     @Environment(EnvType.CLIENT)
-    public IPackRenderLayer getRenderLayer(AbilityEntry entry, LivingEntity entity, PackRenderLayerManager manager) {
+    public IPackRenderLayer getRenderLayer(AbilityInstance entry, LivingEntity entity, PackRenderLayerManager manager) {
         return manager.getLayer(entry.getProperty(RENDER_LAYER));
     }
 }

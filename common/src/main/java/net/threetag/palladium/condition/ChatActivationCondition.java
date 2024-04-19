@@ -2,7 +2,7 @@ package net.threetag.palladium.condition;
 
 import com.google.gson.JsonObject;
 import net.minecraft.world.entity.LivingEntity;
-import net.threetag.palladium.power.ability.AbilityEntry;
+import net.threetag.palladium.power.ability.AbilityInstance;
 import net.threetag.palladium.util.context.DataContext;
 import net.threetag.palladium.util.property.IntegerProperty;
 import net.threetag.palladium.util.property.PalladiumProperty;
@@ -35,7 +35,7 @@ public class ChatActivationCondition extends ChatMessageCondition {
     }
 
     @Override
-    public void onChat(LivingEntity entity, AbilityEntry entry) {
+    public void onChat(LivingEntity entity, AbilityInstance entry) {
         if (entry.cooldown <= 0 && entry.activationTimer == 0) {
             entry.startActivationTimer(entity, this.ticks);
         }

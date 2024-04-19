@@ -25,7 +25,7 @@ public class NameChangeAbility extends Ability {
     }
 
     @Override
-    public void firstTick(LivingEntity entity, AbilityEntry entry, IPowerHolder holder, boolean enabled) {
+    public void firstTick(LivingEntity entity, AbilityInstance entry, IPowerHolder holder, boolean enabled) {
         if (entity instanceof Player player) {
             entry.setUniqueProperty(ACTIVE, true);
             PlayerUtil.refreshDisplayName(player);
@@ -33,7 +33,7 @@ public class NameChangeAbility extends Ability {
     }
 
     @Override
-    public void lastTick(LivingEntity entity, AbilityEntry entry, IPowerHolder holder, boolean enabled) {
+    public void lastTick(LivingEntity entity, AbilityInstance entry, IPowerHolder holder, boolean enabled) {
         if (entity instanceof Player player) {
             entry.setUniqueProperty(ACTIVE, false);
             PlayerUtil.refreshDisplayName(player);

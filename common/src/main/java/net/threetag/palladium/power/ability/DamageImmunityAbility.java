@@ -24,7 +24,7 @@ public class DamageImmunityAbility extends Ability {
         this.withProperty(DAMAGE_SOURCES, Arrays.asList(DamageTypeTags.IS_LIGHTNING, DamageTypeTags.IS_FALL));
     }
 
-    public static boolean isImmuneAgainst(AbilityEntry entry, DamageSource source) {
+    public static boolean isImmuneAgainst(AbilityInstance entry, DamageSource source) {
         if (!entry.isEnabled()) {
             return false;
         }

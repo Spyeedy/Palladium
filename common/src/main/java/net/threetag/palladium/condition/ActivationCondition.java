@@ -5,7 +5,7 @@ import net.minecraft.world.entity.LivingEntity;
 import net.threetag.palladium.power.IPowerHolder;
 import net.threetag.palladium.power.Power;
 import net.threetag.palladium.power.ability.AbilityConfiguration;
-import net.threetag.palladium.power.ability.AbilityEntry;
+import net.threetag.palladium.power.ability.AbilityInstance;
 import net.threetag.palladium.util.context.DataContext;
 import net.threetag.palladium.util.property.IntegerProperty;
 import net.threetag.palladium.util.property.PalladiumProperty;
@@ -37,7 +37,7 @@ public class ActivationCondition extends KeyCondition {
     }
 
     @Override
-    public void onKeyPressed(LivingEntity entity, AbilityEntry entry, Power power, IPowerHolder holder) {
+    public void onKeyPressed(LivingEntity entity, AbilityInstance entry, Power power, IPowerHolder holder) {
         if (entry.cooldown <= 0 && entry.activationTimer == 0) {
             entry.startActivationTimer(entity, this.ticks);
         }

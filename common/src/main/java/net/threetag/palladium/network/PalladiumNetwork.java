@@ -5,7 +5,7 @@ import net.minecraft.world.entity.LivingEntity;
 import net.threetag.palladium.Palladium;
 import net.threetag.palladium.accessory.Accessory;
 import net.threetag.palladium.power.PowerManager;
-import net.threetag.palladium.power.ability.AbilityEntry;
+import net.threetag.palladium.power.ability.AbilityInstance;
 import net.threetag.palladium.power.ability.AbilityUtil;
 import net.threetag.palladium.util.property.EntityPropertyHandler;
 import net.threetag.palladiumcore.network.MessageType;
@@ -45,7 +45,7 @@ public class PalladiumNetwork {
                     var handler = opt.get();
                     consumer.accept(new UpdatePowersMessage(livingEntity, Collections.emptyList(), handler.getPowerHolders().values().stream().map(h -> h.getPower().getId()).toList()));
 
-                    for (AbilityEntry entry : AbilityUtil.getEntries(livingEntity)) {
+                    for (AbilityInstance entry : AbilityUtil.getEntries(livingEntity)) {
                         consumer.accept(entry.getSyncStateMessage(livingEntity));
                     }
                 }

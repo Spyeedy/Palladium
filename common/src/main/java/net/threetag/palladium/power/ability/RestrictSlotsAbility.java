@@ -22,7 +22,7 @@ public class RestrictSlotsAbility extends Ability {
     }
 
     @Override
-    public void tick(LivingEntity entity, AbilityEntry entry, IPowerHolder holder, boolean enabled) {
+    public void tick(LivingEntity entity, AbilityInstance entry, IPowerHolder holder, boolean enabled) {
         if (enabled && !entity.level().isClientSide) {
             for (PlayerSlot slot : entry.getProperty(SLOTS)) {
                 var items = slot.getItems(entity);
@@ -47,7 +47,7 @@ public class RestrictSlotsAbility extends Ability {
     }
 
     public static boolean isRestricted(LivingEntity entity, EquipmentSlot slot) {
-        for (AbilityEntry entry : AbilityUtil.getEnabledEntries(entity, Abilities.RESTRICT_SLOTS.get())) {
+        for (AbilityInstance entry : AbilityUtil.getEnabledEntries(entity, Abilities.RESTRICT_SLOTS.get())) {
             for (PlayerSlot playerSlot : entry.getProperty(SLOTS)) {
                 if (playerSlot.getEquipmentSlot() == slot) {
                     return true;
@@ -59,7 +59,7 @@ public class RestrictSlotsAbility extends Ability {
     }
 
     public static boolean isRestricted(LivingEntity entity, String key) {
-        for (AbilityEntry entry : AbilityUtil.getEnabledEntries(entity, Abilities.RESTRICT_SLOTS.get())) {
+        for (AbilityInstance entry : AbilityUtil.getEnabledEntries(entity, Abilities.RESTRICT_SLOTS.get())) {
             for (PlayerSlot playerSlot : entry.getProperty(SLOTS)) {
                 if (playerSlot.toString().equalsIgnoreCase(key)) {
                     return true;

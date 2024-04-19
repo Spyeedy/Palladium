@@ -46,12 +46,12 @@ public class AbilityReference {
     }
 
     @Nullable
-    public AbilityEntry getEntry(LivingEntity entity) {
+    public AbilityInstance getEntry(LivingEntity entity) {
         return this.getEntry(entity, null);
     }
 
     @Nullable
-    public AbilityEntry getEntry(LivingEntity entity, @Nullable IPowerHolder powerHolder) {
+    public AbilityInstance getEntry(LivingEntity entity, @Nullable IPowerHolder powerHolder) {
         if (this.powerId != null) {
             IPowerHandler handler = PowerManager.getPowerHandler(entity).orElse(null);
             Power power = PowerManager.getInstance(entity.level()).getPower(this.powerId);
@@ -70,7 +70,7 @@ public class AbilityReference {
         return null;
     }
 
-    public Optional<AbilityEntry> optional(LivingEntity entity, @Nullable IPowerHolder powerHolder) {
+    public Optional<AbilityInstance> optional(LivingEntity entity, @Nullable IPowerHolder powerHolder) {
         return Optional.ofNullable(this.getEntry(entity, powerHolder));
     }
 

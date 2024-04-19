@@ -28,7 +28,7 @@ public class RenderLayerByAccessorySlotAbility extends Ability implements Render
 
     @Override
     @Environment(EnvType.CLIENT)
-    public IPackRenderLayer getRenderLayer(AbilityEntry entry, LivingEntity entity, PackRenderLayerManager manager) {
+    public IPackRenderLayer getRenderLayer(AbilityInstance entry, LivingEntity entity, PackRenderLayerManager manager) {
         AtomicReference<ResourceLocation> layerId = new AtomicReference<>(entry.getProperty(DEFAULT));
 
         if(entity instanceof Player player) {

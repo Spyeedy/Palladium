@@ -15,7 +15,7 @@ import net.minecraft.util.FormattedCharSequence;
 import net.minecraft.util.Mth;
 import net.threetag.palladium.power.IPowerHolder;
 import net.threetag.palladium.power.ability.Ability;
-import net.threetag.palladium.power.ability.AbilityEntry;
+import net.threetag.palladium.power.ability.AbilityInstance;
 import net.threetag.palladium.util.context.DataContext;
 
 import java.util.Collection;
@@ -39,7 +39,7 @@ public class TreeAbilityWidget {
     private static final int[] TEST_SPLIT_OFFSETS = new int[]{0, 10, -10, 25, -25};
     private final TreePowerTab tab;
     private final IPowerHolder holder;
-    public final AbilityEntry abilityEntry;
+    public final AbilityInstance abilityInstance;
     private final FormattedCharSequence title;
     private final int width;
     private final List<FormattedCharSequence> description;
@@ -51,17 +51,17 @@ public class TreeAbilityWidget {
     public double gridX, gridY;
     public boolean fixedPosition = false;
 
-    public TreeAbilityWidget(TreePowerTab tab, Minecraft mc, IPowerHolder holder, AbilityEntry abilityEntry) {
+    public TreeAbilityWidget(TreePowerTab tab, Minecraft mc, IPowerHolder holder, AbilityInstance abilityInstance) {
         this.tab = tab;
         this.holder = holder;
-        this.abilityEntry = abilityEntry;
+        this.abilityInstance = abilityInstance;
         this.minecraft = mc;
-        this.title = Language.getInstance().getVisualOrder(mc.font.substrByWidth(abilityEntry.getConfiguration().getDisplayName(), 163));
+        this.title = Language.getInstance().getVisualOrder(mc.font.substrByWidth(abilityInstance.getConfiguration().getDisplayName(), 163));
         int l = 29 + mc.font.width(this.title);
-        var description = abilityEntry.getProperty(Ability.DESCRIPTION);
+        var description = abilityInstance.getProperty(Ability.DESCRIPTION);
         this.description = Language.getInstance()
                 .getVisualOrder(
-                        this.findOptimalLines(ComponentUtils.mergeStyles(description != null ? description.get(this.abilityEntry.isUnlocked()).copy() : Component.empty(), Style.EMPTY.withColor(ChatFormatting.WHITE)), l)
+                        this.findOptimalLines(ComponentUtils.mergeStyles(description != null ? description.get(this.abilityInstance.isUnlocked()).copy() : Component.empty(), Style.EMPTY.withColor(ChatFormatting.WHITE)), l)
                 );
 
         for (FormattedCharSequence formattedCharSequence : this.description) {
@@ -100,18 +100,18 @@ public class TreeAbilityWidget {
     public TreeAbilityWidget updateRelatives(Collection<TreeAbilityWidget> list) {
         this.parents.clear();
         this.children.clear();
-        List<AbilityEntry> parents = Ability.findParentsWithinHolder(this.abilityEntry.getConfiguration(), this.holder);
-        List<AbilityEntry> children = Ability.findChildrenWithinHolder(this.abilityEntry.getConfiguration(), this.holder);
+        List<AbilityInstance> parents = Ability.findParentsWithinHolder(this.abilityInstance.getConfiguration(), this.holder);
+        List<AbilityInstance> children = Ability.findChildrenWithinHolder(this.abilityInstance.getConfiguration(), this.holder);
 
         for (TreeAbilityWidget widget : list) {
             if (!parents.isEmpty()) {
-                if (parents.contains(widget.abilityEntry)) {
+                if (parents.contains(widget.abilityInstance)) {
                     this.parents.add(widget);
                 }
             }
 
             if (!children.isEmpty()) {
-                if (children.contains(widget.abilityEntry)) {
+                if (children.contains(widget.abilityInstance)) {
                     this.children.add(widget);
                 }
             }
@@ -146,8 +146,8 @@ public class TreeAbilityWidget {
     }
 
     public void drawDisplayIcon(Minecraft mc, GuiGraphics guiGraphics, int x, int y) {
-        if (this.abilityEntry.isUnlocked()) {
-            this.abilityEntry.getProperty(Ability.ICON).draw(mc, guiGraphics, DataContext.forAbility(mc.player, this.abilityEntry), x, y);
+        if (this.abilityInstance.isUnlocked()) {
+            this.abilityInstance.getProperty(Ability.ICON).draw(mc, guiGraphics, DataContext.forAbility(mc.player, this.abilityInstance), x, y);
         } else {
             RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
             guiGraphics.blit(PowersScreen.WIDGETS, x, y, 90, 83, 16, 16);
@@ -156,7 +156,7 @@ public class TreeAbilityWidget {
 
     public void drawIcon(Minecraft mc, GuiGraphics guiGraphics, int x, int y) {
         RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
-        guiGraphics.blit(PowersScreen.WIDGETS, x - 13, y - 13, 0, this.abilityEntry.isUnlocked() ? 78 : 104, 26, 26);
+        guiGraphics.blit(PowersScreen.WIDGETS, x - 13, y - 13, 0, this.abilityInstance.isUnlocked() ? 78 : 104, 26, 26);
         this.drawDisplayIcon(mc, guiGraphics, x - 8, y - 8);
     }
 

@@ -9,7 +9,7 @@ import net.threetag.palladium.network.AbilityKeyPressedMessage;
 import net.threetag.palladium.network.NotifyMovementKeyListenerMessage;
 import net.threetag.palladium.network.ToggleOpenableEquipmentMessage;
 import net.threetag.palladium.power.ability.AbilityConfiguration;
-import net.threetag.palladium.power.ability.AbilityEntry;
+import net.threetag.palladium.power.ability.AbilityInstance;
 import net.threetag.palladium.power.ability.AbilityUtil;
 import net.threetag.palladium.util.property.PalladiumProperties;
 import net.threetag.palladiumcore.event.ClientTickEvents;
@@ -29,8 +29,8 @@ public class PalladiumKeyMappings implements InputEvents.KeyPressed, ClientTickE
     public static final KeyMapping OPEN_EQUIPMENT = new KeyMapping("key.palladium.open_equipment", GLFW.GLFW_KEY_SLASH, "key.categories.gameplay");
     public static final KeyMapping SWITCH_ABILITY_LIST = new KeyMapping("key.palladium.switch_ability_list", 88, CATEGORY);
     public static AbilityKeyMapping[] ABILITY_KEYS = new AbilityKeyMapping[5];
-    public static AbilityEntry LEFT_CLICKED_ABILITY = null;
-    public static AbilityEntry RIGHT_CLICKED_ABILITY = null;
+    public static AbilityInstance LEFT_CLICKED_ABILITY = null;
+    public static AbilityInstance RIGHT_CLICKED_ABILITY = null;
 
     public static void init() {
         KeyMappingRegistry.register(OPEN_EQUIPMENT);
@@ -65,7 +65,7 @@ public class PalladiumKeyMappings implements InputEvents.KeyPressed, ClientTickE
             AbilityBarRenderer.AbilityList list = AbilityBarRenderer.getSelectedList();
             if (list != null && action != GLFW.GLFW_REPEAT) {
                 for (AbilityKeyMapping key : ABILITY_KEYS) {
-                    AbilityEntry entry = list.getDisplayedAbilities()[key.index - 1];
+                    AbilityInstance entry = list.getDisplayedAbilities()[key.index - 1];
 
                     if (entry != null && (action != GLFW.GLFW_PRESS || (!entry.getConfiguration().needsEmptyHand() || client.player.getMainHandItem().isEmpty()))) {
                         if (key.matches(keyCode, scanCode) && entry.getConfiguration().getKeyType() == AbilityConfiguration.KeyType.KEY_BIND) {
@@ -106,13 +106,13 @@ public class PalladiumKeyMappings implements InputEvents.KeyPressed, ClientTickE
         var player = Objects.requireNonNull(client.player);
 
         // Disable active toggle abilities
-        List<AbilityEntry> activeToggles = AbilityUtil.getEntries(player).stream()
+        List<AbilityInstance> activeToggles = AbilityUtil.getEntries(player).stream()
                 .filter(e -> e.getConfiguration().getKeyPressType() == AbilityConfiguration.KeyPressType.TOGGLE
                         && e.getConfiguration().getKeyType().toString().toLowerCase(Locale.ROOT).startsWith("scroll")
                         && e.isEnabled())
                 .toList();
 
-        for (AbilityEntry active : activeToggles) {
+        for (AbilityInstance active : activeToggles) {
             if ((active.getConfiguration().getKeyType() == AbilityConfiguration.KeyType.SCROLL_UP && scrollDelta < 0D)
                     || (active.getConfiguration().getKeyType() == AbilityConfiguration.KeyType.SCROLL_DOWN && scrollDelta > 0D)
                     || (active.getConfiguration().getKeyType() == AbilityConfiguration.KeyType.SCROLL_EITHER && scrollDelta != 0D)) {
@@ -121,7 +121,7 @@ public class PalladiumKeyMappings implements InputEvents.KeyPressed, ClientTickE
             }
         }
 
-        AbilityEntry entry = null;
+        AbilityInstance entry = null;
 
         if (scrollDelta > 0D) {
             entry = PalladiumKeyMappings.getPrioritisedKeyedAbility(AbilityConfiguration.KeyType.SCROLL_UP);
@@ -172,11 +172,11 @@ public class PalladiumKeyMappings implements InputEvents.KeyPressed, ClientTickE
         }
     }
 
-    public static AbilityEntry getPrioritisedKeyedAbility(AbilityConfiguration.KeyType keyType) {
+    public static AbilityInstance getPrioritisedKeyedAbility(AbilityConfiguration.KeyType keyType) {
         var list = AbilityBarRenderer.getSelectedList();
 
         if (list != null) {
-            for (AbilityEntry ability : list.getDisplayedAbilities()) {
+            for (AbilityInstance ability : list.getDisplayedAbilities()) {
                 if (ability != null && ability.isUnlocked()) {
                     if (ability.getConfiguration().getKeyType() == keyType) {
                         if(!ability.getConfiguration().getKeyType().toString().toLowerCase(Locale.ROOT).startsWith("scroll") || (!ability.getConfiguration().allowScrollWhenCrouching() || !Objects.requireNonNull(Minecraft.getInstance().player).isCrouching())) {
@@ -187,7 +187,7 @@ public class PalladiumKeyMappings implements InputEvents.KeyPressed, ClientTickE
             }
         }
 
-        for (AbilityEntry entry : AbilityUtil.getEntries(Minecraft.getInstance().player)) {
+        for (AbilityInstance entry : AbilityUtil.getEntries(Minecraft.getInstance().player)) {
             if (entry != null && entry.isUnlocked()) {
                 if (entry.getConfiguration().getKeyType() == keyType) {
                     if(!entry.getConfiguration().getKeyType().toString().toLowerCase(Locale.ROOT).startsWith("scroll") || (!entry.getConfiguration().allowScrollWhenCrouching() || !Objects.requireNonNull(Minecraft.getInstance().player).isCrouching())) {

@@ -34,7 +34,7 @@ public class ParticleAbility extends Ability {
     }
 
     @Override
-    public void tick(LivingEntity entity, AbilityEntry entry, IPowerHolder holder, boolean enabled) {
+    public void tick(LivingEntity entity, AbilityInstance entry, IPowerHolder holder, boolean enabled) {
         if (enabled && entity.level().isClientSide) {
             this.tickClient(entity, entry);
         }
@@ -42,7 +42,7 @@ public class ParticleAbility extends Ability {
 
     @SuppressWarnings({"unchecked", "rawtypes"})
     @Environment(EnvType.CLIENT)
-    private void tickClient(LivingEntity entity, AbilityEntry entry) {
+    private void tickClient(LivingEntity entity, AbilityInstance entry) {
         if (entity instanceof AbstractClientPlayer player) {
             try {
                 ParticleType type = entry.getProperty(PARTICLE);

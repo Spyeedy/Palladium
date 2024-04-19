@@ -7,7 +7,7 @@ import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
 import net.threetag.palladium.client.screen.power.PowersScreen;
-import net.threetag.palladium.power.ability.AbilityEntry;
+import net.threetag.palladium.power.ability.AbilityInstance;
 import net.threetag.palladium.power.ability.AbilityReference;
 import net.threetag.palladiumcore.network.MessageContext;
 import net.threetag.palladiumcore.network.MessageS2C;
@@ -72,7 +72,7 @@ public class SyncAbilityStateMessage extends MessageS2C {
         Entity entity = Objects.requireNonNull(Minecraft.getInstance().level).getEntity(this.entityId);
 
         if (entity instanceof LivingEntity livingEntity) {
-            AbilityEntry entry = this.reference.getEntry(livingEntity);
+            AbilityInstance entry = this.reference.getEntry(livingEntity);
 
             if (entry != null) {
                 entry.setClientState(livingEntity, entry.getHolder(), this.unlocked, this.enabled, this.maxCooldown, this.cooldown, this.maxActivationTimer, this.activationTimer);

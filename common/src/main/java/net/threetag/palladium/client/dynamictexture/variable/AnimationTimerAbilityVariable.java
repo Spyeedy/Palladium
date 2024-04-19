@@ -7,13 +7,11 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.GsonHelper;
 import net.threetag.palladium.Palladium;
 import net.threetag.palladium.documentation.JsonDocumentationBuilder;
-import net.threetag.palladium.power.ability.AbilityEntry;
+import net.threetag.palladium.power.ability.AbilityInstance;
 import net.threetag.palladium.power.ability.AbilityReference;
 import net.threetag.palladium.power.ability.AnimationTimer;
 import net.threetag.palladium.util.context.DataContext;
 import net.threetag.palladium.util.json.GsonUtil;
-import net.threetag.palladium.util.property.IntegerProperty;
-import net.threetag.palladium.util.property.PalladiumProperty;
 
 import java.util.List;
 
@@ -30,7 +28,7 @@ public class AnimationTimerAbilityVariable extends AbstractIntegerTextureVariabl
     public int getNumber(DataContext context) {
         var livingEntity = context.getLivingEntity();
         if (livingEntity != null) {
-            AbilityEntry entry = this.reference.getEntry(livingEntity);
+            AbilityInstance entry = this.reference.getEntry(livingEntity);
 
             if (entry == null || !(entry.getConfiguration().getAbility() instanceof AnimationTimer animationTimer)) {
                 return 0;

@@ -15,7 +15,7 @@ import net.threetag.palladium.util.property.PropertyManager;
 import net.threetag.palladium.util.property.SyncType;
 import org.jetbrains.annotations.Nullable;
 
-public class AbilityEntry {
+public class AbilityInstance {
 
     private final AbilityConfiguration abilityConfiguration;
     private final IPowerHolder holder;
@@ -34,7 +34,7 @@ public class AbilityEntry {
         }
     });
 
-    public AbilityEntry(AbilityConfiguration abilityConfiguration, IPowerHolder holder) {
+    public AbilityInstance(AbilityConfiguration abilityConfiguration, IPowerHolder holder) {
         this.abilityConfiguration = abilityConfiguration;
         this.holder = holder;
         this.abilityConfiguration.getAbility().registerUniqueProperties(this.propertyManager);
@@ -256,7 +256,7 @@ public class AbilityEntry {
         return property != null ? this.getProperty(property) : null;
     }
 
-    public <T> AbilityEntry setUniqueProperty(PalladiumProperty<T> property, T value) {
+    public <T> AbilityInstance setUniqueProperty(PalladiumProperty<T> property, T value) {
         this.propertyManager.set(property, value);
         return this;
     }

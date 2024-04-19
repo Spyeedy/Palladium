@@ -23,7 +23,7 @@ import net.threetag.palladium.power.PowerManager;
 import net.threetag.palladium.power.ability.Ability;
 import net.threetag.palladium.power.ability.AbilityColor;
 import net.threetag.palladium.power.ability.AbilityConfiguration;
-import net.threetag.palladium.power.ability.AbilityEntry;
+import net.threetag.palladium.power.ability.AbilityInstance;
 import net.threetag.palladium.power.energybar.EnergyBar;
 import net.threetag.palladium.util.context.DataContext;
 import net.threetag.palladiumcore.event.ClientTickEvents;
@@ -161,7 +161,7 @@ public class AbilityBarRenderer implements OverlayRegistry.IngameOverlay {
             guiGraphics.blit(texture, 3, i * 22 + 3, 60, 56, 18, 18);
 
             if (list != null) {
-                AbilityEntry entry = list.getDisplayedAbilities()[i];
+                AbilityInstance entry = list.getDisplayedAbilities()[i];
 
                 if (entry != null) {
                     if (entry.isEnabled() && entry.activationTimer != 0 && entry.maxActivationTimer != 0) {
@@ -210,7 +210,7 @@ public class AbilityBarRenderer implements OverlayRegistry.IngameOverlay {
 
         // Colored Frames + Keys
         for (int i = 0; i < AbilityList.SIZE; i++) {
-            AbilityEntry ability = list.getDisplayedAbilities()[i];
+            AbilityInstance ability = list.getDisplayedAbilities()[i];
 
             if (ability != null) {
                 RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
@@ -328,11 +328,11 @@ public class AbilityBarRenderer implements OverlayRegistry.IngameOverlay {
         for (IPowerHolder holder : handler.getPowerHolders().values()) {
             List<AbilityList> containerList = new ArrayList<>();
             List<AbilityList> remainingLists = new ArrayList<>();
-            List<AbilityEntry> remaining = new ArrayList<>();
-            for (AbilityEntry abilityEntry : holder.getAbilities().values()) {
-                int i = abilityEntry.getProperty(Ability.LIST_INDEX);
+            List<AbilityInstance> remaining = new ArrayList<>();
+            for (AbilityInstance abilityInstance : holder.getAbilities().values()) {
+                int i = abilityInstance.getProperty(Ability.LIST_INDEX);
 
-                if (abilityEntry.getConfiguration().needsKey() && !abilityEntry.getProperty(Ability.HIDDEN_IN_BAR)) {
+                if (abilityInstance.getConfiguration().needsKey() && !abilityInstance.getProperty(Ability.HIDDEN_IN_BAR)) {
                     if (i >= 0) {
                         int listIndex = Math.floorDiv(i, 5);
                         int index = i % 5;
@@ -342,15 +342,15 @@ public class AbilityBarRenderer implements OverlayRegistry.IngameOverlay {
                         }
 
                         AbilityList abilityList = containerList.get(listIndex);
-                        abilityList.addAbility(index, abilityEntry);
+                        abilityList.addAbility(index, abilityInstance);
                     } else {
-                        remaining.add(abilityEntry);
+                        remaining.add(abilityInstance);
                     }
                 }
             }
 
             for (int i = 0; i < remaining.size(); i++) {
-                AbilityEntry abilityEntry = remaining.get(i);
+                AbilityInstance abilityInstance = remaining.get(i);
                 int listIndex = Math.floorDiv(i, 5);
                 int index = i % 5;
 
@@ -359,7 +359,7 @@ public class AbilityBarRenderer implements OverlayRegistry.IngameOverlay {
                 }
 
                 AbilityList abilityList = remainingLists.get(listIndex);
-                abilityList.addAbility(index, abilityEntry);
+                abilityList.addAbility(index, abilityInstance);
             }
 
             for (AbilityList list : containerList) {
@@ -387,7 +387,7 @@ public class AbilityBarRenderer implements OverlayRegistry.IngameOverlay {
         private static final int SIZE = 5;
         private final IPowerHolder powerHolder;
         private final Power power;
-        private final IntObjectHashMap<List<AbilityEntry>> abilities = new IntObjectHashMap<>();
+        private final IntObjectHashMap<List<AbilityInstance>> abilities = new IntObjectHashMap<>();
         private final ResourceLocation texture;
         public boolean simple = false;
         private final Collection<EnergyBar> energyBars;
@@ -412,12 +412,12 @@ public class AbilityBarRenderer implements OverlayRegistry.IngameOverlay {
             return this.energyBars;
         }
 
-        public AbilityList addAbility(int index, AbilityEntry ability) {
+        public AbilityList addAbility(int index, AbilityInstance ability) {
             this.abilities.computeIfAbsent(index, integer -> new ArrayList<>()).add(ability);
             return this;
         }
 
-        public boolean addAbility(AbilityEntry ability) {
+        public boolean addAbility(AbilityInstance ability) {
             for (int i = 0; i < SIZE; i++) {
                 if (this.abilities.get(i) == null || this.abilities.get(i).isEmpty()) {
                     this.abilities.computeIfAbsent(i, integer -> new ArrayList<>()).add(ability);
@@ -437,7 +437,7 @@ public class AbilityBarRenderer implements OverlayRegistry.IngameOverlay {
         }
 
         public boolean isFullyLocked() {
-            for (AbilityEntry entry : this.getDisplayedAbilities()) {
+            for (AbilityInstance entry : this.getDisplayedAbilities()) {
                 if (entry != null && entry.isUnlocked()) {
                     return false;
                 }
@@ -446,12 +446,12 @@ public class AbilityBarRenderer implements OverlayRegistry.IngameOverlay {
             return true;
         }
 
-        public AbilityEntry[] getDisplayedAbilities() {
-            AbilityEntry[] entries = new AbilityEntry[SIZE];
+        public AbilityInstance[] getDisplayedAbilities() {
+            AbilityInstance[] entries = new AbilityInstance[SIZE];
 
             for (int i = 0; i < SIZE; i++) {
                 if (this.abilities.get(i) != null) {
-                    for (AbilityEntry entry : this.abilities.get(i)) {
+                    for (AbilityInstance entry : this.abilities.get(i)) {
                         var current = entries[i];
 
                         if (current == null) {
@@ -472,9 +472,9 @@ public class AbilityBarRenderer implements OverlayRegistry.IngameOverlay {
             }
 
             int abilities = 0;
-            AbilityEntry entry = null;
+            AbilityInstance entry = null;
 
-            for (AbilityEntry ability : this.getDisplayedAbilities()) {
+            for (AbilityInstance ability : this.getDisplayedAbilities()) {
                 if (ability != null && ability.isUnlocked()) {
                     abilities++;
                     entry = ability;

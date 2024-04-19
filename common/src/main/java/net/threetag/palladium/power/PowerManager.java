@@ -17,7 +17,7 @@ import net.threetag.palladium.condition.ChatMessageCondition;
 import net.threetag.palladium.condition.Condition;
 import net.threetag.palladium.entity.PalladiumLivingEntityExtension;
 import net.threetag.palladium.network.SyncPowersMessage;
-import net.threetag.palladium.power.ability.AbilityEntry;
+import net.threetag.palladium.power.ability.AbilityInstance;
 import net.threetag.palladium.power.ability.AbilityUtil;
 import net.threetag.palladiumcore.event.ChatEvents;
 import net.threetag.palladiumcore.event.EventResult;
@@ -44,7 +44,7 @@ public class PowerManager extends SimpleJsonResourceReloadListener {
 
         ChatEvents.SERVER_SUBMITTED.register((player, rawMessage, message) -> {
             if (CHECK_FOR_CHAT_MESSAGES.contains(rawMessage.trim().toLowerCase(Locale.ROOT))) {
-                for (AbilityEntry entry : AbilityUtil.getEntries(player)) {
+                for (AbilityInstance entry : AbilityUtil.getEntries(player)) {
                     for (Condition condition : entry.getConfiguration().getUnlockingConditions()) {
                         if (condition instanceof ChatMessageCondition chat && chat.chatMessage.trim().equalsIgnoreCase(rawMessage.trim())) {
                             chat.onChat(player, entry);

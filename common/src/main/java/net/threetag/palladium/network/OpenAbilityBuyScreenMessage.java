@@ -4,22 +4,15 @@ import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.minecraft.client.Minecraft;
 import net.minecraft.network.FriendlyByteBuf;
-import net.minecraft.resources.ResourceLocation;
 import net.threetag.palladium.client.screen.power.BuyAbilityScreen;
 import net.threetag.palladium.client.screen.power.PowersScreen;
-import net.threetag.palladium.power.IPowerHandler;
-import net.threetag.palladium.power.IPowerHolder;
-import net.threetag.palladium.power.Power;
-import net.threetag.palladium.power.PowerManager;
 import net.threetag.palladium.power.ability.AbilityConfiguration;
-import net.threetag.palladium.power.ability.AbilityEntry;
+import net.threetag.palladium.power.ability.AbilityInstance;
 import net.threetag.palladium.power.ability.AbilityReference;
 import net.threetag.palladiumcore.network.MessageContext;
 import net.threetag.palladiumcore.network.MessageS2C;
 import net.threetag.palladiumcore.network.MessageType;
 import org.jetbrains.annotations.NotNull;
-
-import java.util.Objects;
 
 public class OpenAbilityBuyScreenMessage extends MessageS2C {
 
@@ -60,7 +53,7 @@ public class OpenAbilityBuyScreenMessage extends MessageS2C {
     @Environment(EnvType.CLIENT)
     public void handleClient(MessageContext context) {
         if (Minecraft.getInstance().screen instanceof PowersScreen powersScreen) {
-            AbilityEntry entry = this.reference.getEntry(Minecraft.getInstance().player);
+            AbilityInstance entry = this.reference.getEntry(Minecraft.getInstance().player);
 
             if (entry != null) {
                 powersScreen.openOverlayScreen(new BuyAbilityScreen(this.reference, this.unlockData, this.available, powersScreen));

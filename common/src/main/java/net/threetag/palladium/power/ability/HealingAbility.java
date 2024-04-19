@@ -20,7 +20,7 @@ public class HealingAbility extends Ability {
     }
 
     @Override
-    public void tick(LivingEntity entity, AbilityEntry entry, IPowerHolder holder, boolean enabled) {
+    public void tick(LivingEntity entity, AbilityInstance entry, IPowerHolder holder, boolean enabled) {
         if (enabled && !entity.level().isClientSide) {
             int frequency = entry.getProperty(FREQUENCY);
             if (frequency != 0 && entity.tickCount % frequency == 0) {

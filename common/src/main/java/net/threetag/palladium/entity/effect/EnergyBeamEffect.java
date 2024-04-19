@@ -10,7 +10,7 @@ import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.player.Player;
 import net.threetag.palladium.client.energybeam.EnergyBeamManager;
 import net.threetag.palladium.entity.EffectEntity;
-import net.threetag.palladium.power.ability.AbilityEntry;
+import net.threetag.palladium.power.ability.AbilityInstance;
 import net.threetag.palladium.power.ability.AbilityReference;
 import net.threetag.palladium.power.ability.EnergyBeamAbility;
 import net.threetag.palladium.util.property.AbilityReferenceProperty;
@@ -33,7 +33,7 @@ public class EnergyBeamEffect extends EntityEffect {
     @Environment(EnvType.CLIENT)
     public void render(EffectEntity entity, Entity anchor, PoseStack poseStack, MultiBufferSource bufferSource, int packedLightIn, boolean isFirstPerson, float partialTicks) {
         if (anchor instanceof AbstractClientPlayer player) {
-            AbilityEntry entry = this.get(entity, ABILITY).getEntry(player);
+            AbilityInstance entry = this.get(entity, ABILITY).getEntry(player);
 
             if (entry != null) {
                 EnergyBeamAbility.updateTargetPos(player, entry, partialTicks);
@@ -51,7 +51,7 @@ public class EnergyBeamEffect extends EntityEffect {
     @Override
     public void tick(EffectEntity entity, Entity anchor) {
         if (anchor instanceof AbstractClientPlayer player) {
-            AbilityEntry entry = this.get(entity, ABILITY).getEntry(player);
+            AbilityInstance entry = this.get(entity, ABILITY).getEntry(player);
 
             if (entry != null) {
                 var beam = EnergyBeamManager.INSTANCE.get(entry.getProperty(EnergyBeamAbility.BEAM));

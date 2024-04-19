@@ -8,7 +8,7 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 import net.threetag.palladium.power.IPowerHolder;
 import net.threetag.palladium.power.Power;
-import net.threetag.palladium.power.ability.AbilityEntry;
+import net.threetag.palladium.power.ability.AbilityInstance;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -49,13 +49,13 @@ public class DataContext {
         return context;
     }
 
-    public static DataContext forAbility(LivingEntity entity, AbilityEntry abilityEntry) {
+    public static DataContext forAbility(LivingEntity entity, AbilityInstance abilityInstance) {
         var context = forEntity(entity);
 
-        if (abilityEntry != null) {
-            context.with(DataContextType.ABILITY, abilityEntry);
-            context.with(DataContextType.POWER_HOLDER, abilityEntry.getHolder());
-            context.with(DataContextType.POWER, abilityEntry.getHolder().getPower());
+        if (abilityInstance != null) {
+            context.with(DataContextType.ABILITY, abilityInstance);
+            context.with(DataContextType.POWER_HOLDER, abilityInstance.getHolder());
+            context.with(DataContextType.POWER, abilityInstance.getHolder().getPower());
         }
 
         return context;
@@ -114,7 +114,7 @@ public class DataContext {
     }
 
     @Nullable
-    public AbilityEntry getAbility() {
+    public AbilityInstance getAbility() {
         return this.get(DataContextType.ABILITY);
     }
 

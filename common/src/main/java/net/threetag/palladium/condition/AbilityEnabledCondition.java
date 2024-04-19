@@ -2,7 +2,7 @@ package net.threetag.palladium.condition;
 
 import com.google.gson.JsonObject;
 import net.minecraft.resources.ResourceLocation;
-import net.threetag.palladium.power.ability.AbilityEntry;
+import net.threetag.palladium.power.ability.AbilityInstance;
 import net.threetag.palladium.power.ability.AbilityReference;
 import net.threetag.palladium.util.context.DataContext;
 import net.threetag.palladium.util.property.PalladiumProperty;
@@ -26,7 +26,7 @@ public class AbilityEnabledCondition extends Condition {
             return false;
         }
 
-        AbilityEntry dependency = this.ability.getEntry(entity, holder);
+        AbilityInstance dependency = this.ability.getEntry(entity, holder);
         return dependency != null && dependency.isEnabled();
     }
 

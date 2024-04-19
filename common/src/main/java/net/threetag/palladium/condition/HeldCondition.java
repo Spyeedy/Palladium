@@ -2,12 +2,12 @@ package net.threetag.palladium.condition;
 
 import com.google.gson.JsonObject;
 import net.minecraft.world.entity.LivingEntity;
+import net.threetag.palladium.power.ability.AbilityInstance;
 import net.threetag.palladium.util.context.DataContext;
 import net.threetag.palladium.util.context.DataContextType;
 import net.threetag.palladium.power.IPowerHolder;
 import net.threetag.palladium.power.Power;
 import net.threetag.palladium.power.ability.AbilityConfiguration;
-import net.threetag.palladium.power.ability.AbilityEntry;
 import net.threetag.palladium.util.property.IntegerProperty;
 import net.threetag.palladium.util.property.PalladiumProperty;
 import net.threetag.palladium.util.property.PropertyManager;
@@ -19,7 +19,7 @@ public class HeldCondition extends KeyCondition {
     }
 
     @Override
-    public void init(LivingEntity entity, AbilityEntry entry, PropertyManager manager) {
+    public void init(LivingEntity entity, AbilityInstance entry, PropertyManager manager) {
         entry.startCooldown(entity, this.cooldown);
     }
 
@@ -39,12 +39,12 @@ public class HeldCondition extends KeyCondition {
     }
 
     @Override
-    public void onKeyPressed(LivingEntity entity, AbilityEntry entry, Power power, IPowerHolder holder) {
+    public void onKeyPressed(LivingEntity entity, AbilityInstance entry, Power power, IPowerHolder holder) {
         entry.keyPressed = true;
     }
 
     @Override
-    public void onKeyReleased(LivingEntity entity, AbilityEntry entry, Power power, IPowerHolder holder) {
+    public void onKeyReleased(LivingEntity entity, AbilityInstance entry, Power power, IPowerHolder holder) {
         entry.keyPressed = false;
     }
 

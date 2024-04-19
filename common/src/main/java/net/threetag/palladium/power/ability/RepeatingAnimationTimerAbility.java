@@ -27,7 +27,7 @@ public class RepeatingAnimationTimerAbility extends Ability implements Animation
     }
 
     @Override
-    public void firstTick(LivingEntity entity, AbilityEntry entry, IPowerHolder holder, boolean enabled) {
+    public void firstTick(LivingEntity entity, AbilityInstance entry, IPowerHolder holder, boolean enabled) {
         if (enabled) {
             var start = entry.getProperty(START_VALUE);
             entry.setUniqueProperty(VALUE, start);
@@ -36,7 +36,7 @@ public class RepeatingAnimationTimerAbility extends Ability implements Animation
     }
 
     @Override
-    public void tick(LivingEntity entity, AbilityEntry entry, IPowerHolder holder, boolean enabled) {
+    public void tick(LivingEntity entity, AbilityInstance entry, IPowerHolder holder, boolean enabled) {
         int value = entry.getProperty(VALUE);
         int prevValue = entry.getProperty(PREV_VALUE);
         int startVal = entry.getProperty(START_VALUE);
@@ -68,12 +68,12 @@ public class RepeatingAnimationTimerAbility extends Ability implements Animation
     }
 
     @Override
-    public float getAnimationValue(AbilityEntry entry, float partialTick) {
+    public float getAnimationValue(AbilityInstance entry, float partialTick) {
         return Mth.lerp(partialTick, entry.getProperty(PREV_VALUE), entry.getProperty(VALUE)) / entry.getProperty(MAX_VALUE);
     }
 
     @Override
-    public float getAnimationTimer(AbilityEntry entry, float partialTick, boolean maxedOut) {
+    public float getAnimationTimer(AbilityInstance entry, float partialTick, boolean maxedOut) {
         if (maxedOut) {
             return entry.getProperty(MAX_VALUE);
         }

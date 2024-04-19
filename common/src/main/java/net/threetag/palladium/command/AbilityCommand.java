@@ -20,7 +20,7 @@ import net.threetag.palladium.power.Power;
 import net.threetag.palladium.power.PowerHandler;
 import net.threetag.palladium.power.PowerManager;
 import net.threetag.palladium.power.ability.AbilityConfiguration;
-import net.threetag.palladium.power.ability.AbilityEntry;
+import net.threetag.palladium.power.ability.AbilityInstance;
 
 import java.util.Collection;
 import java.util.Collections;
@@ -42,7 +42,7 @@ public class AbilityCommand {
                 var manager = PowerManager.getPowerHandler(living).orElse(new PowerHandler(living));
 
                 for (IPowerHolder holder : manager.getPowerHolders().values()) {
-                    for (AbilityEntry entry : holder.getAbilities().values()) {
+                    for (AbilityInstance entry : holder.getAbilities().values()) {
                         if (entry.getConfiguration().isBuyable()) {
                             if (!powers.contains(holder.getPower().getId())) {
                                 powers.add(holder.getPower().getId());

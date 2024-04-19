@@ -9,7 +9,7 @@ import net.threetag.palladium.addonpack.log.AddonPackLog;
 import net.threetag.palladium.compat.kubejs.PalladiumKubeJSPlugin;
 import net.threetag.palladium.power.IPowerHolder;
 import net.threetag.palladium.power.ability.Ability;
-import net.threetag.palladium.power.ability.AbilityEntry;
+import net.threetag.palladium.power.ability.AbilityInstance;
 import net.threetag.palladium.util.icon.IIcon;
 import net.threetag.palladium.util.icon.ItemIcon;
 import net.threetag.palladium.util.property.PalladiumProperty;
@@ -106,7 +106,7 @@ public class AbilityBuilder extends BuilderBase<Ability> {
 
     @FunctionalInterface
     public interface TickFunction {
-        void tick(LivingEntity entity, AbilityEntry entry, IPowerHolder holder, boolean enabled);
+        void tick(LivingEntity entity, AbilityInstance entry, IPowerHolder holder, boolean enabled);
     }
 
     public static class DeserializePropertyInfo {

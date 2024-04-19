@@ -24,7 +24,7 @@ public class AimAbility extends Ability implements AnimationTimer {
     }
 
     @Override
-    public void tick(LivingEntity entity, AbilityEntry entry, IPowerHolder holder, boolean enabled) {
+    public void tick(LivingEntity entity, AbilityInstance entry, IPowerHolder holder, boolean enabled) {
         if (entity.level().isClientSide) {
             int timer = entry.getProperty(TIMER);
             entry.setUniqueProperty(PREV_TIMER, timer);
@@ -39,7 +39,7 @@ public class AimAbility extends Ability implements AnimationTimer {
     public static float getTimer(LivingEntity entity, float partialTicks, boolean right) {
         float f = 0;
 
-        for (AbilityEntry entry : AbilityUtil.getEntries(entity, Abilities.AIM.get())) {
+        for (AbilityInstance entry : AbilityUtil.getEntries(entity, Abilities.AIM.get())) {
             var armType = entry.getProperty(ARM);
 
             if (!armType.isNone()) {
@@ -60,12 +60,12 @@ public class AimAbility extends Ability implements AnimationTimer {
     }
 
     @Override
-    public float getAnimationValue(AbilityEntry entry, float partialTick) {
+    public float getAnimationValue(AbilityInstance entry, float partialTick) {
         return Mth.lerp(partialTick, entry.getProperty(PREV_TIMER), entry.getProperty(TIMER)) / entry.getProperty(TIME);
     }
 
     @Override
-    public float getAnimationTimer(AbilityEntry entry, float partialTick, boolean maxedOut) {
+    public float getAnimationTimer(AbilityInstance entry, float partialTick, boolean maxedOut) {
         if (maxedOut) {
             return entry.getProperty(TIME);
         }

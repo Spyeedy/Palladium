@@ -8,7 +8,7 @@ import net.minecraft.world.item.Item;
 import net.threetag.palladium.compat.geckolib.armor.AddonGeoArmorItem;
 import net.threetag.palladium.power.IPowerHolder;
 import net.threetag.palladium.power.ability.Ability;
-import net.threetag.palladium.power.ability.AbilityEntry;
+import net.threetag.palladium.power.ability.AbilityInstance;
 import net.threetag.palladium.util.property.PalladiumProperty;
 import net.threetag.palladium.util.property.ResourceLocationProperty;
 import net.threetag.palladium.util.property.StringProperty;
@@ -32,7 +32,7 @@ public class ArmorAnimationAbility extends Ability {
     }
 
     @Override
-    public void tick(LivingEntity entity, AbilityEntry entry, IPowerHolder holder, boolean enabled) {
+    public void tick(LivingEntity entity, AbilityInstance entry, IPowerHolder holder, boolean enabled) {
         if (enabled) {
             if (entity.level().isClientSide) {
                 Item item = BuiltInRegistries.ITEM.get(entry.getProperty(ITEM));

@@ -20,7 +20,7 @@ public class PlayerAnimationAbility extends Ability {
     }
 
     @Override
-    public void firstTick(LivingEntity entity, AbilityEntry entry, IPowerHolder holder, boolean enabled) {
+    public void firstTick(LivingEntity entity, AbilityInstance entry, IPowerHolder holder, boolean enabled) {
         if (enabled && entity.level().isClientSide && entity instanceof IAnimatablePlayer animatablePlayer) {
             var animationContainer = animatablePlayer.palladium_getModifierLayer();
             KeyframeAnimation anim = PlayerAnimationRegistry.getAnimation(entry.getProperty(ANIMATION));

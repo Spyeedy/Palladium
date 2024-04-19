@@ -56,15 +56,15 @@ public class Ability implements IDefaultDocumentedConfigurable {
         return false;
     }
 
-    public void tick(LivingEntity entity, AbilityEntry entry, IPowerHolder holder, boolean enabled) {
+    public void tick(LivingEntity entity, AbilityInstance entry, IPowerHolder holder, boolean enabled) {
 
     }
 
-    public void firstTick(LivingEntity entity, AbilityEntry entry, IPowerHolder holder, boolean enabled) {
+    public void firstTick(LivingEntity entity, AbilityInstance entry, IPowerHolder holder, boolean enabled) {
 
     }
 
-    public void lastTick(LivingEntity entity, AbilityEntry entry, IPowerHolder holder, boolean enabled) {
+    public void lastTick(LivingEntity entity, AbilityInstance entry, IPowerHolder holder, boolean enabled) {
 
     }
 
@@ -79,10 +79,10 @@ public class Ability implements IDefaultDocumentedConfigurable {
                 .addDocumentationSettings(REGISTRY.getValues().stream().filter(ab -> !ab.isExperimental()).sorted(Comparator.comparing(o -> o.getId().toString())).collect(Collectors.toList()));
     }
 
-    public static List<AbilityEntry> findParentsWithinHolder(AbilityConfiguration ability, IPowerHolder powerHolder) {
-        List<AbilityEntry> list = new ArrayList<>();
+    public static List<AbilityInstance> findParentsWithinHolder(AbilityConfiguration ability, IPowerHolder powerHolder) {
+        List<AbilityInstance> list = new ArrayList<>();
         for (String key : ability.getDependencies()) {
-            AbilityEntry parent = powerHolder.getAbilities().get(key);
+            AbilityInstance parent = powerHolder.getAbilities().get(key);
 
             if (parent != null) {
                 list.add(parent);
@@ -91,9 +91,9 @@ public class Ability implements IDefaultDocumentedConfigurable {
         return list;
     }
 
-    public static List<AbilityEntry> findChildrenWithinHolder(AbilityConfiguration ability, IPowerHolder powerHolder) {
-        List<AbilityEntry> list = new ArrayList<>();
-        for (Map.Entry<String, AbilityEntry> entries : powerHolder.getAbilities().entrySet()) {
+    public static List<AbilityInstance> findChildrenWithinHolder(AbilityConfiguration ability, IPowerHolder powerHolder) {
+        List<AbilityInstance> list = new ArrayList<>();
+        for (Map.Entry<String, AbilityInstance> entries : powerHolder.getAbilities().entrySet()) {
             for (String key : ability.getDependencies()) {
                 if (key.equals(entries.getKey())) {
                     list.add(entries.getValue());

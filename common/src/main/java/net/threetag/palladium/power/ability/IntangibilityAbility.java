@@ -20,7 +20,7 @@ public class IntangibilityAbility extends Ability {
                 .withProperty(BLACKLIST, PalladiumBlockTags.PREVENTS_INTANGIBILITY);
     }
 
-    public static boolean canGoThrough(AbilityEntry entry, BlockState state) {
+    public static boolean canGoThrough(AbilityInstance entry, BlockState state) {
         var whitelist = entry.getProperty(WHITELIST);
         var blacklist = entry.getProperty(BLACKLIST);
 

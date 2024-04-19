@@ -11,7 +11,7 @@ import net.threetag.palladium.compat.geckolib.renderlayer.GeckoLayerState;
 import net.threetag.palladium.entity.PalladiumLivingEntityExtension;
 import net.threetag.palladium.power.IPowerHolder;
 import net.threetag.palladium.power.ability.Ability;
-import net.threetag.palladium.power.ability.AbilityEntry;
+import net.threetag.palladium.power.ability.AbilityInstance;
 import net.threetag.palladium.util.property.PalladiumProperty;
 import net.threetag.palladium.util.property.ResourceLocationProperty;
 import net.threetag.palladium.util.property.StringProperty;
@@ -38,14 +38,14 @@ public class RenderLayerAnimationAbility extends Ability {
     }
 
     @Override
-    public void tick(LivingEntity entity, AbilityEntry entry, IPowerHolder holder, boolean enabled) {
+    public void tick(LivingEntity entity, AbilityInstance entry, IPowerHolder holder, boolean enabled) {
         if (enabled && entity.level().isClientSide && entity instanceof PalladiumLivingEntityExtension extension) {
             this.playAnimation(extension, entry);
         }
     }
 
     @Environment(EnvType.CLIENT)
-    public void playAnimation(PalladiumLivingEntityExtension entity, AbilityEntry entry) {
+    public void playAnimation(PalladiumLivingEntityExtension entity, AbilityInstance entry) {
         IPackRenderLayer layer = PackRenderLayerManager.getInstance().getLayer(entry.getProperty(RENDER_LAYER));
         if (layer != null) {
             List<IPackRenderLayer> layers;

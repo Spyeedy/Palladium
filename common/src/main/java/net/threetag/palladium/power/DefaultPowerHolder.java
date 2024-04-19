@@ -4,7 +4,7 @@ import com.google.common.collect.ImmutableMap;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.world.entity.LivingEntity;
 import net.threetag.palladium.power.ability.AbilityConfiguration;
-import net.threetag.palladium.power.ability.AbilityEntry;
+import net.threetag.palladium.power.ability.AbilityInstance;
 import net.threetag.palladium.power.energybar.EnergyBar;
 import net.threetag.palladium.power.energybar.EnergyBarConfiguration;
 
@@ -16,7 +16,7 @@ public class DefaultPowerHolder implements IPowerHolder {
 
     public final LivingEntity entity;
     private final Power power;
-    private final Map<String, AbilityEntry> entryMap = new HashMap<>();
+    private final Map<String, AbilityInstance> entryMap = new HashMap<>();
     private final Map<String, EnergyBar> energyBars = new LinkedHashMap<>();
     private IPowerValidator validator;
 
@@ -24,7 +24,7 @@ public class DefaultPowerHolder implements IPowerHolder {
         this.entity = entity;
         this.power = power;
         for (AbilityConfiguration ability : this.getPower().getAbilities()) {
-            AbilityEntry entry = new AbilityEntry(ability, this);
+            AbilityInstance entry = new AbilityInstance(ability, this);
             entry.id = ability.getId();
             this.entryMap.put(ability.getId(), entry);
         }
@@ -46,7 +46,7 @@ public class DefaultPowerHolder implements IPowerHolder {
 
     @Override
     public void fromNBT(CompoundTag tag) {
-        for (Map.Entry<String, AbilityEntry> entry : this.entryMap.entrySet()) {
+        for (Map.Entry<String, AbilityInstance> entry : this.entryMap.entrySet()) {
             if (tag.contains(entry.getKey())) {
                 CompoundTag abData = tag.getCompound(entry.getKey());
                 entry.getValue().fromNBT(abData);
@@ -67,7 +67,7 @@ public class DefaultPowerHolder implements IPowerHolder {
     public CompoundTag toNBT(boolean toDisk) {
         CompoundTag tag = new CompoundTag();
 
-        for (Map.Entry<String, AbilityEntry> entry : this.entryMap.entrySet()) {
+        for (Map.Entry<String, AbilityInstance> entry : this.entryMap.entrySet()) {
             CompoundTag abData = entry.getValue().toNBT(toDisk);
             tag.put(entry.getKey(), abData);
         }
@@ -82,7 +82,7 @@ public class DefaultPowerHolder implements IPowerHolder {
     }
 
     @Override
-    public Map<String, AbilityEntry> getAbilities() {
+    public Map<String, AbilityInstance> getAbilities() {
         return ImmutableMap.copyOf(this.entryMap);
     }
 

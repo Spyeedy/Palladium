@@ -10,16 +10,16 @@ public interface AnimationTimer {
      *
      * @return Value between 0.0-1.0 that determines the state
      */
-    float getAnimationValue(AbilityEntry entry, float partialTick);
+    float getAnimationValue(AbilityInstance entry, float partialTick);
 
     /**
      * Gets the raw animation timer value
      *
      * @return Value for the actual timer
      */
-    float getAnimationTimer(AbilityEntry entry, float partialTick, boolean maxedOut);
+    float getAnimationTimer(AbilityInstance entry, float partialTick, boolean maxedOut);
 
-    default float getAnimationTimer(AbilityEntry entry, float partialTick) {
+    default float getAnimationTimer(AbilityInstance entry, float partialTick) {
         return this.getAnimationTimer(entry, partialTick, false);
     }
 
@@ -27,7 +27,7 @@ public interface AnimationTimer {
         if (ability instanceof AnimationTimer timer) {
             float f = 0F;
 
-            for (AbilityEntry entry : AbilityUtil.getEntries(entity, ability)) {
+            for (AbilityInstance entry : AbilityUtil.getEntries(entity, ability)) {
                 f = Math.max(f, timer.getAnimationValue(entry, partialTick));
             }
 

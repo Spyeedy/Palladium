@@ -2,7 +2,7 @@ package net.threetag.palladium.condition;
 
 import com.google.gson.JsonObject;
 import net.minecraft.world.entity.LivingEntity;
-import net.threetag.palladium.power.ability.AbilityEntry;
+import net.threetag.palladium.power.ability.AbilityInstance;
 import net.threetag.palladium.util.context.DataContext;
 import net.threetag.palladium.util.context.DataContextType;
 import net.threetag.palladium.util.property.PropertyManager;
@@ -14,7 +14,7 @@ public class ChatToggleCondition extends ChatMessageCondition {
     }
 
     @Override
-    public void init(LivingEntity entity, AbilityEntry entry, PropertyManager manager) {
+    public void init(LivingEntity entity, AbilityInstance entry, PropertyManager manager) {
         entry.startCooldown(entity, this.cooldown);
     }
 
@@ -34,7 +34,7 @@ public class ChatToggleCondition extends ChatMessageCondition {
     }
 
     @Override
-    public void onChat(LivingEntity entity, AbilityEntry entry) {
+    public void onChat(LivingEntity entity, AbilityInstance entry) {
         entry.keyPressed = !entry.keyPressed;
     }
 

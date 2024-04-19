@@ -10,7 +10,7 @@ import net.threetag.palladium.client.dynamictexture.TextureReference;
 import net.threetag.palladium.network.RequestAbilityBuyScreenMessage;
 import net.threetag.palladium.power.IPowerHolder;
 import net.threetag.palladium.power.ability.Ability;
-import net.threetag.palladium.power.ability.AbilityEntry;
+import net.threetag.palladium.power.ability.AbilityInstance;
 import net.threetag.palladium.util.context.DataContext;
 import org.jetbrains.annotations.Nullable;
 
@@ -45,7 +45,7 @@ public class TreePowerTab extends PowerTab {
         List<TreeAbilityWidget> root = new LinkedList<>();
 
         // Create entry for each ability
-        for (AbilityEntry ability : this.powerHolder.getAbilities().values()) {
+        for (AbilityInstance ability : this.powerHolder.getAbilities().values()) {
             if (!ability.getProperty(Ability.HIDDEN_IN_GUI)) {
                 var widget = new TreeAbilityWidget(this, this.minecraft, this.powerHolder, ability).setPosition(0, 0);
                 this.entries.add(widget);
@@ -114,7 +114,7 @@ public class TreePowerTab extends PowerTab {
                 int endY = toCoord(child.gridY, 1D / (child.parents.size() + 1) * (child.parents.indexOf(entry) + 1));
                 connection.addLine(new ConnectionLine(startX, startY, endX, startY));
                 connection.addLine(new ConnectionLine(endX, startY, endX, endY));
-                connection.color = child.abilityEntry.isUnlocked() ? this.powerHolder.getPower().getPrimaryColor() : this.powerHolder.getPower().getSecondaryColor();
+                connection.color = child.abilityInstance.isUnlocked() ? this.powerHolder.getPower().getPrimaryColor() : this.powerHolder.getPower().getSecondaryColor();
                 this.connections.add(connection);
             }
         }
@@ -272,8 +272,8 @@ public class TreePowerTab extends PowerTab {
 
     public static boolean canBeTree(IPowerHolder holder) {
         return holder.getAbilities().values().stream().filter(entry -> !entry.getProperty(Ability.HIDDEN_IN_GUI)).anyMatch(entry -> {
-            List<AbilityEntry> parents = Ability.findParentsWithinHolder(entry.getConfiguration(), holder);
-            List<AbilityEntry> children = Ability.findChildrenWithinHolder(entry.getConfiguration(), holder);
+            List<AbilityInstance> parents = Ability.findParentsWithinHolder(entry.getConfiguration(), holder);
+            List<AbilityInstance> children = Ability.findChildrenWithinHolder(entry.getConfiguration(), holder);
 
             return !parents.isEmpty() || !children.isEmpty();
         });
@@ -294,8 +294,8 @@ public class TreePowerTab extends PowerTab {
         int i = (this.screen.width - PowersScreen.WINDOW_WIDTH) / 2;
         int j = (this.screen.height - PowersScreen.WINDOW_HEIGHT) / 2;
         TreeAbilityWidget entry = this.getAbilityHoveredOver((int) (mouseX - i - 9), (int) (mouseY - j - 18), i, j);
-        if (entry != null && entry.abilityEntry.getConfiguration().isBuyable()) {
-            new RequestAbilityBuyScreenMessage(entry.abilityEntry.getReference()).send();
+        if (entry != null && entry.abilityInstance.getConfiguration().isBuyable()) {
+            new RequestAbilityBuyScreenMessage(entry.abilityInstance.getReference()).send();
         }
     }
 

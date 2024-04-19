@@ -3,7 +3,7 @@ package net.threetag.palladium.condition;
 import com.google.gson.JsonObject;
 import net.threetag.palladium.util.context.DataContext;
 import net.threetag.palladium.util.context.DataContextType;
-import net.threetag.palladium.power.ability.AbilityEntry;
+import net.threetag.palladium.power.ability.AbilityInstance;
 import net.threetag.palladium.util.property.*;
 
 import java.util.Objects;
@@ -22,7 +22,7 @@ public class IntervalCondition extends Condition {
     }
 
     @Override
-    public void registerAbilityProperties(AbilityEntry entry, PropertyManager manager) {
+    public void registerAbilityProperties(AbilityInstance entry, PropertyManager manager) {
         manager.register(TICKS, 0);
         manager.register(ACTIVE, false);
     }

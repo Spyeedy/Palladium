@@ -5,12 +5,10 @@ import com.google.gson.JsonPrimitive;
 import com.mojang.datafixers.util.Pair;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.GsonHelper;
-import net.minecraft.world.entity.LivingEntity;
 import net.threetag.palladium.Palladium;
 import net.threetag.palladium.documentation.JsonDocumentationBuilder;
-import net.threetag.palladium.power.ability.AbilityEntry;
+import net.threetag.palladium.power.ability.AbilityInstance;
 import net.threetag.palladium.power.ability.AbilityReference;
-import net.threetag.palladium.power.ability.AbilityUtil;
 import net.threetag.palladium.util.context.DataContext;
 import net.threetag.palladium.util.json.GsonUtil;
 import net.threetag.palladium.util.property.IntegerProperty;
@@ -33,7 +31,7 @@ public class AbilityIntegerPropertyVariable extends AbstractIntegerTextureVariab
     public int getNumber(DataContext context) {
         var livingEntity = context.getLivingEntity();
         if (livingEntity != null) {
-            AbilityEntry entry = this.reference.getEntry(livingEntity);
+            AbilityInstance entry = this.reference.getEntry(livingEntity);
 
             if (entry == null) {
                 return 0;

@@ -1,11 +1,11 @@
 package net.threetag.palladium.condition;
 
 import net.minecraft.world.entity.LivingEntity;
+import net.threetag.palladium.power.ability.AbilityInstance;
 import net.threetag.palladium.util.context.DataContext;
 import net.threetag.palladium.power.IPowerHolder;
 import net.threetag.palladium.power.Power;
 import net.threetag.palladium.power.ability.AbilityConfiguration;
-import net.threetag.palladium.power.ability.AbilityEntry;
 import net.threetag.palladium.util.property.PropertyManager;
 
 import java.util.Collections;
@@ -46,19 +46,19 @@ public abstract class Condition {
         return CooldownType.STATIC;
     }
 
-    public void init(LivingEntity entity, AbilityEntry entry, PropertyManager manager) {
+    public void init(LivingEntity entity, AbilityInstance entry, PropertyManager manager) {
 
     }
 
-    public void registerAbilityProperties(AbilityEntry entry, PropertyManager manager) {
+    public void registerAbilityProperties(AbilityInstance entry, PropertyManager manager) {
 
     }
 
-    public void onKeyPressed(LivingEntity entity, AbilityEntry entry, Power power, IPowerHolder holder) {
+    public void onKeyPressed(LivingEntity entity, AbilityInstance entry, Power power, IPowerHolder holder) {
 
     }
 
-    public void onKeyReleased(LivingEntity entity, AbilityEntry entry, Power power, IPowerHolder holder) {
+    public void onKeyReleased(LivingEntity entity, AbilityInstance entry, Power power, IPowerHolder holder) {
 
     }
 
