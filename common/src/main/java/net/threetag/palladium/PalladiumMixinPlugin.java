@@ -16,6 +16,7 @@ public class PalladiumMixinPlugin implements IMixinConfigPlugin {
     private static final boolean HAS_CURIOS;
     private static final boolean HAS_GECKO;
     public static final boolean HAS_QUILT;
+    public static final boolean HAS_SODIUM;
 
     static {
         HAS_KUBEJS = hasClass("dev.latvian.mods.kubejs.KubeJS");
@@ -23,6 +24,7 @@ public class PalladiumMixinPlugin implements IMixinConfigPlugin {
         HAS_CURIOS = hasClass("top.theillusivec4.curios.api.CuriosApi");
         HAS_GECKO = hasClass("software.bernie.geckolib.renderer.GeoArmorRenderer");
         HAS_QUILT = hasClass("org.quiltmc.qsl.resource.loader.impl.ResourceLoaderImpl");
+        HAS_SODIUM = hasClass("net.caffeinemc.mods.sodium.client.render.immediate.model.EntityRenderer");
     }
 
     @Override
@@ -55,6 +57,10 @@ public class PalladiumMixinPlugin implements IMixinConfigPlugin {
 
             if (mixinClassName.equalsIgnoreCase("net.threetag.palladium.mixin.fabric.ResourceLoaderImplMixin")) {
                 return HAS_QUILT;
+            }
+
+            if (mixinClassName.equalsIgnoreCase("net.threetag.palladium.mixin.fabric.SodiumFixMixin")) {
+                return HAS_SODIUM;
             }
         } catch (Exception ignored) {
             return true;

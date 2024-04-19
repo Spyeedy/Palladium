@@ -128,7 +128,7 @@ public class ExtendedCubeListBuilder extends CubeListBuilder {
 
     }
 
-    private static class PerFaceUVCube extends ModelPart.Cube {
+    public static class PerFaceUVCube extends ModelPart.Cube {
 
         public PerFaceUVCube(Map<Direction, PerFaceUV> uvMap, float originX, float originY, float originZ, float dimensionX, float dimensionY, float dimensionZ, float growX, float growY, float growZ, boolean mirror, float texScaleU, float texScaleV) {
             super(0, 0, originX, originY, originZ, dimensionX, dimensionY, dimensionZ, growX, growY, growZ, mirror, texScaleU, texScaleV, uvMap.keySet());

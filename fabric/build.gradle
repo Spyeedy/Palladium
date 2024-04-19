@@ -93,6 +93,9 @@ dependencies {
     // Condensed Creative
     modCompileOnly "io.wispforest:condensed_creative-fabric:${rootProject.condensed_creative_version}"
 
+    // Sodium
+    modImplementation "maven.modrinth:sodium:${rootProject.sodium_version}"
+
     common(project(path: ":common", configuration: "namedElements")) { transitive false }
     shadowCommon(project(path: ":common", configuration: "transformProductionFabric")) { transitive false }
 }
