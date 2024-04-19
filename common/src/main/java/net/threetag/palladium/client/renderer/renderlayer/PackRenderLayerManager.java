@@ -1,6 +1,7 @@
 package net.threetag.palladium.client.renderer.renderlayer;
 
 import com.google.common.collect.ImmutableMap;
+import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParseException;
@@ -19,6 +20,7 @@ import net.threetag.palladium.addonpack.log.AddonPackLog;
 import net.threetag.palladium.addonpack.parser.AddonParser;
 import net.threetag.palladium.client.renderer.PalladiumRenderTypes;
 import net.threetag.palladium.client.renderer.item.armor.ArmorRendererData;
+import net.threetag.palladium.entity.BodyPart;
 import net.threetag.palladium.item.ArmorWithRenderer;
 import net.threetag.palladium.item.IAddonItem;
 import net.threetag.palladium.power.ability.AbilityEntry;
@@ -132,7 +134,31 @@ public class PackRenderLayerManager extends SimpleJsonResourceReloadListener {
             throw new JsonParseException("Unknown render layer type '" + parserId + "'");
         }
 
-        return RENDER_LAYERS_PARSERS.get(parserId).apply(json);
+        var layer = IPackRenderLayer.parseConditions(RENDER_LAYERS_PARSERS.get(parserId).apply(json), json);
+
+        if (layer instanceof AbstractPackRenderLayer abstractPackRenderLayer) {
+            GsonUtil.ifHasKey(json, "hidden_body_parts", el -> {
+                if (el.isJsonPrimitive()) {
+                    var string = el.getAsString();
+                    if (string.equalsIgnoreCase("all")) {
+                        for (BodyPart bodyPart : BodyPart.values()) {
+                            abstractPackRenderLayer.addHiddenBodyPart(bodyPart);
+                        }
+                    } else {
+                        abstractPackRenderLayer.addHiddenBodyPart(BodyPart.fromJson(string));
+                    }
+                } else if (el.isJsonArray()) {
+                    JsonArray jsonArray = el.getAsJsonArray();
+                    for (JsonElement jsonElement : jsonArray) {
+                        abstractPackRenderLayer.addHiddenBodyPart(BodyPart.fromJson(jsonElement.getAsString()));
+                    }
+                } else {
+                    throw new JsonParseException("hidden_body_parts setting must either be a string or an array");
+                }
+            });
+        }
+
+        return layer;
     }
 
     public static PackRenderLayerManager getInstance() {

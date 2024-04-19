@@ -116,9 +116,8 @@ public class DynamicTextureManager extends SimpleJsonResourceReloadListener {
             DynamicTexture texture = TYPE_PARSERS.get(typeId).apply(json);
 
             if (GsonHelper.isValidNode(json, "transformers")) {
-                JsonArray transformers = GsonHelper.getAsJsonArray(json, "transformers");
-                for (int i = 0; i < transformers.size(); i++) {
-                    JsonObject transformerJson = transformers.get(i).getAsJsonObject();
+                GsonUtil.forEachInListOrPrimitive(json.get("transformers"), j -> {
+                    JsonObject transformerJson = GsonHelper.convertToJsonObject(j, "transformers[].$");
                     ResourceLocation transformerId = GsonUtil.getAsResourceLocation(transformerJson, "type", new ResourceLocation(Palladium.MOD_ID, "default"));
                     if (TRANSFORMER_PARSERS.containsKey(transformerId)) {
                         ITextureTransformer transformer = TRANSFORMER_PARSERS.get(transformerId).apply(transformerJson);
@@ -126,7 +125,7 @@ public class DynamicTextureManager extends SimpleJsonResourceReloadListener {
                     } else {
                         AddonPackLog.error("Unknown texture transformer '" + transformerId + "'");
                     }
-                }
+                });
             }
 
             if (GsonHelper.isValidNode(json, "variables")) {

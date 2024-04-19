@@ -78,7 +78,7 @@ public final class CompoundPackRenderLayer extends AbstractPackRenderLayer {
             layers.add(PackRenderLayerManager.parseLayer(el.getAsJsonObject()));
         }
 
-        return IPackRenderLayer.parseConditions(new CompoundPackRenderLayer(layers), json);
+        return new CompoundPackRenderLayer(layers);
     }
 
     public List<IPackRenderLayer> layers() {

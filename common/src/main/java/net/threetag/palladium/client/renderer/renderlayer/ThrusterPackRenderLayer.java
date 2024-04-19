@@ -1,9 +1,6 @@
 package net.threetag.palladium.client.renderer.renderlayer;
 
-import com.google.gson.JsonArray;
-import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
-import com.google.gson.JsonParseException;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
 import net.minecraft.client.Minecraft;
@@ -20,7 +17,6 @@ import net.minecraft.world.entity.HumanoidArm;
 import net.threetag.palladium.Palladium;
 import net.threetag.palladium.client.model.ThrusterHumanoidModel;
 import net.threetag.palladium.client.renderer.PalladiumRenderTypes;
-import net.threetag.palladium.entity.BodyPart;
 import net.threetag.palladium.util.SkinTypedValue;
 import net.threetag.palladium.util.context.DataContext;
 import net.threetag.palladium.util.json.GsonUtil;
@@ -83,34 +79,12 @@ public class ThrusterPackRenderLayer extends AbstractPackRenderLayer {
     }
 
     public static ThrusterPackRenderLayer parse(JsonObject json) {
-        var layer = new ThrusterPackRenderLayer(
+        return new ThrusterPackRenderLayer(
                 GsonHelper.getAsBoolean(json, "right_arm", true),
                 GsonHelper.getAsBoolean(json, "left_arm", true),
                 GsonHelper.getAsBoolean(json, "right_leg", true),
                 GsonHelper.getAsBoolean(json, "left_leg", true),
                 GsonUtil.getAsColor(json, "color", Color.WHITE)
         );
-
-        GsonUtil.ifHasKey(json, "hidden_body_parts", el -> {
-            if (el.isJsonPrimitive()) {
-                var string = el.getAsString();
-                if (string.equalsIgnoreCase("all")) {
-                    for (BodyPart bodyPart : BodyPart.values()) {
-                        layer.addHiddenBodyPart(bodyPart);
-                    }
-                } else {
-                    layer.addHiddenBodyPart(BodyPart.fromJson(string));
-                }
-            } else if (el.isJsonArray()) {
-                JsonArray jsonArray = el.getAsJsonArray();
-                for (JsonElement jsonElement : jsonArray) {
-                    layer.addHiddenBodyPart(BodyPart.fromJson(jsonElement.getAsString()));
-                }
-            } else {
-                throw new JsonParseException("hidden_body_parts setting must either be a string or an array");
-            }
-        });
-
-        return IPackRenderLayer.parseConditions(layer, json);
     }
 }

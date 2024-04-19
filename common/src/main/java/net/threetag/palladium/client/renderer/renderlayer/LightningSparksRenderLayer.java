@@ -1,9 +1,6 @@
 package net.threetag.palladium.client.renderer.renderlayer;
 
-import com.google.gson.JsonArray;
-import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
-import com.google.gson.JsonParseException;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
 import com.mojang.math.Axis;
@@ -17,7 +14,6 @@ import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
 import net.threetag.palladium.client.renderer.PalladiumRenderTypes;
-import net.threetag.palladium.entity.BodyPart;
 import net.threetag.palladium.entity.PalladiumLivingEntityExtension;
 import net.threetag.palladium.util.RenderUtil;
 import net.threetag.palladium.util.context.DataContext;
@@ -61,30 +57,7 @@ public class LightningSparksRenderLayer extends AbstractPackRenderLayer {
         float glowOpacity = GsonUtil.getAsFloatRanged(json, "glow_opacity", 0, 1, 1F);
         float thickness = GsonUtil.getAsFloatMin(json, "thickness", 0.001F, 0.02F);
         boolean normalTransparency = GsonHelper.getAsBoolean(json, "normal_transparency", false);
-
-        var layer = new LightningSparksRenderLayer(frequency, amount, coreColor, glowColor, coreOpacity, glowOpacity, thickness, normalTransparency);
-
-        GsonUtil.ifHasKey(json, "hidden_body_parts", el -> {
-            if (el.isJsonPrimitive()) {
-                var string = el.getAsString();
-                if (string.equalsIgnoreCase("all")) {
-                    for (BodyPart bodyPart : BodyPart.values()) {
-                        layer.addHiddenBodyPart(bodyPart);
-                    }
-                } else {
-                    layer.addHiddenBodyPart(BodyPart.fromJson(string));
-                }
-            } else if (el.isJsonArray()) {
-                JsonArray jsonArray = el.getAsJsonArray();
-                for (JsonElement jsonElement : jsonArray) {
-                    layer.addHiddenBodyPart(BodyPart.fromJson(jsonElement.getAsString()));
-                }
-            } else {
-                throw new JsonParseException("hidden_body_parts setting must either be a string or an array");
-            }
-        });
-
-        return IPackRenderLayer.parseConditions(layer, json);
+        return new LightningSparksRenderLayer(frequency, amount, coreColor, glowColor, coreOpacity, glowOpacity, thickness, normalTransparency);
     }
 
     @Override
