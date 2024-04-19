@@ -7,6 +7,5 @@
   "normal_transparency": true,
   "amount": 20,
   "spread_x": 4,
-  "spread_y": 2,
-  "thickness": 0.2
+  "spread_y": 2
 }

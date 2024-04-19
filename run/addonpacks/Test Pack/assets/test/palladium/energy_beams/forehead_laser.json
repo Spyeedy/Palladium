@@ -1,6 +1,6 @@
 {
   "body_part": "head",
-  "glow_color": "#00ff00",
+  "rainbow": 0.1,
   "offset": [
     5,
     6,

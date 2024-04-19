@@ -503,6 +503,28 @@ public class GsonUtil {
         return json.has(memberName) ? getAsVec3(json, memberName) : fallback;
     }
 
+    public static float getAsBooleanFloat(JsonObject json, String memberName) {
+        if (json.has(memberName)) {
+            if (json.get(memberName).isJsonPrimitive()) {
+                var primitive = json.get(memberName).getAsJsonPrimitive();
+
+                if (primitive.isBoolean()) {
+                    return primitive.getAsBoolean() ? 1F : 0F;
+                } else {
+                    return primitive.getAsFloat();
+                }
+            } else {
+                throw new JsonSyntaxException(memberName + " must be a boolean or float");
+            }
+        } else {
+            throw new JsonSyntaxException("Missing " + memberName + ", expected to find a boolean or float");
+        }
+    }
+
+    public static float getAsBooleanFloat(JsonObject json, String memberName, float fallback) {
+        return json.has(memberName) ? getAsBooleanFloat(json, memberName) : fallback;
+    }
+
     public static void ifHasKey(JsonObject json, String memberName, Consumer<JsonElement> consumer) {
         if (GsonHelper.isValidNode(json, memberName)) {
             consumer.accept(json.get(memberName));

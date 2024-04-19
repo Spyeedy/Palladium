@@ -3,23 +3,18 @@ package net.threetag.palladium.client.renderer.trail;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonPrimitive;
 import com.mojang.blaze3d.vertex.PoseStack;
-import com.mojang.blaze3d.vertex.VertexConsumer;
-import com.mojang.math.Axis;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraft.util.GsonHelper;
 import net.minecraft.world.entity.Entity;
-import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
 import net.threetag.palladium.Palladium;
-import net.threetag.palladium.client.renderer.PalladiumRenderTypes;
+import net.threetag.palladium.client.renderer.LaserRenderer;
 import net.threetag.palladium.client.renderer.entity.TrailSegmentEntityRenderer;
 import net.threetag.palladium.documentation.JsonDocumentationBuilder;
 import net.threetag.palladium.entity.PalladiumEntityExtension;
 import net.threetag.palladium.entity.TrailSegmentEntity;
-import net.threetag.palladium.util.RenderUtil;
 import net.threetag.palladium.util.json.GsonUtil;
 
 import java.awt.*;
@@ -29,29 +24,19 @@ import java.util.Random;
 @SuppressWarnings("unchecked")
 public class LightningTrailRenderer extends TrailRenderer<LightningTrailRenderer.Cache> {
 
-    private final Color glowColor;
-    private final Color coreColor;
+    private final LaserRenderer laserRenderer;
     private final float spacing;
     private final int lifetime;
     private final int amount;
     private final float spreadX, spreadY;
-    private final float thickness;
-    private final float glowOpacity;
-    private final float coreOpacity;
-    private final boolean normalTransparency;
 
-    public LightningTrailRenderer(Color glowColor, Color coreColor, float spacing, int lifetime, int amount, float spreadX, float spreadY, float thickness, float glowOpacity, float coreOpacity, boolean normalTransparency) {
-        this.glowColor = glowColor;
-        this.coreColor = coreColor;
+    public LightningTrailRenderer(LaserRenderer laserRenderer, float spacing, int lifetime, int amount, float spreadX, float spreadY) {
+        this.laserRenderer = laserRenderer;
         this.spacing = spacing;
         this.lifetime = lifetime;
         this.amount = amount;
         this.spreadX = spreadX;
         this.spreadY = spreadY;
-        this.thickness = thickness;
-        this.glowOpacity = glowOpacity;
-        this.coreOpacity = coreOpacity;
-        this.normalTransparency = normalTransparency;
     }
 
     @Override
@@ -62,24 +47,14 @@ public class LightningTrailRenderer extends TrailRenderer<LightningTrailRenderer
             var index = trails.indexOf(segment);
 
             if (index == trails.size() - 1) {
-                var vertexConsumer = buffer.getBuffer(this.normalTransparency ? PalladiumRenderTypes.LASER_NORMAL_TRANSPARENCY : PalladiumRenderTypes.LASER);
-
-                for (int i = 0; i < 2; i++) {
-                    renderSegmentWithChild(poseStack, vertexConsumer, segment, trails, partialTick, index, i);
-                }
+                renderSegmentWithChild(poseStack, buffer, segment, trails, partialTick, index);
             }
         }
     }
 
     @Environment(EnvType.CLIENT)
-    private void renderSegmentWithChild(PoseStack poseStack, VertexConsumer vertexConsumer, TrailSegmentEntity<Cache> segment, List<TrailSegmentEntity<?>> segments, float partialTick, int index, int stage) {
+    private void renderSegmentWithChild(PoseStack poseStack, MultiBufferSource buffer, TrailSegmentEntity<Cache> segment, List<TrailSegmentEntity<?>> segments, float partialTick, int index) {
         if (index > 0) {
-            var overallOpacity = stage == 0 ? this.coreOpacity : this.glowOpacity;
-
-            if (overallOpacity <= 0F) {
-                return;
-            }
-
             var previousSegment = segments.get(index - 1);
             var cache = segment.cache;
             var previousC = previousSegment.cache;
@@ -92,9 +67,9 @@ public class LightningTrailRenderer extends TrailRenderer<LightningTrailRenderer
 
                     poseStack.pushPose();
                     poseStack.translate(start.x, start.y, start.z);
-                    RenderUtil.faceVec(poseStack, start, end);
-                    poseStack.mulPose(Axis.XP.rotationDegrees(90));
-                    renderBox(poseStack, vertexConsumer, (float) start.distanceTo(end), this.thickness * opacity, stage == 0 ? this.coreColor : this.glowColor, opacity, stage);
+                    this.laserRenderer
+                            .length((float) start.distanceTo(end))
+                            .opacityAndSizeModifier(opacity).faceAndRender(poseStack, buffer, start, end, segment.parent.tickCount + (i * 42), partialTick);
                     poseStack.popPose();
                 }
             }
@@ -107,29 +82,18 @@ public class LightningTrailRenderer extends TrailRenderer<LightningTrailRenderer
 
                     poseStack.pushPose();
                     poseStack.translate(start.x, start.y, start.z);
-                    RenderUtil.faceVec(poseStack, start, end);
-                    poseStack.mulPose(Axis.XP.rotationDegrees(90));
-                    renderBox(poseStack, vertexConsumer, (float) start.distanceTo(end), this.thickness * opacity * segment.scale, stage == 0 ? this.coreColor : this.glowColor, opacity, stage);
+                    this.laserRenderer
+                            .length((float) start.distanceTo(end))
+                            .opacityAndSizeModifier(opacity).faceAndRender(poseStack, buffer, start, end, segment.parent.tickCount + (i * 42), partialTick);
                     poseStack.popPose();
                 }
 
                 poseStack.pushPose();
                 var offsetPos = previousSegment.position().subtract(segment.position());
                 poseStack.translate(offsetPos.x, offsetPos.y, offsetPos.z);
-                this.renderSegmentWithChild(poseStack, vertexConsumer, (TrailSegmentEntity<Cache>) previousSegment, segments, partialTick, index - 1, stage);
+                this.renderSegmentWithChild(poseStack, buffer, (TrailSegmentEntity<Cache>) previousSegment, segments, partialTick, index - 1);
                 poseStack.popPose();
             }
-        }
-    }
-
-    @Environment(EnvType.CLIENT)
-    private static void renderBox(PoseStack poseStack, VertexConsumer consumer, float length, float width, Color color, float alpha, int stage) {
-        AABB box = new AABB(-width / 2F, 0, -width / 2F, width / 2F, length, width / 2F);
-
-        if (stage == 0) {
-            RenderUtil.renderFilledBox(poseStack, consumer, box, color.getRed() / 255F, color.getGreen() / 255F, color.getBlue() / 255F, alpha, 15728640);
-        } else {
-            RenderUtil.renderFilledBox(poseStack, consumer, box.inflate(stage * 0.5F * 0.0625F), color.getRed() / 255F, color.getGreen() / 255F, color.getBlue() / 255F, (1F / stage / 2) * alpha, 15728640);
         }
     }
 
@@ -163,7 +127,7 @@ public class LightningTrailRenderer extends TrailRenderer<LightningTrailRenderer
 
     @Override
     public Color getColor() {
-        return this.glowColor;
+        return this.laserRenderer.getGlowColor();
     }
 
     public static class Cache extends SegmentCache {
@@ -179,18 +143,12 @@ public class LightningTrailRenderer extends TrailRenderer<LightningTrailRenderer
 
         @Override
         public TrailRenderer<Cache> parse(JsonObject json) {
-            var glowColor = GsonUtil.getAsColor(json, "glow_color", Color.WHITE);
-            var coreColor = GsonUtil.getAsColor(json, "core_color", Color.WHITE);
             float spacing = GsonUtil.getAsFloatMin(json, "spacing", 0.1F, 1F);
             int lifetime = GsonUtil.getAsIntMin(json, "lifetime", 1, 20);
             int amount = GsonUtil.getAsIntMin(json, "amount", 1, 10);
             float spreadX = GsonUtil.getAsFloatMin(json, "spread_x", 0F, 1F);
             float spreadY = GsonUtil.getAsFloatMin(json, "spread_y", 0F, 1F);
-            float thickness = GsonUtil.getAsFloatMin(json, "thickness", 0.001F, 0.05F);
-            float glowOpacity = GsonUtil.getAsFloatRanged(json, "glow_opacity", 0F, 1F, 1F);
-            float coreOpacity = GsonUtil.getAsFloatRanged(json, "core_opacity", 0F, 1F, 1F);
-            boolean normalTransparency = GsonHelper.getAsBoolean(json, "normal_transparency", false);
-            return new LightningTrailRenderer(glowColor, coreColor, spacing, lifetime, amount, spreadX, spreadY, thickness, glowOpacity, coreOpacity, normalTransparency);
+            return new LightningTrailRenderer(LaserRenderer.fromJson(json, 1), spacing, lifetime, amount, spreadX, spreadY);
         }
 
         @Override
@@ -198,18 +156,6 @@ public class LightningTrailRenderer extends TrailRenderer<LightningTrailRenderer
             builder.setTitle("Lightning Trail");
             builder.setDescription("Flash-like lightning trail");
 
-            builder.addProperty("glow_color", Color.class)
-                    .description("Determines the tint/color of glow")
-                    .fallback(Color.WHITE, "#ffffff").exampleJson(new JsonPrimitive("#ffffff"));
-            builder.addProperty("glow_opacity", Float.class)
-                    .description("Determines the (initial) opacity of a lightning glow.")
-                    .fallback(1F).exampleJson(new JsonPrimitive(1F));
-            builder.addProperty("core_color", Color.class)
-                    .description("Determines the tint/color of inner core")
-                    .fallback(Color.WHITE, "#ffffff").exampleJson(new JsonPrimitive("#ffffff"));
-            builder.addProperty("core_opacity", Float.class)
-                    .description("Determines the (initial) opacity of a lightning core.")
-                    .fallback(1F).exampleJson(new JsonPrimitive(1F));
             builder.addProperty("spacing", Float.class)
                     .description("Determines the space between two trail segments")
                     .fallback(1F).exampleJson(new JsonPrimitive(1F));
@@ -225,12 +171,7 @@ public class LightningTrailRenderer extends TrailRenderer<LightningTrailRenderer
             builder.addProperty("spread_y", Float.class)
                     .description("Determines the spread of a lightning position relative to the player on the Y/vertical axis. 1 means across the normal player hitbox, 0 means always in the middle.")
                     .fallback(1F).exampleJson(new JsonPrimitive(1F));
-            builder.addProperty("thickness", Float.class)
-                    .description("Determines the thickness of one lightning bolt.")
-                    .fallback(0.05F).exampleJson(new JsonPrimitive(0.05F));
-            builder.addProperty("normal_transparency", Boolean.class)
-                    .description("Can be turned on if you want to make a lightning black.")
-                    .fallback(false).exampleJson(new JsonPrimitive(false));
+            LaserRenderer.generateDocumentation(builder, 1, false);
         }
 
         @Override

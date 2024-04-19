@@ -103,28 +103,30 @@ public class EnergyBeamAbility extends Ability implements AnimationTimer {
             } else if (hit instanceof BlockHitResult blockHitResult) {
                 BlockState blockState = entity.level().getBlockState(blockHitResult.getBlockPos());
 
-                if (entry.getProperty(SMELT_BLOCKS)) {
-                    SimpleContainer simpleContainer = new SimpleContainer(new ItemStack(blockState.getBlock()));
-                    entity.level().getRecipeManager().getRecipeFor(RecipeType.SMELTING, simpleContainer, entity.level()).ifPresent(recipe -> {
-                        ItemStack result = recipe.assemble(simpleContainer, entity.level().registryAccess());
+                if (!blockState.isAir()) {
+                    if (entry.getProperty(SMELT_BLOCKS)) {
+                        SimpleContainer simpleContainer = new SimpleContainer(new ItemStack(blockState.getBlock()));
+                        entity.level().getRecipeManager().getRecipeFor(RecipeType.SMELTING, simpleContainer, entity.level()).ifPresent(recipe -> {
+                            ItemStack result = recipe.assemble(simpleContainer, entity.level().registryAccess());
 
-                        if (!result.isEmpty() && Block.byItem(result.getItem()) != Blocks.AIR) {
-                            entity.level().setBlockAndUpdate(blockHitResult.getBlockPos(), Block.byItem(result.getItem()).defaultBlockState());
-                        }
-                    });
+                            if (!result.isEmpty() && Block.byItem(result.getItem()) != Blocks.AIR) {
+                                entity.level().setBlockAndUpdate(blockHitResult.getBlockPos(), Block.byItem(result.getItem()).defaultBlockState());
+                            }
+                        });
 
-                    blockState = entity.level().getBlockState(blockHitResult.getBlockPos());
-                }
-
-                if (entry.getProperty(CAUSE_FIRE) && PalladiumBlockUtil.canBurn(blockState, entity.level(), blockHitResult.getBlockPos(), blockHitResult.getDirection())) {
-                    BlockPos pos = blockHitResult.getBlockPos().offset(blockHitResult.getDirection().getNormal());
-                    if (entity.level().isEmptyBlock(pos)) {
-                        entity.level().setBlockAndUpdate(pos, Blocks.FIRE.defaultBlockState());
+                        blockState = entity.level().getBlockState(blockHitResult.getBlockPos());
                     }
-                }
 
-                if (Platform.isClient()) {
-                    this.spawnParticles(entity.level(), hit.getLocation(), entry);
+                    if (entry.getProperty(CAUSE_FIRE) && PalladiumBlockUtil.canBurn(blockState, entity.level(), blockHitResult.getBlockPos(), blockHitResult.getDirection())) {
+                        BlockPos pos = blockHitResult.getBlockPos().offset(blockHitResult.getDirection().getNormal());
+                        if (entity.level().isEmptyBlock(pos)) {
+                            entity.level().setBlockAndUpdate(pos, Blocks.FIRE.defaultBlockState());
+                        }
+                    }
+
+                    if (Platform.isClient()) {
+                        this.spawnParticles(entity.level(), hit.getLocation(), entry);
+                    }
                 }
             }
         }

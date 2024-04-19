@@ -10,31 +10,24 @@ import net.threetag.palladium.Palladium;
 import net.threetag.palladium.client.renderer.LaserRenderer;
 import net.threetag.palladium.documentation.JsonDocumentationBuilder;
 import net.threetag.palladium.util.SizeUtil;
-import net.threetag.palladium.util.json.GsonUtil;
 import org.joml.Vector2f;
 
 public class LaserBeamRenderer extends EnergyBeamRenderer {
 
-    private final float rotationSpeed;
     private final LaserRenderer laserRenderer;
 
-    public LaserBeamRenderer(float rotationSpeed, LaserRenderer laserRenderer) {
-        this.rotationSpeed = rotationSpeed;
+    public LaserBeamRenderer(LaserRenderer laserRenderer) {
         this.laserRenderer = laserRenderer;
     }
 
     @Override
     public void render(AbstractClientPlayer player, Vec3 origin, Vec3 target, float lengthMultiplier, PoseStack poseStack, MultiBufferSource bufferSource, int packedLightIn, boolean isFirstPerson, float partialTick) {
-        if (this.rotationSpeed > 0F) {
-            this.laserRenderer.rotate((player.tickCount + partialTick) * rotationSpeed);
-        }
-
         var size = this.laserRenderer.getSize();
 
         this.laserRenderer
                 .size(size.mul(SizeUtil.getInstance().getModelWidthScale(player), SizeUtil.getInstance().getModelHeightScale(player), new Vector2f()))
                 .length((float) origin.distanceTo(target) * lengthMultiplier)
-                .faceAndRender(poseStack, bufferSource, origin, target);
+                .faceAndRender(poseStack, bufferSource, origin, target, player.tickCount, partialTick);
 
         this.laserRenderer.size(size);
     }
@@ -45,12 +38,13 @@ public class LaserBeamRenderer extends EnergyBeamRenderer {
 
         @Override
         public EnergyBeamRenderer fromJson(JsonObject json) {
-            return new LaserBeamRenderer(GsonUtil.getAsIntMin(json, "rotation_speed", 0, 0), LaserRenderer.fromJson(json));
+            return new LaserBeamRenderer(LaserRenderer.fromJson(json));
         }
 
         @Override
         public void generateDocumentation(JsonDocumentationBuilder builder) {
-
+            builder.setTitle("Laser");
+            LaserRenderer.generateDocumentation(builder, 2, false);
         }
 
         @Override
