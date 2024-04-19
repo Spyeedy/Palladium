@@ -18,124 +18,166 @@ import java.util.stream.Collectors;
 public class AbilityUtil {
 
     /**
-     * Returns all ability entries from the given entity
+     * Returns all ability instances from the given entity
      *
      * @param entity Entity having abilities
-     * @return List of all ability entries
+     * @return List of all ability instances
      */
     @NotNull
+    public static Collection<AbilityInstance> getInstances(LivingEntity entity) {
+        List<AbilityInstance> instances = new ArrayList<>();
+        PowerManager.getPowerHandler(entity).ifPresent(handler -> handler.getPowerHolders().values().stream().map(holder -> holder.getAbilities().values()).forEach(instances::addAll));
+        return instances;
+    }
+
+    @NotNull
+    @Deprecated
     public static Collection<AbilityInstance> getEntries(LivingEntity entity) {
-        List<AbilityInstance> entries = new ArrayList<>();
-        PowerManager.getPowerHandler(entity).ifPresent(handler -> handler.getPowerHolders().values().stream().map(holder -> holder.getAbilities().values()).forEach(entries::addAll));
-        return entries;
+        return getInstances(entity);
     }
 
     /**
-     * Returns all ability entries of the given ability type from the entity
+     * Returns all ability instances of the given ability type from the entity
      *
      * @param entity    Entity having abilities
      * @param abilityId ID of the ability that is being looked for
-     * @return List of all ability entries of the given ability type
+     * @return List of all ability instances of the given ability type
      */
     @NotNull
-    public static Collection<AbilityInstance> getEntries(LivingEntity entity, ResourceLocation abilityId) {
+    public static Collection<AbilityInstance> getInstances(LivingEntity entity, ResourceLocation abilityId) {
         if (!Ability.REGISTRY.containsKey(abilityId)) {
             return Collections.emptyList();
         }
 
-        return getEntries(entity, Ability.REGISTRY.get(abilityId));
+        return getInstances(entity, Ability.REGISTRY.get(abilityId));
+    }
+
+    @NotNull
+    @Deprecated
+    public static Collection<AbilityInstance> getEntries(LivingEntity entity, ResourceLocation abilityId) {
+        return getInstances(entity, abilityId);
     }
 
     /**
-     * Returns all ability entries of the given ability type from the entity
+     * Returns all ability instances of the given ability type from the entity
      *
      * @param entity  Entity having abilities
      * @param ability The ability that is being looked for
-     * @return List of all ability entries of the given ability type
+     * @return List of all ability instances of the given ability type
      */
     @NotNull
+    public static Collection<AbilityInstance> getInstances(LivingEntity entity, Ability ability) {
+        List<AbilityInstance> instances = new ArrayList<>();
+        PowerManager.getPowerHandler(entity).ifPresent(handler -> handler.getPowerHolders().values().stream().map(holder -> holder.getAbilities().values().stream().filter(instance -> instance.getConfiguration().getAbility() == ability).collect(Collectors.toList())).forEach(instances::addAll));
+        return instances;
+    }
+
+    @NotNull
+    @Deprecated
     public static Collection<AbilityInstance> getEntries(LivingEntity entity, Ability ability) {
-        List<AbilityInstance> entries = new ArrayList<>();
-        PowerManager.getPowerHandler(entity).ifPresent(handler -> handler.getPowerHolders().values().stream().map(holder -> holder.getAbilities().values().stream().filter(entry -> entry.getConfiguration().getAbility() == ability).collect(Collectors.toList())).forEach(entries::addAll));
-        return entries;
+        return getInstances(entity, ability);
     }
 
     /**
-     * Returns all enabled ability entries from the given entity
+     * Returns all enabled ability instances from the given entity
      *
      * @param entity Entity having abilities
-     * @return List of all enabled ability entries
+     * @return List of all enabled ability instances
      */
     @NotNull
-    public static Collection<AbilityInstance> getEnabledEntries(LivingEntity entity) {
-        List<AbilityInstance> entries = new ArrayList<>();
+    public static Collection<AbilityInstance> getEnabledInstances(LivingEntity entity) {
+        List<AbilityInstance> instances = new ArrayList<>();
         PowerManager.getPowerHandler(entity).ifPresent(handler -> {
             for (IPowerHolder holder : handler.getPowerHolders().values()) {
                 Collection<AbilityInstance> values = holder.getAbilities().values();
                 for (AbilityInstance value : values) {
                     if (value.isEnabled()) {
-                        entries.add(value);
+                        instances.add(value);
                     }
                 }
             }
         });
-        return entries;
+        return instances;
+    }
+
+    @NotNull
+    @Deprecated
+    public static Collection<AbilityInstance> getEnabledEntries(LivingEntity entity) {
+        return getEnabledInstances(entity);
     }
 
     /**
-     * Returns all enabled render layer ability entries from the given entity
+     * Returns all enabled render layer ability instances from the given entity
      *
      * @param entity Entity having abilities
-     * @return List of all enabled render layer ability entries
+     * @return List of all enabled render layer ability instances
      */
     @NotNull
-    public static Collection<AbilityInstance> getEnabledRenderLayerEntries(LivingEntity entity) {
-        List<AbilityInstance> entries = new ArrayList<>();
+    public static Collection<AbilityInstance> getEnabledRenderLayerInstances(LivingEntity entity) {
+        List<AbilityInstance> instances = new ArrayList<>();
         PowerManager.getPowerHandler(entity).ifPresent(handler -> {
             for (IPowerHolder holder : handler.getPowerHolders().values()) {
                 Collection<AbilityInstance> values = holder.getAbilities().values();
                 for (AbilityInstance value : values) {
                     if (value.getConfiguration().getAbility() instanceof RenderLayerProviderAbility && value.isEnabled()) {
-                        entries.add(value);
+                        instances.add(value);
                     }
                 }
             }
         });
-        return entries;
+        return instances;
+    }
+
+    @NotNull
+    @Deprecated
+    public static Collection<AbilityInstance> getEnabledRenderLayerEntries(LivingEntity entity) {
+        return getEnabledRenderLayerInstances(entity);
     }
 
     /**
-     * Returns all enabled ability entries of the given ability type from the entity
+     * Returns all enabled ability instances of the given ability type from the entity
      *
      * @param entity    Entity having abilities
      * @param abilityId ID of the ability that is being looked for
-     * @return List of all enabled ability entries of the given ability type
+     * @return List of all enabled ability instances of the given ability type
      */
     @NotNull
-    public static Collection<AbilityInstance> getEnabledEntries(LivingEntity entity, ResourceLocation abilityId) {
+    public static Collection<AbilityInstance> getEnabledInstances(LivingEntity entity, ResourceLocation abilityId) {
         if (!Ability.REGISTRY.containsKey(abilityId)) {
             return Collections.emptyList();
         }
 
-        return getEnabledEntries(entity, Ability.REGISTRY.get(abilityId));
+        return getEnabledInstances(entity, Ability.REGISTRY.get(abilityId));
+    }
+
+    @NotNull
+    @Deprecated
+    public static Collection<AbilityInstance> getEnabledEntries(LivingEntity entity, ResourceLocation abilityId) {
+        return getEnabledInstances(entity, abilityId);
     }
 
     /**
-     * Returns all enabled ability entries of the given ability type from the entity
+     * Returns all enabled ability instances of the given ability type from the entity
      *
      * @param entity  Entity having abilities
      * @param ability The ability that is being looked for
-     * @return List of all enabled ability entries of the given ability type
+     * @return List of all enabled ability instances of the given ability type
      */
     @NotNull
+    public static Collection<AbilityInstance> getEnabledInstances(LivingEntity entity, Ability ability) {
+        List<AbilityInstance> instances = new ArrayList<>();
+        PowerManager.getPowerHandler(entity).ifPresent(handler -> handler.getPowerHolders().values().stream().map(holder -> holder.getAbilities().values().stream().filter(instance -> instance.isEnabled() && instance.getConfiguration().getAbility() == ability).collect(Collectors.toList())).forEach(instances::addAll));
+        return instances;
+    }
+
+    @NotNull
+    @Deprecated
     public static Collection<AbilityInstance> getEnabledEntries(LivingEntity entity, Ability ability) {
-        List<AbilityInstance> entries = new ArrayList<>();
-        PowerManager.getPowerHandler(entity).ifPresent(handler -> handler.getPowerHolders().values().stream().map(holder -> holder.getAbilities().values().stream().filter(entry -> entry.isEnabled() && entry.getConfiguration().getAbility() == ability).collect(Collectors.toList())).forEach(entries::addAll));
-        return entries;
+        return getEnabledInstances(entity, ability);
     }
 
     /**
-     * Returns a specific ability entry from a specific power
+     * Returns a specific ability instance from a specific power
      *
      * @param entity     Entity having abilities
      * @param powerId    ID of the power containing the specific ability
@@ -143,7 +185,7 @@ public class AbilityUtil {
      * @return The specific {@link AbilityInstance}, or null
      */
     @Nullable
-    public static AbilityInstance getEntry(LivingEntity entity, ResourceLocation powerId, String abilityKey) {
+    public static AbilityInstance getInstance(LivingEntity entity, ResourceLocation powerId, String abilityKey) {
         Power power = PowerManager.getInstance(entity.level()).getPower(powerId);
 
         if (power == null) {
@@ -165,8 +207,14 @@ public class AbilityUtil {
         return holder.getAbilities().get(abilityKey);
     }
 
+    @Nullable
+    @Deprecated
+    public static AbilityInstance getEntry(LivingEntity entity, ResourceLocation powerId, String abilityKey) {
+        return getInstance(entity, powerId, abilityKey);
+    }
+
     /**
-     * Checks if a specific ability entry is unlocked
+     * Checks if a specific ability instance is unlocked
      *
      * @param entity     Entity having abilities
      * @param powerId    ID of the power containing the specific ability
@@ -174,8 +222,8 @@ public class AbilityUtil {
      * @return True if the ability is unlocked
      */
     public static boolean isUnlocked(LivingEntity entity, ResourceLocation powerId, String abilityKey) {
-        var entry = getEntry(entity, powerId, abilityKey);
-        return entry != null && entry.isUnlocked();
+        var instance = getInstance(entity, powerId, abilityKey);
+        return instance != null && instance.isUnlocked();
     }
 
     /**
@@ -187,23 +235,23 @@ public class AbilityUtil {
      * @return True if the ability is enabled
      */
     public static boolean isEnabled(LivingEntity entity, ResourceLocation powerId, String abilityKey) {
-        var entry = getEntry(entity, powerId, abilityKey);
-        return entry != null && entry.isEnabled();
+        var instance = getInstance(entity, powerId, abilityKey);
+        return instance != null && instance.isEnabled();
     }
 
     /**
-     * Checks if a specific ability entry of a certain type is unlocked
+     * Checks if a specific ability instance of a certain type is unlocked
      *
      * @param entity  Entity having abilities
      * @param ability Type of the ability that must be unlocked
      * @return True if any ability of the type is unlocked
      */
     public static boolean isTypeUnlocked(LivingEntity entity, Ability ability) {
-        return getEntries(entity, ability).stream().anyMatch(AbilityInstance::isUnlocked);
+        return getInstances(entity, ability).stream().anyMatch(AbilityInstance::isUnlocked);
     }
 
     /**
-     * Checks if a specific ability entry of a certain type is unlocked
+     * Checks if a specific ability instance of a certain type is unlocked
      *
      * @param entity    Entity having abilities
      * @param abilityId ID of the ability type that must be unlocked
@@ -217,18 +265,18 @@ public class AbilityUtil {
     }
 
     /**
-     * Checks if a specific ability entry of a certain type is enabled
+     * Checks if a specific ability instance of a certain type is enabled
      *
      * @param entity  Entity having abilities
      * @param ability Type of the ability that must be enabled
      * @return True if any ability of the type is enabled
      */
     public static boolean isTypeEnabled(LivingEntity entity, Ability ability) {
-        return getEntries(entity, ability).stream().anyMatch(AbilityInstance::isEnabled);
+        return getInstances(entity, ability).stream().anyMatch(AbilityInstance::isEnabled);
     }
 
     /**
-     * Checks if a specific ability entry of a certain type is enabled
+     * Checks if a specific ability instance of a certain type is enabled
      *
      * @param entity    Entity having abilities
      * @param abilityId ID of the ability type that must be enabled
