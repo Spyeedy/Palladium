@@ -423,10 +423,18 @@ public class GsonUtil {
                 return jsonElement.getAsString();
             } else if (jsonElement.isJsonArray()) {
                 JsonArray array = jsonElement.getAsJsonArray();
+                Function<JsonPrimitive, Object> parse = js -> {
+                    if (js.isString()) {
+                        return js.getAsString();
+                    } else {
+                        return js.getAsInt();
+                    }
+                };
+
                 if (array.size() == 3) {
-                    return new Integer[]{array.get(0).getAsInt(), array.get(1).getAsInt(), array.get(2).getAsInt()};
+                    return new Object[]{parse.apply(array.get(0).getAsJsonPrimitive()), parse.apply(array.get(1).getAsJsonPrimitive()), parse.apply(array.get(2).getAsJsonPrimitive())};
                 } else if (array.size() == 4) {
-                    return new Integer[]{array.get(0).getAsInt(), array.get(1).getAsInt(), array.get(2).getAsInt(), array.get(3).getAsInt()};
+                    return new Object[]{parse.apply(array.get(0).getAsJsonPrimitive()), parse.apply(array.get(1).getAsJsonPrimitive()), parse.apply(array.get(2).getAsJsonPrimitive()), parse.apply(array.get(3).getAsJsonPrimitive())};
                 } else {
                     throw new JsonParseException("Color array must either have 3 (RGB) or 4 (RGBA) integers");
                 }

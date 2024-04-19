@@ -15,12 +15,21 @@ public record ColorTextureTransformer(Object rawColor, boolean ignoreBlank) impl
         var color = Color.WHITE;
         if (this.rawColor instanceof String string) {
             color = Color.decode(stringConverter.apply(string));
-        } else if (this.rawColor instanceof Integer[] integers && integers.length == 3) {
-            color = new Color(
-                    Integer.getInteger(stringConverter.apply(integers[0].toString())),
-                    Integer.getInteger(stringConverter.apply(integers[1].toString())),
-                    Integer.getInteger(stringConverter.apply(integers[2].toString()))
-            );
+        } else if (this.rawColor instanceof Object[] integers) {
+            if (integers.length == 3) {
+                color = new Color(
+                        convertColorPart(integers[0], stringConverter),
+                        convertColorPart(integers[1], stringConverter),
+                        convertColorPart(integers[2], stringConverter)
+                );
+            } else if (integers.length == 4) {
+                color = new Color(
+                        convertColorPart(integers[0], stringConverter),
+                        convertColorPart(integers[1], stringConverter),
+                        convertColorPart(integers[2], stringConverter),
+                        convertColorPart(integers[3], stringConverter)
+                );
+            }
         }
 
         for (int y = 0; y < texture.getHeight(); ++y) {
@@ -32,6 +41,13 @@ public record ColorTextureTransformer(Object rawColor, boolean ignoreBlank) impl
         return texture;
     }
 
+    private Integer convertColorPart(Object o, Function<String, String> stringConverter) {
+        if (o instanceof Integer i) {
+            return i;
+        } else {
+            return Integer.getInteger(stringConverter.apply(o.toString()));
+        }
+    }
 
     public void blendPixel(NativeImage texture, int x, int y, Color color) {
         if (texture.format() != NativeImage.Format.RGBA) {
