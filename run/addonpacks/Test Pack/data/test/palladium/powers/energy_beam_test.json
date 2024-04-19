@@ -4,6 +4,7 @@
   "abilities": {
     "hands_laser": {
       "type": "palladium:energy_beam",
+      "title": "Laser Hands",
       "energy_beam": "test:hands_laser",
       "speed": 0,
       "conditions": {
@@ -14,6 +15,7 @@
     },
     "forehead_laser": {
       "type": "palladium:energy_beam",
+      "title": "Forehead Laser",
       "energy_beam": "test:forehead_laser",
       "conditions": {
         "enabling": {
@@ -23,7 +25,18 @@
     },
     "cyclops_laser": {
       "type": "palladium:energy_beam",
+      "title": "Cyclops Laser",
       "energy_beam": "test:cyclops_eye_laser",
+      "conditions": {
+        "enabling": {
+          "type": "palladium:held"
+        }
+      }
+    },
+    "lightning_hands": {
+      "type": "palladium:energy_beam",
+      "title": "Lightning Hands",
+      "energy_beam": "test:hands_lightnings",
       "conditions": {
         "enabling": {
           "type": "palladium:held"

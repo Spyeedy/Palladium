@@ -242,7 +242,7 @@ public class LaserRenderer {
                 .rotationSpeed(GsonUtil.getAsFloatMin(json, "rotation_speed", 0.0F, 0F));
 
         if (json.has("thickness")) {
-            laser.size(GsonUtil.getAsFloatMin(json, "thickness", 0, 1) / 16F);
+            laser.size((GsonUtil.getAsFloatMin(json, "thickness", 0, 0.05F) * 20) / 16);
         }
 
         return laser;

@@ -51,6 +51,7 @@ public class EnergyBeamManager extends SimpleJsonResourceReloadListener {
 
     static {
         registerRenderer(new LaserBeamRenderer.Serializer());
+        registerRenderer(new LightningBeamRenderer.Serializer());
     }
 
     public static void registerRenderer(EnergyBeamRenderer.Serializer serializer) {

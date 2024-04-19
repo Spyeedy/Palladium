@@ -25,7 +25,7 @@ public class LaserBeamRenderer extends EnergyBeamRenderer {
         var size = this.laserRenderer.getSize();
 
         this.laserRenderer
-                .size(size.mul(SizeUtil.getInstance().getModelWidthScale(player), SizeUtil.getInstance().getModelHeightScale(player), new Vector2f()))
+                .size(size.mul(SizeUtil.getInstance().getModelWidthScale(player, partialTick), SizeUtil.getInstance().getModelHeightScale(player, partialTick), new Vector2f()))
                 .length((float) origin.distanceTo(target) * lengthMultiplier)
                 .faceAndRender(poseStack, bufferSource, origin, target, player.tickCount, partialTick);
 

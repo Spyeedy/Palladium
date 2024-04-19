@@ -34,6 +34,10 @@ Palladium</h3>
 <a href="#palladium:laser">
 Laser</a>
 </li>
+<li>
+<a href="#palladium:lightning">
+Laser</a>
+</li>
 </ul>
 </p>
 <hr>
@@ -129,7 +133,7 @@ Describes how many stages of "bloom" is visible as the glow</td>
 <td style="background-color: lightcoral">
 false</td>
 <td>
-3</td>
+2</td>
 </tr>
 <tr>
 <td>
@@ -184,7 +188,193 @@ false</td>
 <h3>
 Example:</h3>
 <pre class="json-snippet">
-{"type":"palladium:laser","glow_color":"#ffffff","core_color":"#ffffff","rainbow":false,"glow_opacity":1.0,"core_opacity":1.0,"bloom":3,"size":1,"normal_transparency":false,"rotation":0.0,"rotation_speed":0.0}</pre>
+{"type":"palladium:laser","glow_color":"#ffffff","core_color":"#ffffff","rainbow":false,"glow_opacity":1.0,"core_opacity":1.0,"bloom":2,"size":1,"normal_transparency":false,"rotation":0.0,"rotation_speed":0.0}</pre>
+</div>
+<hr>
+
+<div id="palladium:lightning">
+<h2>
+Laser</h2>
+<h3>
+Settings:</h3>
+<table>
+<thead>
+<tr>
+<th>
+Setting</th>
+<th>
+Type</th>
+<th>
+Description</th>
+<th>
+Required</th>
+<th>
+Fallback Value</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>
+segments</td>
+<td>
+Integer</td>
+<td>
+Determines how many split segments the lightning will have</td>
+<td style="background-color: lightcoral">
+false</td>
+<td>
+5</td>
+</tr>
+<tr>
+<td>
+frequency</td>
+<td>
+Integer</td>
+<td>
+Determines how many ticks it takes for the beam to change its offset position</td>
+<td style="background-color: lightcoral">
+false</td>
+<td>
+2</td>
+</tr>
+<tr>
+<td>
+spread</td>
+<td>
+Float</td>
+<td>
+Determines how far each offset segment-corner spreads from the center</td>
+<td style="background-color: lightcoral">
+false</td>
+<td>
+5.0</td>
+</tr>
+<tr>
+<td>
+glow_color</td>
+<td>
+Color</td>
+<td>
+Color of the laser glow</td>
+<td style="background-color: lightcoral">
+false</td>
+<td>
+java.awt.Color[r=255,g=255,b=255]</td>
+</tr>
+<tr>
+<td>
+core_color</td>
+<td>
+Color</td>
+<td>
+Color of the inner core</td>
+<td style="background-color: lightcoral">
+false</td>
+<td>
+java.awt.Color[r=255,g=255,b=255]</td>
+</tr>
+<tr>
+<td>
+rainbow</td>
+<td>
+Boolean</td>
+<td>
+If enabled, the glow will have a rainbow effect. Can also be defined as a float to determine the speed</td>
+<td style="background-color: lightcoral">
+false</td>
+<td>
+false</td>
+</tr>
+<tr>
+<td>
+glow_opacity</td>
+<td>
+Float</td>
+<td>
+Opacity for the laser glow</td>
+<td style="background-color: lightcoral">
+false</td>
+<td>
+1.0</td>
+</tr>
+<tr>
+<td>
+core_opacity</td>
+<td>
+Float</td>
+<td>
+Opacity for the inner core</td>
+<td style="background-color: lightcoral">
+false</td>
+<td>
+1.0</td>
+</tr>
+<tr>
+<td>
+bloom</td>
+<td>
+Integer</td>
+<td>
+Describes how many stages of "bloom" is visible as the glow</td>
+<td style="background-color: lightcoral">
+false</td>
+<td>
+1</td>
+</tr>
+<tr>
+<td>
+size</td>
+<td>
+Vector2f</td>
+<td>
+Size of the laser. Can either be defined as a simple float (e.g. 1.0), or 2-dimensional using an array (e.g. [1.0, 2.0])</td>
+<td style="background-color: lightcoral">
+false</td>
+<td>
+[1.0, 1.0]</td>
+</tr>
+<tr>
+<td>
+normal_transparency</td>
+<td>
+Boolean</td>
+<td>
+You only ever really need to set it to true if you intend to make the core or glow black</td>
+<td style="background-color: lightcoral">
+false</td>
+<td>
+false</td>
+</tr>
+<tr>
+<td>
+rotation</td>
+<td>
+Float</td>
+<td>
+Rotation of the laser</td>
+<td style="background-color: lightcoral">
+false</td>
+<td>
+0.0</td>
+</tr>
+<tr>
+<td>
+rotation_speed</td>
+<td>
+Float</td>
+<td>
+Speed at which the laser rotates</td>
+<td style="background-color: lightcoral">
+false</td>
+<td>
+0.0</td>
+</tr>
+</tbody>
+</table>
+<h3>
+Example:</h3>
+<pre class="json-snippet">
+{"type":"palladium:lightning","segments":5,"frequency":2,"spread":5,"glow_color":"#ffffff","core_color":"#ffffff","rainbow":false,"glow_opacity":1.0,"core_opacity":1.0,"bloom":1,"size":1,"normal_transparency":false,"rotation":0.0,"rotation_speed":0.0}</pre>
 </div>
 <script>
 function syntaxHighlight(json) {
