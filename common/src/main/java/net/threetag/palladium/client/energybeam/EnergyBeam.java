@@ -48,13 +48,13 @@ public class EnergyBeam {
         }
     }
 
-    public void render(AbstractClientPlayer player, Vec3 anchor, Vec3 target, PoseStack poseStack, MultiBufferSource bufferSource, int packedLightIn, boolean isFirstPerson, float partialTick) {
+    public void render(AbstractClientPlayer player, Vec3 anchor, Vec3 target, float lengthMultiplier, PoseStack poseStack, MultiBufferSource bufferSource, int packedLightIn, boolean isFirstPerson, float partialTick) {
         var origin = this.getOriginPosition(player, partialTick).subtract(anchor);
         target = target.subtract(anchor);
 
         poseStack.pushPose();
         poseStack.translate(origin.x, origin.y, origin.z);
-        this.renderer.render(player, origin, target, poseStack, bufferSource, packedLightIn, isFirstPerson, partialTick);
+        this.renderer.render(player, origin, target, lengthMultiplier, poseStack, bufferSource, packedLightIn, isFirstPerson, partialTick);
         poseStack.popPose();
     }
 

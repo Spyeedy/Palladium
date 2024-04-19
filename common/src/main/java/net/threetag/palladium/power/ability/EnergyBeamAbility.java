@@ -4,6 +4,7 @@ import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.minecraft.core.BlockPos;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.util.Mth;
 import net.minecraft.world.SimpleContainer;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
@@ -26,21 +27,25 @@ import net.threetag.palladium.util.PalladiumBlockUtil;
 import net.threetag.palladium.util.property.*;
 import net.threetag.palladiumcore.util.Platform;
 
-public class EnergyBeamAbility extends Ability {
+public class EnergyBeamAbility extends Ability implements AnimationTimer {
 
     public static final PalladiumProperty<ResourceLocation> BEAM = new ResourceLocationProperty("energy_beam").configurable("Configuration for the look of the beam. Check wiki for information.");
     public static final PalladiumProperty<Float> DAMAGE = new FloatProperty("damage").configurable("The damage dealt with aiming for entities (per tick)");
     public static final PalladiumProperty<Float> MAX_DISTANCE = new FloatProperty("max_distance").configurable("The maximum distance you can reach with your heat vision");
+    public static final PalladiumProperty<Float> SPEED = new FloatProperty("speed").configurable("Speed at which the energy beam extends from the player. Use 0 for instant extension.");
     public static final PalladiumProperty<Integer> SET_ON_FIRE_SECONDS = new IntegerProperty("set_on_fire_seconds").configurable("You can use this to set targeted entities on fire. If set to 0 it will not cause any.");
     public static final PalladiumProperty<Boolean> CAUSE_FIRE = new BooleanProperty("cause_fire").configurable("If enabled, targeted blocks will start to burn (fire will be placed).");
     public static final PalladiumProperty<Boolean> SMELT_BLOCKS = new BooleanProperty("smelt_blocks").configurable("If enabled, targeted blocks will turn into their smelting result (e.g. sand will turn into glass).");
 
     public static final PalladiumProperty<Vec3> TARGET = new Vec3Property("distance").sync(SyncType.NONE);
+    public static final PalladiumProperty<Float> VALUE = new FloatProperty("value").sync(SyncType.NONE).disablePersistence();
+    public static final PalladiumProperty<Float> PREV_VALUE = new FloatProperty("prev_value").sync(SyncType.NONE).disablePersistence();
 
     public EnergyBeamAbility() {
         this.withProperty(BEAM, new ResourceLocation("example:energy_beam"))
                 .withProperty(DAMAGE, 5F)
                 .withProperty(MAX_DISTANCE, 30F)
+                .withProperty(SPEED, 0.5F)
                 .withProperty(SET_ON_FIRE_SECONDS, 0)
                 .withProperty(CAUSE_FIRE, false)
                 .withProperty(SMELT_BLOCKS, false);
@@ -49,11 +54,13 @@ public class EnergyBeamAbility extends Ability {
     @Override
     public void registerUniqueProperties(PropertyManager manager) {
         manager.register(TARGET, Vec3.ZERO);
+        manager.register(VALUE, 0F);
+        manager.register(PREV_VALUE, 0F);
     }
 
     @Override
     public void firstTick(LivingEntity entity, AbilityInstance entry, IPowerHolder holder, boolean enabled) {
-        if (enabled && entity instanceof Player player && Platform.isClient()) {
+        if (enabled && entity instanceof Player player && entry.getProperty(VALUE) <= 0F && Platform.isClient()) {
             EnergyBeamEffect.start(player, entry.getReference());
         }
     }
@@ -61,9 +68,25 @@ public class EnergyBeamAbility extends Ability {
     @SuppressWarnings("ConstantValue")
     @Override
     public void tick(LivingEntity entity, AbilityInstance entry, IPowerHolder holder, boolean enabled) {
-        if (enabled) {
-            var hit = updateTargetPos(entity, entry, 1F);
+        float speed = entry.getProperty(SPEED);
+        float value = entry.getProperty(VALUE);
+        entry.setUniqueProperty(PREV_VALUE, value);
+        HitResult hit = null;
+        boolean active = enabled;
 
+        if (speed > 0F) {
+            hit = updateTargetPos(entity, entry, 1F);
+
+            if (entry.isEnabled() && value < 1F) {
+                entry.setUniqueProperty(VALUE, value = Math.min(value + speed, 1F));
+            } else if (!entry.isEnabled() && value > 0F) {
+                entry.setUniqueProperty(VALUE, value = Math.max(value - speed, 0F));
+            }
+
+            active = value >= 1F;
+        }
+
+        if (active) {
             if (hit instanceof EntityHitResult entityHitResult) {
                 var fireSecs = entry.getProperty(SET_ON_FIRE_SECONDS);
 
@@ -124,4 +147,16 @@ public class EnergyBeamAbility extends Ability {
         return endHit;
     }
 
+    @Override
+    public float getAnimationValue(AbilityInstance entry, float partialTick) {
+        return Mth.lerp(partialTick, entry.getProperty(PREV_VALUE), entry.getProperty(VALUE));
+    }
+
+    @Override
+    public float getAnimationTimer(AbilityInstance entry, float partialTick, boolean maxedOut) {
+        if (maxedOut) {
+            return 1F;
+        }
+        return Mth.lerp(partialTick, entry.getProperty(PREV_VALUE), entry.getProperty(VALUE));
+    }
 }

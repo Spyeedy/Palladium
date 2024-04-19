@@ -21,9 +21,9 @@ public class EnergyBeamConfiguration {
         this.beams = energyBeams;
     }
 
-    public void render(AbstractClientPlayer player, Vec3 anchor, Vec3 target, PoseStack poseStack, MultiBufferSource bufferSource, int packedLightIn, boolean isFirstPerson, float partialTick) {
+    public void render(AbstractClientPlayer player, Vec3 anchor, Vec3 target, float lengthMultiplier, PoseStack poseStack, MultiBufferSource bufferSource, int packedLightIn, boolean isFirstPerson, float partialTick) {
         for (EnergyBeam beam : this.beams) {
-            beam.render(player, anchor, target, poseStack, bufferSource, packedLightIn, isFirstPerson, partialTick);
+            beam.render(player, anchor, target, lengthMultiplier, poseStack, bufferSource, packedLightIn, isFirstPerson, partialTick);
         }
     }
 

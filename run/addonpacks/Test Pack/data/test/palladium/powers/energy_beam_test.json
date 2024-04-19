@@ -5,6 +5,7 @@
     "hands_laser": {
       "type": "palladium:energy_beam",
       "energy_beam": "test:hands_laser",
+      "speed": 0,
       "conditions": {
         "enabling": {
           "type": "palladium:held"

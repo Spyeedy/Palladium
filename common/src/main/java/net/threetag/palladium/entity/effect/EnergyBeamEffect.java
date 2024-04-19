@@ -12,6 +12,7 @@ import net.threetag.palladium.client.energybeam.EnergyBeamManager;
 import net.threetag.palladium.entity.EffectEntity;
 import net.threetag.palladium.power.ability.AbilityInstance;
 import net.threetag.palladium.power.ability.AbilityReference;
+import net.threetag.palladium.power.ability.AnimationTimer;
 import net.threetag.palladium.power.ability.EnergyBeamAbility;
 import net.threetag.palladium.util.property.AbilityReferenceProperty;
 import net.threetag.palladium.util.property.PalladiumProperty;
@@ -33,35 +34,44 @@ public class EnergyBeamEffect extends EntityEffect {
     @Environment(EnvType.CLIENT)
     public void render(EffectEntity entity, Entity anchor, PoseStack poseStack, MultiBufferSource bufferSource, int packedLightIn, boolean isFirstPerson, float partialTicks) {
         if (anchor instanceof AbstractClientPlayer player) {
-            AbilityInstance entry = this.get(entity, ABILITY).getEntry(player);
+            AbilityInstance instance = this.get(entity, ABILITY).getEntry(player);
 
-            if (entry != null) {
-                EnergyBeamAbility.updateTargetPos(player, entry, partialTicks);
-                var beam = EnergyBeamManager.INSTANCE.get(entry.getProperty(EnergyBeamAbility.BEAM));
+            if (instance != null) {
+                EnergyBeamAbility.updateTargetPos(player, instance, partialTicks);
+                var beam = EnergyBeamManager.INSTANCE.get(instance.getProperty(EnergyBeamAbility.BEAM));
 
                 if (beam != null) {
                     var entityPos = entity.getPosition(partialTicks);
-                    var target = entry.getProperty(EnergyBeamAbility.TARGET);
-                    beam.render(player, entityPos, target, poseStack, bufferSource, packedLightIn, isFirstPerson, partialTicks);
+                    var target = instance.getProperty(EnergyBeamAbility.TARGET);
+                    beam.render(player, entityPos, target, getLengthMultiplier(instance, partialTicks), poseStack, bufferSource, packedLightIn, isFirstPerson, partialTicks);
                 }
             }
         }
     }
 
+    @Environment(EnvType.CLIENT)
+    public float getLengthMultiplier(AbilityInstance instance, float partialTick) {
+        if (instance.getConfiguration().getAbility() instanceof AnimationTimer animationTimer) {
+            return animationTimer.getAnimationTimer(instance, partialTick, instance.getProperty(EnergyBeamAbility.SPEED) <= 0F);
+        }
+
+        return 1F;
+    }
+
     @Override
     public void tick(EffectEntity entity, Entity anchor) {
         if (anchor instanceof AbstractClientPlayer player) {
-            AbilityInstance entry = this.get(entity, ABILITY).getEntry(player);
+            AbilityInstance instance = this.get(entity, ABILITY).getEntry(player);
 
-            if (entry != null) {
-                var beam = EnergyBeamManager.INSTANCE.get(entry.getProperty(EnergyBeamAbility.BEAM));
+            if (instance != null) {
+                var beam = EnergyBeamManager.INSTANCE.get(instance.getProperty(EnergyBeamAbility.BEAM));
 
                 if (beam == null) {
                     this.stopPlaying(entity);
                     return;
                 }
 
-                boolean isDonePlaying = !entry.isEnabled();
+                boolean isDonePlaying = instance.getProperty(EnergyBeamAbility.SPEED) <= 0 ? !instance.isEnabled() : getLengthMultiplier(instance, 0F) <= 0F && !instance.isEnabled();
                 if (isDonePlaying != this.get(entity, IS_DONE_PLAYING)) {
                     this.stopPlaying(entity);
                 }

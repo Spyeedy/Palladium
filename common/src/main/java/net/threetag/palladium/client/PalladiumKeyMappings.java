@@ -106,7 +106,7 @@ public class PalladiumKeyMappings implements InputEvents.KeyPressed, ClientTickE
         var player = Objects.requireNonNull(client.player);
 
         // Disable active toggle abilities
-        List<AbilityInstance> activeToggles = AbilityUtil.getEntries(player).stream()
+        List<AbilityInstance> activeToggles = AbilityUtil.getInstances(player).stream()
                 .filter(e -> e.getConfiguration().getKeyPressType() == AbilityConfiguration.KeyPressType.TOGGLE
                         && e.getConfiguration().getKeyType().toString().toLowerCase(Locale.ROOT).startsWith("scroll")
                         && e.isEnabled())
@@ -187,7 +187,7 @@ public class PalladiumKeyMappings implements InputEvents.KeyPressed, ClientTickE
             }
         }
 
-        for (AbilityInstance entry : AbilityUtil.getEntries(Minecraft.getInstance().player)) {
+        for (AbilityInstance entry : AbilityUtil.getInstances(Minecraft.getInstance().player)) {
             if (entry != null && entry.isUnlocked()) {
                 if (entry.getConfiguration().getKeyType() == keyType) {
                     if(!entry.getConfiguration().getKeyType().toString().toLowerCase(Locale.ROOT).startsWith("scroll") || (!entry.getConfiguration().allowScrollWhenCrouching() || !Objects.requireNonNull(Minecraft.getInstance().player).isCrouching())) {

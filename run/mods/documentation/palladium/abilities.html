@@ -947,7 +947,7 @@ attribute</td>
 <td>
 Attribute</td>
 <td>
-Determines which attribute should be modified. Possible attributes: minecraft:generic.armor, minecraft:generic.armor_toughness, minecraft:generic.attack_damage, minecraft:generic.attack_knockback, minecraft:generic.attack_speed, minecraft:generic.flying_speed, minecraft:generic.follow_range, minecraft:generic.knockback_resistance, minecraft:generic.luck, minecraft:generic.max_health, minecraft:generic.movement_speed, minecraft:horse.jump_strength, minecraft:zombie.spawn_reinforcements</td>
+Determines which attribute should be modified. Possible attributes: minecraft:generic.armor, minecraft:generic.armor_toughness, minecraft:generic.attack_damage, minecraft:generic.attack_knockback, minecraft:generic.attack_speed, minecraft:generic.flying_speed, minecraft:generic.follow_range, minecraft:generic.knockback_resistance, minecraft:generic.luck, minecraft:generic.max_health, minecraft:generic.movement_speed, minecraft:horse.jump_strength, minecraft:zombie.spawn_reinforcements, porting_lib:attack_range, porting_lib:entity_gravity, porting_lib:reach_distance, porting_lib:step_height_addition, porting_lib:swim_speed</td>
 <td style="background-color: lightcoral">
 false</td>
 <td>
@@ -1585,6 +1585,18 @@ false</td>
 </tr>
 <tr>
 <td>
+speed</td>
+<td>
+Float</td>
+<td>
+Speed at which the energy beam extends from the player. Use 0 for instant extension.</td>
+<td style="background-color: lightcoral">
+false</td>
+<td>
+0.1</td>
+</tr>
+<tr>
+<td>
 set_on_fire_seconds</td>
 <td>
 Integer</td>
@@ -1624,7 +1636,7 @@ false</td>
 <h3>
 Example:</h3>
 <pre class="json-snippet">
-{"type":"palladium:energy_beam","icon":"minecraft:blaze_rod","title":"null","bar_color":"light_gray","hidden":false,"hidden_in_bar":false,"list_index":-1,"gui_position":"null","description":"null","energy_beam":"example:energy_beam","damage":5.0,"max_distance":30.0,"set_on_fire_seconds":0,"cause_fire":false,"smelt_blocks":false}</pre>
+{"type":"palladium:energy_beam","icon":"minecraft:blaze_rod","title":"null","bar_color":"light_gray","hidden":false,"hidden_in_bar":false,"list_index":-1,"gui_position":"null","description":"null","energy_beam":"example:energy_beam","damage":5.0,"max_distance":30.0,"speed":0.1,"set_on_fire_seconds":0,"cause_fire":false,"smelt_blocks":false}</pre>
 </div>
 <hr>
 

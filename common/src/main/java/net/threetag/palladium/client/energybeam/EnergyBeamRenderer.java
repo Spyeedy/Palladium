@@ -9,7 +9,7 @@ import net.threetag.palladium.documentation.IDocumentedConfigurable;
 
 public abstract class EnergyBeamRenderer {
 
-    public abstract void render(AbstractClientPlayer player, Vec3 origin, Vec3 target, PoseStack poseStack, MultiBufferSource bufferSource, int packedLightIn, boolean isFirstPerson, float partialTick);
+    public abstract void render(AbstractClientPlayer player, Vec3 origin, Vec3 target, float lengthMultiplier, PoseStack poseStack, MultiBufferSource bufferSource, int packedLightIn, boolean isFirstPerson, float partialTick);
 
     public static abstract class Serializer implements IDocumentedConfigurable {
 

@@ -24,7 +24,7 @@ public class LaserBeamRenderer extends EnergyBeamRenderer {
     }
 
     @Override
-    public void render(AbstractClientPlayer player, Vec3 origin, Vec3 target, PoseStack poseStack, MultiBufferSource bufferSource, int packedLightIn, boolean isFirstPerson, float partialTick) {
+    public void render(AbstractClientPlayer player, Vec3 origin, Vec3 target, float lengthMultiplier, PoseStack poseStack, MultiBufferSource bufferSource, int packedLightIn, boolean isFirstPerson, float partialTick) {
         if (this.rotationSpeed > 0F) {
             this.laserRenderer.rotate((player.tickCount + partialTick) * rotationSpeed);
         }
@@ -33,7 +33,7 @@ public class LaserBeamRenderer extends EnergyBeamRenderer {
 
         this.laserRenderer
                 .size(size.mul(SizeUtil.getInstance().getModelWidthScale(player), SizeUtil.getInstance().getModelHeightScale(player), new Vector2f()))
-                .length((float) origin.distanceTo(target))
+                .length((float) origin.distanceTo(target) * lengthMultiplier)
                 .faceAndRender(poseStack, bufferSource, origin, target);
 
         this.laserRenderer.size(size);
