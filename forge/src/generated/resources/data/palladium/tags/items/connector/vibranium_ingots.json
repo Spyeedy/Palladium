@@ -1,11 +1,11 @@
 {
   "values": [
     {
-      "id": "#forge:ingots/lead",
+      "id": "#forge:ingots/vibranium",
       "required": false
     },
     {
-      "id": "#c:lead_ingots",
+      "id": "#c:vibranium_ingots",
       "required": false
     }
   ]

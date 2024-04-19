@@ -65,7 +65,7 @@ public class PalladiumItemTagsProvider extends IntrinsicHolderTagsProvider<Item>
         this.connectTag(PalladiumItemTags.WOODEN_STICKS, Tags.Items.RODS_WOODEN, PalladiumItemTags.Fabric.WOODEN_STICKS);
         this.connectTag(PalladiumItemTags.IRON_INGOTS, Tags.Items.INGOTS_IRON, PalladiumItemTags.Fabric.INGOTS_IRON);
         this.connectTag(PalladiumItemTags.LEAD_INGOTS, PalladiumItemTags.Forge.INGOTS_LEAD, PalladiumItemTags.Fabric.INGOTS_LEAD);
-        this.connectTag(PalladiumItemTags.VIBRANIUM_INGOTS, PalladiumItemTags.Forge.INGOTS_LEAD, PalladiumItemTags.Fabric.INGOTS_LEAD);
+        this.connectTag(PalladiumItemTags.VIBRANIUM_INGOTS, PalladiumItemTags.Forge.INGOTS_VIBRANIUM, PalladiumItemTags.Fabric.INGOTS_VIBRANIUM);
         this.connectTag(PalladiumItemTags.QUARTZ, Tags.Items.GEMS_QUARTZ, PalladiumItemTags.Fabric.QUARTZ);
         this.connectTag(PalladiumItemTags.GOLD_INGOTS, Tags.Items.INGOTS_GOLD, PalladiumItemTags.Fabric.INGOTS_GOLD);
         this.connectTag(PalladiumItemTags.COPPER_INGOTS, Tags.Items.INGOTS_COPPER, PalladiumItemTags.Fabric.INGOTS_COPPER);
