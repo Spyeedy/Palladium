@@ -36,7 +36,7 @@ import java.util.List;
 public class GeckoRenderLayer extends AbstractPackRenderLayer {
 
     private final SkinTypedValue<DynamicTexture> texture;
-    private final SkinTypedValue<ResourceLocation> modelLocation;
+    private final SkinTypedValue<DynamicTexture> modelLocation;
     public final ResourceLocation animationLocation;
     public final List<ParsedAnimationController<GeckoLayerState>> animationControllers;
     public ResourceLocation cachedTexture;
@@ -44,7 +44,7 @@ public class GeckoRenderLayer extends AbstractPackRenderLayer {
     public final RenderTypeFunction renderType;
     private final GeckoRenderLayerModel model;
 
-    public GeckoRenderLayer(SkinTypedValue<DynamicTexture> texture, SkinTypedValue<ResourceLocation> modelLocation, ResourceLocation animationLocation, List<ParsedAnimationController<GeckoLayerState>> animationControllers, RenderTypeFunction renderType) {
+    public GeckoRenderLayer(SkinTypedValue<DynamicTexture> texture, SkinTypedValue<DynamicTexture> modelLocation, ResourceLocation animationLocation, List<ParsedAnimationController<GeckoLayerState>> animationControllers, RenderTypeFunction renderType) {
         this.texture = texture;
         this.renderType = renderType;
         this.modelLocation = modelLocation;
@@ -80,7 +80,7 @@ public class GeckoRenderLayer extends AbstractPackRenderLayer {
             entityModel.setAllVisible(true);
 
             this.cachedTexture = this.texture.get(living).getTexture(context);
-            this.cachedModel = this.modelLocation.get(living);
+            this.cachedModel = this.modelLocation.get(living).getTexture(context);
 
             if (entityModel instanceof GeckoRenderLayerModel gecko) {
                 gecko.renderToBuffer(poseStack, this.renderType.createVertexConsumer(bufferSource, this.cachedTexture, false), packedLight, OverlayTexture.NO_OVERLAY, 1F, 1F, 1F, 1F);
@@ -95,7 +95,7 @@ public class GeckoRenderLayer extends AbstractPackRenderLayer {
             var state = getState(living);
             this.model.setCurrentRenderingFields(state, living, playerRenderer.getModel());
             this.cachedTexture = this.texture.get(living).getTexture(context);
-            this.cachedModel = this.modelLocation.get(living);
+            this.cachedModel = this.modelLocation.get(living).getTexture(context);
             this.model.grabRelevantBones(this.model.getGeoModel().getBakedModel(this.model.getGeoModel().getModelResource(this.model.currentState)));
 
             var bone = (arm == HumanoidArm.RIGHT ? this.model.getRightArmBone() : this.model.getLeftArmBone());
@@ -134,7 +134,7 @@ public class GeckoRenderLayer extends AbstractPackRenderLayer {
     }
 
     public static GeckoRenderLayer parse(JsonObject json) {
-        SkinTypedValue<ResourceLocation> modelLocation = SkinTypedValue.fromJSON(json.get("model"), js -> GsonUtil.convertToResourceLocation(js, "model"));
+        SkinTypedValue<DynamicTexture> modelLocation = SkinTypedValue.fromJSON(json.get("model"), DynamicTextureManager::fromJson);
         var texture = SkinTypedValue.fromJSON(json.get("texture"), DynamicTextureManager::fromJson);
         var renderType = PackRenderLayerManager.getRenderType(new ResourceLocation(GsonHelper.getAsString(json, "render_type", "solid")));
 
