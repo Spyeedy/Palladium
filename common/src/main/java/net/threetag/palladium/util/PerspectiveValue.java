@@ -62,8 +62,8 @@ public class PerspectiveValue<T> {
     @Override
     public String toString() {
         return "PerspectiveValue{" +
-                "normal=" + firstPerson +
-                ", slim=" + thirdPerson +
+                "firstPerson=" + firstPerson +
+                ", thirdPerson=" + thirdPerson +
                 '}';
     }
 
