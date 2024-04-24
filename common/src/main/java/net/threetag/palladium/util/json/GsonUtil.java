@@ -481,6 +481,20 @@ public class GsonUtil {
         return json.has(memberName) ? getAsVector3f(json, memberName) : fallback;
     }
 
+    public static Vector3f convertToVector3f(JsonElement jsonElement, String memberName) {
+        if(jsonElement.isJsonArray()) {
+            JsonArray array = jsonElement.getAsJsonArray();
+
+            if (array.size() != 3) {
+                throw new JsonSyntaxException(memberName + " must have 3 floats");
+            }
+
+            return new Vector3f(array.get(0).getAsFloat(), array.get(1).getAsFloat(), array.get(2).getAsFloat());
+        } else {
+            throw new JsonSyntaxException(memberName + " must be an array to represent a 3-dimensional vector");
+        }
+    }
+
     public static Vec3 getAsVec3(JsonObject json, String memberName) {
         if (json.has(memberName)) {
             if (json.get(memberName).isJsonArray()) {

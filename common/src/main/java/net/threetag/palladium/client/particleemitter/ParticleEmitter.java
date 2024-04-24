@@ -12,6 +12,7 @@ import net.minecraft.util.RandomSource;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.Vec3;
 import net.threetag.palladium.entity.BodyPart;
+import net.threetag.palladium.util.PerspectiveValue;
 import net.threetag.palladium.util.json.GsonUtil;
 import org.jetbrains.annotations.Nullable;
 import org.joml.Vector3f;
@@ -22,13 +23,13 @@ public class ParticleEmitter {
     @Nullable
     private final BodyPart anchor;
     private final float amount;
-    private final Vector3f offset;
-    private final Vector3f offsetRandom;
-    private final Vector3f motion;
-    private final Vector3f motionRandom;
+    private final PerspectiveValue<Vector3f> offset;
+    private final PerspectiveValue<Vector3f> offsetRandom;
+    private final PerspectiveValue<Vector3f> motion;
+    private final PerspectiveValue<Vector3f> motionRandom;
     private final boolean visibleInFirstPerson;
 
-    public ParticleEmitter(@Nullable BodyPart anchor, float amount, Vector3f offset, Vector3f offsetRandom, Vector3f motion, Vector3f motionRandom, boolean visibleInFirstPerson) {
+    public ParticleEmitter(@Nullable BodyPart anchor, float amount, PerspectiveValue<Vector3f> offset, PerspectiveValue<Vector3f> offsetRandom, PerspectiveValue<Vector3f> motion, PerspectiveValue<Vector3f> motionRandom, boolean visibleInFirstPerson) {
         this.anchor = anchor;
         this.amount = amount;
         this.offset = offset;
@@ -41,10 +42,10 @@ public class ParticleEmitter {
     public static ParticleEmitter fromJson(JsonObject json) {
         var bodyPart = BodyPart.byName(GsonHelper.getAsString(json, "body_part", ""));
         var amount = GsonUtil.getAsFloatMin(json, "amount", 0, 1);
-        var offset = GsonUtil.getAsVector3f(json, "offset", new Vector3f()).div(16, -16, 16);
-        var offsetRandom = GsonUtil.getAsVector3f(json, "offset_random", new Vector3f()).div(16, -16, 16);
-        var motion = GsonUtil.getAsVector3f(json, "motion", new Vector3f()).div(16, -16, 16);
-        var motionRandom = GsonUtil.getAsVector3f(json, "motion_random", new Vector3f()).div(16, -16, 16);
+        var offset = PerspectiveValue.getFromJson(json, "offset", j -> GsonUtil.convertToVector3f(j, "offset").div(16, -16, 16), new Vector3f());
+        var offsetRandom = PerspectiveValue.getFromJson(json, "offset_random", j -> GsonUtil.convertToVector3f(j, "offset_random").div(16, -16, 16), new Vector3f());
+        var motion = PerspectiveValue.getFromJson(json, "motion", j -> GsonUtil.convertToVector3f(j, "motion").div(16, -16, 16), new Vector3f());
+        var motionRandom = PerspectiveValue.getFromJson(json, "motion_random", j -> GsonUtil.convertToVector3f(j, "motion_random").div(16, -16, 16), new Vector3f());
         var visibleInFirstPerson = GsonHelper.getAsBoolean(json, "visible_in_first_person", true);
 
         return new ParticleEmitter(bodyPart, amount, offset, offsetRandom, motion, motionRandom, visibleInFirstPerson);
@@ -52,9 +53,10 @@ public class ParticleEmitter {
 
     public Vec3 getCenter(AbstractClientPlayer player, float partialTick) {
         if (this.anchor != null) {
-            return BodyPart.getInWorldPosition(this.anchor, this.offset, player, partialTick);
+            return BodyPart.getInWorldPosition(this.anchor, this.offset.get(), player, partialTick);
         } else {
-            return player.getPosition(partialTick).add(0, player.getBbHeight() / 2D, 0).add(this.offset.x, this.offset.y, this.offset.z);
+            var offset = this.offset.get();
+            return player.getPosition(partialTick).add(0, player.getBbHeight() / 2D, 0).add(offset.x, offset.y, offset.z);
         }
     }
 
@@ -91,8 +93,9 @@ public class ParticleEmitter {
     }
 
     private void spawnParticleOnPlayer(Level level, AbstractClientPlayer player, ParticleOptions particleOptions, RandomSource random, float partialTick) {
-        Vector3f offset = randomizeVector(random, this.offset, this.offsetRandom);
-        var motion = randomizeVector(random, this.motion, this.motionRandom);
+        var cameraType = Minecraft.getInstance().options.getCameraType();
+        Vector3f offset = randomizeVector(random, this.offset.get(cameraType), this.offsetRandom.get(cameraType));
+        var motion = randomizeVector(random, this.motion.get(cameraType), this.motionRandom.get(cameraType));
 
         Vec3 pos = this.anchor != null ? BodyPart.getInWorldPosition(this.anchor, offset, player, partialTick) :
                 player.getPosition(partialTick).add(0, player.getBbHeight() / 2D, 0).add(offset.x, offset.y, offset.z);
@@ -108,8 +111,9 @@ public class ParticleEmitter {
     }
 
     private void spawnParticleOnPosition(Level level, Vec3 position, ParticleOptions particleOptions, RandomSource random) {
-        Vector3f offset = randomizeVector(random, this.offset, this.offsetRandom);
-        var motion = randomizeVector(random, this.motion, this.motionRandom);
+        var cameraType = Minecraft.getInstance().options.getCameraType();
+        Vector3f offset = randomizeVector(random, this.offset.get(cameraType), this.offsetRandom.get(cameraType));
+        var motion = randomizeVector(random, this.motion.get(cameraType), this.motionRandom.get(cameraType));
         Vec3 pos = position.add(offset.x, -offset.y, offset.z);
         level.addParticle(particleOptions, pos.x, pos.y, pos.z, motion.x, -motion.y, motion.z);
     }

@@ -17,6 +17,7 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.Vec3;
 import net.threetag.palladium.client.particleemitter.ParticleEmitter;
 import net.threetag.palladium.entity.BodyPart;
+import net.threetag.palladium.util.PerspectiveValue;
 import net.threetag.palladium.util.json.GsonUtil;
 import org.joml.Vector3f;
 
@@ -27,11 +28,11 @@ import java.util.List;
 public class EnergyBeam {
 
     private final BodyPart anchor;
-    private final Vector3f offset;
+    private final PerspectiveValue<Vector3f> offset;
     private final EnergyBeamRenderer renderer;
     private final List<Particle> particles;
 
-    public EnergyBeam(BodyPart anchor, Vector3f offset, EnergyBeamRenderer renderer, List<Particle> particles) {
+    public EnergyBeam(BodyPart anchor, PerspectiveValue<Vector3f> offset, EnergyBeamRenderer renderer, List<Particle> particles) {
         this.anchor = anchor;
         this.offset = offset;
         this.renderer = renderer;
@@ -39,7 +40,7 @@ public class EnergyBeam {
     }
 
     public Vec3 getOriginPosition(AbstractClientPlayer player, float partialTick) {
-        return BodyPart.getInWorldPosition(this.anchor, this.offset, player, partialTick);
+        return BodyPart.getInWorldPosition(this.anchor, this.offset.get(), player, partialTick);
     }
 
     public void spawnParticles(Level level, Vec3 pos) {
@@ -67,7 +68,7 @@ public class EnergyBeam {
 
         return new EnergyBeam(
                 BodyPart.fromJson(GsonHelper.getAsString(json, "body_part", "")),
-                GsonUtil.getAsVector3f(json, "offset", new Vector3f()).div(16, -16, 16),
+                PerspectiveValue.getFromJson(json, "offset", j -> GsonUtil.convertToVector3f(j, "offset").div(16, -16, 16), new Vector3f()),
                 serializer.fromJson(json),
                 json.has("particles") ? GsonUtil.fromListOrPrimitive(json.get("particles"), jsonElement -> Particle.fromJson(GsonHelper.convertToJsonObject(jsonElement, "particles[].$"))) : Collections.emptyList()
         );
