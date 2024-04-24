@@ -81,7 +81,7 @@ public class LightningBeamRenderer extends EnergyBeamRenderer {
 
         @Override
         public void generateDocumentation(JsonDocumentationBuilder builder) {
-            builder.setTitle("Laser");
+            builder.setTitle("Lightning");
 
             builder.addProperty("segments", Integer.class)
                     .description("Determines how many split segments the lightning will have").fallback(5).exampleJson(new JsonPrimitive(5));
