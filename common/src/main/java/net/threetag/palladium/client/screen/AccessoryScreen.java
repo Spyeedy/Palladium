@@ -65,7 +65,13 @@ public class AccessoryScreen extends OptionsSubScreen {
                 }
 
                 if (screen instanceof InventoryScreen inv) {
-                    button = new EditButton(inv.leftPos + 63, inv.topPos + 66, b -> Minecraft.getInstance().setScreen(new AccessoryScreen(screen)));
+                    button = new EditButton(inv.leftPos + 63, inv.topPos + 66, b -> Minecraft.getInstance().setScreen(new AccessoryScreen(screen))) {
+                        @Override
+                        public void render(GuiGraphics guiGraphics, int mouseX, int mouseY, float partialTick) {
+                            this.setPosition(inv.leftPos + 63, inv.topPos + 66);
+                            super.render(guiGraphics, mouseX, mouseY, partialTick);
+                        }
+                    };
                     button.setTooltip(Tooltip.create(text));
                 }
 

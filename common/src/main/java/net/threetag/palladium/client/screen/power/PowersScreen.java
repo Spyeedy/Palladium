@@ -28,10 +28,12 @@ import net.threetag.palladium.util.icon.IIcon;
 import net.threetag.palladium.util.icon.ItemIcon;
 import net.threetag.palladiumcore.event.ScreenEvents;
 import org.jetbrains.annotations.Nullable;
+import org.joml.Vector2i;
 
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
+import java.util.Objects;
 import java.util.concurrent.atomic.AtomicInteger;
 
 public class PowersScreen extends Screen {
@@ -67,47 +69,13 @@ public class PowersScreen extends Screen {
         super(Component.empty());
     }
 
-    @SuppressWarnings("rawtypes")
     public static void register() {
         ScreenEvents.INIT_POST.register((screen) -> {
+            var guiPos = RotatingIconButton.getPos(screen);
 
-            int abilityButtonXPos = -1;
-            int abilityButtonYPos = -1;
-
-            if (screen instanceof InventoryScreen || screen.getClass().toString().equals("class top.theillusivec4.curios.client.gui.CuriosScreen")) {
-                abilityButtonXPos = ((AbstractContainerScreen) screen).leftPos + 134;
-                abilityButtonYPos = screen.height / 2 - 23;
-            } else if (screen instanceof CreativeModeInventoryScreen) {
-                abilityButtonXPos = ((AbstractContainerScreen) screen).leftPos + 148;
-                abilityButtonYPos = screen.height / 2 - 50;
-            }
-
-            if (abilityButtonXPos > 0 && abilityButtonYPos > 0) {
-                int finalAbilityButtonXPos = abilityButtonXPos;
-                int finalAbilityButtonYPos = abilityButtonYPos;
+            if (guiPos != null) {
                 IconButton button;
-                screen.addRenderableWidget(button = new RotatingIconButton(finalAbilityButtonXPos, finalAbilityButtonYPos, new ItemIcon(ItemStack.EMPTY), b -> Minecraft.getInstance().setScreen(new PowersScreen())) {
-                    @Override
-                    public IIcon getIcon() {
-                        List<IIcon> icons = Lists.newArrayList();
-                        Minecraft mc = Minecraft.getInstance();
-                        PowerManager.getPowerHandler(mc.player).ifPresent(handler -> handler.getPowerHolders().values().stream().filter(holder -> !holder.getPower().isHidden() && holder.getAbilities().values().stream().anyMatch(en -> !en.getProperty(Ability.HIDDEN_IN_GUI))).forEach(holder -> icons.add(holder.getPower().getIcon())));
-                        if (icons.isEmpty()) {
-                            icons.add(new ItemIcon(Blocks.BARRIER));
-                        }
-                        int i = (mc.player.tickCount / 20) % icons.size();
-                        return icons.get(i);
-                    }
-
-                    @SuppressWarnings("ConstantConditions")
-                    @Override
-                    public void render(GuiGraphics guiGraphics, int mouseX, int mouseY, float partialTicks) {
-                        this.setPosition(finalAbilityButtonXPos, finalAbilityButtonYPos);
-                        this.visible = !(screen instanceof CreativeModeInventoryScreen) || CreativeModeInventoryScreen.selectedTab == BuiltInRegistries.CREATIVE_MODE_TAB.get(CreativeModeTabs.INVENTORY);
-                        this.active = this.visible && !PowerManager.getPowerHandler(Minecraft.getInstance().player).orElse(new PowerHandler(null)).getPowerHolders().isEmpty();
-                        super.render(guiGraphics, mouseX, mouseY, partialTicks);
-                    }
-                });
+                screen.addRenderableWidget(button = new RotatingIconButton(guiPos.x, guiPos.y, screen, new ItemIcon(ItemStack.EMPTY), b -> Minecraft.getInstance().setScreen(new PowersScreen())));
                 button.setTooltip(Tooltip.create(TITLE));
             }
         });
@@ -123,7 +91,7 @@ public class PowersScreen extends Screen {
         this.selectedTab = null;
 
         AtomicInteger i = new AtomicInteger();
-        PowerManager.getPowerHandler(this.minecraft.player).ifPresent(handler -> handler.getPowerHolders()
+        PowerManager.getPowerHandler(Objects.requireNonNull(this.minecraft).player).ifPresent(handler -> handler.getPowerHolders()
                 .values()
                 .stream()
                 .sorted(Comparator.comparingInt(holder -> PowerManager.getInstance(false).getPowers().stream().toList().indexOf(holder.getPower())))
@@ -281,7 +249,7 @@ public class PowersScreen extends Screen {
             RenderSystem.disableBlend();
         }
 
-        guiGraphics.drawString(this.minecraft.font, TITLE, offsetX + 8, offsetY + 6, 4210752, false);
+        guiGraphics.drawString(Objects.requireNonNull(this.minecraft).font, TITLE, offsetX + 8, offsetY + 6, 4210752, false);
     }
 
     private void renderTooltips(GuiGraphics guiGraphics, int mouseX, int mouseY, int offsetX, int offsetY, float partialTick) {
@@ -311,7 +279,7 @@ public class PowersScreen extends Screen {
     public void openOverlayScreen(Screen screen) {
         this.closeOverlayScreen();
         this.overlayScreen = screen;
-        this.overlayScreen.init(this.minecraft, this.width, this.height);
+        this.overlayScreen.init(Objects.requireNonNull(this.minecraft), this.width, this.height);
     }
 
     public boolean isOverOverlayScreen(double mouseX, double mouseY) {
@@ -320,8 +288,43 @@ public class PowersScreen extends Screen {
 
     public static class RotatingIconButton extends IconButton {
 
-        public RotatingIconButton(int x, int y, IIcon icon, OnPress onPress) {
+        private final Screen screen;
+
+        public RotatingIconButton(int x, int y, Screen screen, IIcon icon, OnPress onPress) {
             super(x, y, icon, onPress, DEFAULT_NARRATION);
+            this.screen = screen;
+        }
+
+        @Override
+        public IIcon getIcon() {
+            List<IIcon> icons = Lists.newArrayList();
+            Minecraft mc = Minecraft.getInstance();
+            PowerManager.getPowerHandler(mc.player).ifPresent(handler -> handler.getPowerHolders().values().stream().filter(holder -> !holder.getPower().isHidden() && holder.getAbilities().values().stream().anyMatch(en -> !en.getProperty(Ability.HIDDEN_IN_GUI))).forEach(holder -> icons.add(holder.getPower().getIcon())));
+            if (icons.isEmpty()) {
+                icons.add(new ItemIcon(Blocks.BARRIER));
+            }
+            int i = (Objects.requireNonNull(mc.player).tickCount / 20) % icons.size();
+            return icons.get(i);
+        }
+
+        @Override
+        public void render(GuiGraphics guiGraphics, int mouseX, int mouseY, float partialTicks) {
+            var pos = getPos(this.screen);
+            if (pos != null) {
+                this.setPosition(pos.x, pos.y);
+            }
+            this.visible = !(this.screen instanceof CreativeModeInventoryScreen) || CreativeModeInventoryScreen.selectedTab == BuiltInRegistries.CREATIVE_MODE_TAB.get(CreativeModeTabs.INVENTORY);
+            this.active = this.visible && !PowerManager.getPowerHandler(Minecraft.getInstance().player).orElse(new PowerHandler(null)).getPowerHolders().isEmpty();
+            super.render(guiGraphics, mouseX, mouseY, partialTicks);
+        }
+
+        public static Vector2i getPos(Screen screen) {
+            if (screen instanceof InventoryScreen || screen.getClass().toString().equals("class top.theillusivec4.curios.client.gui.CuriosScreen")) {
+                return new Vector2i(((AbstractContainerScreen<?>) screen).leftPos + 134, screen.height / 2 - 23);
+            } else if (screen instanceof CreativeModeInventoryScreen) {
+                return new Vector2i(((AbstractContainerScreen<?>) screen).leftPos + 148, screen.height / 2 - 50);
+            }
+            return null;
         }
     }
 
