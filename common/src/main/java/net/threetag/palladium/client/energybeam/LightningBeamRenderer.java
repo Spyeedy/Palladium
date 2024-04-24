@@ -41,15 +41,21 @@ public class LightningBeamRenderer extends EnergyBeamRenderer {
         var startVec = origin;
 
         for (int i = 0; i < this.segments; i++) {
-            var end = i == this.segments - 1 ? target : origin.add(segmentPartVec.scale(i + 1)).add(randomizeVector(randomStart, this.spread));
-            var offset = startVec.subtract(origin);
+            var startProgress = (1F / this.segments) * i;
+            var endProgress = (1F / this.segments) * (i + 1);
+            var currentProgress = lengthMultiplier <= startProgress ? 0F : (lengthMultiplier >= endProgress ? 1F : (lengthMultiplier - startProgress) / (endProgress - startProgress));
 
-            poseStack.pushPose();
-            poseStack.translate(offset.x, offset.y, offset.z);
-            this.laserRenderer.length((float) startVec.distanceTo(end))
-                    .faceAndRender(poseStack, bufferSource, startVec, end, player.tickCount, partialTick);
-            poseStack.popPose();
-            startVec = end;
+            if(currentProgress > 0F) {
+                var end = i == this.segments - 1 ? target : origin.add(segmentPartVec.scale(i + 1)).add(randomizeVector(randomStart, this.spread));
+                var offset = startVec.subtract(origin);
+
+                poseStack.pushPose();
+                poseStack.translate(offset.x, offset.y, offset.z);
+                this.laserRenderer.length((float) startVec.distanceTo(end) * currentProgress)
+                        .faceAndRender(poseStack, bufferSource, startVec, end, player.tickCount, partialTick);
+                poseStack.popPose();
+                startVec = end;
+            }
         }
 
         this.laserRenderer.size(size);

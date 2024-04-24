@@ -3,9 +3,9 @@
     "type": "palladium:lightning",
     "body_part": "right_arm",
     "glow_color": "#652191",
-    "segments": 2,
-    "spread": 5,
-    "frequency": 50,
+    "segments": 25,
+    "spread": 15,
+    "frequency": 200,
     "offset": [0, -11, 0]
   },
   {

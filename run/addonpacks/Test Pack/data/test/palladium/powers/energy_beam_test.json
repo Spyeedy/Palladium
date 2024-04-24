@@ -36,6 +36,7 @@
     "lightning_hands": {
       "type": "palladium:energy_beam",
       "title": "Lightning Hands",
+      "speed": 0.01,
       "energy_beam": "test:hands_lightnings",
       "conditions": {
         "enabling": {
