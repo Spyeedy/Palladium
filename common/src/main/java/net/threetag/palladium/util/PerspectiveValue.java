@@ -34,7 +34,7 @@ public class PerspectiveValue<T> {
     }
 
     public T get(boolean firstPerson) {
-        return firstPerson ? this.getThirdPerson() : this.getFirstPerson();
+        return firstPerson ? this.getFirstPerson() : this.getThirdPerson();
     }
 
     @Environment(EnvType.CLIENT)
