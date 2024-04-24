@@ -268,6 +268,7 @@ public enum BodyPart {
     }
 
     @SuppressWarnings("rawtypes")
+    @Environment(EnvType.CLIENT)
     public static Matrix4f getTransformationMatrix(BodyPart part, Vector3f offset, HumanoidModel<?> model, AbstractClientPlayer player, float partialTicks) {
         var poseStack = new PoseStack();
         var modelPart = part.getModelPart(model);
@@ -315,6 +316,7 @@ public enum BodyPart {
         return poseStack.last().pose();
     }
 
+    @Environment(EnvType.CLIENT)
     public static Matrix4f getTransformationMatrix(BodyPart part, Vector3f offset, AbstractClientPlayer player, float partialTicks) {
         if (player instanceof PlayerModelCacheExtension ext) {
             return getTransformationMatrix(part, offset, ext.palladium$getCachedModel(), player, partialTicks);
@@ -323,12 +325,14 @@ public enum BodyPart {
         }
     }
 
+    @Environment(EnvType.CLIENT)
     public static Vec3 getInWorldPosition(BodyPart part, Vector3f offset, HumanoidModel<?> model, AbstractClientPlayer player, float partialTicks) {
         Vector3f vec = new Vector3f(0, 0, 0);
         vec = getTransformationMatrix(part, offset, model, player, partialTicks).transformPosition(vec);
         return player.getPosition(partialTicks).add(vec.x, vec.y, vec.z);
     }
 
+    @Environment(EnvType.CLIENT)
     public static Vec3 getInWorldPosition(BodyPart part, Vector3f offset, AbstractClientPlayer player, float partialTicks) {
         if (player instanceof PlayerModelCacheExtension ext) {
             return getInWorldPosition(part, offset, ext.palladium$getCachedModel(), player, partialTicks);
