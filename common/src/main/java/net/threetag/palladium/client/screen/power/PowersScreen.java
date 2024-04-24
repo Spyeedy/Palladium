@@ -301,7 +301,10 @@ public class PowersScreen extends Screen {
             Minecraft mc = Minecraft.getInstance();
             PowerManager.getPowerHandler(mc.player).ifPresent(handler -> handler.getPowerHolders().values().stream().filter(holder -> !holder.getPower().isHidden() && holder.getAbilities().values().stream().anyMatch(en -> !en.getProperty(Ability.HIDDEN_IN_GUI))).forEach(holder -> icons.add(holder.getPower().getIcon())));
             if (icons.isEmpty()) {
+                this.visible = false;
                 icons.add(new ItemIcon(Blocks.BARRIER));
+            } else {
+                this.visible = !(this.screen instanceof CreativeModeInventoryScreen) || CreativeModeInventoryScreen.selectedTab == BuiltInRegistries.CREATIVE_MODE_TAB.get(CreativeModeTabs.INVENTORY);
             }
             int i = (Objects.requireNonNull(mc.player).tickCount / 20) % icons.size();
             return icons.get(i);
@@ -313,7 +316,6 @@ public class PowersScreen extends Screen {
             if (pos != null) {
                 this.setPosition(pos.x, pos.y);
             }
-            this.visible = !(this.screen instanceof CreativeModeInventoryScreen) || CreativeModeInventoryScreen.selectedTab == BuiltInRegistries.CREATIVE_MODE_TAB.get(CreativeModeTabs.INVENTORY);
             this.active = this.visible && !PowerManager.getPowerHandler(Minecraft.getInstance().player).orElse(new PowerHandler(null)).getPowerHolders().isEmpty();
             super.render(guiGraphics, mouseX, mouseY, partialTicks);
         }
