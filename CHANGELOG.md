@@ -1,7 +1,13 @@
-- Fixed issues with BetterCombat (and other mods using PlayerAnimator animations in first person)
-- Fixed flight animations not working in multiplayer
-- Fixed action conditions going on cooldown even when other conditions aren't met
-- New texture variables: accessory, string_property (by PhantomPig)
-- New conditions: size, accessory_selected, small_arms (only usable in assets-stuff) (by PhantomPig)
-- New ability: fire_aspect (by PhantomPig)
-- New texture transformer: color (by PhantomPig)
+- New render layer type: "thruster"
+- New abilities: "particles" & "energy_beam"
+- The "energy_blast" ability is now deprecated and should not be used anymore
+- Model layers can now be referenced with their direct path
+- Missing bones in model layers will no longer crash the game
+- The Bedrock Model import now works correctly
+- The example model layers in mods/documentation/palladium are now in Bedrock format
+- Allow other powers' energy bar in abilities' energy_bar_usage
+- Fixed lightning sparks render layer not accepting conditions
+- Fixed powers & accessory buttons not positioning correctly when opening the recipe book
+- Hid powers button if user has no power
+- Made knockback attribute available on Fabric
+- Refactors & code cleanup
