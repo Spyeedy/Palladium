@@ -59,6 +59,7 @@ public class EnergyBeamEffect extends EntityEffect {
     }
 
     @Override
+    @Environment(EnvType.CLIENT)
     public void tick(EffectEntity entity, Entity anchor) {
         if (anchor instanceof AbstractClientPlayer player) {
             AbilityInstance instance = this.get(entity, ABILITY).getEntry(player);
@@ -83,6 +84,7 @@ public class EnergyBeamEffect extends EntityEffect {
         }
     }
 
+    @Environment(EnvType.CLIENT)
     public static void start(Player player, AbilityReference abilityReference) {
         EffectEntity effectEntity = new EffectEntity(player.level(), player, EntityEffects.ENERGY_BEAM.get());
         ABILITY.set(effectEntity, abilityReference);
