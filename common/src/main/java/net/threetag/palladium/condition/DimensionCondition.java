@@ -32,7 +32,7 @@ public class DimensionCondition extends Condition {
 
     public static class Serializer extends ConditionSerializer {
 
-        public static final PalladiumProperty<ResourceLocation> DIMENSION = new ResourceLocationProperty("dimension").configurable("ID of the dimension the player must be in. Example values: minecraft:overworld, minecraft:nether, minecraft:the_end");
+        public static final PalladiumProperty<ResourceLocation> DIMENSION = new ResourceLocationProperty("dimension").configurable("ID of the dimension the player must be in. Example values: minecraft:overworld, minecraft:the_nether, minecraft:the_end");
 
         public Serializer() {
             this.withProperty(DIMENSION, new ResourceLocation("minecraft:overworld"));
