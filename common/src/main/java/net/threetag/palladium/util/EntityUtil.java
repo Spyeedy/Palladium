@@ -1,6 +1,7 @@
 package net.threetag.palladium.util;
 
 import net.minecraft.util.Mth;
+import net.minecraft.world.entity.AreaEffectCloud;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.level.ClipContext;
@@ -8,6 +9,8 @@ import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.EntityHitResult;
 import net.minecraft.world.phys.HitResult;
 import net.minecraft.world.phys.Vec3;
+import net.threetag.palladium.entity.EffectEntity;
+import net.threetag.palladium.entity.TrailSegmentEntity;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.function.Predicate;
@@ -43,7 +46,7 @@ public class EntityUtil {
             Vec3 min = pos.add(0.25F, 0.25F, 0.25F);
             Vec3 max = pos.add(-0.25F, -0.25F, -0.25F);
             for (Entity entity : entityIn.level().getEntities(entityIn, new AABB(min.x, min.y, min.z, max.x, max.y, max.z))) {
-                if (entityPredicate.test(entity)) {
+                if (canBeTraced(entity) && entityPredicate.test(entity)) {
                     entityResult = new EntityHitResult(entity, pos);
                     break;
                 }
@@ -55,6 +58,17 @@ public class EntityUtil {
         } else {
             return blockResult;
         }
+    }
+
+    public static boolean canBeTraced(Entity entity) {
+        if (entity instanceof AreaEffectCloud) {
+            return false;
+        } else if (entity instanceof TrailSegmentEntity<?>) {
+            return false;
+        } else if (entity instanceof EffectEntity) {
+            return false;
+        }
+        return true;
     }
 
 }
