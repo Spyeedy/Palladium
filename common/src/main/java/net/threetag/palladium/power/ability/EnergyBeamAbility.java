@@ -94,8 +94,11 @@ public class EnergyBeamAbility extends Ability implements AnimationTimer {
                     entityHitResult.getEntity().setSecondsOnFire(fireSecs);
                 }
 
-                var damageSrc = entity instanceof Player player ? entity.level().damageSources().playerAttack(player) : entity.damageSources().mobAttack(entity);
-                entityHitResult.getEntity().hurt(damageSrc, entry.getProperty(DAMAGE));
+                var dmg = entry.getProperty(DAMAGE);
+                if (dmg > 0) {
+                    var damageSrc = entity instanceof Player player ? entity.level().damageSources().playerAttack(player) : entity.damageSources().mobAttack(entity);
+                    entityHitResult.getEntity().hurt(damageSrc, dmg);
+                }
 
                 if (Platform.isClient()) {
                     this.spawnParticles(entity.level(), hit.getLocation(), entry);
