@@ -85,6 +85,22 @@ public class EnergyBarCommand {
                                                         .then(Commands.argument("value", IntegerArgumentType.integer(0))
                                                                 .executes(context -> {
                                                                     return setEnergyBarValue(context.getSource(), EntityArgument.getEntity(context, "entity"), ResourceLocationArgument.getId(context, "power"), StringArgumentType.getString(context, "energybar"), IntegerArgumentType.getInteger(context, "value"));
+                                                                }))))))
+                        .then(Commands.literal("add")
+                                .then(Commands.argument("entity", EntityArgument.entity())
+                                        .then(Commands.argument("power", ResourceLocationArgument.id()).suggests(SUGGEST_OWN_POWERS)
+                                                .then(Commands.argument("energybar", StringArgumentType.word()).suggests(SUGGEST_ENERGY_BAR)
+                                                        .then(Commands.argument("value", IntegerArgumentType.integer())
+                                                                .executes(context -> {
+                                                                    return addEnergyBarValue(context.getSource(), EntityArgument.getEntity(context, "entity"), ResourceLocationArgument.getId(context, "power"), StringArgumentType.getString(context, "energybar"), IntegerArgumentType.getInteger(context, "value"));
+                                                                }))))))
+                        .then(Commands.literal("subtract")
+                                .then(Commands.argument("entity", EntityArgument.entity())
+                                        .then(Commands.argument("power", ResourceLocationArgument.id()).suggests(SUGGEST_OWN_POWERS)
+                                                .then(Commands.argument("energybar", StringArgumentType.word()).suggests(SUGGEST_ENERGY_BAR)
+                                                        .then(Commands.argument("value", IntegerArgumentType.integer())
+                                                                .executes(context -> {
+                                                                    return addEnergyBarValue(context.getSource(), EntityArgument.getEntity(context, "entity"), ResourceLocationArgument.getId(context, "power"), StringArgumentType.getString(context, "energybar"), -IntegerArgumentType.getInteger(context, "value"));
                                                                 })))))))
                 .then(Commands.literal("max")
                         .then(Commands.literal("get")
@@ -134,6 +150,24 @@ public class EnergyBarCommand {
 
             if (bar != null) {
                 bar.set(value);
+                source.sendSuccess(() -> Component.translatable("commands.energybar.value.set.success", entity.getDisplayName(), powerId.toString(), energyBarName, bar.get()), true);
+                return 1;
+            } else {
+                source.sendFailure(Component.translatable("commands.energybar.error.energyBarNotFound"));
+                return 0;
+            }
+        } else {
+            source.sendFailure(Component.translatable("commands.energybar.error.noLivingEntity"));
+            return 0;
+        }
+    }
+
+    public static int addEnergyBarValue(CommandSourceStack source, Entity entity, ResourceLocation powerId, String energyBarName, int value) {
+        if (entity instanceof LivingEntity living) {
+            var bar = new EnergyBarReference(powerId, energyBarName).getEntry(living);
+
+            if (bar != null) {
+                bar.add(value);
                 source.sendSuccess(() -> Component.translatable("commands.energybar.value.set.success", entity.getDisplayName(), powerId.toString(), energyBarName, bar.get()), true);
                 return 1;
             } else {
