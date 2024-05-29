@@ -3,6 +3,7 @@ package net.threetag.palladium.compat.geckolib.ability;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
 import net.threetag.palladium.client.renderer.renderlayer.CompoundPackRenderLayer;
 import net.threetag.palladium.client.renderer.renderlayer.IPackRenderLayer;
@@ -59,7 +60,7 @@ public class RenderLayerAnimationAbility extends Ability {
             for (IPackRenderLayer renderLayer : layers) {
                 var state = entity.palladium$getRenderLayerStates().get(renderLayer);
                 if (state instanceof GeckoLayerState gecko) {
-                    AnimatableManager<?> manager = gecko.getAnimatableInstanceCache().getManagerForId(gecko.layer.getModel().getInstanceId(gecko));
+                    AnimatableManager<?> manager = gecko.getAnimatableInstanceCache().getManagerForId(gecko.hashCode() + ((Entity)entity).getId());
                     var controller = manager.getAnimationControllers().get(entry.getProperty(CONTROLLER));
 
                     if (controller != null) {

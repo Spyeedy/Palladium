@@ -76,15 +76,10 @@ public class GeckoRenderLayer extends AbstractPackRenderLayer {
 
         if (living != null && IPackRenderLayer.conditionsFulfilled(living, this.conditions, this.thirdPersonConditions) && parentModel instanceof HumanoidModel parentHumanoid) {
             this.model.setCurrentRenderingFields(getState(living), living, parentHumanoid);
-            HumanoidModel entityModel = this.model;
-            entityModel.setAllVisible(true);
-
+            this.model.setAllVisible(true);
             this.cachedTexture = this.texture.get(living).getTexture(context);
             this.cachedModel = this.modelLocation.get(living).getTexture(context);
-
-            if (entityModel instanceof GeckoRenderLayerModel gecko) {
-                gecko.renderToBuffer(poseStack, this.renderType.createVertexConsumer(bufferSource, this.cachedTexture, false), packedLight, OverlayTexture.NO_OVERLAY, 1F, 1F, 1F, 1F);
-            }
+            this.model.renderToBuffer(poseStack, this.renderType.createVertexConsumer(bufferSource, this.cachedTexture, false), packedLight, OverlayTexture.NO_OVERLAY, 1F, 1F, 1F, 1F);
         }
     }
 
