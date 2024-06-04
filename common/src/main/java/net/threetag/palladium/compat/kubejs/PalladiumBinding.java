@@ -5,6 +5,9 @@ import net.minecraft.world.InteractionHand;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.item.ItemStack;
+import net.threetag.palladium.power.PowerUtil;
+import net.threetag.palladium.power.SuperpowerUtil;
+import net.threetag.palladium.power.ability.AbilityUtil;
 import net.threetag.palladium.util.PlayerSlot;
 import net.threetag.palladium.util.icon.IIcon;
 import net.threetag.palladium.util.icon.ItemIcon;
@@ -16,8 +19,12 @@ import org.jetbrains.annotations.Nullable;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicReference;
 
-@SuppressWarnings({"unchecked", "rawtypes"})
+@SuppressWarnings({"unchecked", "rawtypes", "InstantiationOfUtilityClass"})
 public class PalladiumBinding {
+
+    public static final PowerUtil powers = new PowerUtil();
+    public static final SuperpowerUtil superpowers = new SuperpowerUtil();
+    public static final AbilityUtil abilities = new AbilityUtil();
 
     public static void swingArm(LivingEntity entity, InteractionHand hand) {
         entity.swing(hand, true);
