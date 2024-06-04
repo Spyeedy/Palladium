@@ -47,6 +47,9 @@
         "Lifetime": 1200,
         "DieOnEntityHit": false,
         "DieOnBlockHit": true,
+        "ExplosionRadius": 3,
+        "ExplosionCausesFire": true,
+        "ExplosionBlockInteraction": "destroy",
         "Appearances": [
           {
             "Type": "laser",

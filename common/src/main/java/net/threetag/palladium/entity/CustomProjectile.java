@@ -13,9 +13,12 @@ import net.minecraft.nbt.Tag;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.protocol.Packet;
 import net.minecraft.network.protocol.game.ClientGamePacketListener;
+import net.minecraft.network.protocol.game.ClientboundExplodePacket;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.entity.*;
+import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.entity.projectile.ThrowableProjectile;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Explosion;
@@ -151,6 +154,17 @@ public class CustomProjectile extends ThrowableProjectile implements ExtendedEnt
         Explosion explosion = new Explosion(source.level(), source, damageSource, null, x, y, z, radius, fire, blockInteraction);
         explosion.explode();
         explosion.finalizeExplosion(true);
+
+        if (!explosion.interactsWithBlocks()) {
+            explosion.clearToBlow();
+        }
+
+        for (Player player : source.level().players()) {
+            if (player.distanceToSqr(x, y, z) < 4096.0 && player instanceof ServerPlayer serverPlayer) {
+                serverPlayer.connection.send(new ClientboundExplodePacket(x, y, z, radius, explosion.getToBlow(), explosion.getHitPlayers().get(serverPlayer)));
+            }
+        }
+
         return explosion;
     }
 
