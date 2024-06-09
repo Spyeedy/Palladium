@@ -9,6 +9,9 @@ accessible field net/minecraft/client/model/geom/ModelPart cubes Ljava/util/List
 accessible field net/minecraft/client/model/geom/ModelPart children Ljava/util/Map;
 accessible field net/minecraft/client/model/geom/ModelPart$Cube polygons [Lnet/minecraft/client/model/geom/ModelPart$Polygon;
 accessible field net/minecraft/client/model/geom/builders/CubeListBuilder cubes Ljava/util/List;
+accessible class net/minecraft/client/model/geom/ModelPart$Cube
+accessible class net/minecraft/client/model/geom/ModelPart$Vertex
+accessible class net/minecraft/client/model/geom/ModelPart$Polygon
 
 extendable class net/minecraft/client/model/geom/builders/CubeDefinition
 accessible field net/minecraft/client/model/geom/builders/CubeDefinition comment Ljava/lang/String;
