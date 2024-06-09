@@ -9,6 +9,7 @@ import net.threetag.palladium.power.PowerUtil;
 import net.threetag.palladium.power.SuperpowerUtil;
 import net.threetag.palladium.power.ability.AbilityUtil;
 import net.threetag.palladium.util.PlayerSlot;
+import net.threetag.palladium.util.ScoreboardUtil;
 import net.threetag.palladium.util.icon.IIcon;
 import net.threetag.palladium.util.icon.ItemIcon;
 import net.threetag.palladium.util.icon.TexturedIcon;
@@ -19,26 +20,27 @@ import org.jetbrains.annotations.Nullable;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicReference;
 
-@SuppressWarnings({"unchecked", "rawtypes", "InstantiationOfUtilityClass"})
+@SuppressWarnings({"rawtypes", "InstantiationOfUtilityClass"})
 public class PalladiumBinding {
 
-    public static final PowerUtil powers = new PowerUtil();
-    public static final SuperpowerUtil superpowers = new SuperpowerUtil();
-    public static final AbilityUtil abilities = new AbilityUtil();
+    public final PowerUtil powers = new PowerUtil();
+    public final SuperpowerUtil superpowers = new SuperpowerUtil();
+    public final AbilityUtil abilities = new AbilityUtil();
+    public final ScoreboardUtil scoreboard = new ScoreboardUtil();
 
-    public static void swingArm(LivingEntity entity, InteractionHand hand) {
+    public void swingArm(LivingEntity entity, InteractionHand hand) {
         entity.swing(hand, true);
     }
 
-    public static IIcon createItemIcon(ItemStack itemStack) {
+    public IIcon createItemIcon(ItemStack itemStack) {
         return new ItemIcon(itemStack);
     }
 
-    public static IIcon createTextureIcon(ResourceLocation path) {
+    public IIcon createTextureIcon(ResourceLocation path) {
         return new TexturedIcon(path);
     }
 
-    public static Object getProperty(Entity entity, CharSequence key) {
+    public Object getProperty(Entity entity, CharSequence key) {
         AtomicReference result = new AtomicReference();
         EntityPropertyHandler.getHandler(entity).ifPresent(handler -> {
             PalladiumProperty property = handler.getPropertyByName(key.toString());
@@ -51,7 +53,7 @@ public class PalladiumBinding {
         return result.get();
     }
 
-    public static boolean setProperty(Entity entity, CharSequence key, Object value) {
+    public boolean setProperty(Entity entity, CharSequence key, Object value) {
         AtomicBoolean result = new AtomicBoolean(false);
         EntityPropertyHandler.getHandler(entity).ifPresent(handler -> {
             PalladiumProperty property = handler.getPropertyByName(key.toString());
@@ -65,7 +67,7 @@ public class PalladiumBinding {
         return result.get();
     }
 
-    public static boolean hasProperty(Entity entity, String key) {
+    public boolean hasProperty(Entity entity, String key) {
         AtomicBoolean result = new AtomicBoolean(false);
         EntityPropertyHandler.getHandler(entity).ifPresent(handler -> {
             result.set(handler.getPropertyByName(key) != null);
@@ -73,13 +75,13 @@ public class PalladiumBinding {
         return result.get();
     }
 
-    public static void setItemInSlot(LivingEntity entity, @Nullable PlayerSlot slot, ItemStack stack) {
+    public void setItemInSlot(LivingEntity entity, @Nullable PlayerSlot slot, ItemStack stack) {
         if (slot != null) {
             slot.setItem(entity, stack);
         }
     }
 
-    public static ItemStack getItemInSlot(LivingEntity entity, @Nullable PlayerSlot slot) {
+    public ItemStack getItemInSlot(LivingEntity entity, @Nullable PlayerSlot slot) {
         if (slot != null) {
             return slot.getItems(entity).stream().findFirst().orElse(ItemStack.EMPTY);
         }
