@@ -32,11 +32,13 @@ import org.jetbrains.annotations.Nullable;
 import java.awt.*;
 import java.util.List;
 import java.util.*;
+import java.util.function.Consumer;
 import java.util.function.Function;
 
 public class CustomProjectile extends ThrowableProjectile implements ExtendedEntitySpawnData {
 
     public static final Map<String, Function<CompoundTag, Appearance>> APPEARANCE_REGISTRY = new HashMap<>();
+    public static Consumer<CustomProjectile> KUBEJS_EVENT_HANDLER = null;
     public float damage = 3F;
     public float gravity = 0.03F;
     public boolean dieOnBlockHit = true;
@@ -88,6 +90,11 @@ public class CustomProjectile extends ThrowableProjectile implements ExtendedEnt
     @Override
     protected float getGravity() {
         return this.gravity;
+    }
+
+    @Override
+    public boolean ownedBy(Entity entity) {
+        return super.ownedBy(entity);
     }
 
     @Override
@@ -183,6 +190,10 @@ public class CustomProjectile extends ThrowableProjectile implements ExtendedEnt
 
         for (Appearance appearance : this.appearances) {
             appearance.onTick(this);
+        }
+
+        if (KUBEJS_EVENT_HANDLER != null) {
+            KUBEJS_EVENT_HANDLER.accept(this);
         }
 
         if (this.lifetime > 0 && this.tickCount >= this.lifetime && !this.level().isClientSide) {

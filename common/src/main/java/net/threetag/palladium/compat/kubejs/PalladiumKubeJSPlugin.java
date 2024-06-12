@@ -15,6 +15,7 @@ import net.threetag.palladium.client.model.animation.PalladiumAnimation;
 import net.threetag.palladium.compat.kubejs.ability.AbilityBuilder;
 import net.threetag.palladium.compat.kubejs.condition.ConditionBuilder;
 import net.threetag.palladium.condition.ConditionSerializer;
+import net.threetag.palladium.entity.CustomProjectile;
 import net.threetag.palladium.event.PalladiumClientEvents;
 import net.threetag.palladium.event.PalladiumEvents;
 import net.threetag.palladium.power.PowerUtil;
@@ -36,6 +37,7 @@ public class PalladiumKubeJSPlugin extends KubeJSPlugin {
         CONDITION.addType("basic", ConditionBuilder.class, ConditionBuilder::new);
 
         PalladiumJSEvents.GROUP.register();
+        CustomProjectile.KUBEJS_EVENT_HANDLER = customProjectile -> PalladiumJSEvents.CUSTOM_PROJECTILE_TICK.post(new ProjectileTickEventJS(customProjectile));
 
         PalladiumEvents.REGISTER_PROPERTY.register(handler -> {
             if (handler.getEntity().level().isClientSide) {
