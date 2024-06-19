@@ -30,6 +30,8 @@ public class ConditionSerializers {
     public static final RegistrySupplier<ConditionSerializer> ABILITY_INTEGER_PROPERTY = CONDITION_SERIALIZERS.register("ability_integer_property", AbilityIntegerPropertyCondition.Serializer::new);
     public static final RegistrySupplier<ConditionSerializer> ANIMATION_TIMER_ABILITY = CONDITION_SERIALIZERS.register("animation_timer_ability", AnimationTimerAbilityCondition.Serializer::new);
     public static final RegistrySupplier<ConditionSerializer> ABILITY_TICKS = CONDITION_SERIALIZERS.register("ability_ticks", AbilityTicksCondition.Serializer::new);
+    public static final RegistrySupplier<ConditionSerializer> ABILITY_FIRST_TICK = CONDITION_SERIALIZERS.register("ability_first_tick", AbilityFirstTickCondition.Serializer::new);
+    public static final RegistrySupplier<ConditionSerializer> ABILITY_LAST_TICK = CONDITION_SERIALIZERS.register("ability_last_tick", AbilityLastTickCondition.Serializer::new);
     public static final RegistrySupplier<ConditionSerializer> CROUCHING = CONDITION_SERIALIZERS.register("crouching", CrouchingCondition.Serializer::new);
     public static final RegistrySupplier<ConditionSerializer> POSE = CONDITION_SERIALIZERS.register("pose", PoseCondition.Serializer::new);
     public static final RegistrySupplier<ConditionSerializer> MOON_PHASE = CONDITION_SERIALIZERS.register("moon_phase", MoonPhaseCondition.Serializer::new);
