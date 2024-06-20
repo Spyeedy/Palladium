@@ -122,7 +122,7 @@ public class LightningSparksRenderLayer extends AbstractPackRenderLayer {
             this.sparks.forEach(Spark::tick);
             this.sparks = this.sparks.stream().peek(Spark::tick).filter(s -> s.ticks < 5).collect(Collectors.toList());
 
-            if (this.sparks.isEmpty() && Math.random() < this.layer.frequency) {
+            if (this.sparks.isEmpty() && IPackRenderLayer.conditionsFulfilled(entity, this.layer.conditions, this.layer.thirdPersonConditions) && Math.random() < this.layer.frequency) {
                 for (int i = 0; i < this.layer.amount; i++) {
                     this.sparks.add(new Spark(entity, RandomSource.create()));
                 }
