@@ -67,7 +67,7 @@ public class EnergyBeam {
         }
 
         return new EnergyBeam(
-                BodyPart.fromJson(GsonHelper.getAsString(json, "body_part", "")),
+                BodyPart.fromJson(GsonHelper.getAsString(json, "body_part")),
                 PerspectiveValue.getFromJson(json, "offset", j -> GsonUtil.convertToVector3f(j, "offset").div(16, -16, 16), new Vector3f()),
                 serializer.fromJson(json),
                 json.has("particles") ? GsonUtil.fromListOrPrimitive(json.get("particles"), jsonElement -> Particle.fromJson(GsonHelper.convertToJsonObject(jsonElement, "particles[].$"))) : Collections.emptyList()

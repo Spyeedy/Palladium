@@ -253,7 +253,7 @@ public class LaserRenderer {
             var el = json.get(memberName);
 
             if (el.isJsonPrimitive()) {
-                var val = GsonHelper.convertToFloat(json, memberName);
+                var val = GsonHelper.convertToFloat(el, memberName);
                 return new Vector2f(val, val);
             } else if (el.isJsonArray()) {
                 var array = el.getAsJsonArray();
