@@ -82,7 +82,13 @@ public class OverlayAccessory extends DefaultAccessory {
         PlayerModel<AbstractClientPlayer> model = renderLayerParent.getModel();
         this.setVisibility(model, player, slot);
         ResourceLocation texture = (PlayerUtil.hasSmallArms(player) ? this.textureSlim : this.texture).getTexture(DataContext.forEntity(player));
-        var buffer = bufferSource.getBuffer(this.glowing ? RenderType.eyes(texture) : Objects.requireNonNull(getRenderType(player, texture, renderLayerParent.getModel())));
+        var renderType = this.glowing ? RenderType.eyes(texture) : getRenderType(player, texture, renderLayerParent.getModel());
+
+        if (renderType == null) {
+            return;
+        }
+
+        var buffer = bufferSource.getBuffer(renderType);
         model.renderToBuffer(poseStack, buffer, packedLightIn, OverlayTexture.NO_OVERLAY, 1F, 1F, 1F, 1F);
     }
 
