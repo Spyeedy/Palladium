@@ -32,7 +32,7 @@ import software.bernie.geckolib.core.object.Color;
 import java.util.Collections;
 import java.util.List;
 
-@SuppressWarnings({"rawtypes", "ConstantValue"})
+@SuppressWarnings({"rawtypes"})
 public class GeckoRenderLayer extends AbstractPackRenderLayer {
 
     private final SkinTypedValue<DynamicTexture> texture;

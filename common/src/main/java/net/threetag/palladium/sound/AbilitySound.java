@@ -48,17 +48,9 @@ public class AbilitySound extends AbstractTickableSoundLocationInstance {
 
         var ability = this.abilityReference.getEntry(this.entity);
 
-        if (ability == null) {
-            if (this.volume > 0F) {
-                this.volume = Mth.clamp(this.volume - 0.05F, 0F, this.maxVolume);
-            }
-
-            if (this.volume <= 0F) {
-                this.stop();
-            }
-        } else if (!ability.isEnabled()) {
+        if (ability == null || !ability.isEnabled()) {
             this.wasStopped = true;
-        } else {
+        } else if (!this.wasStopped) {
             if (this.volume < this.maxVolume) {
                 this.volume = Mth.clamp(this.volume + 0.05F, 0F, this.maxVolume);
             }
