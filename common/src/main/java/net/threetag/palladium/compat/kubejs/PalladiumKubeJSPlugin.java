@@ -18,7 +18,6 @@ import net.threetag.palladium.condition.ConditionSerializer;
 import net.threetag.palladium.entity.CustomProjectile;
 import net.threetag.palladium.event.PalladiumClientEvents;
 import net.threetag.palladium.event.PalladiumEvents;
-import net.threetag.palladium.power.PowerUtil;
 import net.threetag.palladium.power.SuperpowerUtil;
 import net.threetag.palladium.power.ability.Ability;
 import net.threetag.palladium.power.ability.AbilityUtil;
@@ -62,7 +61,6 @@ public class PalladiumKubeJSPlugin extends KubeJSPlugin {
     @Override
     public void registerBindings(BindingsEvent event) {
         event.add("palladium", event.getType() == ScriptType.CLIENT ? new PalladiumBindingClient() : new PalladiumBinding());
-        event.add("powerUtil", PowerUtil.class);
         event.add("superpowerUtil", SuperpowerUtil.class);
         event.add("abilityUtil", AbilityUtil.class);
         if (event.getType() == ScriptType.CLIENT) {
