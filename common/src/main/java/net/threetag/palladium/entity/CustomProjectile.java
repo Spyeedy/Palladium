@@ -25,6 +25,7 @@ import net.minecraft.world.level.Explosion;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.EntityHitResult;
+import net.threetag.palladium.util.SizeUtil;
 import net.threetag.palladiumcore.network.ExtendedEntitySpawnData;
 import net.threetag.palladiumcore.network.NetworkManager;
 import org.jetbrains.annotations.Nullable;
@@ -79,7 +80,7 @@ public class CustomProjectile extends ThrowableProjectile implements ExtendedEnt
 
     @Override
     public EntityDimensions getDimensions(Pose pose) {
-        return this.dimensions;
+        return this.dimensions.scale(SizeUtil.getInstance().getWidthScale(this), SizeUtil.getInstance().getHeightScale(this));
     }
 
     @Override
@@ -357,9 +358,9 @@ public class CustomProjectile extends ThrowableProjectile implements ExtendedEnt
 
             Random random = new Random();
             for (int i = 0; i < this.amount; i++) {
-                float sX = (random.nextFloat() - 0.5F) * this.spread;
-                float sY = (random.nextFloat() - 0.5F) * this.spread;
-                float sZ = (random.nextFloat() - 0.5F) * this.spread;
+                float sX = (random.nextFloat() - 0.5F) * this.spread * SizeUtil.getInstance().getWidthScale(projectile);
+                float sY = (random.nextFloat() - 0.5F) * this.spread * SizeUtil.getInstance().getHeightScale(projectile);
+                float sZ = (random.nextFloat() - 0.5F) * this.spread * SizeUtil.getInstance().getWidthScale(projectile);
 
                 try {
                     projectile.level().addParticle(this.type.getDeserializer().fromCommand(this.type, new StringReader(this.options)), projectile.getX(), projectile.getY(), projectile.getZ(), sX, sY, sZ);
