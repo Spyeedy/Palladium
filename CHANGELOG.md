@@ -1,16 +1,1 @@
-- Added "add"/"subtract" subcommands to /energybar
-- Huge performance improvements for command abilities
-- Added "powerUtil" & "scoreboardUtil" for KubeJS (accessible via palladium.powerUtil, ...)
-- Added "customProjectileTick" event to KubeJS compat
-- Added "ability_first_tick" and "ability_last_tick" conditions
-- Made energy beam only deal damage if damage > 0
-- Made energy beams ignore trail entities
-- Small GeckoLib fixes
-- Fixed crashes related to per-face-UV models on Forge
-- Fixed dimension-condition-documentation listing nether with wrong ID
-- Fixed custom projectile explosions not making sound & particles
-- Fixed lightning spark render layer type not being effected by conditions
-- Fixed errors in energy beam parsing
-- Fixed accessory crash (#123)
-- Small fix to play sound ability
-- Fixed custom projectile not being scaled when shot when Pehkui-size-changed
+- Fixed command ability not liking / at the beginning of commands
