@@ -29,15 +29,23 @@ public class CommandFunctionProperty extends PalladiumProperty<CommandFunctionPr
     @Override
     public CommandFunctionParsing fromJSON(JsonElement jsonElement) {
         if (jsonElement.isJsonPrimitive()) {
-            return new CommandFunctionParsing(jsonElement.getAsString());
+            return new CommandFunctionParsing(fixCmd(jsonElement.getAsString()));
         } else {
             JsonArray jsonArray = jsonElement.getAsJsonArray();
             List<String> lines = new ArrayList<>();
             for (int i = 0; i < jsonArray.size(); i++) {
-                lines.add(jsonArray.get(i).getAsString());
+                lines.add(fixCmd(jsonArray.get(i).getAsString()));
             }
             return new CommandFunctionParsing(lines);
         }
+    }
+
+    private String fixCmd(String cmd) {
+        while (cmd.startsWith("/")) {
+            cmd = cmd.substring(1);
+        }
+
+        return cmd;
     }
 
     @Override
