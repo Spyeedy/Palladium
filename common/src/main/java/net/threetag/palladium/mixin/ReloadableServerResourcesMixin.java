@@ -1,27 +1,20 @@
 package net.threetag.palladium.mixin;
 
 import net.minecraft.server.ReloadableServerResources;
-import net.minecraft.server.packs.resources.PreparableReloadListener;
-import net.threetag.palladium.PalladiumMixinPlugin;
 import net.threetag.palladium.loot.LootTableModificationManager;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
-import org.spongepowered.asm.mixin.injection.Inject;
-import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
+import org.spongepowered.asm.mixin.injection.Redirect;
 
-import java.util.ArrayList;
 import java.util.List;
 
 @Mixin(ReloadableServerResources.class)
 public class ReloadableServerResourcesMixin {
 
-    @Inject(method = "listeners", at = @At("RETURN"), cancellable = true)
-    public void listeners(CallbackInfoReturnable<List<PreparableReloadListener>> cir) {
-        if (!PalladiumMixinPlugin.HAS_QUILT) {
-            var list = new ArrayList<>(cir.getReturnValue());
-            list.add(0, LootTableModificationManager.getInstance());
-            cir.setReturnValue(list);
-        }
+    @SuppressWarnings("rawtypes")
+    @Redirect(method = "listeners", at = @At(value = "INVOKE", target = "Ljava/util/List;of(Ljava/lang/Object;Ljava/lang/Object;Ljava/lang/Object;Ljava/lang/Object;Ljava/lang/Object;)Ljava/util/List;"))
+    private <E> List changeList(E e1, E e2, E e3, E e4, E e5) {
+        return List.of(LootTableModificationManager.getInstance(), e1, e2, e3, e4, e5);
     }
 
 }
