@@ -78,9 +78,7 @@ dependencies {
     modImplementation ("dev.emi:trinkets:${rootProject.trinkets_version}")
 
     // Energy & TechReborn
-    include modApi("teamreborn:energy:${rootProject.energy_version}") {
-        exclude(group: "net.fabricmc.fabric-api")
-    }
+    include modApi("teamreborn:energy:${rootProject.energy_version}");
 
     // KubeJS
     modImplementation "dev.latvian.mods:kubejs-fabric:${rootProject.kubejs_version}"
@@ -115,8 +113,7 @@ processResources {
 }
 
 sourceSets.main.resources {
-    srcDir project(":forge").file("src/generated/resources").absolutePath
-    exclude '**/data/forge/*'
+    srcDir project(":neoforge").file("src/generated/resources").absolutePath
 }
 
 shadowJar {
