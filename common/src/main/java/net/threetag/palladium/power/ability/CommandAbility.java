@@ -32,7 +32,11 @@ public class CommandAbility extends Ability implements CommandSource {
     public void firstTick(LivingEntity entity, AbilityInstance entry, IPowerHolder holder, boolean enabled) {
         if (enabled && entity.level().getServer() != null && entry.getProperty(FIRST_TICK_COMMANDS) != null && entity.level() instanceof ServerLevel serverLevel) {
             var source = this.createCommandSourceStack(entity, serverLevel);
-            Objects.requireNonNull(entity.level().getServer()).getFunctions().execute(entry.getProperty(FIRST_TICK_COMMANDS).getCommandFunction(entity.level().getServer()), source.withSuppressedOutput().withMaximumPermission(2));
+            var function = entry.getProperty(FIRST_TICK_COMMANDS).getCommandFunction(entity.level().getServer());
+
+            if (function != null) {
+                Objects.requireNonNull(entity.level().getServer()).getFunctions().execute(function, source.withSuppressedOutput().withMaximumPermission(2));
+            }
         }
     }
 
@@ -40,7 +44,11 @@ public class CommandAbility extends Ability implements CommandSource {
     public void tick(LivingEntity entity, AbilityInstance entry, IPowerHolder holder, boolean enabled) {
         if (enabled && entity.level().getServer() != null && entry.getProperty(COMMANDS) != null && entity.level() instanceof ServerLevel serverLevel) {
             var source = this.createCommandSourceStack(entity, serverLevel);
-            Objects.requireNonNull(entity.level().getServer()).getFunctions().execute(entry.getProperty(COMMANDS).getCommandFunction(entity.level().getServer()), source.withSuppressedOutput().withMaximumPermission(2));
+            var function = entry.getProperty(COMMANDS).getCommandFunction(entity.level().getServer());
+
+            if (function != null) {
+                Objects.requireNonNull(entity.level().getServer()).getFunctions().execute(function, source.withSuppressedOutput().withMaximumPermission(2));
+            }
         }
     }
 
@@ -48,7 +56,11 @@ public class CommandAbility extends Ability implements CommandSource {
     public void lastTick(LivingEntity entity, AbilityInstance entry, IPowerHolder holder, boolean enabled) {
         if (enabled && entity.level().getServer() != null && entry.getProperty(LAST_TICK_COMMANDS) != null && entity.level() instanceof ServerLevel serverLevel) {
             var source = this.createCommandSourceStack(entity, serverLevel);
-            Objects.requireNonNull(entity.level().getServer()).getFunctions().execute(entry.getProperty(LAST_TICK_COMMANDS).getCommandFunction(entity.level().getServer()), source.withSuppressedOutput().withMaximumPermission(2));
+            var function = entry.getProperty(LAST_TICK_COMMANDS).getCommandFunction(entity.level().getServer());
+
+            if (function != null) {
+                Objects.requireNonNull(entity.level().getServer()).getFunctions().execute(function, source.withSuppressedOutput().withMaximumPermission(2));
+            }
         }
     }
 

@@ -14,6 +14,7 @@ import net.minecraft.server.MinecraftServer;
 import net.minecraft.world.phys.Vec2;
 import net.minecraft.world.phys.Vec3;
 import net.threetag.palladium.Palladium;
+import net.threetag.palladium.addonpack.log.AddonPackLog;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -97,6 +98,7 @@ public class CommandFunctionProperty extends PalladiumProperty<CommandFunctionPr
 
         private final List<String> lines;
         private CommandFunction commandFunction;
+        private boolean error = false;
 
         public CommandFunctionParsing(List<String> lines) {
             this.lines = lines;
@@ -107,9 +109,18 @@ public class CommandFunctionProperty extends PalladiumProperty<CommandFunctionPr
         }
 
         public CommandFunction getCommandFunction(MinecraftServer server) {
+            if (this.error) {
+                return null;
+            }
+
             if (this.commandFunction == null) {
-                CommandSourceStack commandSourceStack = new CommandSourceStack(CommandSource.NULL, Vec3.ZERO, Vec2.ZERO, null, 2, "", CommonComponents.EMPTY, server, null);
-                this.commandFunction = CommandFunction.fromLines(Palladium.id("parsed"), server.getCommands().getDispatcher(), commandSourceStack, this.lines);
+                try {
+                    CommandSourceStack commandSourceStack = new CommandSourceStack(CommandSource.NULL, Vec3.ZERO, Vec2.ZERO, null, 2, "", CommonComponents.EMPTY, server, null);
+                    this.commandFunction = CommandFunction.fromLines(Palladium.id("parsed"), server.getCommands().getDispatcher(), commandSourceStack, this.lines);
+                } catch (Exception e) {
+                    AddonPackLog.error(e.getMessage());
+                    this.error = true;
+                }
             }
             return this.commandFunction;
         }
