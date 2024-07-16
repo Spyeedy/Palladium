@@ -17,14 +17,14 @@ dependencies {
     // Forge Config API Port
     modApi "fuzs.forgeconfigapiport:forgeconfigapiport-common:${rootProject.forge_config_api_port_version}"
 
+    // Accessories
+    modImplementation("io.wispforest:accessories-common:${rootProject.accessories_version}")
+
     // Player Animator
 //    modCompileOnly("dev.kosmx.player-anim:player-animation-lib-fabric:${rootProject.player_anim_version}")
 
     // GeckoLib
-    modCompileOnly("software.bernie.geckolib:geckolib-forge-1.20.1:${rootProject.geckolib_version}")
-
-    // KubeJS
-    modCompileOnly "dev.latvian.mods:kubejs-fabric:${rootProject.kubejs_version}"
+    modCompileOnly("software.bernie.geckolib:geckolib-common-${rootProject.minecraft_version}:${rootProject.geckolib_version}")
 
     // Pehkui
     modCompileOnly("com.github.Virtuoel:Pehkui:${rootProject.pehkui_fabric_version}", {

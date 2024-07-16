@@ -1,33 +1,37 @@
 package net.threetag.palladium.util.icon;
 
 import com.google.gson.JsonArray;
-import com.google.gson.JsonObject;
 import com.google.gson.JsonPrimitive;
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.DefaultVertexFormat;
-import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.Tesselator;
 import com.mojang.blaze3d.vertex.VertexFormat;
+import com.mojang.serialization.MapCodec;
+import com.mojang.serialization.codecs.RecordCodecBuilder;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.renderer.GameRenderer;
-import net.minecraft.nbt.CompoundTag;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraft.util.GsonHelper;
 import net.threetag.palladium.Palladium;
 import net.threetag.palladium.client.dynamictexture.TextureReference;
 import net.threetag.palladium.documentation.JsonDocumentationBuilder;
+import net.threetag.palladium.util.CodecUtils;
 import net.threetag.palladium.util.context.DataContext;
-import net.threetag.palladium.util.json.GsonUtil;
-import org.jetbrains.annotations.NotNull;
 
 import java.awt.*;
 
-public class TexturedIcon implements IIcon {
+public class TexturedIcon implements Icon {
 
-    public static final ResourceLocation LOCK = new ResourceLocation(Palladium.MOD_ID, "textures/icons/lock.png");
+    public static final MapCodec<TexturedIcon> CODEC = RecordCodecBuilder.mapCodec((instance) -> instance
+            .group(
+                    TextureReference.CODEC.fieldOf("texture").forGetter(TexturedIcon::getTexture),
+                    CodecUtils.COLOR_CODEC.optionalFieldOf("texture", null).forGetter(TexturedIcon::getTint)
+            )
+            .apply(instance, TexturedIcon::new));
+
+    public static final ResourceLocation LOCK = Palladium.id("textures/icons/lock.png");
 
     public final TextureReference texture;
     public final Color tint;
@@ -72,6 +76,14 @@ public class TexturedIcon implements IIcon {
         tesselator.end();
     }
 
+    public TextureReference getTexture() {
+        return texture;
+    }
+
+    public Color getTint() {
+        return tint;
+    }
+
     @Override
     public IconSerializer<TexturedIcon> getSerializer() {
         return IconSerializers.TEXTURE.get();
@@ -88,50 +100,8 @@ public class TexturedIcon implements IIcon {
     public static class Serializer extends IconSerializer<TexturedIcon> {
 
         @Override
-        public @NotNull TexturedIcon fromJSON(JsonObject json) {
-            TextureReference texture = TextureReference.parse(GsonHelper.getAsString(json, "texture"));
-            Color tint = null;
-            if (GsonHelper.isValidNode(json, "tint")) {
-                int[] color = GsonUtil.getIntArray(json, 3, "tint", 255, 255, 255);
-                tint = new Color(color[0], color[1], color[2]);
-            }
-            return new TexturedIcon(texture, tint);
-        }
-
-        @Override
-        public TexturedIcon fromNBT(CompoundTag nbt) {
-            TextureReference texture = TextureReference.parse(nbt.getString("Texture"));
-            Color tint = null;
-            if (nbt.contains("ColorRed") && nbt.contains("ColorGreen") && nbt.contains("ColorBlue")) {
-                tint = new Color(nbt.getInt("ColorRed"), nbt.getInt("ColorGreen"), nbt.getInt("ColorBlue"));
-            }
-            return new TexturedIcon(texture, tint);
-        }
-
-        @Override
-        public JsonObject toJSON(TexturedIcon icon) {
-            JsonObject jsonObject = new JsonObject();
-            jsonObject.addProperty("texture", icon.texture.toString());
-            if (icon.tint != null) {
-                JsonArray array = new JsonArray();
-                array.add(icon.tint.getRed());
-                array.add(icon.tint.getGreen());
-                array.add(icon.tint.getBlue());
-                jsonObject.add("tint", array);
-            }
-            return jsonObject;
-        }
-
-        @Override
-        public CompoundTag toNBT(TexturedIcon icon) {
-            CompoundTag nbt = new CompoundTag();
-            nbt.putString("Texture", icon.texture.toString());
-            if (icon.tint != null) {
-                nbt.putInt("ColorRed", icon.tint.getRed());
-                nbt.putInt("ColorGreen", icon.tint.getGreen());
-                nbt.putInt("ColorBlue", icon.tint.getBlue());
-            }
-            return nbt;
+        public MapCodec<TexturedIcon> codec() {
+            return CODEC;
         }
 
         @Override

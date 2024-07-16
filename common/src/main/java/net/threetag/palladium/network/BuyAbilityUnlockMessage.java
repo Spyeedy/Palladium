@@ -32,7 +32,7 @@ public class BuyAbilityUnlockMessage extends MessageC2S {
 
     @Override
     public void handle(MessageContext context) {
-        AbilityInstance entry = this.reference.getEntry(context.getPlayer());
+        AbilityInstance entry = this.reference.getInstance(context.getPlayer());
 
         if (entry != null) {
             var buyableCondition = entry.getConfiguration().findBuyCondition();

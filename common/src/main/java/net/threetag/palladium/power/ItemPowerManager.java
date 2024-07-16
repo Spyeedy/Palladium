@@ -44,7 +44,7 @@ public class ItemPowerManager extends SimpleJsonResourceReloadListener {
 
                 List<Power> powers = new ArrayList<>();
                 if (jsonObject.get("power").isJsonPrimitive()) {
-                    var power = PowerManager.getInstance(null).getPower(new ResourceLocation(jsonObject.get("power").getAsString()));
+                    var power = PowerEventHandler.getInstance(null).getPower(new ResourceLocation(jsonObject.get("power").getAsString()));
 
                     if (power == null) {
                         AddonPackLog.warning("Unknown power used for item '" + jsonObject.get("power").getAsString() + "'");
@@ -53,7 +53,7 @@ public class ItemPowerManager extends SimpleJsonResourceReloadListener {
                     }
                 } else if (jsonObject.get("power").isJsonArray()) {
                     for (JsonElement jsonElement : GsonHelper.getAsJsonArray(jsonObject, "power")) {
-                        var power = PowerManager.getInstance(null).getPower(new ResourceLocation(jsonElement.getAsString()));
+                        var power = PowerEventHandler.getInstance(null).getPower(new ResourceLocation(jsonElement.getAsString()));
 
                         if (power == null) {
                             AddonPackLog.warning("Unknown power used for item '" + jsonElement.getAsString() + "'");

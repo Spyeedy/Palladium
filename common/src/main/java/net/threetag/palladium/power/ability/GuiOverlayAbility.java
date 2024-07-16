@@ -18,13 +18,13 @@ import java.util.List;
 
 public class GuiOverlayAbility extends Ability {
 
-    public static final PalladiumProperty<TextureReference> TEXTURE = new TextureReferenceProperty("texture").sync(SyncType.SELF).configurable("Texture path for the gui overlay");
-    public static final PalladiumProperty<Integer> TEXTURE_WIDTH = new IntegerProperty("texture_width").sync(SyncType.SELF).configurable("Width of the texture file");
-    public static final PalladiumProperty<Integer> TEXTURE_HEIGHT = new IntegerProperty("texture_height").sync(SyncType.SELF).configurable("Width of the texture file");
-    public static final PalladiumProperty<Vec3> TRANSLATE = new Vec3Property("translate").sync(SyncType.SELF).configurable("Translation of the rendered object");
-    public static final PalladiumProperty<Vec3> ROTATE = new Vec3Property("rotate").sync(SyncType.SELF).configurable("Rotation of the rendered object");
-    public static final PalladiumProperty<Vec3> SCALE = new Vec3Property("scale").sync(SyncType.SELF).configurable("Scale of the rendered object");
-    public static final PalladiumProperty<TextureAlignmentProperty.TextureAlignment> ALIGNMENT = new TextureAlignmentProperty("alignment").sync(SyncType.SELF).configurable("Determines how the image is aligned on the screen");
+    public static final PalladiumProperty<TextureReference> TEXTURE = new TextureReferenceProperty("texture").sync(SyncOption.SELF).configurable("Texture path for the gui overlay");
+    public static final PalladiumProperty<Integer> TEXTURE_WIDTH = new IntegerProperty("texture_width").sync(SyncOption.SELF).configurable("Width of the texture file");
+    public static final PalladiumProperty<Integer> TEXTURE_HEIGHT = new IntegerProperty("texture_height").sync(SyncOption.SELF).configurable("Width of the texture file");
+    public static final PalladiumProperty<Vec3> TRANSLATE = new Vec3Property("translate").sync(SyncOption.SELF).configurable("Translation of the rendered object");
+    public static final PalladiumProperty<Vec3> ROTATE = new Vec3Property("rotate").sync(SyncOption.SELF).configurable("Rotation of the rendered object");
+    public static final PalladiumProperty<Vec3> SCALE = new Vec3Property("scale").sync(SyncOption.SELF).configurable("Scale of the rendered object");
+    public static final PalladiumProperty<TextureAlignmentProperty.TextureAlignment> ALIGNMENT = new TextureAlignmentProperty("alignment").sync(SyncOption.SELF).configurable("Determines how the image is aligned on the screen");
 
     public GuiOverlayAbility() {
         this.withProperty(TEXTURE, TextureReference.normal(new ResourceLocation("textures/gui/presets/isles.png")));

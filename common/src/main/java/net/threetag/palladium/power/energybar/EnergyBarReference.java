@@ -1,60 +1,63 @@
 package net.threetag.palladium.power.energybar;
 
+import com.mojang.serialization.Codec;
+import com.mojang.serialization.DataResult;
+import net.minecraft.ResourceLocationException;
 import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.LivingEntity;
 import net.threetag.palladium.power.IPowerHandler;
 import net.threetag.palladium.power.IPowerHolder;
 import net.threetag.palladium.power.Power;
-import net.threetag.palladium.power.PowerManager;
+import net.threetag.palladium.power.PowerUtil;
+import net.threetag.palladium.registry.PalladiumRegistryKeys;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.Objects;
 import java.util.Optional;
 
-public class EnergyBarReference {
+public record EnergyBarReference(@Nullable ResourceLocation powerId, @NotNull String energyBarName) {
 
-    @Nullable
-    private final ResourceLocation powerId;
-    @NotNull
-    private final String energyBarName;
+    public static final Codec<EnergyBarReference> CODEC = Codec.STRING.comapFlatMap(EnergyBarReference::read, EnergyBarReference::toString).stable();
+    public static final StreamCodec<FriendlyByteBuf, EnergyBarReference> STREAM_CODEC = StreamCodec.of((buf, ref) -> {
+        buf.writeNullable(ref.powerId, FriendlyByteBuf::writeResourceLocation);
+        buf.writeUtf(ref.energyBarName);
+    }, buf -> {
+        var powerId = buf.readNullable(FriendlyByteBuf::readResourceLocation);
+        var barName = buf.readUtf();
+        return new EnergyBarReference(powerId, barName);
+    });
 
-    public EnergyBarReference(@Nullable ResourceLocation powerId, @NotNull String energyBarName) {
-        this.powerId = powerId;
-        this.energyBarName = energyBarName;
-    }
-
-    public static EnergyBarReference fromString(String parse) {
+    public static EnergyBarReference parse(String parse) {
         String[] s = parse.split("#", 2);
 
         if (s.length == 1) {
             return new EnergyBarReference(null, s[0]);
         } else {
-            return new EnergyBarReference(new ResourceLocation(s[0]), s[1]);
+            return new EnergyBarReference(ResourceLocation.parse(s[0]), s[1]);
+        }
+    }
+
+    public static DataResult<EnergyBarReference> read(String path) {
+        try {
+            return DataResult.success(parse(path));
+        } catch (ResourceLocationException e) {
+            return DataResult.error(() -> "Not a valid energy bar reference: " + path + " " + e.getMessage());
         }
     }
 
     @Nullable
-    public ResourceLocation getPowerId() {
-        return this.powerId;
-    }
-
-    @NotNull
-    public String getEnergyBarName() {
-        return this.energyBarName;
+    public EnergyBar getBar(LivingEntity entity) {
+        return this.getBar(entity, null);
     }
 
     @Nullable
-    public EnergyBar getEntry(LivingEntity entity) {
-        return this.getEntry(entity, null);
-    }
-
-    @Nullable
-    public EnergyBar getEntry(LivingEntity entity, @Nullable IPowerHolder powerHolder) {
+    public EnergyBar getBar(LivingEntity entity, @Nullable IPowerHolder powerHolder) {
         if (this.powerId != null) {
-            IPowerHandler handler = PowerManager.getPowerHandler(entity).orElse(null);
-            Power power = PowerManager.getInstance(entity.level()).getPower(this.powerId);
+            IPowerHandler handler = PowerUtil.getPowerHandler(entity).orElse(null);
+            Power power = entity.registryAccess().registry(PalladiumRegistryKeys.POWER).orElseThrow().get(this.powerId);
 
             if (power != null && handler != null) {
                 powerHolder = handler.getPowerHolder(power);
@@ -71,7 +74,7 @@ public class EnergyBarReference {
     }
 
     public Optional<EnergyBar> optional(LivingEntity entity, @Nullable IPowerHolder powerHolder) {
-        return Optional.ofNullable(this.getEntry(entity, powerHolder));
+        return Optional.ofNullable(this.getBar(entity, powerHolder));
     }
 
     public void toBuffer(FriendlyByteBuf buf) {
@@ -89,11 +92,6 @@ public class EnergyBarReference {
             return this.energyBarName;
         }
         return this.powerId + "#" + this.energyBarName;
-    }
-
-    @Override
-    public int hashCode() {
-        return Objects.hash(this.powerId, this.energyBarName);
     }
 
     @Override

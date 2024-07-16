@@ -1,36 +1,31 @@
 package net.threetag.palladium.client.screen.components;
 
 import com.mojang.blaze3d.systems.RenderSystem;
-import com.mojang.blaze3d.vertex.PoseStack;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.components.Tooltip;
-import net.minecraft.client.renderer.GameRenderer;
 import net.minecraft.network.chat.Component;
-import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.resources.ResourceLocation;
 import net.threetag.palladium.Palladium;
 import net.threetag.palladium.util.context.DataContext;
-import net.threetag.palladium.util.icon.IIcon;
+import net.threetag.palladium.util.icon.Icon;
 import org.jetbrains.annotations.Nullable;
-
-import java.util.function.Supplier;
 
 public class FlatIconButton extends Button {
 
     public static final ResourceLocation WIDGETS_LOCATION = new ResourceLocation(Palladium.MOD_ID, "textures/gui/widgets.png");
 
-    private final IIcon icon;
+    private final Icon icon;
 
-    protected FlatIconButton(int x, int y, IIcon icon, OnPress onPress, CreateNarration createNarration) {
+    protected FlatIconButton(int x, int y, Icon icon, OnPress onPress, CreateNarration createNarration) {
         super(x, y, 20, 20, Component.empty(), onPress, createNarration);
         this.icon = icon;
     }
 
-    public static Builder flatIcon(IIcon icon, OnPress onPress) {
+    public static Builder flatIcon(Icon icon, OnPress onPress) {
         return new Builder(icon, onPress);
     }
 
@@ -58,7 +53,7 @@ public class FlatIconButton extends Button {
     @Environment(EnvType.CLIENT)
     public static class Builder {
 
-        private final IIcon icon;
+        private final Icon icon;
         private final Button.OnPress onPress;
         @Nullable
         private Tooltip tooltip;
@@ -66,7 +61,7 @@ public class FlatIconButton extends Button {
         private int y;
         private Button.CreateNarration createNarration;
 
-        public Builder(IIcon icon, Button.OnPress onPress) {
+        public Builder(Icon icon, Button.OnPress onPress) {
             this.createNarration = Button.DEFAULT_NARRATION;
             this.icon = icon;
             this.onPress = onPress;

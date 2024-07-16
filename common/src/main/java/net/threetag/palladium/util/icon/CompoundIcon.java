@@ -1,30 +1,27 @@
 package net.threetag.palladium.util.icon;
 
 import com.google.gson.JsonArray;
-import com.google.gson.JsonElement;
-import com.google.gson.JsonObject;
-import com.mojang.blaze3d.vertex.PoseStack;
+import com.mojang.serialization.JsonOps;
+import com.mojang.serialization.MapCodec;
+import com.mojang.serialization.codecs.RecordCodecBuilder;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
-import net.minecraft.nbt.CompoundTag;
-import net.minecraft.nbt.ListTag;
-import net.minecraft.nbt.Tag;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraft.util.GsonHelper;
 import net.minecraft.world.item.Items;
 import net.threetag.palladium.documentation.JsonDocumentationBuilder;
 import net.threetag.palladium.util.context.DataContext;
-import org.jetbrains.annotations.NotNull;
 
-import java.util.LinkedList;
+import java.util.List;
 
-public class CompoundIcon implements IIcon {
+public record CompoundIcon(List<Icon> icons) implements Icon {
 
-    private final LinkedList<IIcon> icons = new LinkedList<>();
+    public static final MapCodec<CompoundIcon> CODEC = RecordCodecBuilder.mapCodec((instance) -> instance
+            .group(Icon.CODEC.listOf().fieldOf("icons").forGetter(CompoundIcon::icons))
+            .apply(instance, CompoundIcon::new));
 
     @Override
     public void draw(Minecraft mc, GuiGraphics guiGraphics, DataContext context, int x, int y, int width, int height) {
-        for (IIcon icon : this.icons) {
+        for (Icon icon : this.icons) {
             icon.draw(mc, guiGraphics, context, x, y, width, height);
         }
     }
@@ -37,54 +34,8 @@ public class CompoundIcon implements IIcon {
     public static class Serializer extends IconSerializer<CompoundIcon> {
 
         @Override
-        public @NotNull CompoundIcon fromJSON(JsonObject json) {
-            JsonArray icons = GsonHelper.getAsJsonArray(json, "icons");
-            CompoundIcon compoundIcon = new CompoundIcon();
-
-            for (JsonElement jsonElement : icons) {
-                IIcon icon = IconSerializer.parseJSON(jsonElement);
-                compoundIcon.icons.add(icon);
-            }
-
-            return compoundIcon;
-        }
-
-        @Override
-        public CompoundIcon fromNBT(CompoundTag nbt) {
-            ListTag listTag = nbt.getList("Icons", Tag.TAG_COMPOUND);
-            CompoundIcon compoundIcon = new CompoundIcon();
-
-            for (int i = 0; i < listTag.size(); i++) {
-                IIcon icon = IconSerializer.parseNBT(listTag.getCompound(i));
-                compoundIcon.icons.add(icon);
-            }
-
-            return compoundIcon;
-        }
-
-        @Override
-        public JsonObject toJSON(CompoundIcon icon) {
-            JsonObject jsonObject = new JsonObject();
-
-            JsonArray jsonArray = new JsonArray();
-            for (IIcon i : icon.icons) {
-                jsonArray.add(IconSerializer.serializeJSON(i));
-            }
-
-            return jsonObject;
-        }
-
-        @Override
-        public CompoundTag toNBT(CompoundIcon icon) {
-            CompoundTag nbt = new CompoundTag();
-            ListTag listTag = new ListTag();
-
-            for (IIcon i : icon.icons) {
-                listTag.add(IconSerializer.serializeNBT(i));
-            }
-
-            nbt.put("Icons", listTag);
-            return nbt;
+        public MapCodec<CompoundIcon> codec() {
+            return CODEC;
         }
 
         @Override
@@ -93,11 +44,12 @@ public class CompoundIcon implements IIcon {
             builder.setDescription("Let's you merge multiple icons into one.");
 
             JsonArray jsonArray = new JsonArray();
-            jsonArray.add(IconSerializer.serializeJSON(new ItemIcon(Items.APPLE)));
-            jsonArray.add(IconSerializer.serializeJSON(new TexturedIcon(new ResourceLocation("example:textures/icons/my_icon.png"))));
-            builder.addProperty("icons", IIcon[].class)
+            jsonArray.add(Icon.CODEC.encodeStart(JsonOps.COMPRESSED, new ItemIcon(Items.APPLE)).getOrThrow().toString());
+            jsonArray.add(Icon.CODEC.encodeStart(JsonOps.COMPRESSED, new TexturedIcon(ResourceLocation.parse("example:textures/icons/my_icon.png"))).getOrThrow().toString());
+            builder.addProperty("icons", Icon[].class)
                     .description("Array of the icons you want to merge")
                     .required().exampleJson(jsonArray);
         }
+
     }
 }

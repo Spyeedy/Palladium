@@ -10,16 +10,16 @@ import net.threetag.palladium.power.IPowerHolder;
 import net.threetag.palladium.util.icon.ItemIcon;
 import net.threetag.palladium.util.property.CommandFunctionProperty;
 import net.threetag.palladium.util.property.PalladiumProperty;
-import net.threetag.palladium.util.property.SyncType;
+import net.threetag.palladium.util.property.SyncOption;
 
 import java.util.Collections;
 import java.util.Objects;
 
 public class CommandAbility extends Ability implements CommandSource {
 
-    public static final PalladiumProperty<CommandFunctionProperty.CommandFunctionParsing> FIRST_TICK_COMMANDS = new CommandFunctionProperty("first_tick_commands").sync(SyncType.NONE).disablePersistence().configurable("Sets the commands which get executed when gaining/activating the ability");
-    public static final PalladiumProperty<CommandFunctionProperty.CommandFunctionParsing> LAST_TICK_COMMANDS = new CommandFunctionProperty("last_tick_commands").sync(SyncType.NONE).disablePersistence().configurable("Sets the commands which get executed when losing/deactivating the ability");
-    public static final PalladiumProperty<CommandFunctionProperty.CommandFunctionParsing> COMMANDS = new CommandFunctionProperty("commands").sync(SyncType.NONE).disablePersistence().configurable("Sets the commands which get executed when using the ability");
+    public static final PalladiumProperty<CommandFunctionProperty.CommandFunctionParsing> FIRST_TICK_COMMANDS = new CommandFunctionProperty("first_tick_commands").sync(SyncOption.NONE).disablePersistence().configurable("Sets the commands which get executed when gaining/activating the ability");
+    public static final PalladiumProperty<CommandFunctionProperty.CommandFunctionParsing> LAST_TICK_COMMANDS = new CommandFunctionProperty("last_tick_commands").sync(SyncOption.NONE).disablePersistence().configurable("Sets the commands which get executed when losing/deactivating the ability");
+    public static final PalladiumProperty<CommandFunctionProperty.CommandFunctionParsing> COMMANDS = new CommandFunctionProperty("commands").sync(SyncOption.NONE).disablePersistence().configurable("Sets the commands which get executed when using the ability");
 
     public CommandAbility() {
         this.withProperty(ICON, new ItemIcon(Blocks.COMMAND_BLOCK));

@@ -53,7 +53,7 @@ public class OpenAbilityBuyScreenMessage extends MessageS2C {
     @Environment(EnvType.CLIENT)
     public void handleClient(MessageContext context) {
         if (Minecraft.getInstance().screen instanceof PowersScreen powersScreen) {
-            AbilityInstance entry = this.reference.getEntry(Minecraft.getInstance().player);
+            AbilityInstance entry = this.reference.getInstance(Minecraft.getInstance().player);
 
             if (entry != null) {
                 powersScreen.openOverlayScreen(new BuyAbilityScreen(this.reference, this.unlockData, this.available, powersScreen));

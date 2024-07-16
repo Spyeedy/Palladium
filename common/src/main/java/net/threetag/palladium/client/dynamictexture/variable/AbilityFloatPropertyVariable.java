@@ -31,7 +31,7 @@ public class AbilityFloatPropertyVariable extends AbstractFloatTextureVariable {
     public float getNumber(DataContext context) {
         var livingEntity = context.getLivingEntity();
         if (livingEntity != null) {
-            AbilityInstance entry = this.reference.getEntry(livingEntity);
+            AbilityInstance entry = this.reference.getInstance(livingEntity);
 
             if (entry == null) {
                 return 0F;

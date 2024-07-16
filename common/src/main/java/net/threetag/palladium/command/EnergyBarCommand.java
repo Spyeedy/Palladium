@@ -18,7 +18,7 @@ import net.minecraft.world.entity.LivingEntity;
 import net.threetag.palladium.power.IPowerHolder;
 import net.threetag.palladium.power.Power;
 import net.threetag.palladium.power.PowerHandler;
-import net.threetag.palladium.power.PowerManager;
+import net.threetag.palladium.power.PowerEventHandler;
 import net.threetag.palladium.power.energybar.EnergyBarConfiguration;
 import net.threetag.palladium.power.energybar.EnergyBarReference;
 
@@ -36,7 +36,7 @@ public class EnergyBarCommand {
             entity = context.getSource().getPlayerOrException();
         }
         if (entity instanceof LivingEntity living) {
-            var manager = PowerManager.getPowerHandler(living).orElse(new PowerHandler(living));
+            var manager = PowerEventHandler.getPowerHandler(living).orElse(new PowerHandler(living));
 
             for (IPowerHolder holder : manager.getPowerHolders().values()) {
                 if(!holder.getEnergyBars().isEmpty()) {
@@ -59,7 +59,7 @@ public class EnergyBarCommand {
 
         if (power != null) {
             for (EnergyBarConfiguration energyBar : power.getEnergyBars()) {
-                energyBars.add(energyBar.getName());
+                energyBars.add(energyBar.name());
             }
         }
 
@@ -129,7 +129,7 @@ public class EnergyBarCommand {
 
     public static int getEnergyBarValue(CommandSourceStack source, Entity entity, ResourceLocation powerId, String energyBarName) {
         if (entity instanceof LivingEntity living) {
-            var bar = new EnergyBarReference(powerId, energyBarName).getEntry(living);
+            var bar = new EnergyBarReference(powerId, energyBarName).getBar(living);
 
             if (bar != null) {
                 source.sendSuccess(() -> Component.translatable("commands.energybar.value.get.success", entity.getDisplayName(), powerId.toString(), energyBarName, bar.get()), true);
@@ -146,7 +146,7 @@ public class EnergyBarCommand {
 
     public static int setEnergyBarValue(CommandSourceStack source, Entity entity, ResourceLocation powerId, String energyBarName, int value) {
         if (entity instanceof LivingEntity living) {
-            var bar = new EnergyBarReference(powerId, energyBarName).getEntry(living);
+            var bar = new EnergyBarReference(powerId, energyBarName).getBar(living);
 
             if (bar != null) {
                 bar.set(value);
@@ -164,7 +164,7 @@ public class EnergyBarCommand {
 
     public static int addEnergyBarValue(CommandSourceStack source, Entity entity, ResourceLocation powerId, String energyBarName, int value) {
         if (entity instanceof LivingEntity living) {
-            var bar = new EnergyBarReference(powerId, energyBarName).getEntry(living);
+            var bar = new EnergyBarReference(powerId, energyBarName).getBar(living);
 
             if (bar != null) {
                 bar.add(value);
@@ -182,7 +182,7 @@ public class EnergyBarCommand {
 
     public static int getEnergyBarMaxValue(CommandSourceStack source, Entity entity, ResourceLocation powerId, String energyBarName) {
         if (entity instanceof LivingEntity living) {
-            var bar = new EnergyBarReference(powerId, energyBarName).getEntry(living);
+            var bar = new EnergyBarReference(powerId, energyBarName).getBar(living);
 
             if (bar != null) {
                 source.sendSuccess(() -> Component.translatable("commands.energybar.maxValue.get.success", entity.getDisplayName(), powerId.toString(), energyBarName, bar.getMax()), true);
@@ -199,7 +199,7 @@ public class EnergyBarCommand {
 
     public static int setEnergyBarMaxValue(CommandSourceStack source, Entity entity, ResourceLocation powerId, String energyBarName, int value) {
         if (entity instanceof LivingEntity living) {
-            var bar = new EnergyBarReference(powerId, energyBarName).getEntry(living);
+            var bar = new EnergyBarReference(powerId, energyBarName).getBar(living);
 
             if (bar != null) {
                 bar.setOverriddenMaxValue(value);
@@ -217,7 +217,7 @@ public class EnergyBarCommand {
 
     public static int resetEnergyBarMaxValue(CommandSourceStack source, Entity entity, ResourceLocation powerId, String energyBarName) {
         if (entity instanceof LivingEntity living) {
-            var bar = new EnergyBarReference(powerId, energyBarName).getEntry(living);
+            var bar = new EnergyBarReference(powerId, energyBarName).getBar(living);
 
             if (bar != null) {
                 bar.setOverriddenMaxValue(-1);

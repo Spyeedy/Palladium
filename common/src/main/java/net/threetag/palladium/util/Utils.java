@@ -7,6 +7,11 @@ import java.util.function.Supplier;
 
 public class Utils {
 
+    public static <T> T tap(T object, Consumer<T> consumer) {
+        consumer.accept(object);
+        return object;
+    }
+
     public static <T> void ifNotNull(T value, Consumer<T> consumer) {
         if (value != null) {
             consumer.accept(value);

@@ -37,9 +37,9 @@ public class EnergyBeamAbility extends Ability implements AnimationTimer {
     public static final PalladiumProperty<Boolean> CAUSE_FIRE = new BooleanProperty("cause_fire").configurable("If enabled, targeted blocks will start to burn (fire will be placed).");
     public static final PalladiumProperty<Boolean> SMELT_BLOCKS = new BooleanProperty("smelt_blocks").configurable("If enabled, targeted blocks will turn into their smelting result (e.g. sand will turn into glass).");
 
-    public static final PalladiumProperty<Vec3> TARGET = new Vec3Property("distance").sync(SyncType.NONE);
-    public static final PalladiumProperty<Float> VALUE = new FloatProperty("value").sync(SyncType.NONE).disablePersistence();
-    public static final PalladiumProperty<Float> PREV_VALUE = new FloatProperty("prev_value").sync(SyncType.NONE).disablePersistence();
+    public static final PalladiumProperty<Vec3> TARGET = new Vec3Property("distance").sync(SyncOption.NONE);
+    public static final PalladiumProperty<Float> VALUE = new FloatProperty("value").sync(SyncOption.NONE).disablePersistence();
+    public static final PalladiumProperty<Float> PREV_VALUE = new FloatProperty("prev_value").sync(SyncOption.NONE).disablePersistence();
 
     public EnergyBeamAbility() {
         this.withProperty(BEAM, new ResourceLocation("example:energy_beam"))

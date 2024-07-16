@@ -1,18 +1,54 @@
 package net.threetag.palladium.util.property;
 
-import net.minecraft.nbt.Tag;
+import com.mojang.serialization.DynamicOps;
 
-public record PalladiumPropertyValue<T>(PalladiumProperty<T> data, T value) {
+public class PalladiumPropertyValue<T> {
 
-    public PalladiumProperty<T> getData() {
-        return data;
+    private final PalladiumProperty<T> property;
+    private T value;
+
+    public PalladiumPropertyValue(PalladiumProperty<T> property, T value) {
+        this.property = property;
+        this.value = value;
     }
 
-    public T getValue() {
-        return value;
+    public PalladiumProperty<T> getProperty() {
+        return this.property;
     }
 
-    public Tag toNBT() {
-        return this.data.toNBT(this.value);
+    public <R> R encode(DynamicOps<R> dynamicOps) {
+        return this.property.getType().getCodec().encodeStart(dynamicOps, this.value).getOrThrow();
+    }
+
+    public <R> T decode(DynamicOps<R> dynamicOps, R source) {
+        return this.property.getType().getCodec().parse(dynamicOps, source).getOrThrow();
+    }
+
+    public <R> void read(DynamicOps<R> dynamicOps, R source) {
+        this.value = this.property.getType().getCodec().parse(dynamicOps, source).getOrThrow();
+    }
+
+    public T value() {
+        return this.value;
+    }
+
+    public void set(T value) {
+        this.value = value;
+    }
+
+    public void setNull() {
+        this.value = null;
+    }
+
+    public boolean isNull() {
+        return this.value == null;
+    }
+
+    public void setToFallback() {
+        this.value = this.property.getFallback();
+    }
+
+    public PalladiumPropertyValue<T> copy() {
+        return new PalladiumPropertyValue<>(this.property, this.value);
     }
 }

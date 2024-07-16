@@ -29,7 +29,7 @@ public class DefaultPowerHolder implements IPowerHolder {
             this.entryMap.put(ability.getId(), entry);
         }
         for (EnergyBarConfiguration energyBar : this.getPower().getEnergyBars()) {
-            this.energyBars.put(energyBar.getName(), new EnergyBar(this, energyBar));
+            this.energyBars.put(energyBar.name(), new EnergyBar(this, energyBar));
         }
         this.validator = validator;
     }

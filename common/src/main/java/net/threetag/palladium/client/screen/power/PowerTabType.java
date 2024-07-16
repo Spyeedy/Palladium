@@ -5,7 +5,7 @@ import net.fabricmc.api.Environment;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
 import net.threetag.palladium.util.context.DataContext;
-import net.threetag.palladium.util.icon.IIcon;
+import net.threetag.palladium.util.icon.Icon;
 
 @Environment(EnvType.CLIENT)
 public enum PowerTabType {
@@ -48,7 +48,7 @@ public enum PowerTabType {
         guiGraphics.blit(PowersScreen.TABS, offsetX + this.getX(index), offsetY + this.getY(index), i, j, this.width, this.height);
     }
 
-    public void drawIcon(GuiGraphics guiGraphics, DataContext context, int offsetX, int offsetY, int index, IIcon icon) {
+    public void drawIcon(GuiGraphics guiGraphics, DataContext context, int offsetX, int offsetY, int index, Icon icon) {
         int i = offsetX + this.getX(index);
         int j = offsetY + this.getY(index);
         switch (this) {

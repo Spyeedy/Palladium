@@ -1,6 +1,6 @@
 plugins {
     id "architectury-plugin" version "3.4-SNAPSHOT"
-    id "dev.architectury.loom" version "1.6-SNAPSHOT" apply false
+    id "dev.architectury.loom" version "1.7-SNAPSHOT" apply false
 }
 
 architectury {
@@ -9,7 +9,6 @@ architectury {
 
 subprojects {
     apply plugin: "dev.architectury.loom"
-    apply plugin: "io.github.juuxel.loom-quiltflower"
 
     loom {
         silentMojangMappingsLicense()
@@ -83,14 +82,15 @@ allprojects {
             }
         }
 
-        // Trinkets
-        maven {
-            url = 'https://maven.terraformersmc.com/releases/'
-        }
-
         // Architectury / REI
         maven {
             url = 'https://maven.shedaniel.me'
+        }
+
+        // ModMenu
+        maven {
+            name = "Terraformers"
+            url = "https://maven.terraformersmc.com/"
         }
 
         // JEI
@@ -102,11 +102,6 @@ allprojects {
         maven {
             name = 'Ladysnake Mods'
             url = 'https://maven.ladysnake.org/releases'
-        }
-
-        // Curios
-        maven {
-            url = 'https://maven.theillusivec4.top/'
         }
 
         // Ingredient Extension API

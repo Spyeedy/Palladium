@@ -21,17 +21,19 @@ import net.threetag.palladium.documentation.HTMLBuilder;
 import net.threetag.palladium.entity.PalladiumAttributes;
 import net.threetag.palladium.entity.PalladiumEntityTypes;
 import net.threetag.palladium.entity.effect.EntityEffects;
+import net.threetag.palladium.entity.value.EntityDependentNumberTypes;
 import net.threetag.palladium.event.PalladiumEvents;
 import net.threetag.palladium.item.PalladiumCreativeModeTabs;
 import net.threetag.palladium.item.PalladiumItems;
 import net.threetag.palladium.network.PalladiumNetwork;
 import net.threetag.palladium.power.ItemPowerManager;
-import net.threetag.palladium.power.PowerManager;
+import net.threetag.palladium.power.PowerEventHandler;
 import net.threetag.palladium.power.SuitSetPowerManager;
 import net.threetag.palladium.power.ability.Abilities;
 import net.threetag.palladium.power.ability.Ability;
 import net.threetag.palladium.power.ability.AbilityEventHandler;
 import net.threetag.palladium.power.provider.PowerProviders;
+import net.threetag.palladium.registry.PalladiumRegistries;
 import net.threetag.palladium.sound.PalladiumSoundEvents;
 import net.threetag.palladium.util.SupporterHandler;
 import net.threetag.palladium.util.icon.IconSerializer;
@@ -55,6 +57,8 @@ public class Palladium {
     public static final Logger LOGGER = LogManager.getLogger();
 
     public static void init() {
+        PalladiumRegistries.init();
+
         PalladiumBlocks.BLOCKS.register();
         PalladiumBlockEntityTypes.BLOCK_ENTITIES.register();
         PalladiumCreativeModeTabs.TABS.register();
@@ -69,6 +73,7 @@ public class Palladium {
         PalladiumEntityTypes.ENTITIES.register();
         PalladiumSoundEvents.SOUNDS.register();
         Accessories.ACCESSORIES.register();
+        EntityDependentNumberTypes.TYPES.register();
 
         // Init before addonpack stuff is loaded, so new item type is registered
         if (Platform.isModLoaded("geckolib")) {
@@ -78,7 +83,7 @@ public class Palladium {
         PalladiumItems.init();
         PalladiumNetwork.init();
         PalladiumEntityTypes.init();
-        PowerManager.init();
+        PowerEventHandler.init();
         ItemPowerManager.init();
         SuitSetPowerManager.init();
         AbilityEventHandler.init();
@@ -110,8 +115,8 @@ public class Palladium {
 
         // Carry over data from old players to new
         PlayerEvents.CLONE.register((oldPlayer, newPlayer, wasDeath) -> {
-            PowerManager.getPowerHandler(oldPlayer).ifPresent(handlerOld -> {
-                PowerManager.getPowerHandler(newPlayer).ifPresent(handlerNew -> {
+            PowerEventHandler.getPowerHandler(oldPlayer).ifPresent(handlerOld -> {
+                PowerEventHandler.getPowerHandler(newPlayer).ifPresent(handlerNew -> {
                     handlerNew.fromNBT(handlerOld.toNBT());
                 });
             });
@@ -151,6 +156,6 @@ public class Palladium {
     }
 
     public static ResourceLocation id(String path) {
-        return new ResourceLocation(MOD_ID, path);
+        return ResourceLocation.fromNamespaceAndPath(MOD_ID, path);
     }
 }

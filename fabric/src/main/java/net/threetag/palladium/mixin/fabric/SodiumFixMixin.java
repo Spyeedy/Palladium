@@ -3,7 +3,6 @@ package net.threetag.palladium.mixin.fabric;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
 import me.jellysquid.mods.sodium.client.render.immediate.model.EntityRenderer;
-import net.caffeinemc.mods.sodium.api.util.ColorABGR;
 import net.caffeinemc.mods.sodium.api.vertex.buffer.VertexBufferWriter;
 import net.minecraft.client.model.geom.ModelPart;
 import net.threetag.palladium.client.model.ExtendedCubeListBuilder;
@@ -31,20 +30,15 @@ public class SodiumFixMixin {
             ci.cancel();
 
             if (part.visible) {
-                float red = ColorABGR.unpackRed(color) / 255F;
-                float green = ColorABGR.unpackGreen(color) / 255F;
-                float blue = ColorABGR.unpackBlue(color) / 255F;
-                float alpha = ColorABGR.unpackAlpha(color) / 255F;
-
                 if (!part.cubes.isEmpty() || !part.children.isEmpty()) {
                     poseStack.pushPose();
                     part.translateAndRotate(poseStack);
                     if (!part.skipDraw && ((Object) part) instanceof ModelPartInvoker invoker) {
-                        invoker.invokeCompile(poseStack.last(), vertexConsumer, packedLight, packedOverlay, red, green, blue, alpha);
+                        invoker.invokeCompile(poseStack.last(), vertexConsumer, packedLight, packedOverlay, color);
                     }
 
                     for (ModelPart modelPart : part.children.values()) {
-                        modelPart.render(poseStack, vertexConsumer, packedLight, packedOverlay, red, green, blue, alpha);
+                        modelPart.render(poseStack, vertexConsumer, packedLight, packedOverlay, color);
                     }
 
                     poseStack.popPose();

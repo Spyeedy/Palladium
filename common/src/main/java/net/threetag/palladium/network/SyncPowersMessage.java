@@ -2,48 +2,29 @@ package net.threetag.palladium.network;
 
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
-import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.core.UUIDUtil;
+import net.minecraft.network.RegistryFriendlyByteBuf;
+import net.minecraft.network.codec.ByteBufCodecs;
+import net.minecraft.network.codec.StreamCodec;
+import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
 import net.minecraft.resources.ResourceLocation;
-import net.threetag.palladium.power.ClientPowerManager;
+import net.threetag.palladium.Palladium;
 import net.threetag.palladium.power.Power;
-import net.threetag.palladiumcore.network.MessageContext;
-import net.threetag.palladiumcore.network.MessageS2C;
-import net.threetag.palladiumcore.network.MessageType;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.HashMap;
 import java.util.Map;
 
-public class SyncPowersMessage extends MessageS2C {
+public record SyncPowersMessage(Map<ResourceLocation, Power> powers) implements CustomPacketPayload {
 
-    private final Map<ResourceLocation, Power> powers;
-
-    public SyncPowersMessage(Map<ResourceLocation, Power> powers) {
-        this.powers = powers;
-    }
-
-    public SyncPowersMessage(FriendlyByteBuf buf) {
-        this.powers = new HashMap<>();
-        int amount = buf.readInt();
-
-        for (int i = 0; i < amount; i++) {
-            ResourceLocation id = buf.readResourceLocation();
-            this.powers.put(id, Power.fromBuffer(id, buf));
-        }
-    }
-
-    @Override
-    public MessageType getType() {
-        return PalladiumNetwork.SYNC_POWERS;
-    }
-
-    @Override
-    public void toBytes(FriendlyByteBuf buf) {
-        buf.writeInt(this.powers.size());
-        this.powers.forEach((id, power) -> {
-            buf.writeResourceLocation(id);
-            power.toBuffer(buf);
-        });
-    }
+    public static final CustomPacketPayload.Type<SyncPowersMessage> TYPE = new Type<>(Palladium.id("sync_powers"));
+    public static final StreamCodec<RegistryFriendlyByteBuf, SyncPowersMessage> STREAM_CODEC = StreamCodec.composite(
+            ByteBufCodecs.map(
+                    HashMap::new,
+                    ResourceLocation.STREAM_CODEC,
+                    UUIDUtil.STREAM_CODEC
+            ), TeamMembers::members,
+            SyncPowersMessage::new);
 
     @Override
     public void handle(MessageContext context) {
@@ -53,5 +34,10 @@ public class SyncPowersMessage extends MessageS2C {
     @Environment(EnvType.CLIENT)
     public void handleClient() {
         ClientPowerManager.updatePowers(this.powers);
+    }
+
+    @Override
+    public @NotNull Type<? extends CustomPacketPayload> type() {
+        return TYPE;
     }
 }

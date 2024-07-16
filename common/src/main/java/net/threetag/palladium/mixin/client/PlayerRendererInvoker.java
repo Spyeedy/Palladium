@@ -10,7 +10,7 @@ import org.spongepowered.asm.mixin.gen.Invoker;
 public interface PlayerRendererInvoker {
 
     @Invoker("setupRotations")
-    void invokeSetupRotations(AbstractClientPlayer entityLiving, PoseStack poseStack, float ageInTicks, float rotationYaw, float partialTicks);
+    void invokeSetupRotations(AbstractClientPlayer entityLiving, PoseStack poseStack, float bob, float yBodyRot, float partialTick, float scale);
 
     @Invoker("scale")
     void invokeScale(AbstractClientPlayer livingEntity, PoseStack poseStack, float partialTickTime);

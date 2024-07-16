@@ -19,7 +19,7 @@ import net.threetag.palladium.client.PalladiumKeyMappings;
 import net.threetag.palladium.power.IPowerHandler;
 import net.threetag.palladium.power.IPowerHolder;
 import net.threetag.palladium.power.Power;
-import net.threetag.palladium.power.PowerManager;
+import net.threetag.palladium.power.PowerEventHandler;
 import net.threetag.palladium.power.ability.Ability;
 import net.threetag.palladium.power.ability.AbilityColor;
 import net.threetag.palladium.power.ability.AbilityConfiguration;
@@ -273,7 +273,7 @@ public class AbilityBarRenderer implements OverlayRegistry.IngameOverlay {
             guiGraphics.blit(texture, x, 0, 153, 0, 9, 104);
 
             int height = (int) ((energyBar.get() / (float) energyBar.getMax()) * 98);
-            var color = energyBar.getConfiguration().getColor();
+            var color = energyBar.getConfiguration().color();
             RenderSystem.setShaderColor(color.getRed() / 255F, color.getGreen() / 255F, color.getBlue() / 255F, 1F);
             guiGraphics.blit(texture, x + 2, 3 + 98 - height, 162, 98 - height, 4, height);
             RenderSystem.setShaderColor(1F, 1F, 1F, 1F);
@@ -319,7 +319,7 @@ public class AbilityBarRenderer implements OverlayRegistry.IngameOverlay {
 
     public static List<AbilityList> getAbilityLists() {
         List<AbilityList> lists = new ArrayList<>();
-        IPowerHandler handler = PowerManager.getPowerHandler(Minecraft.getInstance().player).orElse(null);
+        IPowerHandler handler = PowerEventHandler.getPowerHandler(Minecraft.getInstance().player).orElse(null);
 
         if (handler == null) {
             return lists;

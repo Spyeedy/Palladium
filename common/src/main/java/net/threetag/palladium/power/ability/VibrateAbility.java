@@ -6,12 +6,12 @@ import net.threetag.palladium.power.IPowerHolder;
 import net.threetag.palladium.util.property.IntegerProperty;
 import net.threetag.palladium.util.property.PalladiumProperty;
 import net.threetag.palladium.util.property.PropertyManager;
-import net.threetag.palladium.util.property.SyncType;
+import net.threetag.palladium.util.property.SyncOption;
 
 public class VibrateAbility extends Ability implements AnimationTimer {
 
-    public static final PalladiumProperty<Integer> VALUE = new IntegerProperty("value").sync(SyncType.NONE).disablePersistence();
-    public static final PalladiumProperty<Integer> PREV_VALUE = new IntegerProperty("prev_value").sync(SyncType.NONE).disablePersistence();
+    public static final PalladiumProperty<Integer> VALUE = new IntegerProperty("value").sync(SyncOption.NONE).disablePersistence();
+    public static final PalladiumProperty<Integer> PREV_VALUE = new IntegerProperty("prev_value").sync(SyncOption.NONE).disablePersistence();
 
     @Override
     public void registerUniqueProperties(PropertyManager manager) {

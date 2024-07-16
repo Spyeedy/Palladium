@@ -22,7 +22,7 @@ public class AbilityOnCooldownCondition extends Condition {
             return false;
         }
 
-        AbilityInstance dependency = this.ability.getEntry(entity, holder);
+        AbilityInstance dependency = this.ability.getInstance(entity, holder);
         return dependency != null && dependency.isOnCooldown();
     }
 
@@ -45,7 +45,7 @@ public class AbilityOnCooldownCondition extends Condition {
 
         @Override
         public Condition make(JsonObject json) {
-            AbilityReference abilityReference = AbilityReference.fromString(this.getProperty(json, AbilityEnabledCondition.Serializer.ABILITY));
+            AbilityReference abilityReference = AbilityReference.parse(this.getProperty(json, AbilityEnabledCondition.Serializer.ABILITY));
 
             if (this.getProperty(json, AbilityEnabledCondition.Serializer.POWER) != null) {
                 abilityReference = new AbilityReference(this.getProperty(json, AbilityEnabledCondition.Serializer.POWER), this.getProperty(json, AbilityEnabledCondition.Serializer.ABILITY));

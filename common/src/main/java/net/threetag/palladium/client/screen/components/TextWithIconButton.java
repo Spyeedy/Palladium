@@ -1,27 +1,24 @@
 package net.threetag.palladium.client.screen.components;
 
 import com.mojang.blaze3d.systems.RenderSystem;
-import com.mojang.blaze3d.vertex.PoseStack;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.components.Tooltip;
-import net.minecraft.client.renderer.GameRenderer;
 import net.minecraft.network.chat.Component;
 import net.minecraft.util.Mth;
 import net.threetag.palladium.util.context.DataContext;
-import net.threetag.palladium.util.icon.IIcon;
+import net.threetag.palladium.util.icon.Icon;
 import org.jetbrains.annotations.Nullable;
 
 public class TextWithIconButton extends Button {
 
     private final Component suffix;
-    private final IIcon icon;
+    private final Icon icon;
 
-    public TextWithIconButton(int i, int j, int k, int l, @Nullable Component prefix, @Nullable Component suffix, IIcon icon, OnPress onPress, CreateNarration narration) {
+    public TextWithIconButton(int i, int j, int k, int l, @Nullable Component prefix, @Nullable Component suffix, Icon icon, OnPress onPress, CreateNarration narration) {
         super(i, j, k, l, prefix == null ? Component.empty() : prefix, onPress, narration);
         this.suffix = suffix == null ? Component.empty() : suffix;
         this.icon = icon;
@@ -57,15 +54,15 @@ public class TextWithIconButton extends Button {
         return 46 + i * 20;
     }
 
-    public static Builder textWithIconBuilder(Component prefix, IIcon icon, Button.OnPress onPress) {
+    public static Builder textWithIconBuilder(Component prefix, Icon icon, Button.OnPress onPress) {
         return new Builder(prefix, icon, onPress);
     }
 
-    public static Builder textWithIconBuilder(IIcon icon, Component suffix, Button.OnPress onPress) {
+    public static Builder textWithIconBuilder(Icon icon, Component suffix, Button.OnPress onPress) {
         return new Builder(icon, suffix, onPress);
     }
 
-    public static Builder textWithIconBuilder(Component prefix, IIcon icon, Component suffix, Button.OnPress onPress) {
+    public static Builder textWithIconBuilder(Component prefix, Icon icon, Component suffix, Button.OnPress onPress) {
         return new Builder(prefix, icon, suffix, onPress);
     }
 
@@ -73,7 +70,7 @@ public class TextWithIconButton extends Button {
     public static class Builder {
         private final Component prefix;
         private final Component suffix;
-        private final IIcon icon;
+        private final Icon icon;
         private final OnPress onPress;
         @Nullable
         private Tooltip tooltip;
@@ -83,7 +80,7 @@ public class TextWithIconButton extends Button {
         private int height = 20;
         private CreateNarration createNarration;
 
-        public Builder(Component prefix, IIcon icon, OnPress onPress) {
+        public Builder(Component prefix, Icon icon, OnPress onPress) {
             this.createNarration = Button.DEFAULT_NARRATION;
             this.prefix = prefix;
             this.suffix = null;
@@ -91,7 +88,7 @@ public class TextWithIconButton extends Button {
             this.onPress = onPress;
         }
 
-        public Builder(IIcon icon, Component suffix, OnPress onPress) {
+        public Builder(Icon icon, Component suffix, OnPress onPress) {
             this.createNarration = Button.DEFAULT_NARRATION;
             this.prefix = null;
             this.suffix = suffix;
@@ -99,7 +96,7 @@ public class TextWithIconButton extends Button {
             this.onPress = onPress;
         }
 
-        public Builder(Component prefix, IIcon icon, Component suffix, OnPress onPress) {
+        public Builder(Component prefix, Icon icon, Component suffix, OnPress onPress) {
             this.createNarration = Button.DEFAULT_NARRATION;
             this.prefix = prefix;
             this.suffix = suffix;

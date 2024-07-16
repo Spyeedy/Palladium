@@ -22,9 +22,9 @@ import net.threetag.palladium.Palladium;
 import net.threetag.palladium.client.screen.components.IconButton;
 import net.threetag.palladium.power.Power;
 import net.threetag.palladium.power.PowerHandler;
-import net.threetag.palladium.power.PowerManager;
+import net.threetag.palladium.power.PowerEventHandler;
 import net.threetag.palladium.power.ability.Ability;
-import net.threetag.palladium.util.icon.IIcon;
+import net.threetag.palladium.util.icon.Icon;
 import net.threetag.palladium.util.icon.ItemIcon;
 import net.threetag.palladiumcore.event.ScreenEvents;
 import org.jetbrains.annotations.Nullable;
@@ -91,10 +91,10 @@ public class PowersScreen extends Screen {
         this.selectedTab = null;
 
         AtomicInteger i = new AtomicInteger();
-        PowerManager.getPowerHandler(Objects.requireNonNull(this.minecraft).player).ifPresent(handler -> handler.getPowerHolders()
+        PowerEventHandler.getPowerHandler(Objects.requireNonNull(this.minecraft).player).ifPresent(handler -> handler.getPowerHolders()
                 .values()
                 .stream()
-                .sorted(Comparator.comparingInt(holder -> PowerManager.getInstance(false).getPowers().stream().toList().indexOf(holder.getPower())))
+                .sorted(Comparator.comparingInt(holder -> PowerEventHandler.getInstance(false).getPowers().stream().toList().indexOf(holder.getPower())))
                 .forEach(holder -> {
                     if (!holder.getPower().isHidden() && holder.getAbilities().values().stream().anyMatch(en -> !en.getProperty(Ability.HIDDEN_IN_GUI))) {
                         var type = holder.getPower().getGuiDisplayType();
@@ -290,16 +290,16 @@ public class PowersScreen extends Screen {
 
         private final Screen screen;
 
-        public RotatingIconButton(int x, int y, Screen screen, IIcon icon, OnPress onPress) {
+        public RotatingIconButton(int x, int y, Screen screen, Icon icon, OnPress onPress) {
             super(x, y, icon, onPress, DEFAULT_NARRATION);
             this.screen = screen;
         }
 
         @Override
-        public IIcon getIcon() {
-            List<IIcon> icons = Lists.newArrayList();
+        public Icon getIcon() {
+            List<Icon> icons = Lists.newArrayList();
             Minecraft mc = Minecraft.getInstance();
-            PowerManager.getPowerHandler(mc.player).ifPresent(handler -> handler.getPowerHolders().values().stream().filter(holder -> !holder.getPower().isHidden() && holder.getAbilities().values().stream().anyMatch(en -> !en.getProperty(Ability.HIDDEN_IN_GUI))).forEach(holder -> icons.add(holder.getPower().getIcon())));
+            PowerEventHandler.getPowerHandler(mc.player).ifPresent(handler -> handler.getPowerHolders().values().stream().filter(holder -> !holder.getPower().isHidden() && holder.getAbilities().values().stream().anyMatch(en -> !en.getProperty(Ability.HIDDEN_IN_GUI))).forEach(holder -> icons.add(holder.getPower().getIcon())));
             if (icons.isEmpty()) {
                 this.visible = false;
                 icons.add(new ItemIcon(Blocks.BARRIER));
@@ -316,7 +316,7 @@ public class PowersScreen extends Screen {
             if (pos != null) {
                 this.setPosition(pos.x, pos.y);
             }
-            this.active = this.visible && !PowerManager.getPowerHandler(Minecraft.getInstance().player).orElse(new PowerHandler(null)).getPowerHolders().isEmpty();
+            this.active = this.visible && !PowerEventHandler.getPowerHandler(Minecraft.getInstance().player).orElse(new PowerHandler(null)).getPowerHolders().isEmpty();
             super.render(guiGraphics, mouseX, mouseY, partialTicks);
         }
 

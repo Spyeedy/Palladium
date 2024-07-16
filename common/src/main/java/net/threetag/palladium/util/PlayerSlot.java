@@ -1,5 +1,8 @@
 package net.threetag.palladium.util;
 
+import com.mojang.serialization.Codec;
+import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.item.ItemStack;
@@ -10,6 +13,9 @@ import org.jetbrains.annotations.Nullable;
 import java.util.*;
 
 public abstract class PlayerSlot {
+
+    public static final Codec<PlayerSlot> CODEC = Codec.STRING.xmap(PlayerSlot::get, Object::toString);
+    public static final StreamCodec<FriendlyByteBuf, PlayerSlot> STREAM_CODEC = StreamCodec.of((buf, slot) -> buf.writeUtf(slot.toString()), buf -> Objects.requireNonNull(PlayerSlot.get(buf.readUtf())));
 
     private static final Map<EquipmentSlot, PlayerSlot> EQUIPMENT_SLOTS = new HashMap<>();
     private static final Map<String, PlayerSlot> SLOTS = new HashMap<>();

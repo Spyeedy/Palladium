@@ -8,7 +8,7 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.level.Level;
 import net.threetag.palladium.power.IPowerHolder;
-import net.threetag.palladium.power.PowerManager;
+import net.threetag.palladium.power.PowerEventHandler;
 import net.threetag.palladium.power.energybar.EnergyBar;
 import net.threetag.palladium.power.energybar.EnergyBarReference;
 import net.threetag.palladiumcore.network.MessageContext;
@@ -34,12 +34,12 @@ public class UpdatePowersMessage extends MessageS2C {
 
         this.energyBars = new ArrayList<>();
 
-        var opt = PowerManager.getPowerHandler(livingEntity);
+        var opt = PowerEventHandler.getPowerHandler(livingEntity);
 
         if (opt.isPresent()) {
             for (IPowerHolder holder : opt.get().getPowerHolders().values()) {
                 for (EnergyBar energyBar : holder.getEnergyBars().values()) {
-                    this.energyBars.add(Triple.of(new EnergyBarReference(holder.getPower().getId(), energyBar.getConfiguration().getName()), energyBar.get(), energyBar.getMax()));
+                    this.energyBars.add(Triple.of(new EnergyBarReference(holder.getPower().getId(), energyBar.getConfiguration().name()), energyBar.get(), energyBar.getMax()));
                 }
             }
         }
@@ -83,13 +83,13 @@ public class UpdatePowersMessage extends MessageS2C {
     public void handleClient() {
         Level level = Minecraft.getInstance().level;
         if (level != null && level.getEntity(this.entityId) instanceof LivingEntity livingEntity) {
-            PowerManager manager = PowerManager.getInstance(level);
+            PowerEventHandler manager = PowerEventHandler.getInstance(level);
             var toRemove = this.toRemove.stream().map(manager::getPower).filter(Objects::nonNull).toList();
             var toAdd = this.toAdd.stream().map(manager::getPower).filter(Objects::nonNull).toList();
-            PowerManager.getPowerHandler(livingEntity).ifPresent(handler -> handler.removeAndAddPowers(toRemove, toAdd));
+            PowerEventHandler.getPowerHandler(livingEntity).ifPresent(handler -> handler.removeAndAddPowers(toRemove, toAdd));
 
             for (Triple<EnergyBarReference, Integer, Integer> pair : this.energyBars) {
-                var bar = pair.getLeft().getEntry(livingEntity);
+                var bar = pair.getLeft().getBar(livingEntity);
 
                 if (bar != null) {
                     bar.set(pair.getMiddle());

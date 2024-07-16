@@ -1,23 +1,23 @@
 package net.threetag.palladium.documentation;
 
-import com.google.gson.JsonPrimitive;
-import net.threetag.palladium.util.property.PalladiumProperty;
+import com.mojang.serialization.JsonOps;
 import net.threetag.palladium.util.property.PropertyManager;
-
-import java.util.function.BiConsumer;
 
 public interface IDefaultDocumentedConfigurable extends IDocumentedConfigurable {
 
     PropertyManager getPropertyManager();
 
-    @SuppressWarnings({"rawtypes", "unchecked", "UnstableApiUsage"})
     @Override
     default void generateDocumentation(JsonDocumentationBuilder builder) {
-        this.getPropertyManager().values().forEach((BiConsumer<PalladiumProperty, Object>) (property, val) -> {
-            builder.addProperty(property.getKey(), property.typeToken.getRawType())
-                    .description(property.getDescription())
-                    .fallbackObject(property.getString(val))
-                    .exampleJson(val != null ? property.toJSON(val) : new JsonPrimitive("null"));
+        this.getPropertyManager().forEach(val -> {
+            var prop = builder.addProperty(val.getProperty().getKey(), val.getProperty().getType().getName())
+                    .description(val.getProperty().getDescription())
+                    .fallbackObject(val.getProperty().getFallback())
+                    .exampleJson(val.encode(JsonOps.INSTANCE));
+
+            if (val.getProperty().isRequired()) {
+                prop.required();
+            }
         });
     }
 }

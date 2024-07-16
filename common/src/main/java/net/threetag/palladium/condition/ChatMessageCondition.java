@@ -1,7 +1,7 @@
 package net.threetag.palladium.condition;
 
 import net.minecraft.world.entity.LivingEntity;
-import net.threetag.palladium.power.PowerManager;
+import net.threetag.palladium.power.PowerEventHandler;
 import net.threetag.palladium.power.ability.AbilityInstance;
 import net.threetag.palladium.util.property.PalladiumProperty;
 import net.threetag.palladium.util.property.StringProperty;
@@ -18,7 +18,7 @@ public abstract class ChatMessageCondition extends Condition {
     public ChatMessageCondition(String chatMessage, int cooldown) {
         this.chatMessage = chatMessage;
         this.cooldown = cooldown;
-        PowerManager.CHECK_FOR_CHAT_MESSAGES.add(chatMessage.trim().toLowerCase(Locale.ROOT));
+        PowerEventHandler.CHECK_FOR_CHAT_MESSAGES.add(chatMessage.trim().toLowerCase(Locale.ROOT));
     }
 
     public abstract void onChat(LivingEntity entity, AbilityInstance entry);

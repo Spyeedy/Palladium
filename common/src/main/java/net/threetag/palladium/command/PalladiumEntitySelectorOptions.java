@@ -8,7 +8,7 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.threetag.palladium.Palladium;
 import net.threetag.palladium.mixin.EntitySelectorOptionsInvoker;
-import net.threetag.palladium.power.PowerManager;
+import net.threetag.palladium.power.PowerEventHandler;
 import net.threetag.palladiumcore.util.Platform;
 
 import java.util.Locale;
@@ -34,7 +34,7 @@ public class PalladiumEntitySelectorOptions {
     }
 
     private static ResourceLocation parsePowerId(EntitySelectorParser parser) throws CommandSyntaxException {
-        var powers = PowerManager.getInstance(Platform.isServer());
+        var powers = PowerEventHandler.getInstance(Platform.isServer());
 
         parser.setSuggestions((builder, consumer) -> {
             suggestIdentifiersIgnoringNamespace(Palladium.MOD_ID, powers.getIds(), builder);

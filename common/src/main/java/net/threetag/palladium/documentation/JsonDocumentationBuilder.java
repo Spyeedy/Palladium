@@ -21,8 +21,14 @@ public class JsonDocumentationBuilder {
         return this;
     }
 
+    public <T> Entry<T> addProperty(String name, String type) {
+        Entry<T> entry = new Entry<T>(name, type);
+        this.entries.add(entry);
+        return entry;
+    }
+
     public <T> Entry<T> addProperty(String name, Class<T> clazz) {
-        Entry<T> entry = new Entry<T>(name, clazz);
+        Entry<T> entry = new Entry<T>(name, clazz.getTypeName());
         this.entries.add(entry);
         return entry;
     }
@@ -42,16 +48,16 @@ public class JsonDocumentationBuilder {
     public static class Entry<T> {
 
         private final String name;
-        private final Class<T> clazz;
+        private final String type;
         private String description = null;
         private boolean required = false;
         private T fallbackValue = null;
         private String fallbackValueSerialized = null;
         private JsonElement exampleJson = null;
 
-        private Entry(String name, Class<T> clazz) {
-            this.clazz = clazz;
+        private Entry(String name, String type) {
             this.name = name;
+            this.type = type;
         }
 
         public Entry<T> description(String description) {
@@ -99,8 +105,8 @@ public class JsonDocumentationBuilder {
             return name;
         }
 
-        public Class<T> getTypeClass() {
-            return clazz;
+        public String getType() {
+            return type;
         }
 
         public String getDescription() {

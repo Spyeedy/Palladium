@@ -27,7 +27,7 @@ public class EnergyBarTextureVariable extends AbstractIntegerTextureVariable {
     public int getNumber(DataContext context) {
         var livingEntity = context.getLivingEntity();
         if (livingEntity != null) {
-            EnergyBar bar = this.reference.getEntry(livingEntity);
+            EnergyBar bar = this.reference.getBar(livingEntity);
 
             if (bar == null) {
                 return 0;

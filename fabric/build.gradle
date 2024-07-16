@@ -47,18 +47,11 @@ dependencies {
     include modImplementation("dev.kosmx.player-anim:player-animation-lib-fabric:${rootProject.player_anim_version}")
 
     // GeckoLib
-    modImplementation("software.bernie.geckolib:geckolib-fabric-1.20.1:${rootProject.geckolib_version}")
+    modImplementation("software.bernie.geckolib:geckolib-fabric-${rootProject.minecraft_version}:${rootProject.geckolib_version}")
 
     // Forge Config API Port
     modApi "fuzs.forgeconfigapiport:forgeconfigapiport-fabric:${rootProject.forge_config_api_port_version}"
     include "fuzs.forgeconfigapiport:forgeconfigapiport-fabric:${rootProject.forge_config_api_port_version}"
-
-    // PortingLib Stuff
-    implementation(annotationProcessor("io.github.llamalad7:mixinextras-common:0.2.0"))
-    implementation(include("io.github.llamalad7:mixinextras-fabric:0.2.0"))
-    modImplementation(include("io.github.fabricators_of_create.Porting-Lib:attributes:${rootProject.portinglib_version}", {
-        exclude group: "com.github.llamalad7.mixinextras"
-    }))
 
     // Cardinal Components
 //    modImplementation "dev.onyxstudios.cardinal-components-api:cardinal-components-base:${rootProject.cardinal_components_version}"
@@ -74,14 +67,11 @@ dependencies {
     // REI
 //    modRuntimeOnly "me.shedaniel:RoughlyEnoughItems-fabric:${rootProject.rei_version}"
 
-    // Trinkets
-    modImplementation ("dev.emi:trinkets:${rootProject.trinkets_version}")
+    // Accessories
+    modImplementation("io.wispforest:accessories-fabric:${rootProject.accessories_version}")
 
     // Energy & TechReborn
     include modApi("teamreborn:energy:${rootProject.energy_version}");
-
-    // KubeJS
-    modImplementation "dev.latvian.mods:kubejs-fabric:${rootProject.kubejs_version}"
 
     // Pehkui
     modImplementation("com.github.Virtuoel:Pehkui:${rootProject.pehkui_fabric_version}", {

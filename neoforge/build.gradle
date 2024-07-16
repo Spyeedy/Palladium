@@ -35,14 +35,14 @@ configurations {
 
 dependencies {
     neoForge "net.neoforged:neoforge:${rootProject.neoforge_version}"
-    modApi "net.threetag:palladiumcore-forge:${rootProject.palladiumcore_version}"
-    include "net.threetag:palladiumcore-forge:${rootProject.palladiumcore_version}"
+    modApi "net.threetag:palladiumcore-neoforge:${rootProject.palladiumcore_version}"
+    include "net.threetag:palladiumcore-neoforge:${rootProject.palladiumcore_version}"
 
     // Player Animator
     include modImplementation("dev.kosmx.player-anim:player-animation-lib-forge:${rootProject.player_anim_version}")
 
     // GeckoLib
-    modImplementation("software.bernie.geckolib:geckolib-neoforge-1.21:${rootProject.geckolib_version}")
+    modImplementation("software.bernie.geckolib:geckolib-neoforge-${rootProject.minecraft_version}:${rootProject.geckolib_version}")
 
     // JEI
     modCompileOnly "mezz.jei:jei-${rootProject.minecraft_version}-forge-api:${rootProject.jei_version}"
@@ -50,15 +50,14 @@ dependencies {
     // REI
     modImplementation "me.shedaniel:RoughlyEnoughItems-neoforge:${rootProject.rei_version}"
 
-    // Curios
-    modLocalRuntime "top.theillusivec4.curios:curios-forge:${rootProject.curios_version}"
-    modCompileOnly "top.theillusivec4.curios:curios-forge:${rootProject.curios_version}:api"
+    // Accessories
+    implementation("io.wispforest:accessories-neoforge:${rootProject.accessories_version}", { exclude group: "org.sinytra.forgified-fabric-api" })
 
     // KubeJS
     modImplementation "dev.latvian.mods:kubejs-neoforge:${rootProject.kubejs_version}"
 
     // Pehkui
-    modCompileOnly "com.github.Virtuoel:Pehkui:${rootProject.pehkui_forge_version}"
+    modCompileOnly "com.github.Virtuoel:Pehkui:${rootProject.pehkui_neoforge_version}"
 
     // Condensed Creative
     modCompileOnly "io.wispforest:condensed_creative-forge:${rootProject.condensed_creative_version}"

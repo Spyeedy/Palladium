@@ -1,60 +1,51 @@
 package net.threetag.palladium.power.ability;
 
+import com.mojang.serialization.Codec;
+import com.mojang.serialization.DataResult;
+import net.minecraft.ResourceLocationException;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.LivingEntity;
-import net.threetag.palladium.power.IPowerHandler;
-import net.threetag.palladium.power.IPowerHolder;
-import net.threetag.palladium.power.Power;
-import net.threetag.palladium.power.PowerManager;
+import net.threetag.palladium.power.*;
+import net.threetag.palladium.registry.PalladiumRegistryKeys;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.Objects;
 import java.util.Optional;
 
-public class AbilityReference {
+public record AbilityReference(@Nullable ResourceLocation powerId, @NotNull String abilityId) {
 
-    @Nullable
-    private final ResourceLocation powerId;
-    @NotNull
-    private final String abilityId;
+    public static final Codec<AbilityReference> CODEC = Codec.STRING.comapFlatMap(AbilityReference::read, AbilityReference::toString).stable();
 
-    public AbilityReference(@Nullable ResourceLocation powerId, @NotNull String abilityId) {
-        this.powerId = powerId;
-        this.abilityId = abilityId;
-    }
-
-    public static AbilityReference fromString(String parse) {
+    public static AbilityReference parse(String parse) {
         String[] s = parse.split("#", 2);
 
         if (s.length == 1) {
             return new AbilityReference(null, s[0]);
         } else {
-            return new AbilityReference(new ResourceLocation(s[0]), s[1]);
+            return new AbilityReference(ResourceLocation.parse(s[0]), s[1]);
+        }
+    }
+
+    public static DataResult<AbilityReference> read(String path) {
+        try {
+            return DataResult.success(parse(path));
+        } catch (ResourceLocationException e) {
+            return DataResult.error(() -> "Not a valid ability reference: " + path + " " + e.getMessage());
         }
     }
 
     @Nullable
-    public ResourceLocation getPowerId() {
-        return powerId;
-    }
-
-    @NotNull
-    public String getAbilityId() {
-        return abilityId;
+    public AbilityInstance getInstance(LivingEntity entity) {
+        return this.getInstance(entity, null);
     }
 
     @Nullable
-    public AbilityInstance getEntry(LivingEntity entity) {
-        return this.getEntry(entity, null);
-    }
-
-    @Nullable
-    public AbilityInstance getEntry(LivingEntity entity, @Nullable IPowerHolder powerHolder) {
+    public AbilityInstance getInstance(LivingEntity entity, @Nullable IPowerHolder powerHolder) {
         if (this.powerId != null) {
-            IPowerHandler handler = PowerManager.getPowerHandler(entity).orElse(null);
-            Power power = PowerManager.getInstance(entity.level()).getPower(this.powerId);
+            IPowerHandler handler = PowerUtil.getPowerHandler(entity).orElse(null);
+            Power power = entity.registryAccess().registry(PalladiumRegistryKeys.POWER).orElseThrow().get(this.powerId);
 
             if (power != null && handler != null) {
                 powerHolder = handler.getPowerHolder(power);
@@ -71,7 +62,7 @@ public class AbilityReference {
     }
 
     public Optional<AbilityInstance> optional(LivingEntity entity, @Nullable IPowerHolder powerHolder) {
-        return Optional.ofNullable(this.getEntry(entity, powerHolder));
+        return Optional.ofNullable(this.getInstance(entity, powerHolder));
     }
 
     public void toBuffer(FriendlyByteBuf buf) {
@@ -89,11 +80,6 @@ public class AbilityReference {
             return this.abilityId;
         }
         return this.powerId + "#" + this.abilityId;
-    }
-
-    @Override
-    public int hashCode() {
-        return Objects.hash(this.powerId, this.abilityId);
     }
 
     @Override

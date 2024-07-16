@@ -52,7 +52,7 @@ import net.threetag.palladium.item.*;
 import net.threetag.palladium.power.ability.AbilityClientEventHandler;
 import net.threetag.palladium.power.ability.GuiOverlayAbility;
 import net.threetag.palladium.util.SupporterHandler;
-import net.threetag.palladium.util.icon.IIcon;
+import net.threetag.palladium.util.icon.Icon;
 import net.threetag.palladium.util.icon.TexturedIcon;
 import net.threetag.palladiumcore.event.LifecycleEvents;
 import net.threetag.palladiumcore.event.ScreenEvents;
@@ -62,7 +62,7 @@ import net.threetag.palladiumcore.util.Platform;
 
 public class PalladiumClient {
 
-    public static final IIcon ICON = new TexturedIcon(Palladium.id("textures/icon/palladium.png"));
+    public static final Icon ICON = new TexturedIcon(Palladium.id("textures/icon/palladium.png"));
 
     @SuppressWarnings("unchecked")
     public static void init() {

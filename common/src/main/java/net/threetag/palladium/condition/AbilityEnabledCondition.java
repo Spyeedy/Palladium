@@ -26,7 +26,7 @@ public class AbilityEnabledCondition extends Condition {
             return false;
         }
 
-        AbilityInstance dependency = this.ability.getEntry(entity, holder);
+        AbilityInstance dependency = this.ability.getInstance(entity, holder);
         return dependency != null && dependency.isEnabled();
     }
 
@@ -51,7 +51,7 @@ public class AbilityEnabledCondition extends Condition {
 
         @Override
         public Condition make(JsonObject json) {
-            AbilityReference abilityReference = AbilityReference.fromString(this.getProperty(json, ABILITY));
+            AbilityReference abilityReference = AbilityReference.parse(this.getProperty(json, ABILITY));
 
             if (this.getProperty(json, POWER) != null) {
                 abilityReference = new AbilityReference(this.getProperty(json, POWER), this.getProperty(json, ABILITY));

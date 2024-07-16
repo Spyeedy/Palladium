@@ -24,7 +24,7 @@ public class EnergyBarCondition extends Condition {
     @Override
     public boolean active(DataContext context) {
         var entity = context.getLivingEntity();
-        EnergyBar energyBar = this.energyBar.getEntry(entity, context.getPowerHolder());
+        EnergyBar energyBar = this.energyBar.getBar(entity, context.getPowerHolder());
 
         if (energyBar == null) {
             return false;

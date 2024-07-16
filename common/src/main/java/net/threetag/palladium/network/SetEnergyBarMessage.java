@@ -51,7 +51,7 @@ public class SetEnergyBarMessage extends MessageS2C {
         Entity entity = Objects.requireNonNull(Minecraft.getInstance().level).getEntity(this.entityId);
 
         if (entity instanceof LivingEntity living) {
-            EnergyBar energyBar = this.reference.getEntry(living);
+            EnergyBar energyBar = this.reference.getBar(living);
 
             if (energyBar != null) {
                 energyBar.set(this.value);

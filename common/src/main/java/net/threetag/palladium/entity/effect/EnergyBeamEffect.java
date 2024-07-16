@@ -34,7 +34,7 @@ public class EnergyBeamEffect extends EntityEffect {
     @Environment(EnvType.CLIENT)
     public void render(EffectEntity entity, Entity anchor, PoseStack poseStack, MultiBufferSource bufferSource, int packedLightIn, boolean isFirstPerson, float partialTicks) {
         if (anchor instanceof AbstractClientPlayer player) {
-            AbilityInstance instance = this.get(entity, ABILITY).getEntry(player);
+            AbilityInstance instance = this.get(entity, ABILITY).getInstance(player);
 
             if (instance != null) {
                 EnergyBeamAbility.updateTargetPos(player, instance, partialTicks);
@@ -62,7 +62,7 @@ public class EnergyBeamEffect extends EntityEffect {
     @Environment(EnvType.CLIENT)
     public void tick(EffectEntity entity, Entity anchor) {
         if (anchor instanceof AbstractClientPlayer player) {
-            AbilityInstance instance = this.get(entity, ABILITY).getEntry(player);
+            AbilityInstance instance = this.get(entity, ABILITY).getInstance(player);
 
             if (instance != null) {
                 var beam = EnergyBeamManager.INSTANCE.get(instance.getProperty(EnergyBeamAbility.BEAM));

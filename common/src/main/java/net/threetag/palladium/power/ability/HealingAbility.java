@@ -1,22 +1,18 @@
 package net.threetag.palladium.power.ability;
 
 import net.minecraft.world.entity.LivingEntity;
-import net.minecraft.world.item.Items;
 import net.threetag.palladium.power.IPowerHolder;
-import net.threetag.palladium.util.icon.ItemIcon;
-import net.threetag.palladium.util.property.FloatProperty;
-import net.threetag.palladium.util.property.IntegerProperty;
 import net.threetag.palladium.util.property.PalladiumProperty;
+import net.threetag.palladium.util.property.PalladiumPropertyBuilder;
+import net.threetag.palladium.util.property.PalladiumPropertyType;
 
 public class HealingAbility extends Ability {
 
-    public static final PalladiumProperty<Integer> FREQUENCY = new IntegerProperty("frequency").configurable("Sets the frequency of healing (in ticks)");
-    public static final PalladiumProperty<Float> AMOUNT = new FloatProperty("amount").configurable("Sets the amount of hearts for each healing");
+    public static final PalladiumProperty<Integer> FREQUENCY = PalladiumPropertyBuilder.create("frequency", PalladiumPropertyType.INTEGER).configurable("Sets the frequency of healing (in ticks)", false, 20).build();
+    public static final PalladiumProperty<Float> AMOUNT = PalladiumPropertyBuilder.create("amount", PalladiumPropertyType.FLOAT).configurable("Sets the amount of hearts for each healing", false, 3F).build();
 
     public HealingAbility() {
-        this.withProperty(FREQUENCY, 20);
-        this.withProperty(AMOUNT, 3F);
-        this.withProperty(ICON, new ItemIcon(Items.APPLE));
+        this.withProperty(FREQUENCY, AMOUNT);
     }
 
     @Override

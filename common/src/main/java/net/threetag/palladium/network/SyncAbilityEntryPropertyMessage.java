@@ -62,7 +62,7 @@ public class SyncAbilityEntryPropertyMessage extends MessageS2C {
         var level = Objects.requireNonNull(Minecraft.getInstance().level);
         Entity entity = level.getEntity(this.entityId);
         if (entity instanceof LivingEntity livingEntity) {
-            AbilityInstance entry = this.reference.getEntry(livingEntity);
+            AbilityInstance entry = this.reference.getInstance(livingEntity);
 
             if (entry != null) {
                 PalladiumProperty property = entry.getPropertyManager().getPropertyByName(this.propertyKey);

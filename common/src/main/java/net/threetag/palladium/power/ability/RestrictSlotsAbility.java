@@ -8,14 +8,14 @@ import net.threetag.palladium.power.IPowerHolder;
 import net.threetag.palladium.util.PlayerSlot;
 import net.threetag.palladium.util.property.PalladiumProperty;
 import net.threetag.palladium.util.property.PlayerSlotListProperty;
-import net.threetag.palladium.util.property.SyncType;
+import net.threetag.palladium.util.property.SyncOption;
 
 import java.util.Collections;
 import java.util.List;
 
 public class RestrictSlotsAbility extends Ability {
 
-    public static final PalladiumProperty<List<PlayerSlot>> SLOTS = new PlayerSlotListProperty("slots").sync(SyncType.NONE).configurable("Slot(s) that will not be able to contain items anymore.");
+    public static final PalladiumProperty<List<PlayerSlot>> SLOTS = new PlayerSlotListProperty("slots").sync(SyncOption.NONE).configurable("Slot(s) that will not be able to contain items anymore.");
 
     public RestrictSlotsAbility() {
         this.withProperty(SLOTS, Collections.singletonList(PlayerSlot.get(EquipmentSlot.CHEST)));

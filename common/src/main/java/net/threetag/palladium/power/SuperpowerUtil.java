@@ -19,7 +19,7 @@ public class SuperpowerUtil {
     public static Collection<Power> getSuperpowers(LivingEntity entity) {
         List<Power> powers = new ArrayList<>();
         for (ResourceLocation id : PalladiumProperties.SUPERPOWER_IDS.get(entity)) {
-            var power = PowerManager.getInstance(entity.level()).getPower(id);
+            var power = PowerEventHandler.getInstance(entity.level()).getPower(id);
 
             if (power != null) {
                 powers.add(power);
@@ -128,9 +128,9 @@ public class SuperpowerUtil {
      * @return true if the {@link Power} exists and wasn't already given to the {@link LivingEntity}
      */
     public static boolean addSuperpower(LivingEntity entity, ResourceLocation powerId) {
-        PowerManager powerManager = PowerManager.getInstance(entity.level());
+        PowerEventHandler powerEventHandler = PowerEventHandler.getInstance(entity.level());
 
-        if (powerManager.getPower(powerId) == null || hasSuperpower(entity, powerId)) {
+        if (powerEventHandler.getPower(powerId) == null || hasSuperpower(entity, powerId)) {
             return false;
         }
 
@@ -159,9 +159,9 @@ public class SuperpowerUtil {
      * @return true if the {@link Power} exists and was already given to the {@link LivingEntity}
      */
     public static boolean removeSuperpower(LivingEntity entity, ResourceLocation powerId) {
-        PowerManager powerManager = PowerManager.getInstance(entity.level());
+        PowerEventHandler powerEventHandler = PowerEventHandler.getInstance(entity.level());
 
-        if (powerManager.getPower(powerId) == null || !hasSuperpower(entity, powerId)) {
+        if (powerEventHandler.getPower(powerId) == null || !hasSuperpower(entity, powerId)) {
             return false;
         }
 

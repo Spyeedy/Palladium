@@ -46,7 +46,7 @@ public class AbilitySound extends AbstractTickableSoundLocationInstance {
             return;
         }
 
-        var ability = this.abilityReference.getEntry(this.entity);
+        var ability = this.abilityReference.getInstance(this.entity);
 
         if (ability == null || !ability.isEnabled()) {
             this.wasStopped = true;

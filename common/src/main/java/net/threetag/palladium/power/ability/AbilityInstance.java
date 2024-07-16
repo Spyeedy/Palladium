@@ -12,7 +12,7 @@ import net.threetag.palladium.power.IPowerHolder;
 import net.threetag.palladium.util.context.DataContext;
 import net.threetag.palladium.util.property.PalladiumProperty;
 import net.threetag.palladium.util.property.PropertyManager;
-import net.threetag.palladium.util.property.SyncType;
+import net.threetag.palladium.util.property.SyncOption;
 import org.jetbrains.annotations.Nullable;
 
 public class AbilityInstance {
@@ -39,8 +39,8 @@ public class AbilityInstance {
         this.abilityConfiguration = abilityConfiguration;
         this.holder = holder;
         this.abilityConfiguration.getAbility().registerUniqueProperties(this.propertyManager);
-        this.abilityConfiguration.getUnlockingConditions().forEach(condition -> condition.registerAbilityProperties(this, this.propertyManager));
-        this.abilityConfiguration.getEnablingConditions().forEach(condition -> condition.registerAbilityProperties(this, this.propertyManager));
+        this.abilityConfiguration.getConditions().getUnlockingConditions().forEach(condition -> condition.registerAbilityProperties(this, this.propertyManager));
+        this.abilityConfiguration.getConditions().getEnablingConditions().forEach(condition -> condition.registerAbilityProperties(this, this.propertyManager));
     }
 
     public AbilityConfiguration getConfiguration() {
@@ -60,18 +60,18 @@ public class AbilityInstance {
     }
 
     @SuppressWarnings({"unchecked", "rawtypes", "UnnecessaryLocalVariable"})
-    public void syncProperty(PalladiumProperty<?> property, LivingEntity entity, @Nullable SyncType syncType) {
+    public void syncProperty(PalladiumProperty<?> property, LivingEntity entity, @Nullable SyncOption syncOption) {
         if (!entity.level().isClientSide && this.propertyManager.isRegistered(property)) {
-            if (syncType == null) {
-                syncType = property.getSyncType();
+            if (syncOption == null) {
+                syncOption = property.getSyncType();
             }
 
             CompoundTag tag = new CompoundTag();
             PalladiumProperty property1 = property;
             tag.put(property.getKey(), property1.toNBT(this.propertyManager.get(property)));
-            if (syncType == SyncType.EVERYONE) {
+            if (syncOption == SyncOption.EVERYONE) {
                 new SyncAbilityEntryPropertyMessage(entity.getId(), new AbilityReference(holder.getPower().getId(), abilityConfiguration.getId()), property.getKey(), tag).sendToDimension(entity.level());
-            } else if (syncType == SyncType.SELF && entity instanceof ServerPlayer serverPlayer) {
+            } else if (syncOption == SyncOption.SELF && entity instanceof ServerPlayer serverPlayer) {
                 new SyncAbilityEntryPropertyMessage(entity.getId(), new AbilityReference(holder.getPower().getId(), abilityConfiguration.getId()), property.getKey(), tag).send(serverPlayer);
             }
         }

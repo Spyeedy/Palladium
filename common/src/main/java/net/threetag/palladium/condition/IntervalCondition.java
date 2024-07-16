@@ -10,7 +10,7 @@ import java.util.Objects;
 
 public class IntervalCondition extends Condition {
 
-    public static final PalladiumProperty<Integer> TICKS = new IntegerProperty("interval_ticks").sync(SyncType.NONE);
+    public static final PalladiumProperty<Integer> TICKS = new IntegerProperty("interval_ticks").sync(SyncOption.NONE);
     public static final PalladiumProperty<Boolean> ACTIVE = new BooleanProperty("interval_active");
 
     private final int activeTicks;

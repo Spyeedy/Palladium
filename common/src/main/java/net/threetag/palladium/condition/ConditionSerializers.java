@@ -1,12 +1,13 @@
 package net.threetag.palladium.condition;
 
 import net.threetag.palladium.Palladium;
+import net.threetag.palladium.registry.PalladiumRegistryKeys;
 import net.threetag.palladiumcore.registry.DeferredRegister;
 import net.threetag.palladiumcore.registry.RegistrySupplier;
 
 public class ConditionSerializers {
 
-    public static final DeferredRegister<ConditionSerializer> CONDITION_SERIALIZERS = DeferredRegister.create(Palladium.MOD_ID, ConditionSerializer.REGISTRY);
+    public static final DeferredRegister<ConditionSerializer<?>> CONDITION_SERIALIZERS = DeferredRegister.create(Palladium.MOD_ID, PalladiumRegistryKeys.CONDITION_SERIALIZER);
 
     public static final RegistrySupplier<ConditionSerializer> TRUE = CONDITION_SERIALIZERS.register("true", TrueCondition.Serializer::new);
     public static final RegistrySupplier<ConditionSerializer> FALSE = CONDITION_SERIALIZERS.register("false", FalseCondition.Serializer::new);

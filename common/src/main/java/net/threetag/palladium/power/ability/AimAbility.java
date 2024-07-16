@@ -9,8 +9,8 @@ public class AimAbility extends Ability implements AnimationTimer {
 
     public static final PalladiumProperty<Integer> TIME = new IntegerProperty("time").configurable("Determines how many ticks it takes until the arm is fully aimed");
     public static final PalladiumProperty<ArmTypeProperty.ArmType> ARM = new ArmTypeProperty("arm").configurable("Determines which arm(s) should point");
-    public static final PalladiumProperty<Integer> TIMER = new IntegerProperty("timer").sync(SyncType.NONE);
-    public static final PalladiumProperty<Integer> PREV_TIMER = new IntegerProperty("prev_timer").sync(SyncType.NONE);
+    public static final PalladiumProperty<Integer> TIMER = new IntegerProperty("timer").sync(SyncOption.NONE);
+    public static final PalladiumProperty<Integer> PREV_TIMER = new IntegerProperty("prev_timer").sync(SyncOption.NONE);
 
     public AimAbility() {
         this.withProperty(TIME, 10);

@@ -17,7 +17,7 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
 import net.threetag.palladium.power.Power;
-import net.threetag.palladium.power.PowerManager;
+import net.threetag.palladium.power.PowerEventHandler;
 import net.threetag.palladium.power.SuperpowerUtil;
 import net.threetag.palladium.util.property.PalladiumProperties;
 import net.threetag.palladiumcore.util.Platform;
@@ -28,7 +28,7 @@ import java.util.function.Predicate;
 public class SuperpowerCommand {
 
     private static final SuggestionProvider<CommandSourceStack> SUGGEST_POWERS = (context, builder) -> {
-        Collection<Power> powers = PowerManager.getInstance(Objects.requireNonNull(Platform.getCurrentServer()).overworld()).getPowers();
+        Collection<Power> powers = PowerEventHandler.getInstance(Objects.requireNonNull(Platform.getCurrentServer()).overworld()).getPowers();
         return SharedSuggestionProvider.suggestResource(powers.stream().map(Power::getId), builder);
     };
 
@@ -155,7 +155,7 @@ public class SuperpowerCommand {
 
     public static Power getSuperpower(CommandContext<CommandSourceStack> context, String key) throws CommandSyntaxException {
         ResourceLocation resourceLocation = context.getArgument(key, ResourceLocation.class);
-        Power power = PowerManager.getInstance(context.getSource().getLevel()).getPower(resourceLocation);
+        Power power = PowerEventHandler.getInstance(context.getSource().getLevel()).getPower(resourceLocation);
         if (power == null) {
             throw POWER_NOT_FOUND.create(resourceLocation);
         } else {

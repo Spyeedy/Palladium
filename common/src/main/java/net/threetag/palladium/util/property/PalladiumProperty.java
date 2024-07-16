@@ -1,96 +1,68 @@
 package net.threetag.palladium.util.property;
 
-import com.google.common.reflect.TypeToken;
-import com.google.gson.JsonElement;
-import net.minecraft.nbt.Tag;
-import net.minecraft.network.FriendlyByteBuf;
-import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.Entity;
 
-import java.lang.reflect.Type;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicReference;
 
-@SuppressWarnings("UnstableApiUsage")
-public abstract class PalladiumProperty<T> {
+public class PalladiumProperty<T> {
 
     private final String key;
-    private String description;
-    private SyncType syncType = SyncType.EVERYONE;
-    public final TypeToken<T> typeToken = new TypeToken<T>(getClass()) {
-    };
-    private final Type type = typeToken.getType();
-    private boolean persistent = true;
+    private final PalladiumPropertyType<T> type;
+    private final String description;
+    private final boolean required;
+    private final T fallback;
+    private final SyncOption syncOption;
+    private final boolean persistent;
 
-    public PalladiumProperty(String key) {
+    protected PalladiumProperty(String key, PalladiumPropertyType<T> type, String description, boolean required, T fallback, SyncOption syncOption, boolean persistent) {
         this.key = key;
+        this.type = type;
+        this.description = description;
+        this.required = required;
+        this.fallback = fallback;
+        this.syncOption = syncOption;
+        this.persistent = persistent;
     }
 
     public String getKey() {
         return this.key;
     }
 
+    public PalladiumPropertyType<T> getType() {
+        return this.type;
+    }
+
     public String getDescription() {
         return this.description;
     }
 
-    public SyncType getSyncType() {
-        return this.syncType;
+    public T getFallback() {
+        return this.fallback;
     }
 
-    public Type getType() {
-        return this.type;
+    public SyncOption getSyncType() {
+        return this.syncOption;
     }
 
-    public PalladiumProperty<T> disablePersistence() {
-        this.persistent = false;
-        return this;
+    public boolean isConfigurable() {
+        return this.description != null;
+    }
+
+    public boolean isRequired() {
+        return this.required;
     }
 
     public boolean isPersistent() {
         return this.persistent;
     }
 
-    public PalladiumProperty<T> configurable(String description) {
-        this.description = description;
-        return this;
-    }
-
-    public PalladiumProperty<T> sync(SyncType syncType) {
-        this.syncType = syncType;
-        return this;
-    }
-
-    public abstract T fromJSON(JsonElement jsonElement);
-
-    public abstract JsonElement toJSON(T value);
-
-    public abstract T fromNBT(Tag tag, T defaultValue);
-
-    public abstract Tag toNBT(T value);
-
-    public abstract T fromBuffer(FriendlyByteBuf buf);
-
-    public abstract void toBuffer(FriendlyByteBuf buf, Object value);
-
     public void set(Entity entity, T value) {
         EntityPropertyHandler.getHandler(entity).ifPresent(handler -> handler.set(this, value));
     }
 
-    @SuppressWarnings("unchecked")
     public T get(Entity entity) {
         AtomicReference<T> result = new AtomicReference<>();
-
-        if(this instanceof BooleanProperty) {
-            result.set((T) Boolean.valueOf(false));
-        } else if(this instanceof IntegerProperty) {
-            result.set((T) Integer.valueOf(0));
-        } else if(this instanceof FloatProperty) {
-            result.set((T) Float.valueOf(0F));
-        } else if(this instanceof DoubleProperty) {
-            result.set((T) Double.valueOf(0D));
-        }
-
         EntityPropertyHandler.getHandler(entity).ifPresent(handler -> result.set(handler.get(this)));
         return result.get();
     }
@@ -105,21 +77,4 @@ public abstract class PalladiumProperty<T> {
         return value == null ? null : value.toString();
     }
 
-    public static Object fixValues(PalladiumProperty<?> property, Object value) {
-        if (property instanceof IntegerProperty && value instanceof Number number) {
-            value = number.intValue();
-        } else if (property instanceof FloatProperty && value instanceof Number number) {
-            value = number.floatValue();
-        } else if (property instanceof DoubleProperty && value instanceof Number number) {
-            value = number.doubleValue();
-        } else if (property instanceof ResourceLocationProperty && value instanceof String string) {
-            value = new ResourceLocation(string);
-        }
-
-        return value;
-    }
-
-    public String getPropertyType() {
-        return null;
-    }
 }

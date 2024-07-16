@@ -1,13 +1,10 @@
 package net.threetag.palladium.util.icon;
 
-import com.google.gson.JsonObject;
 import com.google.gson.JsonPrimitive;
-import com.mojang.blaze3d.vertex.PoseStack;
+import com.mojang.serialization.MapCodec;
+import com.mojang.serialization.codecs.RecordCodecBuilder;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
-import net.minecraft.core.Registry;
-import net.minecraft.core.registries.BuiltInRegistries;
-import net.minecraft.nbt.CompoundTag;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
@@ -15,10 +12,12 @@ import net.minecraft.world.level.ItemLike;
 import net.threetag.palladium.documentation.JsonDocumentationBuilder;
 import net.threetag.palladium.util.GuiUtil;
 import net.threetag.palladium.util.context.DataContext;
-import net.threetag.palladium.util.json.GsonUtil;
-import org.jetbrains.annotations.NotNull;
 
-public class ItemIcon implements IIcon {
+public class ItemIcon implements Icon {
+
+    public static final MapCodec<ItemIcon> CODEC = RecordCodecBuilder.mapCodec((instance) -> instance
+            .group(ItemStack.CODEC.fieldOf("item").forGetter(ItemIcon::getItem))
+            .apply(instance, ItemIcon::new));
 
     public final ItemStack stack;
 
@@ -45,7 +44,7 @@ public class ItemIcon implements IIcon {
         if (item.isEmpty()) {
             var contextItem = context.getItem();
 
-            if(!contextItem.isEmpty()) {
+            if (!contextItem.isEmpty()) {
                 item = contextItem;
             } else {
                 item = new ItemStack(Items.BARRIER);
@@ -61,6 +60,10 @@ public class ItemIcon implements IIcon {
         return IconSerializers.ITEM.get();
     }
 
+    public ItemStack getItem() {
+        return this.stack;
+    }
+
     @Override
     public String toString() {
         return "ItemIcon{" + "stack=" + stack + '}';
@@ -69,26 +72,8 @@ public class ItemIcon implements IIcon {
     public static class Serializer extends IconSerializer<ItemIcon> {
 
         @Override
-        public @NotNull ItemIcon fromJSON(JsonObject json) {
-            return new ItemIcon(json.has("item") ? GsonUtil.readItemStack(json) : ItemStack.EMPTY);
-        }
-
-        @Override
-        public ItemIcon fromNBT(CompoundTag nbt) {
-            return new ItemIcon(ItemStack.of(nbt));
-        }
-
-        @Override
-        public JsonObject toJSON(ItemIcon icon) {
-            JsonObject jsonObject = new JsonObject();
-            jsonObject.addProperty("item", BuiltInRegistries.ITEM.getKey(icon.stack.getItem()).toString());
-            jsonObject.addProperty("count", icon.stack.getCount());
-            return jsonObject;
-        }
-
-        @Override
-        public CompoundTag toNBT(ItemIcon icon) {
-            return icon.stack.save(new CompoundTag());
+        public MapCodec<ItemIcon> codec() {
+            return CODEC;
         }
 
         @Override
@@ -98,7 +83,7 @@ public class ItemIcon implements IIcon {
 
             builder.addProperty("item", ResourceLocation.class)
                     .description("ID of the item that's supposed to be displayed. If you leave it out, it will display the item from the current context (if given).")
-                    .fallback(new ResourceLocation("minecraft:air")).exampleJson(new JsonPrimitive("minecraft:apple"));
+                    .fallback(ResourceLocation.withDefaultNamespace("air")).exampleJson(new JsonPrimitive("minecraft:apple"));
         }
     }
 

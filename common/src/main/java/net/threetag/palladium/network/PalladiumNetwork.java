@@ -2,9 +2,8 @@ package net.threetag.palladium.network;
 
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.LivingEntity;
-import net.threetag.palladium.Palladium;
 import net.threetag.palladium.accessory.Accessory;
-import net.threetag.palladium.power.PowerManager;
+import net.threetag.palladium.power.PowerEventHandler;
 import net.threetag.palladium.power.ability.AbilityInstance;
 import net.threetag.palladium.power.ability.AbilityUtil;
 import net.threetag.palladium.util.property.EntityPropertyHandler;
@@ -15,8 +14,6 @@ import net.threetag.palladiumcore.util.DataSyncUtil;
 import java.util.Collections;
 
 public class PalladiumNetwork {
-
-    public static final NetworkManager NETWORK = NetworkManager.create(Palladium.id("main_channel"));
 
     public static final MessageType SYNC_POWERS = NETWORK.registerS2C("sync_powers", SyncPowersMessage::new);
     public static final MessageType UPDATE_POWERS = NETWORK.registerS2C("update_powers", UpdatePowersMessage::new);
@@ -36,10 +33,12 @@ public class PalladiumNetwork {
     public static final MessageType SET_ENERGY_BAR = NETWORK.registerS2C("set_energy_bar", SetEnergyBarMessage::new);
 
     public static void init() {
+        var net = NetworkManager.get();
+
         // Powers
         DataSyncUtil.registerEntitySync((entity, consumer) -> {
             if (entity instanceof LivingEntity livingEntity) {
-                var opt = PowerManager.getPowerHandler(livingEntity);
+                var opt = PowerEventHandler.getPowerHandler(livingEntity);
 
                 if (opt.isPresent()) {
                     var handler = opt.get();

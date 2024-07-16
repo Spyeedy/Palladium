@@ -1,6 +1,12 @@
 package net.threetag.palladium.power.ability;
 
-public enum AbilityColor {
+import com.mojang.serialization.Codec;
+import net.minecraft.util.StringRepresentable;
+import org.jetbrains.annotations.NotNull;
+
+import java.util.Locale;
+
+public enum AbilityColor implements StringRepresentable {
 
     WHITE(104, 0),
     ORANGE(104, 24),
@@ -18,6 +24,8 @@ public enum AbilityColor {
     GREEN(128, 120),
     RED(128, 144),
     BLACK(128, 168);
+
+    public static final Codec<AbilityColor> CODEC = StringRepresentable.fromEnum(AbilityColor::values);
 
     private final int x;
     private final int y;
@@ -44,4 +52,8 @@ public enum AbilityColor {
         return null;
     }
 
+    @Override
+    public @NotNull String getSerializedName() {
+        return this.name().toLowerCase(Locale.ROOT);
+    }
 }

@@ -9,20 +9,20 @@ import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.components.Tooltip;
 import net.minecraft.network.chat.Component;
 import net.threetag.palladium.util.context.DataContext;
-import net.threetag.palladium.util.icon.IIcon;
+import net.threetag.palladium.util.icon.Icon;
 import org.jetbrains.annotations.Nullable;
 
 public class IconButton extends Button {
 
-    private final IIcon icon;
+    private final Icon icon;
     private boolean renderBackground = true;
 
-    public IconButton(int x, int y, IIcon icon, Button.OnPress onPress, CreateNarration createNarration) {
+    public IconButton(int x, int y, Icon icon, Button.OnPress onPress, CreateNarration createNarration) {
         super(x, y, 20, 20, Component.empty(), onPress, createNarration);
         this.icon = icon;
     }
 
-    public static Builder builder(IIcon icon, OnPress onPress) {
+    public static Builder builder(Icon icon, OnPress onPress) {
         return new Builder(icon, onPress);
     }
 
@@ -31,7 +31,7 @@ public class IconButton extends Button {
         return this;
     }
 
-    public IIcon getIcon() {
+    public Icon getIcon() {
         return this.icon;
     }
 
@@ -60,7 +60,7 @@ public class IconButton extends Button {
     @Environment(EnvType.CLIENT)
     public static class Builder {
 
-        private final IIcon icon;
+        private final Icon icon;
         private final OnPress onPress;
         @Nullable
         private Tooltip tooltip;
@@ -69,7 +69,7 @@ public class IconButton extends Button {
         private CreateNarration createNarration;
         private boolean disableBackground = false;
 
-        public Builder(IIcon icon, OnPress onPress) {
+        public Builder(Icon icon, OnPress onPress) {
             this.createNarration = Button.DEFAULT_NARRATION;
             this.icon = icon;
             this.onPress = onPress;

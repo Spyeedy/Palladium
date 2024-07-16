@@ -1,19 +1,23 @@
 package net.threetag.palladium.util.icon;
 
-import com.google.gson.JsonObject;
 import com.google.gson.JsonPrimitive;
-import com.mojang.blaze3d.vertex.PoseStack;
+import com.mojang.serialization.Codec;
+import com.mojang.serialization.MapCodec;
+import com.mojang.serialization.codecs.RecordCodecBuilder;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
-import net.minecraft.nbt.CompoundTag;
-import net.minecraft.util.GsonHelper;
 import net.threetag.palladium.Palladium;
 import net.threetag.palladium.documentation.JsonDocumentationBuilder;
 import net.threetag.palladium.util.context.DataContext;
-import net.threetag.palladium.util.json.GsonUtil;
-import org.jetbrains.annotations.NotNull;
 
-public record ExperienceIcon(int amount, boolean level) implements IIcon {
+public record ExperienceIcon(int amount, boolean level) implements Icon {
+
+    public static final MapCodec<ExperienceIcon> CODEC = RecordCodecBuilder.mapCodec((instance) -> instance
+            .group(
+                    Codec.intRange(0, Integer.MAX_VALUE).fieldOf("amount").forGetter(ExperienceIcon::amount),
+                    Codec.BOOL.optionalFieldOf("level", true).forGetter(ExperienceIcon::level)
+            )
+            .apply(instance, ExperienceIcon::new));
 
     private static final TexturedIcon BACKGROUND_ICON = new TexturedIcon(Palladium.id("textures/icon/experience.png"));
 
@@ -55,29 +59,8 @@ public record ExperienceIcon(int amount, boolean level) implements IIcon {
     public static class Serializer extends IconSerializer<ExperienceIcon> {
 
         @Override
-        public @NotNull ExperienceIcon fromJSON(JsonObject json) {
-            return new ExperienceIcon(GsonUtil.getAsIntMin(json, "amount", 0), GsonHelper.getAsBoolean(json, "level", true));
-        }
-
-        @Override
-        public ExperienceIcon fromNBT(CompoundTag nbt) {
-            return new ExperienceIcon(nbt.getInt("Amount"), nbt.getBoolean("Level"));
-        }
-
-        @Override
-        public JsonObject toJSON(ExperienceIcon icon) {
-            JsonObject jsonObject = new JsonObject();
-            jsonObject.addProperty("amount", icon.amount);
-            jsonObject.addProperty("level", icon.level);
-            return jsonObject;
-        }
-
-        @Override
-        public CompoundTag toNBT(ExperienceIcon icon) {
-            CompoundTag tag = new CompoundTag();
-            tag.putInt("Amount", icon.amount);
-            tag.putBoolean("Level", icon.level);
-            return tag;
+        public MapCodec<ExperienceIcon> codec() {
+            return CODEC;
         }
 
         @Override

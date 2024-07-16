@@ -174,7 +174,7 @@ public enum BodyPart {
 
         if (entity instanceof Player player) {
             for (EquipmentSlot slot : EquipmentSlot.values()) {
-                if (slot.getType() == EquipmentSlot.Type.ARMOR) {
+                if (slot.getType() == EquipmentSlot.Type.HUMANOID_ARMOR) {
                     var stack = player.getItemBySlot(slot);
 
                     if (HIDES_LAYER.contains(stack.getItem()) || (stack.getItem() instanceof ArmorWithRenderer armorWithRenderer
@@ -205,7 +205,7 @@ public enum BodyPart {
             }
         }
 
-        for (AbilityInstance bodyPartHide : AbilityUtil.getEnabledEntries(entity, Abilities.HIDE_BODY_PART.get())) {
+        for (AbilityInstance bodyPartHide : AbilityUtil.getEnabledInstances(entity, Abilities.HIDE_BODY_PART.value())) {
             if (isFirstPerson ? bodyPartHide.getProperty(HideBodyPartAbility.AFFECTS_FIRST_PERSON) : true) {
                 for (BodyPart part : bodyPartHide.getProperty(HideBodyPartAbility.BODY_PARTS)) {
                     result.hide(part);
@@ -213,7 +213,7 @@ public enum BodyPart {
             }
         }
 
-        for (AbilityInstance bodyPartHide : AbilityUtil.getEnabledEntries(entity, Abilities.REMOVE_BODY_PART.get())) {
+        for (AbilityInstance bodyPartHide : AbilityUtil.getEnabledInstances(entity, Abilities.REMOVE_BODY_PART.value())) {
             if (isFirstPerson ? bodyPartHide.getProperty(RemoveBodyPartAbility.AFFECTS_FIRST_PERSON) : true) {
                 for (BodyPart part : bodyPartHide.getProperty(RemoveBodyPartAbility.BODY_PARTS)) {
                     result.remove(part);
@@ -304,7 +304,9 @@ public enum BodyPart {
                 }
             }
 
-            invoker.invokeSetupRotations(player, poseStack, player.tickCount + partialTicks, f, partialTicks);
+            float scale = player.getScale();
+            poseStack.scale(scale, scale, scale);
+            invoker.invokeSetupRotations(player, poseStack, player.tickCount + partialTicks, f, partialTicks, scale);
             PalladiumAnimationRegistry.setupRotations((PlayerRenderer) renderer, player, poseStack, partialTicks);
             poseStack.scale(-1.0F, -1.0F, 1.0F);
             invoker.invokeScale(player, poseStack, partialTicks);

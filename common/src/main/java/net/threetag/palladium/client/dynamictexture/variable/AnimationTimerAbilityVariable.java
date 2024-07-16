@@ -28,7 +28,7 @@ public class AnimationTimerAbilityVariable extends AbstractIntegerTextureVariabl
     public int getNumber(DataContext context) {
         var livingEntity = context.getLivingEntity();
         if (livingEntity != null) {
-            AbilityInstance entry = this.reference.getEntry(livingEntity);
+            AbilityInstance entry = this.reference.getInstance(livingEntity);
 
             if (entry == null || !(entry.getConfiguration().getAbility() instanceof AnimationTimer animationTimer)) {
                 return 0;

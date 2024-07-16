@@ -18,7 +18,7 @@ import net.threetag.palladium.condition.BuyableCondition;
 import net.threetag.palladium.power.IPowerHolder;
 import net.threetag.palladium.power.Power;
 import net.threetag.palladium.power.PowerHandler;
-import net.threetag.palladium.power.PowerManager;
+import net.threetag.palladium.power.PowerEventHandler;
 import net.threetag.palladium.power.ability.AbilityConfiguration;
 import net.threetag.palladium.power.ability.AbilityInstance;
 
@@ -39,7 +39,7 @@ public class AbilityCommand {
         }
         for (Entity entity : entities) {
             if (entity instanceof LivingEntity living) {
-                var manager = PowerManager.getPowerHandler(living).orElse(new PowerHandler(living));
+                var manager = PowerEventHandler.getPowerHandler(living).orElse(new PowerHandler(living));
 
                 for (IPowerHolder holder : manager.getPowerHolders().values()) {
                     for (AbilityInstance entry : holder.getAbilities().values()) {
@@ -108,7 +108,7 @@ public class AbilityCommand {
         int i = 0;
         for (Entity entity : entities) {
             if (entity instanceof LivingEntity living) {
-                var holder = PowerManager.getPowerHandler(living).orElse(new PowerHandler(living)).getPowerHolder(power);
+                var holder = PowerEventHandler.getPowerHandler(living).orElse(new PowerHandler(living)).getPowerHolder(power);
 
                 if (holder != null) {
                     var ability = holder.getAbilities().get(abilityKey);

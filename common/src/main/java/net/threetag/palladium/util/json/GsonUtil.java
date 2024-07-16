@@ -197,7 +197,7 @@ public class GsonUtil {
 
     public static AbilityReference convertToAbilityReference(JsonElement json, String memberName) {
         if (json.isJsonPrimitive()) {
-            return AbilityReference.fromString(json.getAsString());
+            return AbilityReference.parse(json.getAsString());
         } else {
             throw new JsonSyntaxException("Expected " + memberName + " to be an ability reference, was " + GsonHelper.getType(json));
         }
@@ -205,7 +205,7 @@ public class GsonUtil {
 
     public static AbilityReference getAsAbilityReference(JsonObject json, String memberName) {
         if (json.has(memberName)) {
-            return AbilityReference.fromString(GsonHelper.getAsString(json, memberName));
+            return AbilityReference.parse(GsonHelper.getAsString(json, memberName));
         } else {
             throw new JsonSyntaxException("Missing " + memberName + ", expected to find an ability reference");
         }

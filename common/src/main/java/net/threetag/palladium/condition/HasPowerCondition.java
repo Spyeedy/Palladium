@@ -3,9 +3,8 @@ package net.threetag.palladium.condition;
 import com.google.gson.JsonObject;
 import net.minecraft.resources.ResourceLocation;
 import net.threetag.palladium.util.context.DataContext;
-import net.threetag.palladium.util.context.DataContextType;
 import net.threetag.palladium.power.IPowerHandler;
-import net.threetag.palladium.power.PowerManager;
+import net.threetag.palladium.power.PowerEventHandler;
 import net.threetag.palladium.util.property.PalladiumProperty;
 import net.threetag.palladium.util.property.ResourceLocationProperty;
 
@@ -25,7 +24,7 @@ public class HasPowerCondition extends Condition {
             return false;
         }
 
-        IPowerHandler handler = PowerManager.getPowerHandler(entity).orElse(null);
+        IPowerHandler handler = PowerEventHandler.getPowerHandler(entity).orElse(null);
         return handler != null && handler.getPowerHolders().containsKey(this.powerId);
     }
 

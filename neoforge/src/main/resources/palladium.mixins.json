@@ -1,13 +1,15 @@
 {
   "required": true,
-  "package": "net.threetag.palladium.mixin.forge",
+  "package": "net.threetag.palladium.mixin.neoforge",
   "compatibilityLevel": "JAVA_17",
   "mixins": [
     "CapabilityProviderMixin",
     "ForgeHooksMixin",
     "IEnergyStorageMixin",
-    "NetworkManagerMixin",
-    "PathPackResourcesAccessor"
+    "PathPackResourcesAccessor",
+    "ScriptFileAccessor",
+    "ScriptFileMixin",
+    "ScriptManagerMixin"
   ],
   "injectors": {
     "defaultRequire": 1

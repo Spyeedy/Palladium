@@ -1,20 +1,22 @@
 package net.threetag.palladium.util.icon;
 
-import com.google.gson.JsonObject;
 import com.google.gson.JsonPrimitive;
+import com.mojang.serialization.MapCodec;
+import com.mojang.serialization.codecs.RecordCodecBuilder;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
-import net.minecraft.nbt.CompoundTag;
-import net.minecraft.util.GsonHelper;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.threetag.palladium.documentation.JsonDocumentationBuilder;
 import net.threetag.palladium.util.GuiUtil;
 import net.threetag.palladium.util.PlayerSlot;
 import net.threetag.palladium.util.context.DataContext;
-import org.jetbrains.annotations.NotNull;
 
-public record ItemInSlotIcon(PlayerSlot slot) implements IIcon {
+public record ItemInSlotIcon(PlayerSlot slot) implements Icon {
+
+    public static final MapCodec<ItemInSlotIcon> CODEC = RecordCodecBuilder.mapCodec((instance) -> instance
+            .group(PlayerSlot.CODEC.fieldOf("slot").forGetter(ItemInSlotIcon::slot))
+            .apply(instance, ItemInSlotIcon::new));
 
     @Override
     public void draw(Minecraft mc, GuiGraphics guiGraphics, DataContext context, int x, int y, int width, int height) {
@@ -55,27 +57,8 @@ public record ItemInSlotIcon(PlayerSlot slot) implements IIcon {
     public static class Serializer extends IconSerializer<ItemInSlotIcon> {
 
         @Override
-        public @NotNull ItemInSlotIcon fromJSON(JsonObject json) {
-            return new ItemInSlotIcon(PlayerSlot.get(GsonHelper.getAsString(json, "slot")));
-        }
-
-        @Override
-        public ItemInSlotIcon fromNBT(CompoundTag nbt) {
-            return new ItemInSlotIcon(PlayerSlot.get(nbt.getString("Slot")));
-        }
-
-        @Override
-        public JsonObject toJSON(ItemInSlotIcon icon) {
-            JsonObject jsonObject = new JsonObject();
-            jsonObject.addProperty("slot", icon.slot.toString());
-            return jsonObject;
-        }
-
-        @Override
-        public CompoundTag toNBT(ItemInSlotIcon icon) {
-            CompoundTag tag = new CompoundTag();
-            tag.putString("Slot", icon.slot.toString());
-            return tag;
+        public MapCodec<ItemInSlotIcon> codec() {
+            return CODEC;
         }
 
         @Override

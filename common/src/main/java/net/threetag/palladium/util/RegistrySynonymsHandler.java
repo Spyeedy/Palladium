@@ -1,7 +1,6 @@
 package net.threetag.palladium.util;
 
 import net.minecraft.core.Registry;
-import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
@@ -16,16 +15,7 @@ public class RegistrySynonymsHandler {
     private static final Map<ResourceKey<?>, List<Synonym>> SYNONYMS = new HashMap<>();
 
     static {
-        register(Registries.ATTRIBUTE, new ResourceLocation("porting_lib:step_height_addition"), new ResourceLocation("forge:step_height_addition"));
-        register(Registries.ATTRIBUTE, new ResourceLocation("porting_lib:entity_gravity"), new ResourceLocation("forge:entity_gravity"));
-        register(Registries.ATTRIBUTE, new ResourceLocation("porting_lib:swim_speed"), new ResourceLocation("forge:swim_speed"));
-
-        register(Registries.ATTRIBUTE, new ResourceLocation("porting_lib:reach_distance"), new ResourceLocation("forge:block_reach"));
-        register(Registries.ATTRIBUTE, new ResourceLocation("porting_lib:attack_range"), new ResourceLocation("forge:entity_reach"));
-        register(Registries.ATTRIBUTE, new ResourceLocation("reach-entity-attributes:reach"), new ResourceLocation("forge:block_reach"));
-        register(Registries.ATTRIBUTE, new ResourceLocation("reach-entity-attributes:attack_range"), new ResourceLocation("forge:entity_reach"));
-        register(Registries.ATTRIBUTE, new ResourceLocation("porting_lib:reach_distance"), new ResourceLocation("reach-entity-attributes:reach"));
-        register(Registries.ATTRIBUTE, new ResourceLocation("porting_lib:attack_range"), new ResourceLocation("reach-entity-attributes:attack_range"));
+        register(Registries.ATTRIBUTE, ResourceLocation.fromNamespaceAndPath("porting_lib", "swim_speed"), ResourceLocation.fromNamespaceAndPath("neoforge", "swim_speed"));
     }
 
     public static void register(ResourceKey<?> registry, ResourceLocation id1, ResourceLocation id2) {

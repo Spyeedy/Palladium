@@ -1,30 +1,44 @@
 package net.threetag.palladium.power;
 
-import com.google.gson.JsonObject;
-import com.google.gson.JsonParseException;
-import net.minecraft.network.FriendlyByteBuf;
+import com.mojang.serialization.Codec;
+import com.mojang.serialization.codecs.RecordCodecBuilder;
 import net.minecraft.network.chat.Component;
-import net.minecraft.resources.ResourceLocation;
-import net.minecraft.util.GsonHelper;
+import net.minecraft.network.chat.ComponentSerialization;
+import net.minecraft.util.StringRepresentable;
 import net.threetag.palladium.client.dynamictexture.TextureReference;
 import net.threetag.palladium.power.ability.AbilityConfiguration;
 import net.threetag.palladium.power.energybar.EnergyBarConfiguration;
-import net.threetag.palladium.util.icon.IIcon;
-import net.threetag.palladium.util.icon.IconSerializer;
-import net.threetag.palladium.util.json.GsonUtil;
+import net.threetag.palladium.util.CodecUtils;
+import net.threetag.palladium.util.icon.Icon;
+import org.jetbrains.annotations.NotNull;
 
 import java.awt.*;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Objects;
+import java.util.Collections;
+import java.util.Map;
 
 public class Power {
 
-    private final ResourceLocation id;
+    public static final Codec<Power> CODEC = RecordCodecBuilder.create((instance) -> instance
+            .group(
+                    ComponentSerialization.CODEC.fieldOf("name").forGetter(Power::getName),
+                    Icon.CODEC.fieldOf("icon").forGetter(Power::getIcon),
+                    TextureReference.CODEC.optionalFieldOf("background", null).forGetter(Power::getBackground),
+                    TextureReference.CODEC.optionalFieldOf("ability_bar_texture", null).forGetter(Power::getBackground),
+                    CodecUtils.COLOR_CODEC.optionalFieldOf("primary_color", new Color(210, 112, 49)).forGetter(Power::getPrimaryColor),
+                    CodecUtils.COLOR_CODEC.optionalFieldOf("secondary_color", new Color(126, 97, 86)).forGetter(Power::getSecondaryColor),
+                    Codec.BOOL.optionalFieldOf("persistent_data", false).forGetter(Power::hasPersistentData),
+                    Codec.BOOL.optionalFieldOf("hidden", false).forGetter(Power::isHidden),
+                    GuiDisplayType.CODEC.optionalFieldOf("gui_display_type", GuiDisplayType.AUTO).forGetter(Power::getGuiDisplayType),
+                    Codec.unboundedMap(Codec.STRING, AbilityConfiguration.CODEC).optionalFieldOf("abilities", Collections.emptyMap()).forGetter(Power::getAbilities),
+                    Codec.unboundedMap(Codec.STRING, EnergyBarConfiguration.CODEC).optionalFieldOf("energy_bars", Collections.emptyMap()).forGetter(Power::getEnergyBars)
+            )
+            .apply(instance, Power::new));
+
+
     private final Component name;
-    private final IIcon icon;
-    private final List<AbilityConfiguration> abilities = new ArrayList<>();
-    private final List<EnergyBarConfiguration> energyBars = new ArrayList<>();
+    private final Icon icon;
+    private final Map<String, AbilityConfiguration> abilities;
+    private final Map<String, EnergyBarConfiguration> energyBars;
     private final TextureReference background;
     private final TextureReference abilityBar;
     private final Color primaryColor, secondaryColor;
@@ -33,8 +47,7 @@ public class Power {
     private final GuiDisplayType guiDisplayType;
     private boolean invalid = false;
 
-    public Power(ResourceLocation id, Component name, IIcon icon, TextureReference background, TextureReference abilityBar, Color primaryColor, Color secondaryColor, boolean persistentData, boolean hidden, GuiDisplayType guiDisplayType) {
-        this.id = id;
+    public Power(Component name, Icon icon, TextureReference background, TextureReference abilityBar, Color primaryColor, Color secondaryColor, boolean persistentData, boolean hidden, GuiDisplayType guiDisplayType, Map<String, AbilityConfiguration> abilities, Map<String, EnergyBarConfiguration> energyBars) {
         this.name = name;
         this.icon = icon;
         this.background = background;
@@ -44,6 +57,12 @@ public class Power {
         this.persistentData = persistentData;
         this.hidden = hidden;
         this.guiDisplayType = guiDisplayType;
+        this.abilities = abilities;
+        this.energyBars = energyBars;
+
+        for (Map.Entry<String, AbilityConfiguration> e : this.abilities.entrySet()) {
+            e.getValue().setId(e.getKey());
+        }
     }
 
     public void invalidate() {
@@ -51,53 +70,39 @@ public class Power {
     }
 
     public boolean isInvalid() {
-        return invalid;
-    }
-
-    public Power addAbility(AbilityConfiguration configuration) {
-        this.abilities.add(configuration);
-        return this;
-    }
-
-    public Power addEnergyBar(EnergyBarConfiguration configuration) {
-        this.energyBars.add(configuration);
-        return this;
-    }
-
-    public ResourceLocation getId() {
-        return id;
+        return this.invalid;
     }
 
     public Component getName() {
-        return name;
+        return this.name;
     }
 
-    public IIcon getIcon() {
-        return icon;
+    public Icon getIcon() {
+        return this.icon;
     }
 
-    public List<AbilityConfiguration> getAbilities() {
-        return abilities;
+    public Map<String, AbilityConfiguration> getAbilities() {
+        return this.abilities;
     }
 
-    public List<EnergyBarConfiguration> getEnergyBars() {
-        return energyBars;
+    public Map<String, EnergyBarConfiguration> getEnergyBars() {
+        return this.energyBars;
     }
 
     public TextureReference getBackground() {
-        return background;
+        return this.background;
     }
 
     public TextureReference getAbilityBarTexture() {
-        return abilityBar;
+        return this.abilityBar;
     }
 
     public Color getPrimaryColor() {
-        return primaryColor;
+        return this.primaryColor;
     }
 
     public Color getSecondaryColor() {
-        return secondaryColor;
+        return this.secondaryColor;
     }
 
     public boolean hasPersistentData() {
@@ -112,89 +117,13 @@ public class Power {
         return this.guiDisplayType;
     }
 
-    public void toBuffer(FriendlyByteBuf buf) {
-        buf.writeComponent(this.name);
-        buf.writeNbt(IconSerializer.serializeNBT(this.icon));
-        buf.writeBoolean(this.background != null);
-        if (this.background != null) {
-            this.background.toBuffer(buf);
-        }
-        buf.writeBoolean(this.abilityBar != null);
-        if (this.abilityBar != null) {
-            this.abilityBar.toBuffer(buf);
-        }
-        buf.writeInt(this.primaryColor.getRGB());
-        buf.writeInt(this.secondaryColor.getRGB());
-        buf.writeBoolean(this.persistentData);
-        buf.writeBoolean(this.hidden);
-        buf.writeInt(this.guiDisplayType.ordinal());
-
-        buf.writeCollection(this.abilities, (buf1, configuration) -> configuration.toBuffer(buf1));
-        buf.writeCollection(this.energyBars, (friendlyByteBuf, energyBar) -> energyBar.toBuffer(friendlyByteBuf));
-    }
-
-    public static Power fromBuffer(ResourceLocation id, FriendlyByteBuf buf) {
-        Power power = new Power(id, buf.readComponent(), IconSerializer.parseNBT(Objects.requireNonNull(buf.readNbt())), buf.readBoolean() ? TextureReference.fromBuffer(buf) : null, buf.readBoolean() ? TextureReference.fromBuffer(buf) : null, new Color(buf.readInt()), new Color(buf.readInt()), buf.readBoolean(), buf.readBoolean(), GuiDisplayType.values()[buf.readInt()]);
-
-        List<AbilityConfiguration> configurations = buf.readList(AbilityConfiguration::fromBuffer);
-        for (AbilityConfiguration configuration : configurations) {
-            power.addAbility(configuration);
-        }
-
-        List<EnergyBarConfiguration> energyBars = buf.readList(EnergyBarConfiguration::fromBuffer);
-        for (EnergyBarConfiguration energyBar : energyBars) {
-            power.addEnergyBar(energyBar);
-        }
-
-        return power;
-    }
-
-    public static Power fromJSON(ResourceLocation id, JsonObject json) {
-        Component name = Component.Serializer.fromJson(json.get("name"));
-        TextureReference background = GsonUtil.getAsTextureReference(json, "background", null);
-        TextureReference abilityBarTexture = GsonUtil.getAsTextureReference(json, "ability_bar_texture", null);
-        GuiDisplayType displayType = GuiDisplayType.getByName(GsonHelper.getAsString(json, "gui_display_type", "auto"));
-
-        if (displayType == null) {
-            throw new JsonParseException("Unknown gui display type '" + GsonHelper.getAsString(json, "gui_display_type", "list") + "', must be either 'list' or 'tree'");
-        }
-
-        Power power = new Power(id,
-                name,
-                IconSerializer.parseJSON(json.get("icon")),
-                background,
-                abilityBarTexture,
-                GsonUtil.getAsColor(json, "primary_color", new Color(210, 112, 49)),
-                GsonUtil.getAsColor(json, "secondary_color", new Color(126, 97, 86)),
-                GsonHelper.getAsBoolean(json, "persistent_data", false),
-                GsonHelper.getAsBoolean(json, "hidden", false),
-                displayType
-        );
-
-        if (GsonHelper.isValidNode(json, "abilities")) {
-            JsonObject abilities = GsonHelper.getAsJsonObject(json, "abilities");
-
-            for (String key : abilities.keySet()) {
-                power.addAbility(AbilityConfiguration.fromJSON(key, GsonHelper.getAsJsonObject(abilities, key)));
-            }
-        }
-
-        if (GsonHelper.isValidNode(json, "energy_bars")) {
-            JsonObject energyBars = GsonHelper.getAsJsonObject(json, "energy_bars");
-
-            for (String key : energyBars.keySet()) {
-                power.addEnergyBar(EnergyBarConfiguration.fromJson(key, GsonHelper.getAsJsonObject(energyBars, key)));
-            }
-        }
-
-        return power;
-    }
-
-    public enum GuiDisplayType {
+    public enum GuiDisplayType implements StringRepresentable {
 
         AUTO("auto"),
         TREE("tree"),
         LIST("list");
+
+        public static final Codec<GuiDisplayType> CODEC = StringRepresentable.fromEnum(GuiDisplayType::values);
 
         private final String name;
 
@@ -202,17 +131,9 @@ public class Power {
             this.name = name;
         }
 
-        public String getName() {
-            return name;
-        }
-
-        public static GuiDisplayType getByName(String name) {
-            for (GuiDisplayType value : values()) {
-                if (value.getName().equalsIgnoreCase(name)) {
-                    return value;
-                }
-            }
-            return null;
+        @Override
+        public @NotNull String getSerializedName() {
+            return this.name;
         }
     }
 

@@ -1,8 +1,10 @@
 package net.threetag.palladium.client.dynamictexture;
 
+import com.mojang.serialization.Codec;
+import com.mojang.serialization.DataResult;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
-import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.ResourceLocationException;
 import net.minecraft.resources.ResourceLocation;
 import net.threetag.palladium.util.context.DataContext;
 import org.jetbrains.annotations.Nullable;
@@ -10,6 +12,8 @@ import org.jetbrains.annotations.Nullable;
 import java.util.Objects;
 
 public class TextureReference {
+
+    public static final Codec<TextureReference> CODEC = Codec.STRING.comapFlatMap(TextureReference::read, TextureReference::toString).stable();
 
     private final boolean dynamic;
     private final ResourceLocation path;
@@ -40,19 +44,18 @@ public class TextureReference {
 
     public static TextureReference parse(String path) {
         if (path.startsWith("#")) {
-            return dynamic(new ResourceLocation(path.substring(1)));
+            return dynamic(ResourceLocation.parse(path.substring(1)));
         }
 
-        return normal(new ResourceLocation(path));
+        return normal(ResourceLocation.parse(path));
     }
 
-    public void toBuffer(FriendlyByteBuf buf) {
-        buf.writeBoolean(this.dynamic);
-        buf.writeResourceLocation(this.path);
-    }
-
-    public static TextureReference fromBuffer(FriendlyByteBuf buf) {
-        return new TextureReference(buf.readBoolean(), buf.readResourceLocation());
+    public static DataResult<TextureReference> read(String path) {
+        try {
+            return DataResult.success(parse(path));
+        } catch (ResourceLocationException e) {
+            return DataResult.error(() -> "Not a valid texture reference: " + path + " " + e.getMessage());
+        }
     }
 
     @Override

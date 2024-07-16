@@ -6,7 +6,7 @@ import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.Items;
 import net.threetag.palladium.power.ability.AbilityConfiguration;
-import net.threetag.palladium.util.icon.IIcon;
+import net.threetag.palladium.util.icon.Icon;
 import net.threetag.palladium.util.icon.ItemIcon;
 import net.threetag.palladium.util.property.*;
 
@@ -14,10 +14,10 @@ public class ScoreboardScoreBuyableCondition extends BuyableCondition {
 
     private final String objective;
     private final int amount;
-    private final IIcon icon;
+    private final Icon icon;
     private final Component description;
 
-    public ScoreboardScoreBuyableCondition(String objective, int amount, IIcon icon, Component description) {
+    public ScoreboardScoreBuyableCondition(String objective, int amount, Icon icon, Component description) {
         this.objective = objective;
         this.amount = amount;
         this.icon = icon;
@@ -66,7 +66,7 @@ public class ScoreboardScoreBuyableCondition extends BuyableCondition {
 
         public static final PalladiumProperty<String> OBJECTIVE = new StringProperty("objective").configurable("Name of the scoreboard objective");
         public static final PalladiumProperty<Integer> SCORE = new IntegerProperty("score").configurable("Required player score for the scoreboard objective");
-        public static final PalladiumProperty<IIcon> ICON = new IconProperty("icon").configurable("Icon that will be displayed during buying");
+        public static final PalladiumProperty<Icon> ICON = new IconProperty("icon").configurable("Icon that will be displayed during buying");
         public static final PalladiumProperty<Component> DESCRIPTION = new ComponentProperty("description").configurable("Name of the score that will be displayed during buying");
 
         public Serializer() {

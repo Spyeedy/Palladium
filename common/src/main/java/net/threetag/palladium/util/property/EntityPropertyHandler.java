@@ -6,6 +6,7 @@ import net.threetag.palladium.entity.PalladiumEntityExtension;
 import net.threetag.palladium.event.PalladiumEvents;
 import net.threetag.palladium.network.SyncPropertyMessage;
 
+import java.util.Objects;
 import java.util.Optional;
 
 public class EntityPropertyHandler extends PropertyManager implements PropertyManager.Listener {
@@ -33,10 +34,10 @@ public class EntityPropertyHandler extends PropertyManager implements PropertyMa
     @Override
     public <T> void onChanged(PalladiumProperty<T> property, T oldValue, T newValue) {
         if (!entity.level().isClientSide) {
-            if(!(property instanceof BooleanProperty) || oldValue != newValue) {
-                if (property.getSyncType() == SyncType.EVERYONE) {
+            if (Objects.equals(oldValue, newValue)) {
+                if (property.getSyncType() == SyncOption.EVERYONE) {
                     new SyncPropertyMessage(this.entity.getId(), property, newValue).sendToDimension(this.entity.level());
-                } else if (property.getSyncType() == SyncType.SELF && this.entity instanceof ServerPlayer serverPlayer) {
+                } else if (property.getSyncType() == SyncOption.SELF && this.entity instanceof ServerPlayer serverPlayer) {
                     new SyncPropertyMessage(this.entity.getId(), property, newValue).send(serverPlayer);
                 }
             }

@@ -72,7 +72,7 @@ public class SyncAbilityStateMessage extends MessageS2C {
         Entity entity = Objects.requireNonNull(Minecraft.getInstance().level).getEntity(this.entityId);
 
         if (entity instanceof LivingEntity livingEntity) {
-            AbilityInstance entry = this.reference.getEntry(livingEntity);
+            AbilityInstance entry = this.reference.getInstance(livingEntity);
 
             if (entry != null) {
                 entry.setClientState(livingEntity, entry.getHolder(), this.unlocked, this.enabled, this.maxCooldown, this.cooldown, this.maxActivationTimer, this.activationTimer);
