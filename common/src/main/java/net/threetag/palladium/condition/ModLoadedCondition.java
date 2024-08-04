@@ -1,18 +1,33 @@
 package net.threetag.palladium.condition;
 
-import com.google.gson.JsonObject;
+import com.mojang.serialization.Codec;
+import com.mojang.serialization.MapCodec;
+import com.mojang.serialization.codecs.RecordCodecBuilder;
+import net.minecraft.network.RegistryFriendlyByteBuf;
+import net.minecraft.network.codec.ByteBufCodecs;
+import net.minecraft.network.codec.StreamCodec;
 import net.threetag.palladium.util.context.DataContext;
 import net.threetag.palladium.util.context.DataContextType;
-import net.threetag.palladium.util.property.PalladiumProperty;
-import net.threetag.palladium.util.property.StringProperty;
 import net.threetag.palladiumcore.util.Platform;
 
-public class ModLoadedCondition extends Condition {
+import java.util.Objects;
 
-    public final boolean loaded;
+public final class ModLoadedCondition implements Condition {
 
-    public ModLoadedCondition(boolean loaded) {
-        this.loaded = loaded;
+    public static final MapCodec<ModLoadedCondition> CODEC = RecordCodecBuilder.mapCodec(instance -> instance
+            .group(Codec.STRING.fieldOf("mod_id").forGetter(ModLoadedCondition::modId)
+            ).apply(instance, ModLoadedCondition::new)
+    );
+    public static final StreamCodec<RegistryFriendlyByteBuf, ModLoadedCondition> STREAM_CODEC = StreamCodec.composite(
+            ByteBufCodecs.STRING_UTF8, ModLoadedCondition::modId, ModLoadedCondition::new
+    );
+
+    private final String modId;
+    private final boolean loaded;
+
+    public ModLoadedCondition(String modId) {
+        this.modId = modId;
+        this.loaded = Platform.isModLoaded(modId);
     }
 
     @Override
@@ -27,21 +42,33 @@ public class ModLoadedCondition extends Condition {
     }
 
     @Override
-    public ConditionSerializer getSerializer() {
+    public ConditionSerializer<ModLoadedCondition> getSerializer() {
         return ConditionSerializers.MOD_LOADED.get();
     }
 
-    public static class Serializer extends ConditionSerializer {
+    public String modId() {
+        return modId;
+    }
 
-        public static final PalladiumProperty<String> MOD_ID = new StringProperty("mod_id").configurable("ID of the mod that must be loaded");
+    @Override
+    public boolean equals(Object obj) {
+        if (obj == this) return true;
+        if (obj == null || obj.getClass() != this.getClass()) return false;
+        var that = (ModLoadedCondition) obj;
+        return Objects.equals(this.modId, that.modId);
+    }
 
-        public Serializer() {
-            this.withProperty(MOD_ID, "palladium");
+
+    public static class Serializer extends ConditionSerializer<ModLoadedCondition> {
+
+        @Override
+        public MapCodec<ModLoadedCondition> codec() {
+            return CODEC;
         }
 
         @Override
-        public Condition make(JsonObject json) {
-            return new ModLoadedCondition(Platform.isModLoaded(this.getProperty(json, MOD_ID)));
+        public StreamCodec<RegistryFriendlyByteBuf, ModLoadedCondition> streamCodec() {
+            return STREAM_CODEC;
         }
 
         @Override

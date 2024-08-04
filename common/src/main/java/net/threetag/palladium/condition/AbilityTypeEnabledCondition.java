@@ -1,21 +1,25 @@
 package net.threetag.palladium.condition;
 
-import com.google.gson.JsonObject;
-import net.minecraft.resources.ResourceLocation;
-import net.threetag.palladium.Palladium;
-import net.threetag.palladium.util.context.DataContext;
-import net.threetag.palladium.util.context.DataContextType;
+import com.mojang.serialization.MapCodec;
+import com.mojang.serialization.codecs.RecordCodecBuilder;
+import net.minecraft.network.RegistryFriendlyByteBuf;
+import net.minecraft.network.codec.ByteBufCodecs;
+import net.minecraft.network.codec.StreamCodec;
+import net.threetag.palladium.power.ability.Ability;
 import net.threetag.palladium.power.ability.AbilityUtil;
-import net.threetag.palladium.util.property.PalladiumProperty;
-import net.threetag.palladium.util.property.ResourceLocationProperty;
+import net.threetag.palladium.registry.PalladiumRegistries;
+import net.threetag.palladium.registry.PalladiumRegistryKeys;
+import net.threetag.palladium.util.context.DataContext;
 
-public class AbilityTypeEnabledCondition extends Condition {
+public record AbilityTypeEnabledCondition(Ability ability) implements Condition {
 
-    private final ResourceLocation abilityId;
-
-    public AbilityTypeEnabledCondition(ResourceLocation abilityId) {
-        this.abilityId = abilityId;
-    }
+    public static final MapCodec<AbilityTypeEnabledCondition> CODEC = RecordCodecBuilder.mapCodec(instance -> instance
+            .group(PalladiumRegistries.ABILITY.byNameCodec().fieldOf("ability_type").forGetter(AbilityTypeEnabledCondition::ability)
+            ).apply(instance, AbilityTypeEnabledCondition::new)
+    );
+    public static final StreamCodec<RegistryFriendlyByteBuf, AbilityTypeEnabledCondition> STREAM_CODEC = StreamCodec.composite(
+            ByteBufCodecs.registry(PalladiumRegistryKeys.ABILITY), AbilityTypeEnabledCondition::ability, AbilityTypeEnabledCondition::new
+    );
 
     @Override
     public boolean active(DataContext context) {
@@ -25,20 +29,24 @@ public class AbilityTypeEnabledCondition extends Condition {
             return false;
         }
 
-        return AbilityUtil.isTypeEnabled(entity, this.abilityId);
+        return AbilityUtil.isTypeEnabled(entity, this.ability);
     }
 
     @Override
-    public ConditionSerializer getSerializer() {
+    public ConditionSerializer<AbilityTypeEnabledCondition> getSerializer() {
         return ConditionSerializers.ABILITY_TYPE_ENABLED.get();
     }
 
-    public static class Serializer extends ConditionSerializer {
+    public static class Serializer extends ConditionSerializer<AbilityTypeEnabledCondition> {
 
-        public static final PalladiumProperty<ResourceLocation> ABILITY_TYPE = new ResourceLocationProperty("ability_type").configurable("ID of the ability type to look for. If one ability can be found which is enabled, the condition will be true");
+        @Override
+        public MapCodec<AbilityTypeEnabledCondition> codec() {
+            return CODEC;
+        }
 
-        public Serializer() {
-            this.withProperty(ABILITY_TYPE, Palladium.id("dummy"));
+        @Override
+        public StreamCodec<RegistryFriendlyByteBuf, AbilityTypeEnabledCondition> streamCodec() {
+            return STREAM_CODEC;
         }
 
         @Override
@@ -46,9 +54,5 @@ public class AbilityTypeEnabledCondition extends Condition {
             return "Checks if an ability of a certain type is enabled.";
         }
 
-        @Override
-        public Condition make(JsonObject json) {
-            return new AbilityTypeEnabledCondition(this.getProperty(json, ABILITY_TYPE));
-        }
     }
 }

@@ -4,8 +4,10 @@ import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonPrimitive;
+import com.mojang.serialization.JsonOps;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.ComponentSerialization;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.GsonHelper;
 import net.minecraft.world.item.CreativeModeTab;
@@ -32,7 +34,7 @@ public class CreativeModeTabParser extends AddonParser<CreativeModeTab> {
         builder.itemIconId(GsonUtil.getAsResourceLocation(json, "icon"));
 
         if (GsonHelper.isValidNode(json, "title")) {
-            builder.title(Component.Serializer.fromJson(json.get("title")));
+            builder.title(ComponentSerialization.CODEC.parse(JsonOps.INSTANCE, json.get("title")).getOrThrow());
         }
 
         if (GsonHelper.isValidNode(json, "items")) {
@@ -66,6 +68,6 @@ public class CreativeModeTabParser extends AddonParser<CreativeModeTab> {
                 .description("You can list your items for the tab in the correct order here.")
                 .fallback(null).exampleJson(jsonArray);
 
-        return new HTMLBuilder(new ResourceLocation(Palladium.MOD_ID, "creative_mode_tabs"), "Creative Mode Tabs").add(HTMLBuilder.heading("Creative Mode Tabs")).addDocumentation(builder);
+        return new HTMLBuilder(Palladium.id("creative_mode_tabs"), "Creative Mode Tabs").add(HTMLBuilder.heading("Creative Mode Tabs")).addDocumentation(builder);
     }
 }

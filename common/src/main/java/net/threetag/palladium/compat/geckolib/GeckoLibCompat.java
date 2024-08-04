@@ -7,7 +7,6 @@ import net.fabricmc.api.Environment;
 import net.minecraft.client.model.geom.ModelPart;
 import net.minecraft.client.player.AbstractClientPlayer;
 import net.minecraft.client.renderer.MultiBufferSource;
-import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.ArmorItem;
 import net.minecraft.world.item.ArmorMaterial;
 import net.minecraft.world.item.Item;
@@ -16,7 +15,7 @@ import net.threetag.palladium.addonpack.parser.ItemParser;
 import net.threetag.palladium.client.renderer.renderlayer.PackRenderLayerManager;
 import net.threetag.palladium.compat.geckolib.armor.AddonGeoArmorItem;
 import net.threetag.palladium.compat.geckolib.renderlayer.GeckoRenderLayer;
-import software.bernie.geckolib.GeckoLib;
+import software.bernie.geckolib.GeckoLibConstants;
 
 public class GeckoLibCompat {
 
@@ -26,7 +25,7 @@ public class GeckoLibCompat {
 
     @Environment(EnvType.CLIENT)
     public static void initClient() {
-        PackRenderLayerManager.registerParser(new ResourceLocation(GeckoLib.MOD_ID, "default"), GeckoRenderLayer::parse);
+        PackRenderLayerManager.registerParser(GeckoLibConstants.id("default"), GeckoRenderLayer::parse);
     }
 
     @ExpectPlatform

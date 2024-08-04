@@ -1,6 +1,11 @@
 package net.threetag.palladium.condition;
 
-import com.google.gson.JsonObject;
+import com.mojang.serialization.Codec;
+import com.mojang.serialization.MapCodec;
+import com.mojang.serialization.codecs.RecordCodecBuilder;
+import net.minecraft.network.RegistryFriendlyByteBuf;
+import net.minecraft.network.codec.ByteBufCodecs;
+import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.world.entity.LivingEntity;
 import net.threetag.palladium.power.ability.AbilityInstance;
 import net.threetag.palladium.util.context.DataContext;
@@ -8,6 +13,18 @@ import net.threetag.palladium.util.context.DataContextType;
 import net.threetag.palladium.util.property.PropertyManager;
 
 public class ChatToggleCondition extends ChatMessageCondition {
+
+    public static final MapCodec<ChatToggleCondition> CODEC = RecordCodecBuilder.mapCodec(instance -> instance
+            .group(
+                    Codec.STRING.fieldOf("chat_message").forGetter(ChatToggleCondition::getChatMessage),
+                    Codec.intRange(0, Integer.MAX_VALUE).optionalFieldOf("cooldown", 0).forGetter(ChatToggleCondition::getCooldown)
+            ).apply(instance, ChatToggleCondition::new)
+    );
+    public static final StreamCodec<RegistryFriendlyByteBuf, ChatToggleCondition> STREAM_CODEC = StreamCodec.composite(
+            ByteBufCodecs.STRING_UTF8, ChatToggleCondition::getChatMessage,
+            ByteBufCodecs.VAR_INT, ChatToggleCondition::getCooldown,
+            ChatToggleCondition::new
+    );
 
     public ChatToggleCondition(String chatMessage, int cooldown) {
         super(chatMessage, cooldown);
@@ -44,20 +61,20 @@ public class ChatToggleCondition extends ChatMessageCondition {
     }
 
     @Override
-    public ConditionSerializer getSerializer() {
+    public ConditionSerializer<ChatToggleCondition> getSerializer() {
         return ConditionSerializers.CHAT_TOGGLE.get();
     }
 
-    public static class Serializer extends ConditionSerializer {
+    public static class Serializer extends ConditionSerializer<ChatToggleCondition> {
 
-        public Serializer() {
-            this.withProperty(CHAT_MESSAGE, "Hello World");
-            this.withProperty(HeldCondition.Serializer.COOLDOWN, 0);
+        @Override
+        public MapCodec<ChatToggleCondition> codec() {
+            return CODEC;
         }
 
         @Override
-        public Condition make(JsonObject json) {
-            return new ChatToggleCondition(this.getProperty(json, CHAT_MESSAGE), this.getProperty(json, HeldCondition.Serializer.COOLDOWN));
+        public StreamCodec<RegistryFriendlyByteBuf, ChatToggleCondition> streamCodec() {
+            return STREAM_CODEC;
         }
 
         @Override

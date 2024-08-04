@@ -1,13 +1,12 @@
 package net.threetag.palladium.addonpack.parser;
 
 import com.google.gson.*;
+import com.mojang.serialization.JsonOps;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.GsonHelper;
-import net.minecraft.world.effect.MobEffectInstance;
-import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.ai.attributes.AttributeModifier;
 import net.minecraft.world.food.FoodProperties;
@@ -19,7 +18,7 @@ import net.threetag.palladium.addonpack.builder.AddonBuilder;
 import net.threetag.palladium.addonpack.builder.ItemBuilder;
 import net.threetag.palladium.addonpack.log.AddonPackLog;
 import net.threetag.palladium.documentation.HTMLBuilder;
-import net.threetag.palladium.documentation.IDocumentedConfigurable;
+import net.threetag.palladium.documentation.DocumentedConfigurable;
 import net.threetag.palladium.documentation.JsonDocumentationBuilder;
 import net.threetag.palladium.item.*;
 import net.threetag.palladium.power.ability.AttributeModifierAbility;
@@ -47,7 +46,7 @@ public class ItemParser extends AddonParser<Item> {
             json.addProperty("type", "palladium:block_item");
             json.addProperty("block", id.toString());
             JsonArray jsonArray = new JsonArray();
-            if(this.autoRegisteredBlockItems.get(id) != null) {
+            if (this.autoRegisteredBlockItems.get(id) != null) {
                 for (PlacedTabPlacement tabPlacement : this.autoRegisteredBlockItems.get(id)) {
                     jsonArray.add(tabPlacement.toJson());
                 }
@@ -83,7 +82,7 @@ public class ItemParser extends AddonParser<Item> {
                 for (Map.Entry<String, JsonElement> entry : jsonObject.entrySet()) {
                     String key = entry.getKey();
                     GsonUtil.forEachInListOrPrimitive(entry.getValue(), idElement -> {
-                        container.addLayer(key, new ResourceLocation(idElement.getAsString()));
+                        container.addLayer(key, ResourceLocation.parse(idElement.getAsString()));
                     });
                 }
                 builder.setRenderLayerContainer(container);
@@ -91,49 +90,14 @@ public class ItemParser extends AddonParser<Item> {
         }
 
         GsonUtil.ifHasObject(json, "food", foodJson -> {
-            FoodProperties.Builder properties = new FoodProperties.Builder();
-
-            GsonUtil.ifHasKey(foodJson, "nutrition", el -> properties.nutrition(GsonHelper.convertToInt(el, "$.food.nutrition")));
-            GsonUtil.ifHasKey(foodJson, "saturation_modifier", el -> properties.saturationMod(GsonHelper.convertToFloat(el, "$.food.saturation_modifier")));
-
-            if (GsonHelper.getAsBoolean(foodJson, "meat", false)) {
-                properties.meat();
-            }
-
-            if (GsonHelper.getAsBoolean(foodJson, "can_always_eat", false)) {
-                properties.alwaysEat();
-            }
-
-            if (GsonHelper.getAsBoolean(foodJson, "fast", false)) {
-                properties.fast();
-            }
-
-            GsonUtil.ifHasArray(foodJson, "effects", effectEl -> {
-                JsonObject effect = GsonHelper.convertToJsonObject(effectEl, "$.food.effects");
-                ResourceLocation mobEffect = GsonUtil.getAsResourceLocation(effect, "mob_effect");
-
-                if (!BuiltInRegistries.MOB_EFFECT.containsKey(mobEffect)) {
-                    throw new JsonParseException("Mob effect type '" + mobEffect.toString() + "' does not exist");
-                }
-
-                int duration = GsonHelper.getAsInt(effect, "duration", 0);
-                int amplifier = GsonHelper.getAsInt(effect, "amplifier", 0);
-                boolean ambient = GsonHelper.getAsBoolean(effect, "ambient", false);
-                boolean visible = GsonHelper.getAsBoolean(effect, "visible", true);
-                boolean showIcon = GsonHelper.getAsBoolean(effect, "show_icon", true);
-                float probability = GsonHelper.getAsFloat(effect, "probability", 1F);
-
-                properties.effect(new MobEffectInstance(Objects.requireNonNull(BuiltInRegistries.MOB_EFFECT.get(mobEffect)), duration, amplifier, ambient, visible, showIcon), probability);
-            });
-
-            builder.food(properties.build());
+            builder.food(FoodProperties.DIRECT_CODEC.parse(JsonOps.INSTANCE, foodJson).getOrThrow());
         });
 
         return builder;
     }
 
     public static HTMLBuilder documentationBuilder() {
-        return new HTMLBuilder(new ResourceLocation(Palladium.MOD_ID, "items"), "Items")
+        return new HTMLBuilder(Palladium.id("items"), "Items")
                 .add(HTMLBuilder.heading("Items"))
                 .add(HTMLBuilder.subHeading("Global Settings"))
                 .addDocumentation(getDefaultDocumentationBuilder())
@@ -171,29 +135,13 @@ public class ItemParser extends AddonParser<Item> {
                 PlayerSlot slot = PlayerSlot.get(key);
                 JsonElement mods = object.get(key);
 
-                if (mods.isJsonArray()) {
-                    JsonArray modsList = mods.getAsJsonArray();
-
-                    for (JsonElement mod : modsList) {
-                        builder.addAttributeModifier(slot, GsonUtil.getAsResourceLocation(mod.getAsJsonObject(), "attribute"), parseAttributeModifier(mod.getAsJsonObject()));
-                    }
-                } else if (mods.isJsonObject()) {
-                    builder.addAttributeModifier(slot, GsonUtil.getAsResourceLocation(mods.getAsJsonObject(), "attribute"), parseAttributeModifier(mods.getAsJsonObject()));
-                } else {
-                    throw new JsonSyntaxException("Attribute modifiers definitions need to be either an object or an array");
-                }
+                GsonUtil.forEachInListOrPrimitive(mods, attrMod -> {
+                    builder.addAttributeModifier(slot, GsonUtil.getAsResourceLocation(attrMod.getAsJsonObject(), "attribute"), AttributeModifier.CODEC.parse(JsonOps.INSTANCE, attrMod.getAsJsonObject()).getOrThrow());
+                });
             }
         } else {
             throw new JsonSyntaxException("The attribute modifier definition needs to be an object");
         }
-    }
-
-    public static AttributeModifier parseAttributeModifier(JsonObject json) {
-        UUID uuid = GsonUtil.getAsUUID(json, "uuid");
-        String name = GsonHelper.getAsString(json, "name", "Addonpack Item Modifier");
-        double amount = GsonHelper.getAsDouble(json, "amount");
-        AttributeModifier.Operation operation = AttributeModifier.Operation.fromValue(GsonUtil.getAsIntRanged(json, "operation", AttributeModifier.Operation.ADDITION.toValue(), AttributeModifier.Operation.MULTIPLY_TOTAL.toValue()));
-        return new AttributeModifier(uuid, name, amount, operation);
     }
 
     public static void registerTypeSerializer(ItemTypeSerializer serializer) {
@@ -211,7 +159,7 @@ public class ItemParser extends AddonParser<Item> {
 
         builder.addProperty("type", ResourceLocation.class)
                 .description("Item Type, each come with new different settings. Listed below on this page.")
-                .fallback(new ResourceLocation("palladium:default"));
+                .fallback(Palladium.id("default"));
         builder.addProperty("max_stack_size", Integer.class)
                 .description("Max stack size for an itemstack. Range: 1-64")
                 .fallback(64)
@@ -255,19 +203,24 @@ public class ItemParser extends AddonParser<Item> {
 
         JsonObject foodExample = new JsonObject();
         foodExample.addProperty("nutrition", 5);
-        foodExample.addProperty("saturation_modifier", 0.6F);
-        foodExample.addProperty("meat", false);
+        foodExample.addProperty("saturation", 0.6F);
         foodExample.addProperty("can_always_eat", false);
-        foodExample.addProperty("fast", false);
+        foodExample.addProperty("eat_seconds", 1.6F);
+        foodExample.addProperty("using_converts_to", "{ \"id\": \"minecraft:bread\" }");
         JsonArray effectsExample = new JsonArray();
         JsonObject effectExample = new JsonObject();
-        effectExample.addProperty("mob_effect", Objects.requireNonNull(BuiltInRegistries.MOB_EFFECT.getKey(MobEffects.DAMAGE_BOOST)).toString());
-        effectExample.addProperty("duration", 40);
-        effectExample.addProperty("amplifier", 1);
-        effectExample.addProperty("ambient", false);
-        effectExample.addProperty("visible", true);
-        effectExample.addProperty("show_icon", true);
-        effectExample.addProperty("probability", 1F);
+
+        JsonObject effectInstanceExample = new JsonObject();
+        effectInstanceExample.addProperty("id", "minecraft:damage_boost");
+        effectInstanceExample.addProperty("duration", 40);
+        effectInstanceExample.addProperty("amplifier", 1);
+        effectInstanceExample.addProperty("ambient", false);
+        effectInstanceExample.addProperty("show_particles", true);
+        effectInstanceExample.addProperty("show_icon", true);
+        effectInstanceExample.addProperty("hidden_effect", false);
+        effectInstanceExample.addProperty("probability", 1F);
+        effectExample.add("effect", effectInstanceExample);
+
         effectsExample.add(effectExample);
         foodExample.add("effects", effectsExample);
 
@@ -279,7 +232,7 @@ public class ItemParser extends AddonParser<Item> {
         return builder;
     }
 
-    public interface ItemTypeSerializer extends IDocumentedConfigurable {
+    public interface ItemTypeSerializer extends DocumentedConfigurable {
 
         IAddonItem parse(JsonObject json, Item.Properties properties);
     }

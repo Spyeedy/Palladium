@@ -4,23 +4,26 @@ import com.google.common.collect.Lists;
 import com.mojang.brigadier.CommandDispatcher;
 import com.mojang.brigadier.arguments.StringArgumentType;
 import com.mojang.brigadier.suggestion.SuggestionProvider;
+import net.minecraft.commands.CommandBuildContext;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.Commands;
 import net.minecraft.commands.SharedSuggestionProvider;
 import net.minecraft.commands.arguments.EntityArgument;
-import net.minecraft.commands.arguments.ResourceLocationArgument;
+import net.minecraft.commands.arguments.ResourceArgument;
 import net.minecraft.commands.arguments.selector.EntitySelector;
+import net.minecraft.core.Holder;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
 import net.threetag.palladium.condition.BuyableCondition;
-import net.threetag.palladium.power.IPowerHolder;
+import net.threetag.palladium.power.EntityPowerHandler;
 import net.threetag.palladium.power.Power;
-import net.threetag.palladium.power.PowerHandler;
-import net.threetag.palladium.power.PowerEventHandler;
+import net.threetag.palladium.power.PowerHolder;
+import net.threetag.palladium.power.PowerUtil;
 import net.threetag.palladium.power.ability.AbilityConfiguration;
 import net.threetag.palladium.power.ability.AbilityInstance;
+import net.threetag.palladium.registry.PalladiumRegistryKeys;
 
 import java.util.Collection;
 import java.util.Collections;
@@ -39,13 +42,13 @@ public class AbilityCommand {
         }
         for (Entity entity : entities) {
             if (entity instanceof LivingEntity living) {
-                var manager = PowerEventHandler.getPowerHandler(living).orElse(new PowerHandler(living));
+                var manager = PowerUtil.getPowerHandler(living).orElse(new EntityPowerHandler(living));
 
-                for (IPowerHolder holder : manager.getPowerHolders().values()) {
+                for (PowerHolder holder : manager.getPowerHolders().values()) {
                     for (AbilityInstance entry : holder.getAbilities().values()) {
-                        if (entry.getConfiguration().isBuyable()) {
-                            if (!powers.contains(holder.getPower().getId())) {
-                                powers.add(holder.getPower().getId());
+                        if (entry.getConfiguration().getConditions().isBuyable()) {
+                            if (!powers.contains(holder.getPowerId())) {
+                                powers.add(holder.getPowerId());
                             }
                             break;
                         }
@@ -59,17 +62,17 @@ public class AbilityCommand {
 
     private static final SuggestionProvider<CommandSourceStack> SUGGEST_ABILITIES = (context, builder) -> {
         List<String> abilities = Lists.newArrayList();
-        Power power = null;
+        Holder<Power> power = null;
         try {
             context.getArgument("power", ResourceLocation.class);
-            power = SuperpowerCommand.getSuperpower(context, "power");
+            power = ResourceArgument.getResource(context, "power", PalladiumRegistryKeys.POWER);
         } catch (Exception e) {
         }
 
         if (power != null) {
-            for (AbilityConfiguration ability : power.getAbilities()) {
-                if (ability.isBuyable()) {
-                    abilities.add(ability.getId());
+            for (AbilityConfiguration ability : power.value().getAbilities().values()) {
+                if (ability.getConditions().isBuyable()) {
+                    abilities.add(ability.getKey());
                 }
             }
         }
@@ -77,38 +80,40 @@ public class AbilityCommand {
         return SharedSuggestionProvider.suggest(abilities, builder);
     };
 
-    public static void register(CommandDispatcher<CommandSourceStack> dispatcher) {
+    public static void register(CommandDispatcher<CommandSourceStack> dispatcher, CommandBuildContext context) {
         dispatcher.register(Commands.literal("ability").requires((player) -> {
                     return player.hasPermission(2);
                 })
                 .then(Commands.literal("lock")
                         .then(Commands.argument("entities", EntityArgument.entities())
-                                .then(Commands.argument("power", ResourceLocationArgument.id()).suggests(SUGGEST_OWN_POWERS)
+                                .then(Commands.argument("power", ResourceArgument.resource(context, PalladiumRegistryKeys.POWER)).suggests(SUGGEST_OWN_POWERS)
                                         .then(Commands.argument("ability", StringArgumentType.word()).suggests(SUGGEST_ABILITIES)
-                                                .executes(context -> {
-                                                    return lockAbility(context.getSource(), EntityArgument.getEntities(context, "entities"), SuperpowerCommand.getSuperpower(context, "power"), StringArgumentType.getString(context, "ability"), true);
+                                                .executes(c -> {
+                                                    return lockAbility(c.getSource(), EntityArgument.getEntities(c, "entities"), ResourceArgument.getResource(c, "power", PalladiumRegistryKeys.POWER), StringArgumentType.getString(c, "ability"), true);
                                                 })))))
                 .then(Commands.literal("unlock")
                         .then(Commands.argument("entities", EntityArgument.entities())
-                                .then(Commands.argument("power", ResourceLocationArgument.id()).suggests(SUGGEST_OWN_POWERS)
+                                .then(Commands.argument("power", ResourceArgument.resource(context, PalladiumRegistryKeys.POWER)).suggests(SUGGEST_OWN_POWERS)
                                         .then(Commands.argument("ability", StringArgumentType.word()).suggests(SUGGEST_ABILITIES)
-                                                .executes(context -> {
-                                                    return lockAbility(context.getSource(), EntityArgument.getEntities(context, "entities"), SuperpowerCommand.getSuperpower(context, "power"), StringArgumentType.getString(context, "ability"), false);
+                                                .executes(c -> {
+                                                    return lockAbility(c.getSource(), EntityArgument.getEntities(c, "entities"), ResourceArgument.getResource(c, "power", PalladiumRegistryKeys.POWER), StringArgumentType.getString(c, "ability"), false);
                                                 }))))));
     }
 
-    public static int lockAbility(CommandSourceStack source, Collection<? extends Entity> entities, Power power, String abilityKey, boolean locking) {
-        AbilityConfiguration configuration = power.getAbilities().stream().filter(c -> c.getId().equals(abilityKey)).findFirst().orElse(null);
+    public static int lockAbility(CommandSourceStack source, Collection<? extends Entity> entities, Holder<Power> power, String abilityKey, boolean locking) {
+        AbilityConfiguration configuration = power.value().getAbilities().values().stream().filter(c -> c.getKey().equals(abilityKey)).findFirst().orElse(null);
+        var powerId = source.getServer().registryAccess().registryOrThrow(PalladiumRegistryKeys.POWER).getKey(power.value());
 
-        if (configuration == null || !configuration.isBuyable()) {
-            source.sendFailure(Component.translatable("commands.ability.error.notUnlockable", abilityKey, power.getId()));
+        if (configuration == null || !configuration.getConditions().isBuyable()) {
+            source.sendFailure(Component.translatable("commands.ability.error.notUnlockable", abilityKey, powerId));
             return 0;
         }
 
         int i = 0;
+
         for (Entity entity : entities) {
             if (entity instanceof LivingEntity living) {
-                var holder = PowerEventHandler.getPowerHandler(living).orElse(new PowerHandler(living)).getPowerHolder(power);
+                var holder = PowerUtil.getPowerHandler(living).orElse(new EntityPowerHandler(living)).getPowerHolder(powerId);
 
                 if (holder != null) {
                     var ability = holder.getAbilities().get(abilityKey);
@@ -126,7 +131,7 @@ public class AbilityCommand {
         }
 
         int finalI = i;
-        source.sendSuccess(() -> Component.translatable("commands.ability." + (locking ? "locking" : "unlocking") + ".success", abilityKey, power.getId(), finalI), true);
+        source.sendSuccess(() -> Component.translatable("commands.ability." + (locking ? "locking" : "unlocking") + ".success", abilityKey, powerId, finalI), true);
 
         return i;
     }

@@ -28,7 +28,7 @@ public class DynamicTextureManager extends SimpleJsonResourceReloadListener {
 
     private static final Map<ResourceLocation, Function<JsonObject, DynamicTexture>> TYPE_PARSERS = new HashMap<>();
     private static final Map<ResourceLocation, Function<JsonObject, ITextureTransformer>> TRANSFORMER_PARSERS = new HashMap<>();
-    private static final Map<ResourceLocation, ITextureVariableSerializer> VARIABLE_PARSERS = new HashMap<>();
+    private static final Map<ResourceLocation, TextureVariableSerializer> VARIABLE_PARSERS = new HashMap<>();
 
     static {
         registerType(Palladium.id("simple"), j -> new SimpleDynamicTexture(GsonUtil.getAsResourceLocation(j, "texture")));
@@ -157,12 +157,12 @@ public class DynamicTextureManager extends SimpleJsonResourceReloadListener {
         TRANSFORMER_PARSERS.put(id, function);
     }
 
-    public static void registerVariable(ITextureVariableSerializer serializer) {
+    public static void registerVariable(TextureVariableSerializer serializer) {
         VARIABLE_PARSERS.put(serializer.getId(), serializer);
     }
 
     @Nullable
-    public static ITextureVariableSerializer getTextureVariableSerializer(ResourceLocation id) {
+    public static TextureVariableSerializer getTextureVariableSerializer(ResourceLocation id) {
         return VARIABLE_PARSERS.get(id);
     }
 

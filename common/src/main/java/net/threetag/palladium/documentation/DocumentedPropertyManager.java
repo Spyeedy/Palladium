@@ -3,7 +3,7 @@ package net.threetag.palladium.documentation;
 import com.mojang.serialization.JsonOps;
 import net.threetag.palladium.util.property.PropertyManager;
 
-public interface IDefaultDocumentedConfigurable extends IDocumentedConfigurable {
+public interface DocumentedPropertyManager extends DocumentedConfigurable {
 
     PropertyManager getPropertyManager();
 

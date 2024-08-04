@@ -1,11 +1,18 @@
 package net.threetag.palladium.condition;
 
-import com.google.gson.JsonObject;
+import com.mojang.serialization.MapCodec;
+import net.minecraft.network.RegistryFriendlyByteBuf;
+import net.minecraft.network.codec.StreamCodec;
+import net.threetag.palladium.entity.PalladiumPlayerExtension;
 import net.threetag.palladium.util.context.DataContext;
 import net.threetag.palladium.util.context.DataContextType;
-import net.threetag.palladium.entity.PalladiumPlayerExtension;
 
-public class IsHoveringCondition extends Condition {
+public class IsHoveringCondition implements Condition {
+
+    public static final IsHoveringCondition INSTANCE = new IsHoveringCondition();
+
+    public static final MapCodec<IsHoveringCondition> CODEC = MapCodec.unit(INSTANCE);
+    public static final StreamCodec<RegistryFriendlyByteBuf, IsHoveringCondition> STREAM_CODEC = StreamCodec.unit(INSTANCE);
 
     @Override
     public boolean active(DataContext context) {
@@ -22,15 +29,20 @@ public class IsHoveringCondition extends Condition {
     }
 
     @Override
-    public ConditionSerializer getSerializer() {
+    public ConditionSerializer<IsHoveringCondition> getSerializer() {
         return ConditionSerializers.IS_HOVERING.get();
     }
 
-    public static class Serializer extends ConditionSerializer {
+    public static class Serializer extends ConditionSerializer<IsHoveringCondition> {
 
         @Override
-        public Condition make(JsonObject json) {
-            return new IsHoveringCondition();
+        public MapCodec<IsHoveringCondition> codec() {
+            return CODEC;
+        }
+
+        @Override
+        public StreamCodec<RegistryFriendlyByteBuf, IsHoveringCondition> streamCodec() {
+            return STREAM_CODEC;
         }
 
         @Override

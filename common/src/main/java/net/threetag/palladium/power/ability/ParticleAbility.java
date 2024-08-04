@@ -12,7 +12,6 @@ import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.LivingEntity;
 import net.threetag.palladium.client.particleemitter.ParticleEmitterManager;
-import net.threetag.palladium.power.IPowerHolder;
 import net.threetag.palladium.util.property.PalladiumProperty;
 import net.threetag.palladium.util.property.ParticleTypeProperty;
 import net.threetag.palladium.util.property.ResourceLocationListProperty;

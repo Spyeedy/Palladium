@@ -4,15 +4,12 @@ import net.minecraft.Util;
 import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.item.Item;
-import net.threetag.palladium.Palladium;
-import net.threetag.palladiumcore.registry.PalladiumRegistry;
+import net.threetag.palladium.registry.PalladiumRegistries;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.function.Supplier;
 
 public class SuitSet {
-
-    public static final PalladiumRegistry<SuitSet> REGISTRY = PalladiumRegistry.create(SuitSet.class, Palladium.id("suit_set"));
 
     private final Supplier<Item> mainHand, offHand, helmet, chestplate, leggings, boots;
     @Nullable
@@ -33,7 +30,7 @@ public class SuitSet {
 
     protected String getOrCreateDescriptionId() {
         if (this.descriptionId == null) {
-            this.descriptionId = Util.makeDescriptionId("suitset", REGISTRY.getKey(this));
+            this.descriptionId = Util.makeDescriptionId("suitset", PalladiumRegistries.SUIT_SET.getKey(this));
         }
 
         return this.descriptionId;

@@ -6,8 +6,7 @@ import dev.kosmx.playerAnim.core.data.KeyframeAnimation;
 import dev.kosmx.playerAnim.minecraftApi.PlayerAnimationRegistry;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.LivingEntity;
-import net.threetag.palladium.client.model.animation.IAnimatablePlayer;
-import net.threetag.palladium.power.IPowerHolder;
+import net.threetag.palladium.client.model.animation.AnimatablePlayer;
 import net.threetag.palladium.util.property.PalladiumProperty;
 import net.threetag.palladium.util.property.ResourceLocationProperty;
 
@@ -21,7 +20,7 @@ public class PlayerAnimationAbility extends Ability {
 
     @Override
     public void firstTick(LivingEntity entity, AbilityInstance entry, IPowerHolder holder, boolean enabled) {
-        if (enabled && entity.level().isClientSide && entity instanceof IAnimatablePlayer animatablePlayer) {
+        if (enabled && entity.level().isClientSide && entity instanceof AnimatablePlayer animatablePlayer) {
             var animationContainer = animatablePlayer.palladium_getModifierLayer();
             KeyframeAnimation anim = PlayerAnimationRegistry.getAnimation(entry.getProperty(ANIMATION));
 

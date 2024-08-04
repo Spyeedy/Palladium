@@ -1,7 +1,6 @@
 package net.threetag.palladium.power.ability;
 
 import net.minecraft.world.entity.LivingEntity;
-import net.threetag.palladium.power.IPowerHolder;
 import net.threetag.palladium.util.property.PalladiumProperty;
 import net.threetag.palladium.util.property.PalladiumPropertyBuilder;
 import net.threetag.palladium.util.property.PalladiumPropertyType;

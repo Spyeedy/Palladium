@@ -1,19 +1,26 @@
 package net.threetag.palladium.condition;
 
-import com.google.gson.JsonObject;
+import com.mojang.serialization.Codec;
+import com.mojang.serialization.MapCodec;
+import com.mojang.serialization.codecs.RecordCodecBuilder;
+import net.minecraft.network.RegistryFriendlyByteBuf;
+import net.minecraft.network.codec.ByteBufCodecs;
+import net.minecraft.network.codec.StreamCodec;
 import net.threetag.palladium.util.context.DataContext;
-import net.threetag.palladium.util.context.DataContextType;
-import net.threetag.palladium.util.property.FloatProperty;
-import net.threetag.palladium.util.property.PalladiumProperty;
 
-public class HealthCondition extends Condition {
+public record HealthCondition(float minHealth, float maxHealth) implements Condition {
 
-    private final float minHealth, maxHealth;
-
-    public HealthCondition(float minHealth, float maxHealth) {
-        this.minHealth = minHealth;
-        this.maxHealth = maxHealth;
-    }
+    public static final MapCodec<HealthCondition> CODEC = RecordCodecBuilder.mapCodec(instance -> instance
+            .group(
+                    Codec.FLOAT.optionalFieldOf("min_health", Float.MIN_VALUE).forGetter(HealthCondition::minHealth),
+                    Codec.FLOAT.optionalFieldOf("max_health", Float.MAX_VALUE).forGetter(HealthCondition::maxHealth)
+            ).apply(instance, HealthCondition::new)
+    );
+    public static final StreamCodec<RegistryFriendlyByteBuf, HealthCondition> STREAM_CODEC = StreamCodec.composite(
+            ByteBufCodecs.FLOAT, HealthCondition::minHealth,
+            ByteBufCodecs.FLOAT, HealthCondition::maxHealth,
+            HealthCondition::new
+    );
 
     @Override
     public boolean active(DataContext context) {
@@ -27,23 +34,20 @@ public class HealthCondition extends Condition {
     }
 
     @Override
-    public ConditionSerializer getSerializer() {
+    public ConditionSerializer<HealthCondition> getSerializer() {
         return ConditionSerializers.HEALTH.get();
     }
 
-    public static class Serializer extends ConditionSerializer {
+    public static class Serializer extends ConditionSerializer<HealthCondition> {
 
-        public static final PalladiumProperty<Float> MIN_HEALTH = new FloatProperty("min_health").configurable("Minimum required amount of health");
-        public static final PalladiumProperty<Float> MAX_HEALTH = new FloatProperty("max_health").configurable("Maximum required amount of health");
-
-        public Serializer() {
-            this.withProperty(MIN_HEALTH, 0F);
-            this.withProperty(MAX_HEALTH, Float.MAX_VALUE);
+        @Override
+        public MapCodec<HealthCondition> codec() {
+            return CODEC;
         }
 
         @Override
-        public Condition make(JsonObject json) {
-            return new HealthCondition(getProperty(json, MIN_HEALTH), getProperty(json, MAX_HEALTH));
+        public StreamCodec<RegistryFriendlyByteBuf, HealthCondition> streamCodec() {
+            return STREAM_CODEC;
         }
 
         @Override

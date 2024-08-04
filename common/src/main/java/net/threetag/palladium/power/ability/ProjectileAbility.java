@@ -11,7 +11,6 @@ import net.minecraft.world.entity.projectile.Projectile;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.phys.Vec3;
 import net.threetag.palladium.entity.CustomProjectile;
-import net.threetag.palladium.power.IPowerHolder;
 import net.threetag.palladium.util.icon.ItemIcon;
 import net.threetag.palladium.util.property.*;
 

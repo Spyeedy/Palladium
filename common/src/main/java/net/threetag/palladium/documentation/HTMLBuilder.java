@@ -101,17 +101,17 @@ public class HTMLBuilder {
         return this;
     }
 
-    public HTMLBuilder addDocumentationSettings(Collection<IDocumentedConfigurable> settings) {
+    public HTMLBuilder addDocumentationSettings(Collection<DocumentedConfigurable> settings) {
         return this.addDocumentationSettings(settings, JsonDocumentationBuilder::new);
     }
 
-    public HTMLBuilder addDocumentationSettings(Collection<IDocumentedConfigurable> settings, Supplier<JsonDocumentationBuilder> builderSupplier) {
-        Map<String, List<IDocumentedConfigurable>> sorted = new HashMap<>();
+    public HTMLBuilder addDocumentationSettings(Collection<DocumentedConfigurable> settings, Supplier<JsonDocumentationBuilder> builderSupplier) {
+        Map<String, List<DocumentedConfigurable>> sorted = new HashMap<>();
         // Sort abilities by mods
-        for (IDocumentedConfigurable setting : settings) {
+        for (DocumentedConfigurable setting : settings) {
             var mod = Platform.getMod(setting.getId().getNamespace());
             String modName = mod != null ? mod.name() : setting.getId().getNamespace();
-            List<IDocumentedConfigurable> modsList = sorted.containsKey(modName) ? sorted.get(modName) : new ArrayList<>();
+            List<DocumentedConfigurable> modsList = sorted.containsKey(modName) ? sorted.get(modName) : new ArrayList<>();
             modsList.add(setting);
             sorted.put(modName, modsList);
         }

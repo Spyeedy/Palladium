@@ -1,37 +1,57 @@
 package net.threetag.palladium.condition;
 
-import com.google.gson.JsonObject;
+import com.mojang.serialization.Codec;
+import com.mojang.serialization.MapCodec;
+import com.mojang.serialization.codecs.RecordCodecBuilder;
+import net.minecraft.network.RegistryFriendlyByteBuf;
+import net.minecraft.network.codec.ByteBufCodecs;
+import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.world.entity.LivingEntity;
-import net.threetag.palladium.power.IPowerHolder;
 import net.threetag.palladium.power.Power;
-import net.threetag.palladium.power.ability.AbilityConfiguration;
+import net.threetag.palladium.power.PowerHolder;
+import net.threetag.palladium.power.ability.AbilityConditions;
 import net.threetag.palladium.power.ability.AbilityInstance;
 import net.threetag.palladium.util.context.DataContext;
 import net.threetag.palladium.util.context.DataContextType;
-import net.threetag.palladium.util.property.IntegerProperty;
-import net.threetag.palladium.util.property.PalladiumProperty;
 
 import java.util.Objects;
 
 public class ActionCondition extends KeyCondition {
 
-    public ActionCondition(int cooldown, AbilityConfiguration.KeyType type, boolean needsEmptyHand, boolean allowScrollingWhenCrouching) {
+    public static final MapCodec<ActionCondition> CODEC = RecordCodecBuilder.mapCodec(instance -> instance
+            .group(
+                    Codec.INT.optionalFieldOf("cooldown", 0).forGetter(ActionCondition::getCooldown),
+                    AbilityConditions.KeyType.CODEC.optionalFieldOf("key_type", AbilityConditions.KeyType.KEY_BIND).forGetter(ActionCondition::getKeyType),
+                    Codec.BOOL.optionalFieldOf("needs_empty_hand", false).forGetter(ActionCondition::needsEmptyHand),
+                    Codec.BOOL.optionalFieldOf("allow_scrolling_when_crouching", true).forGetter(ActionCondition::allowScrollingWhenCrouching)
+
+            ).apply(instance, ActionCondition::new)
+    );
+    public static final StreamCodec<RegistryFriendlyByteBuf, ActionCondition> STREAM_CODEC = StreamCodec.composite(
+            ByteBufCodecs.VAR_INT, ActionCondition::getCooldown,
+            AbilityConditions.KeyType.STREAM_CODEC, ActionCondition::getKeyType,
+            ByteBufCodecs.BOOL, ActionCondition::needsEmptyHand,
+            ByteBufCodecs.BOOL, ActionCondition::allowScrollingWhenCrouching,
+            ActionCondition::new
+    );
+
+    public ActionCondition(int cooldown, AbilityConditions.KeyType type, boolean needsEmptyHand, boolean allowScrollingWhenCrouching) {
         super(cooldown, type, needsEmptyHand, allowScrollingWhenCrouching);
     }
 
     @Override
     public boolean active(DataContext context) {
         var entity = context.getLivingEntity();
-        var entry = context.get(DataContextType.ABILITY);
+        var ability = context.get(DataContextType.ABILITY);
 
-        if (entity == null || entry == null) {
+        if (entity == null || ability == null) {
             return false;
         }
 
-        if (Objects.requireNonNull(entry).keyPressed) {
-            entry.keyPressed = false;
-            if (entry.getEnabledTicks() == 0 && this.cooldown != 0) {
-                entry.startCooldown(entity, this.cooldown);
+        if (Objects.requireNonNull(ability).keyPressed) {
+            ability.keyPressed = false;
+            if (ability.getEnabledTicks() == 0 && this.cooldown != 0) {
+                ability.startCooldown(entity, this.cooldown);
             }
             return true;
         }
@@ -40,31 +60,27 @@ public class ActionCondition extends KeyCondition {
     }
 
     @Override
-    public void onKeyPressed(LivingEntity entity, AbilityInstance entry, Power power, IPowerHolder holder) {
+    public void onKeyPressed(LivingEntity entity, AbilityInstance entry, Power power, PowerHolder holder) {
         if (entry.cooldown == 0) {
             entry.keyPressed = true;
         }
     }
 
     @Override
-    public ConditionSerializer getSerializer() {
+    public ConditionSerializer<ActionCondition> getSerializer() {
         return ConditionSerializers.ACTION.get();
     }
 
-    public static class Serializer extends ConditionSerializer {
+    public static class Serializer extends ConditionSerializer<ActionCondition> {
 
-        public static final PalladiumProperty<Integer> COOLDOWN = new IntegerProperty("cooldown").configurable("Amount of ticks the ability wont be useable for after using it");
-
-        public Serializer() {
-            this.withProperty(COOLDOWN, 0);
-            this.withProperty(KeyCondition.KEY_TYPE_WITH_SCROLLING, AbilityConfiguration.KeyType.KEY_BIND);
-            this.withProperty(KeyCondition.NEEDS_EMPTY_HAND, false);
-            this.withProperty(KeyCondition.ALLOW_SCROLLING_DURING_CROUCHING, true);
+        @Override
+        public MapCodec<ActionCondition> codec() {
+            return CODEC;
         }
 
         @Override
-        public Condition make(JsonObject json) {
-            return new ActionCondition(this.getProperty(json, COOLDOWN), this.getProperty(json, KeyCondition.KEY_TYPE_WITH_SCROLLING), this.getProperty(json, KeyCondition.NEEDS_EMPTY_HAND), this.getProperty(json, KeyCondition.ALLOW_SCROLLING_DURING_CROUCHING));
+        public StreamCodec<RegistryFriendlyByteBuf, ActionCondition> streamCodec() {
+            return STREAM_CODEC;
         }
 
         @Override

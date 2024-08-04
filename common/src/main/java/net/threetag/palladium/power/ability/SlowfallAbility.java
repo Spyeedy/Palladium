@@ -2,7 +2,6 @@ package net.threetag.palladium.power.ability;
 
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.item.Items;
-import net.threetag.palladium.power.IPowerHolder;
 import net.threetag.palladium.util.icon.ItemIcon;
 
 public class SlowfallAbility extends Ability {

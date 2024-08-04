@@ -7,7 +7,6 @@ import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.item.Items;
 import net.threetag.palladium.addonpack.log.AddonPackLog;
 import net.threetag.palladium.compat.kubejs.neoforge.PalladiumKubeJSPlugin;
-import net.threetag.palladium.power.IPowerHolder;
 import net.threetag.palladium.power.ability.Ability;
 import net.threetag.palladium.power.ability.AbilityInstance;
 import net.threetag.palladium.util.icon.Icon;

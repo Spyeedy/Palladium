@@ -11,8 +11,8 @@ import net.threetag.palladium.power.ability.AbilityInstance;
 import net.threetag.palladium.power.ability.AbilityReference;
 import net.threetag.palladium.util.context.DataContext;
 import net.threetag.palladium.util.json.GsonUtil;
-import net.threetag.palladium.util.property.FloatProperty;
 import net.threetag.palladium.util.property.PalladiumProperty;
+import net.threetag.palladium.util.property.PalladiumPropertyType;
 
 import java.util.List;
 
@@ -39,15 +39,15 @@ public class AbilityFloatPropertyVariable extends AbstractFloatTextureVariable {
 
             PalladiumProperty<?> property = entry.getEitherPropertyByKey(this.propertyKey);
 
-            if (property instanceof FloatProperty floatProperty) {
-                return entry.getProperty(floatProperty);
+            if (property.getType() == PalladiumPropertyType.FLOAT) {
+                return (float) entry.getProperty(property);
             }
         }
 
         return 0F;
     }
 
-    public static class Serializer implements ITextureVariableSerializer {
+    public static class Serializer implements TextureVariableSerializer {
 
         @Override
         public ITextureVariable parse(JsonObject json) {

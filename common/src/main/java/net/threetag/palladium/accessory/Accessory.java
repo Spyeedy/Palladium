@@ -20,21 +20,16 @@ import net.minecraft.server.packs.resources.ResourceManager;
 import net.minecraft.server.packs.resources.ResourceManagerReloadListener;
 import net.minecraft.world.entity.HumanoidArm;
 import net.minecraft.world.entity.player.Player;
-import net.threetag.palladium.Palladium;
 import net.threetag.palladium.entity.PalladiumPlayerExtension;
+import net.threetag.palladium.registry.PalladiumRegistries;
 import net.threetag.palladium.util.SupporterHandler;
-import net.threetag.palladiumcore.registry.PalladiumRegistry;
 import net.threetag.palladiumcore.util.Platform;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 
 public abstract class Accessory {
 
-    public static final PalladiumRegistry<Accessory> REGISTRY = PalladiumRegistry.create(Accessory.class, Palladium.id("accessories"));
     private boolean exclusive = false;
 
     public boolean isAvailable(Player entity) {
@@ -46,12 +41,12 @@ public abstract class Accessory {
     }
 
     public Component getDisplayName() {
-        return Component.translatable(Util.makeDescriptionId("accessory", REGISTRY.getKey(this)));
+        return Component.translatable(Util.makeDescriptionId("accessory", PalladiumRegistries.ACCESSORY.getKey(this)));
     }
 
     @Override
     public String toString() {
-        return REGISTRY.getKey(this).toString();
+        return Objects.requireNonNull(PalladiumRegistries.ACCESSORY.getKey(this)).toString();
     }
 
     public Accessory setExclusive() {
@@ -123,7 +118,7 @@ public abstract class Accessory {
     public static List<Accessory> getAvailableAccessories(SupporterHandler.PlayerData data) {
         List<Accessory> list = new ArrayList<>();
 
-        for (Accessory accessory : Accessory.REGISTRY.getValues()) {
+        for (Accessory accessory : PalladiumRegistries.ACCESSORY) {
             if (accessory.isAvailable(data)) {
                 list.add(accessory);
             }
@@ -135,7 +130,7 @@ public abstract class Accessory {
     public static List<Accessory> getAvailableAccessories(SupporterHandler.PlayerData data, AccessorySlot slot) {
         List<Accessory> list = new ArrayList<>();
 
-        for (Accessory accessory : Accessory.REGISTRY.getValues()) {
+        for (Accessory accessory : PalladiumRegistries.ACCESSORY) {
             if (accessory.getPossibleSlots().contains(slot) && accessory.isAvailable(data)) {
                 list.add(accessory);
             }
@@ -156,7 +151,7 @@ public abstract class Accessory {
 
         @Override
         public void onResourceManagerReload(ResourceManager resourceManager) {
-            for (Accessory accessory : Accessory.REGISTRY.getValues()) {
+            for (Accessory accessory : PalladiumRegistries.ACCESSORY) {
                 accessory.onReload(Minecraft.getInstance().getEntityModels());
             }
         }

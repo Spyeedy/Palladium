@@ -9,8 +9,8 @@ import net.threetag.palladium.Palladium;
 import net.threetag.palladium.documentation.JsonDocumentationBuilder;
 import net.threetag.palladium.util.context.DataContext;
 import net.threetag.palladium.util.property.EntityPropertyHandler;
-import net.threetag.palladium.util.property.FloatProperty;
 import net.threetag.palladium.util.property.PalladiumProperty;
+import net.threetag.palladium.util.property.PalladiumPropertyType;
 
 import java.util.List;
 import java.util.concurrent.atomic.AtomicReference;
@@ -30,15 +30,15 @@ public class FloatPropertyVariable extends AbstractFloatTextureVariable {
         EntityPropertyHandler.getHandler(context.getEntity()).ifPresent(handler -> {
             PalladiumProperty<?> property = handler.getPropertyByName(this.propertyKey);
 
-            if (property instanceof FloatProperty floatProperty) {
-                result.set(handler.get(floatProperty));
+            if (property.getType() == PalladiumPropertyType.FLOAT) {
+                result.set((Float) handler.get(property));
             }
         });
 
         return result.get();
     }
 
-    public static class Serializer implements ITextureVariableSerializer {
+    public static class Serializer implements TextureVariableSerializer {
 
         @Override
         public ITextureVariable parse(JsonObject json) {

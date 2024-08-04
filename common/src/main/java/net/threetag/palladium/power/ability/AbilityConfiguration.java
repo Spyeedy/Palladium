@@ -3,14 +3,16 @@ package net.threetag.palladium.power.ability;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import net.minecraft.nbt.CompoundTag;
-import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.ComponentSerialization;
+import net.minecraft.network.codec.ByteBufCodecs;
+import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.resources.ResourceLocation;
 import net.threetag.palladium.power.energybar.EnergyBarUsage;
 import net.threetag.palladium.registry.PalladiumRegistries;
 import net.threetag.palladium.util.CodecUtils;
 import net.threetag.palladium.util.icon.Icon;
-import net.threetag.palladium.util.icon.IconSerializer;
 import net.threetag.palladium.util.property.PalladiumProperty;
 import net.threetag.palladium.util.property.PropertyManager;
 
@@ -29,7 +31,7 @@ public class AbilityConfiguration {
             ).apply(instance, AbilityConfiguration::new)
     );
 
-    private String id;
+    private String key;
     private final Ability ability;
     private final PropertyManager propertyManager;
     private final AbilityConditions conditions;
@@ -43,12 +45,12 @@ public class AbilityConfiguration {
         this.energyBarUsages = energyBarUsages;
     }
 
-    public void setId(String id) {
-        this.id = id;
+    public void setKey(String id) {
+        this.key = id;
     }
 
-    public String getId() {
-        return this.id;
+    public String getKey() {
+        return this.key;
     }
 
     public Ability getAbility() {
@@ -86,28 +88,14 @@ public class AbilityConfiguration {
         return this.conditions;
     }
 
-    public static class UnlockData {
+    public record UnlockData(Icon icon, int amount, Component description) {
 
-        public final Icon icon;
-        public final int amount;
-        public final Component description;
+        public static final StreamCodec<RegistryFriendlyByteBuf, UnlockData> STREAM_CODEC = StreamCodec.composite(
+                Icon.STREAM_CODEC, UnlockData::icon,
+                ByteBufCodecs.VAR_INT, UnlockData::amount,
+                ComponentSerialization.STREAM_CODEC, UnlockData::description,
+                UnlockData::new
+        );
 
-        public UnlockData(Icon icon, int amount, Component description) {
-            this.icon = icon;
-            this.amount = amount;
-            this.description = description;
-        }
-
-        public UnlockData(FriendlyByteBuf buf) {
-            this.icon = IconSerializer.parseNBT(Objects.requireNonNull(buf.readAnySizeNbt()));
-            this.amount = buf.readInt();
-            this.description = buf.readComponent();
-        }
-
-        public void toBuffer(FriendlyByteBuf buf) {
-            buf.writeNbt(IconSerializer.serializeNBT(this.icon));
-            buf.writeInt(this.amount);
-            buf.writeComponent(this.description);
-        }
     }
 }

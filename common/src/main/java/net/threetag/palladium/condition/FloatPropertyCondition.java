@@ -1,25 +1,34 @@
 package net.threetag.palladium.condition;
 
-import com.google.gson.JsonObject;
+import com.mojang.serialization.Codec;
+import com.mojang.serialization.MapCodec;
+import com.mojang.serialization.codecs.RecordCodecBuilder;
+import net.minecraft.network.RegistryFriendlyByteBuf;
+import net.minecraft.network.codec.ByteBufCodecs;
+import net.minecraft.network.codec.StreamCodec;
 import net.threetag.palladium.util.context.DataContext;
 import net.threetag.palladium.util.context.DataContextType;
 import net.threetag.palladium.util.property.EntityPropertyHandler;
-import net.threetag.palladium.util.property.FloatProperty;
 import net.threetag.palladium.util.property.PalladiumProperty;
-import net.threetag.palladium.util.property.StringProperty;
+import net.threetag.palladium.util.property.PalladiumPropertyType;
 
 import java.util.concurrent.atomic.AtomicBoolean;
 
-public class FloatPropertyCondition extends Condition {
+public record FloatPropertyCondition(String propertyKey, float min, float max) implements Condition {
 
-    private final String propertyKey;
-    private final float min, max;
-
-    public FloatPropertyCondition(String propertyKey, float min, float max) {
-        this.propertyKey = propertyKey;
-        this.min = min;
-        this.max = max;
-    }
+    public static final MapCodec<FloatPropertyCondition> CODEC = RecordCodecBuilder.mapCodec(instance -> instance
+            .group(
+                    Codec.STRING.fieldOf("property").forGetter(FloatPropertyCondition::propertyKey),
+                    Codec.FLOAT.optionalFieldOf("min", Float.MIN_VALUE).forGetter(FloatPropertyCondition::min),
+                    Codec.FLOAT.optionalFieldOf("max", Float.MAX_VALUE).forGetter(FloatPropertyCondition::max)
+            ).apply(instance, FloatPropertyCondition::new)
+    );
+    public static final StreamCodec<RegistryFriendlyByteBuf, FloatPropertyCondition> STREAM_CODEC = StreamCodec.composite(
+            ByteBufCodecs.STRING_UTF8, FloatPropertyCondition::propertyKey,
+            ByteBufCodecs.FLOAT, FloatPropertyCondition::min,
+            ByteBufCodecs.FLOAT, FloatPropertyCondition::max,
+            FloatPropertyCondition::new
+    );
 
     @Override
     public boolean active(DataContext context) {
@@ -33,8 +42,8 @@ public class FloatPropertyCondition extends Condition {
 
         EntityPropertyHandler.getHandler(entity).ifPresent(handler -> {
             PalladiumProperty<?> property = handler.getPropertyByName(this.propertyKey);
-            if (property instanceof FloatProperty floatProperty) {
-                float value = handler.get(floatProperty);
+            if (property.getType() == PalladiumPropertyType.FLOAT) {
+                float value = (float) handler.get(property);
                 result.set(value >= this.min && value <= this.max);
             }
         });
@@ -43,28 +52,20 @@ public class FloatPropertyCondition extends Condition {
     }
 
     @Override
-    public ConditionSerializer getSerializer() {
+    public ConditionSerializer<FloatPropertyCondition> getSerializer() {
         return ConditionSerializers.FLOAT_PROPERTY.get();
     }
 
-    public static class Serializer extends ConditionSerializer {
+    public static class Serializer extends ConditionSerializer<FloatPropertyCondition> {
 
-        public static final PalladiumProperty<String> PROPERTY = new StringProperty("property").configurable("Name of the float property in the entity");
-        public static final PalladiumProperty<Float> MIN = new FloatProperty("min").configurable("Minimum required amount of the property value");
-        public static final PalladiumProperty<Float> MAX = new FloatProperty("max").configurable("Maximum required amount of the property value");
-
-        public Serializer() {
-            this.withProperty(PROPERTY, "value");
-            this.withProperty(MIN, 0F);
-            this.withProperty(MAX, 0F);
+        @Override
+        public MapCodec<FloatPropertyCondition> codec() {
+            return CODEC;
         }
 
         @Override
-        public Condition make(JsonObject json) {
-            return new FloatPropertyCondition(
-                    this.getProperty(json, PROPERTY),
-                    this.getProperty(json, MIN),
-                    this.getProperty(json, MAX));
+        public StreamCodec<RegistryFriendlyByteBuf, FloatPropertyCondition> streamCodec() {
+            return STREAM_CODEC;
         }
 
         @Override

@@ -6,8 +6,8 @@ import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
-import net.threetag.palladium.power.IPowerHolder;
 import net.threetag.palladium.power.Power;
+import net.threetag.palladium.power.PowerHolder;
 import net.threetag.palladium.power.ability.AbilityInstance;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -38,7 +38,7 @@ public class DataContext {
         return forEntity(entity).with(DataContextType.ITEM, stack);
     }
 
-    public static DataContext forPower(LivingEntity entity, IPowerHolder powerHolder) {
+    public static DataContext forPower(LivingEntity entity, PowerHolder powerHolder) {
         var context = forEntity(entity);
 
         if (powerHolder != null) {
@@ -124,7 +124,7 @@ public class DataContext {
     }
 
     @Nullable
-    public IPowerHolder getPowerHolder() {
+    public PowerHolder getPowerHolder() {
         return this.get(DataContextType.POWER_HOLDER);
     }
 

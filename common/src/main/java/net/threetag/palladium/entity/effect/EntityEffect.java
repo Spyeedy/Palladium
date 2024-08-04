@@ -6,21 +6,18 @@ import net.fabricmc.api.Environment;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.world.entity.Entity;
-import net.threetag.palladium.Palladium;
 import net.threetag.palladium.entity.EffectEntity;
-import net.threetag.palladium.util.property.BooleanProperty;
 import net.threetag.palladium.util.property.PalladiumProperty;
+import net.threetag.palladium.util.property.PalladiumPropertyBuilder;
+import net.threetag.palladium.util.property.PalladiumPropertyType;
 import net.threetag.palladium.util.property.PropertyManager;
-import net.threetag.palladiumcore.registry.PalladiumRegistry;
 
 import java.util.Objects;
 import java.util.function.Predicate;
 
 public abstract class EntityEffect {
 
-    public static final PalladiumRegistry<EntityEffect> REGISTRY = PalladiumRegistry.create(EntityEffect.class, Palladium.id("entity_effects"));
-
-    public static final PalladiumProperty<Boolean> IS_DONE_PLAYING = new BooleanProperty("is_done_playing");
+    public static final PalladiumProperty<Boolean> IS_DONE_PLAYING = PalladiumPropertyBuilder.create("is_done_playing", PalladiumPropertyType.BOOLEAN).build();
 
     public void registerProperties(PropertyManager manager) {
         manager.register(IS_DONE_PLAYING, false);
@@ -54,7 +51,7 @@ public abstract class EntityEffect {
     @Environment(EnvType.CLIENT)
     public static void start(Entity anchor, EntityEffect entityEffect) {
         EffectEntity effectEntity = new EffectEntity(anchor.level(), anchor, entityEffect);
-        Objects.requireNonNull(Minecraft.getInstance().level).putNonPlayerEntity(0, effectEntity);
+        Objects.requireNonNull(Minecraft.getInstance().level).addEntity(effectEntity);
     }
 
     @Environment(EnvType.CLIENT)

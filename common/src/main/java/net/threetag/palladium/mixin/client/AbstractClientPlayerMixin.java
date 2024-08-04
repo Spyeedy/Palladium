@@ -8,7 +8,7 @@ import net.minecraft.client.model.PlayerModel;
 import net.minecraft.client.model.geom.ModelPart;
 import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.client.player.AbstractClientPlayer;
-import net.threetag.palladium.client.model.animation.IAnimatablePlayer;
+import net.threetag.palladium.client.model.animation.AnimatablePlayer;
 import net.threetag.palladium.entity.PlayerModelCacheExtension;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Unique;
@@ -19,7 +19,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import java.util.Collections;
 
 @Mixin(AbstractClientPlayer.class)
-public class AbstractClientPlayerMixin implements IAnimatablePlayer, PlayerModelCacheExtension {
+public class AbstractClientPlayerMixin implements AnimatablePlayer, PlayerModelCacheExtension {
 
     @Unique
     private ModifierLayer<IAnimation> palladium$modifierLayer;

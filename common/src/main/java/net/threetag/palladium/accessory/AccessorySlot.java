@@ -2,10 +2,14 @@ package net.threetag.palladium.accessory;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
+import com.mojang.serialization.Codec;
+import io.netty.buffer.ByteBuf;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.minecraft.Util;
 import net.minecraft.network.chat.Component;
+import net.minecraft.network.codec.ByteBufCodecs;
+import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.HumanoidArm;
@@ -24,6 +28,8 @@ import java.util.*;
 public class AccessorySlot {
 
     private static final List<AccessorySlot> SLOTS = Lists.newArrayList();
+    public static final Codec<AccessorySlot> BY_NAME_CODEC = ResourceLocation.CODEC.xmap(AccessorySlot::getSlotByName, AccessorySlot::getName);
+    public static final StreamCodec<ByteBuf, AccessorySlot> STREAM_CODEC = ByteBufCodecs.idMapper(SLOTS::get, SLOTS::indexOf);
 
     public static final AccessorySlot HAT = register("hat").setIcon(Palladium.id("textures/gui/accessory_slots/hat.png")).setCorrespondingEquipmentSlot(EquipmentSlot.HEAD);
     public static final AccessorySlot HEAD = register("head").setIcon(Palladium.id("textures/gui/accessory_slots/head.png"));

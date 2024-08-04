@@ -1,10 +1,17 @@
 package net.threetag.palladium.condition;
 
-import com.google.gson.JsonObject;
+import com.mojang.serialization.MapCodec;
+import net.minecraft.network.RegistryFriendlyByteBuf;
+import net.minecraft.network.codec.StreamCodec;
 import net.threetag.palladium.util.context.DataContext;
 import net.threetag.palladium.util.context.DataContextType;
 
-public class CrouchingCondition extends Condition {
+public class CrouchingCondition implements Condition {
+
+    public static final CrouchingCondition INSTANCE = new CrouchingCondition();
+
+    public static final MapCodec<CrouchingCondition> CODEC = MapCodec.unit(INSTANCE);
+    public static final StreamCodec<RegistryFriendlyByteBuf, CrouchingCondition> STREAM_CODEC = StreamCodec.unit(INSTANCE);
 
     @Override
     public boolean active(DataContext context) {
@@ -13,15 +20,20 @@ public class CrouchingCondition extends Condition {
     }
 
     @Override
-    public ConditionSerializer getSerializer() {
+    public ConditionSerializer<CrouchingCondition> getSerializer() {
         return ConditionSerializers.CROUCHING.get();
     }
 
-    public static class Serializer extends ConditionSerializer {
+    public static class Serializer extends ConditionSerializer<CrouchingCondition> {
 
         @Override
-        public Condition make(JsonObject json) {
-            return new CrouchingCondition();
+        public MapCodec<CrouchingCondition> codec() {
+            return CODEC;
+        }
+
+        @Override
+        public StreamCodec<RegistryFriendlyByteBuf, CrouchingCondition> streamCodec() {
+            return STREAM_CODEC;
         }
 
         @Override

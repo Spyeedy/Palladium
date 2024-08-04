@@ -1,21 +1,42 @@
 package net.threetag.palladium.condition;
 
-import com.google.gson.JsonObject;
+import com.mojang.serialization.Codec;
+import com.mojang.serialization.MapCodec;
+import com.mojang.serialization.codecs.RecordCodecBuilder;
+import net.minecraft.network.RegistryFriendlyByteBuf;
+import net.minecraft.network.codec.ByteBufCodecs;
+import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.world.entity.LivingEntity;
 import net.threetag.palladium.power.ability.AbilityInstance;
 import net.threetag.palladium.util.context.DataContext;
-import net.threetag.palladium.util.property.IntegerProperty;
-import net.threetag.palladium.util.property.PalladiumProperty;
 
 import java.util.Objects;
 
 public class ChatActivationCondition extends ChatMessageCondition {
+
+    public static final MapCodec<ChatActivationCondition> CODEC = RecordCodecBuilder.mapCodec(instance -> instance
+            .group(
+                    Codec.STRING.fieldOf("chat_message").forGetter(ChatActivationCondition::getChatMessage),
+                    Codec.intRange(0, Integer.MAX_VALUE).fieldOf("ticks").forGetter(ChatActivationCondition::getTicks),
+                    Codec.intRange(0, Integer.MAX_VALUE).optionalFieldOf("cooldown", 0).forGetter(ChatActivationCondition::getCooldown)
+            ).apply(instance, ChatActivationCondition::new)
+    );
+    public static final StreamCodec<RegistryFriendlyByteBuf, ChatActivationCondition> STREAM_CODEC = StreamCodec.composite(
+            ByteBufCodecs.STRING_UTF8, ChatActivationCondition::getChatMessage,
+            ByteBufCodecs.VAR_INT, ChatActivationCondition::getTicks,
+            ByteBufCodecs.VAR_INT, ChatActivationCondition::getCooldown,
+            ChatActivationCondition::new
+    );
 
     public final int ticks;
 
     public ChatActivationCondition(String chatMessage, int ticks, int cooldown) {
         super(chatMessage, cooldown);
         this.ticks = ticks;
+    }
+
+    public int getTicks() {
+        return ticks;
     }
 
     @Override
@@ -42,23 +63,20 @@ public class ChatActivationCondition extends ChatMessageCondition {
     }
 
     @Override
-    public ConditionSerializer getSerializer() {
+    public ConditionSerializer<ChatActivationCondition> getSerializer() {
         return ConditionSerializers.CHAT_ACTIVATION.get();
     }
 
-    public static class Serializer extends ConditionSerializer {
+    public static class Serializer extends ConditionSerializer<ChatActivationCondition> {
 
-        public static final PalladiumProperty<Integer> TICKS = new IntegerProperty("ticks").configurable("The amount of ticks the ability will be active for");
-
-        public Serializer() {
-            this.withProperty(CHAT_MESSAGE, "Hello World");
-            this.withProperty(ChatActionCondition.Serializer.COOLDOWN, 0);
-            this.withProperty(TICKS, 60);
+        @Override
+        public MapCodec<ChatActivationCondition> codec() {
+            return CODEC;
         }
 
         @Override
-        public Condition make(JsonObject json) {
-            return new ChatActivationCondition(this.getProperty(json, CHAT_MESSAGE), this.getProperty(json, TICKS), this.getProperty(json, ChatActionCondition.Serializer.COOLDOWN));
+        public StreamCodec<RegistryFriendlyByteBuf, ChatActivationCondition> streamCodec() {
+            return STREAM_CODEC;
         }
 
         @Override

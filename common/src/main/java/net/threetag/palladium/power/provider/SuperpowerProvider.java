@@ -15,7 +15,7 @@ public class SuperpowerProvider extends PowerProvider {
         }
     }
 
-    public static class Validator implements IPowerValidator {
+    public static class Validator implements PowerValidator {
 
         @Override
         public boolean stillValid(LivingEntity entity, Power power) {

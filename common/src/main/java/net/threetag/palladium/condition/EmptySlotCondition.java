@@ -1,21 +1,22 @@
 package net.threetag.palladium.condition;
 
-import com.google.gson.JsonObject;
-import net.minecraft.world.entity.EquipmentSlot;
+import com.mojang.serialization.MapCodec;
+import com.mojang.serialization.codecs.RecordCodecBuilder;
+import net.minecraft.network.RegistryFriendlyByteBuf;
+import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.world.item.ItemStack;
-import net.threetag.palladium.util.context.DataContext;
-import net.threetag.palladium.util.context.DataContextType;
 import net.threetag.palladium.util.PlayerSlot;
-import net.threetag.palladium.util.property.PalladiumProperty;
-import net.threetag.palladium.util.property.PlayerSlotProperty;
+import net.threetag.palladium.util.context.DataContext;
 
-public class EmptySlotCondition extends Condition {
+public record EmptySlotCondition(PlayerSlot slot) implements Condition {
 
-    private final PlayerSlot slot;
-
-    public EmptySlotCondition(PlayerSlot slot) {
-        this.slot = slot;
-    }
+    public static final MapCodec<EmptySlotCondition> CODEC = RecordCodecBuilder.mapCodec(instance -> instance
+            .group(PlayerSlot.CODEC.fieldOf("slot").forGetter(EmptySlotCondition::slot)
+            ).apply(instance, EmptySlotCondition::new)
+    );
+    public static final StreamCodec<RegistryFriendlyByteBuf, EmptySlotCondition> STREAM_CODEC = StreamCodec.composite(
+            PlayerSlot.STREAM_CODEC, EmptySlotCondition::slot, EmptySlotCondition::new
+    );
 
     @Override
     public boolean active(DataContext context) {
@@ -34,21 +35,20 @@ public class EmptySlotCondition extends Condition {
     }
 
     @Override
-    public ConditionSerializer getSerializer() {
+    public ConditionSerializer<EmptySlotCondition> getSerializer() {
         return ConditionSerializers.EMPTY_SLOT.get();
     }
 
-    public static class Serializer extends ConditionSerializer {
+    public static class Serializer extends ConditionSerializer<EmptySlotCondition> {
 
-        public static final PalladiumProperty<PlayerSlot> SLOT = new PlayerSlotProperty("slot").configurable("Slot that must be empty");
-
-        public Serializer() {
-            this.withProperty(SLOT, PlayerSlot.get(EquipmentSlot.CHEST.getName()));
+        @Override
+        public MapCodec<EmptySlotCondition> codec() {
+            return CODEC;
         }
 
         @Override
-        public Condition make(JsonObject json) {
-            return new EmptySlotCondition(this.getProperty(json, SLOT));
+        public StreamCodec<RegistryFriendlyByteBuf, EmptySlotCondition> streamCodec() {
+            return STREAM_CODEC;
         }
 
         @Override

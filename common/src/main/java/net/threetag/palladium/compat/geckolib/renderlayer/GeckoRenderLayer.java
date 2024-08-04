@@ -21,13 +21,14 @@ import net.threetag.palladium.client.dynamictexture.DynamicTextureManager;
 import net.threetag.palladium.client.renderer.renderlayer.*;
 import net.threetag.palladium.compat.geckolib.playeranimator.ParsedAnimationController;
 import net.threetag.palladium.entity.PalladiumLivingEntityExtension;
+import net.threetag.palladium.util.RenderUtil;
 import net.threetag.palladium.util.SkinTypedValue;
 import net.threetag.palladium.util.context.DataContext;
 import net.threetag.palladium.util.json.GsonUtil;
 import org.jetbrains.annotations.Nullable;
+import software.bernie.geckolib.animation.AnimationState;
 import software.bernie.geckolib.constant.DataTickets;
-import software.bernie.geckolib.core.animation.AnimationState;
-import software.bernie.geckolib.core.object.Color;
+import software.bernie.geckolib.util.Color;
 
 import java.util.Collections;
 import java.util.List;
@@ -99,7 +100,7 @@ public class GeckoRenderLayer extends AbstractPackRenderLayer {
                 playerRenderer.getModel().copyPropertiesTo(this.model);
                 this.model.applyBaseTransformations(playerRenderer.getModel());
 
-                var partialTick = Minecraft.getInstance().getFrameTime();
+                var partialTick = Minecraft.getInstance().getTimer().getGameTimeDeltaTicks();
                 VertexConsumer buffer = state.layer.renderType.createVertexConsumer(bufferSource, this.model.getTextureLocation(state), false);
 
                 poseStack.pushPose();
@@ -120,8 +121,8 @@ public class GeckoRenderLayer extends AbstractPackRenderLayer {
                 animationState.setData(DataTickets.ENTITY, living);
                 animationState.setData(DataTickets.EQUIPMENT_SLOT, EquipmentSlot.CHEST);
                 this.model.getGeoModel().addAdditionalStateData(state, instanceId, animationState::setData);
-                this.model.getGeoModel().handleAnimations(state, instanceId, animationState);
-                this.model.renderRecursively(poseStack, state, bone, null, bufferSource, buffer, false, partialTick, packedLight, packedOverlay, red, green, blue, alpha);
+                this.model.getGeoModel().handleAnimations(state, instanceId, animationState, partialTick);
+                this.model.renderRecursively(poseStack, state, bone, null, bufferSource, buffer, false, partialTick, packedLight, packedOverlay, RenderUtil.rgbaToInt(red, green, blue, alpha));
 
                 poseStack.popPose();
             }
@@ -131,10 +132,10 @@ public class GeckoRenderLayer extends AbstractPackRenderLayer {
     public static GeckoRenderLayer parse(JsonObject json) {
         SkinTypedValue<DynamicTexture> modelLocation = SkinTypedValue.fromJSON(json.get("model"), DynamicTextureManager::fromJson);
         var texture = SkinTypedValue.fromJSON(json.get("texture"), DynamicTextureManager::fromJson);
-        var renderType = PackRenderLayerManager.getRenderType(new ResourceLocation(GsonHelper.getAsString(json, "render_type", "solid")));
+        var renderType = PackRenderLayerManager.getRenderType(GsonUtil.getAsResourceLocation(json, "render_type", ResourceLocation.withDefaultNamespace("solid")));
 
         if (renderType == null) {
-            throw new JsonParseException("Unknown render type '" + new ResourceLocation(GsonHelper.getAsString(json, "render_type", "solid")) + "'");
+            throw new JsonParseException("Unknown render type '" + GsonUtil.getAsResourceLocation(json, "render_type", ResourceLocation.withDefaultNamespace("solid")) + "'");
         }
 
         var layer = new GeckoRenderLayer(

@@ -6,7 +6,7 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.player.AbstractClientPlayer;
 import net.minecraft.resources.ResourceLocation;
 import net.threetag.palladium.power.ability.SkinChangeAbility;
-import net.threetag.palladium.util.property.ChangedPlayerModelTypeProperty;
+import net.threetag.palladium.util.PlayerModelChangeType;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -14,7 +14,7 @@ import java.util.Objects;
 
 public class PlayerSkinHandler {
 
-    private static final List<Pair<Integer, ISkinProvider>> PROVIDER = new ArrayList<>();
+    private static final List<Pair<Integer, SkinProvider>> PROVIDER = new ArrayList<>();
 
     public static ResourceLocation getCurrentSkin(GameProfile gameProfile, ResourceLocation defaultSkin) {
         AbstractClientPlayer player = (AbstractClientPlayer) Objects.requireNonNull(Minecraft.getInstance().level).getPlayerByUUID(gameProfile.getId());
@@ -22,7 +22,7 @@ public class PlayerSkinHandler {
         if (player != null) {
             ResourceLocation start = defaultSkin;
 
-            for (Pair<Integer, ISkinProvider> pair : PROVIDER) {
+            for (Pair<Integer, SkinProvider> pair : PROVIDER) {
                 start = pair.getSecond().getSkin(player, start, defaultSkin);
             }
 
@@ -36,11 +36,11 @@ public class PlayerSkinHandler {
         AbstractClientPlayer player = (AbstractClientPlayer) Objects.requireNonNull(Minecraft.getInstance().level).getPlayerByUUID(gameProfile.getId());
 
         if (player != null && !PROVIDER.isEmpty()) {
-            var overriddenType = PROVIDER.get(PROVIDER.size() - 1).getSecond().getModelType(player);
+            var overriddenType = PROVIDER.getLast().getSecond().getModelType(player);
 
-            if (overriddenType == ChangedPlayerModelTypeProperty.ChangedModelType.KEEP) {
+            if (overriddenType == PlayerModelChangeType.KEEP) {
                 return modelType;
-            } else if (overriddenType == ChangedPlayerModelTypeProperty.ChangedModelType.NORMAL) {
+            } else if (overriddenType == PlayerModelChangeType.NORMAL) {
                 return "default";
             } else {
                 return "slim";
@@ -50,17 +50,17 @@ public class PlayerSkinHandler {
         return modelType;
     }
 
-    public static void registerSkinProvider(int priority, ISkinProvider provider) {
+    public static void registerSkinProvider(int priority, SkinProvider provider) {
         PROVIDER.add(Pair.of(priority, provider));
         PROVIDER.sort((p1, p2) -> p2.getFirst() - p1.getFirst());
     }
 
-    public interface ISkinProvider {
+    public interface SkinProvider {
 
         ResourceLocation getSkin(AbstractClientPlayer player, ResourceLocation previousSkin, ResourceLocation defaultSkin);
 
-        default ChangedPlayerModelTypeProperty.ChangedModelType getModelType(AbstractClientPlayer player) {
-            return ChangedPlayerModelTypeProperty.ChangedModelType.KEEP;
+        default PlayerModelChangeType getModelType(AbstractClientPlayer player) {
+            return PlayerModelChangeType.KEEP;
         }
 
     }

@@ -1,11 +1,18 @@
 package net.threetag.palladium.condition;
 
-import com.google.gson.JsonObject;
+import com.mojang.serialization.MapCodec;
+import net.minecraft.network.RegistryFriendlyByteBuf;
+import net.minecraft.network.codec.StreamCodec;
+import net.threetag.palladium.entity.PalladiumPlayerExtension;
 import net.threetag.palladium.util.context.DataContext;
 import net.threetag.palladium.util.context.DataContextType;
-import net.threetag.palladium.entity.PalladiumPlayerExtension;
 
-public class IsHoveringOrLevitatingCondition extends Condition {
+public class IsHoveringOrLevitatingCondition implements Condition {
+
+    public static final IsHoveringOrLevitatingCondition INSTANCE = new IsHoveringOrLevitatingCondition();
+
+    public static final MapCodec<IsHoveringOrLevitatingCondition> CODEC = MapCodec.unit(INSTANCE);
+    public static final StreamCodec<RegistryFriendlyByteBuf, IsHoveringOrLevitatingCondition> STREAM_CODEC = StreamCodec.unit(INSTANCE);
 
     @Override
     public boolean active(DataContext context) {
@@ -23,15 +30,20 @@ public class IsHoveringOrLevitatingCondition extends Condition {
     }
 
     @Override
-    public ConditionSerializer getSerializer() {
+    public ConditionSerializer<IsHoveringOrLevitatingCondition> getSerializer() {
         return ConditionSerializers.IS_HOVERING_OR_LEVITATING.get();
     }
 
-    public static class Serializer extends ConditionSerializer {
+    public static class Serializer extends ConditionSerializer<IsHoveringOrLevitatingCondition> {
 
         @Override
-        public Condition make(JsonObject json) {
-            return new IsHoveringOrLevitatingCondition();
+        public MapCodec<IsHoveringOrLevitatingCondition> codec() {
+            return CODEC;
+        }
+
+        @Override
+        public StreamCodec<RegistryFriendlyByteBuf, IsHoveringOrLevitatingCondition> streamCodec() {
+            return STREAM_CODEC;
         }
 
         @Override

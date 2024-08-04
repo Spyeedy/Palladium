@@ -1,6 +1,9 @@
 package net.threetag.palladium.power.ability;
 
 import com.mojang.serialization.Codec;
+import io.netty.buffer.ByteBuf;
+import net.minecraft.network.codec.ByteBufCodecs;
+import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.util.StringRepresentable;
 import org.jetbrains.annotations.NotNull;
 
@@ -26,6 +29,7 @@ public enum AbilityColor implements StringRepresentable {
     BLACK(128, 168);
 
     public static final Codec<AbilityColor> CODEC = StringRepresentable.fromEnum(AbilityColor::values);
+    public static final StreamCodec<ByteBuf, AbilityColor> STREAM_CODEC = ByteBufCodecs.VAR_INT.map(i -> AbilityColor.values()[i], Enum::ordinal);
 
     private final int x;
     private final int y;

@@ -15,10 +15,7 @@ import net.threetag.palladium.util.Utils;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.Iterator;
-import java.util.LinkedHashMap;
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
 
 public class PropertyManager implements Iterable<PalladiumPropertyValue<?>> {
 
@@ -62,7 +59,7 @@ public class PropertyManager implements Iterable<PalladiumPropertyValue<?>> {
         T oldValue = holder.value();
         holder.set(value);
         if (this.listener != null) {
-            this.listener.onChanged(property, oldValue, value);
+            this.listener.onChanged(property, holder, oldValue, value);
         }
         return this;
     }
@@ -77,14 +74,19 @@ public class PropertyManager implements Iterable<PalladiumPropertyValue<?>> {
         return (PalladiumPropertyValue<T>) this.values.get(property);
     }
 
+    public Collection<PalladiumPropertyValue<?>> getHolders() {
+        return this.values.values();
+    }
+
     public <T> Optional<T> optional(PalladiumProperty<T> property) {
         return Optional.ofNullable(this.get(property));
     }
 
-    public PalladiumProperty<?> getPropertyByName(String name) {
+    @SuppressWarnings("unchecked")
+    public <T> PalladiumProperty<T> getPropertyByName(String name) {
         for (PalladiumProperty<?> property : this.values.keySet()) {
             if (property.getKey().equals(name)) {
-                return property;
+                return (PalladiumProperty<T>) property;
             }
         }
         return null;
@@ -178,7 +180,7 @@ public class PropertyManager implements Iterable<PalladiumPropertyValue<?>> {
 
     public interface Listener {
 
-        <T> void onChanged(PalladiumProperty<T> property, T oldValue, T newValue);
+        <T> void onChanged(PalladiumProperty<T> property, PalladiumPropertyValue<T> valueHolder, T oldValue, T newValue);
 
     }
 

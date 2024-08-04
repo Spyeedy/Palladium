@@ -6,7 +6,6 @@ import com.mojang.datafixers.util.Pair;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.GsonHelper;
 import net.minecraft.util.Mth;
-import net.minecraft.world.entity.player.Player;
 import net.threetag.palladium.Palladium;
 import net.threetag.palladium.client.model.animation.FlightAnimation;
 import net.threetag.palladium.documentation.JsonDocumentationBuilder;
@@ -92,7 +91,7 @@ public class CapeTextureVariable extends AbstractFloatTextureVariable {
         return 0F;
     }
 
-    public static class Serializer implements ITextureVariableSerializer {
+    public static class Serializer implements TextureVariableSerializer {
 
         @Override
         public ITextureVariable parse(JsonObject json) {

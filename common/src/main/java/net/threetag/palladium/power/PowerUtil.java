@@ -14,7 +14,7 @@ public class PowerUtil {
     /**
      * Returns the power handler for the given entity
      */
-    public static Optional<PowerHandler> getPowerHandler(LivingEntity entity) {
+    public static Optional<EntityPowerHandler> getPowerHandler(LivingEntity entity) {
         if (entity instanceof PalladiumLivingEntityExtension ext) {
             return Optional.of(ext.palladium$getPowerHandler());
         } else {

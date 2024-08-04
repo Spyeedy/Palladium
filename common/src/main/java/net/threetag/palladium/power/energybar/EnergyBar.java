@@ -4,24 +4,28 @@ import net.minecraft.nbt.CompoundTag;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.util.Mth;
 import net.minecraft.world.entity.LivingEntity;
-import net.threetag.palladium.network.SetEnergyBarMessage;
-import net.threetag.palladium.power.IPowerHolder;
+import net.threetag.palladium.network.PalladiumNetwork;
+import net.threetag.palladium.network.SyncEnergyBarPacket;
+import net.threetag.palladium.power.PowerHolder;
+import net.threetag.palladiumcore.network.NetworkManager;
 
 public class EnergyBar {
 
-    private final IPowerHolder powerHolder;
+    private final PowerHolder powerHolder;
     private final EnergyBarConfiguration configuration;
+    private final EnergyBarReference reference;
     private int value, maxValue;
     private int overriddenMaxValue = -1;
 
-    public EnergyBar(IPowerHolder powerHolder, EnergyBarConfiguration configuration) {
-        this.powerHolder = powerHolder;
+    public EnergyBar(EnergyBarConfiguration configuration, PowerHolder powerHolder, EnergyBarReference reference) {
         this.configuration = configuration;
+        this.powerHolder = powerHolder;
+        this.reference = reference;
     }
 
     public void tick(LivingEntity entity) {
         if (this.configuration.syncedValue() != null) {
-            var synced = this.configuration.syncedValue().get(entity);
+            var synced = this.configuration.syncedValue().asInt(entity);
 
             if (this.value != synced) {
                 this.set(synced);
@@ -39,7 +43,7 @@ public class EnergyBar {
                 this.setMax(this.overriddenMaxValue);
             }
         } else {
-            var syncedMax = this.configuration.maxValue().get(entity);
+            var syncedMax = this.configuration.maxValue().asInt(entity);
             if (this.maxValue != syncedMax) {
                 this.setMax(syncedMax);
             }
@@ -100,14 +104,18 @@ public class EnergyBar {
         return this.configuration;
     }
 
+    public EnergyBarReference getReference() {
+        return this.reference;
+    }
+
     private void sync() {
         if (!this.powerHolder.getEntity().level().isClientSide) {
-            var msg = new SetEnergyBarMessage(this.powerHolder.getEntity().getId(), new EnergyBarReference(this.powerHolder.getPower().getId(), this.configuration.name()), this.value, this.maxValue);
+            var msg = new SyncEnergyBarPacket(this.powerHolder.getEntity().getId(), new EnergyBarReference(this.powerHolder.getPowerId(), this.configuration.getKey()), this.value, this.maxValue);
 
             if (this.powerHolder.getEntity() instanceof ServerPlayer player) {
-                msg.sendToTrackingAndSelf(player);
+                NetworkManager.get().sendToPlayersTrackingEntityAndSelf(player, msg);
             } else {
-                msg.sendToTracking(this.powerHolder.getEntity());
+                NetworkManager.get().sendToPlayersTrackingEntity(this.powerHolder.getEntity(), msg);
             }
         }
     }

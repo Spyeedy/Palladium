@@ -15,7 +15,7 @@ dependencies {
     modApi "net.threetag:palladiumcore-common:${rootProject.palladiumcore_version}"
 
     // Forge Config API Port
-    modApi "fuzs.forgeconfigapiport:forgeconfigapiport-common:${rootProject.forge_config_api_port_version}"
+    modApi "fuzs.forgeconfigapiport:forgeconfigapiport-common-neoforgeapi:${rootProject.forge_config_api_port_version}"
 
     // Accessories
     modImplementation("io.wispforest:accessories-common:${rootProject.accessories_version}")

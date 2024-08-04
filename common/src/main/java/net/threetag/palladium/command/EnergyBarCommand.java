@@ -9,18 +9,18 @@ import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.Commands;
 import net.minecraft.commands.SharedSuggestionProvider;
 import net.minecraft.commands.arguments.EntityArgument;
+import net.minecraft.commands.arguments.ResourceArgument;
 import net.minecraft.commands.arguments.ResourceLocationArgument;
 import net.minecraft.commands.arguments.selector.EntitySelector;
+import net.minecraft.core.Holder;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
-import net.threetag.palladium.power.IPowerHolder;
-import net.threetag.palladium.power.Power;
-import net.threetag.palladium.power.PowerHandler;
-import net.threetag.palladium.power.PowerEventHandler;
+import net.threetag.palladium.power.*;
 import net.threetag.palladium.power.energybar.EnergyBarConfiguration;
 import net.threetag.palladium.power.energybar.EnergyBarReference;
+import net.threetag.palladium.registry.PalladiumRegistryKeys;
 
 import java.util.List;
 
@@ -36,11 +36,11 @@ public class EnergyBarCommand {
             entity = context.getSource().getPlayerOrException();
         }
         if (entity instanceof LivingEntity living) {
-            var manager = PowerEventHandler.getPowerHandler(living).orElse(new PowerHandler(living));
+            var manager = PowerUtil.getPowerHandler(living).orElse(new EntityPowerHandler(living));
 
-            for (IPowerHolder holder : manager.getPowerHolders().values()) {
+            for (PowerHolder holder : manager.getPowerHolders().values()) {
                 if(!holder.getEnergyBars().isEmpty()) {
-                    powers.add(holder.getPower().getId());
+                    powers.add(holder.getPowerId());
                 }
             }
         }
@@ -50,16 +50,16 @@ public class EnergyBarCommand {
 
     private static final SuggestionProvider<CommandSourceStack> SUGGEST_ENERGY_BAR = (context, builder) -> {
         List<String> energyBars = Lists.newArrayList();
-        Power power = null;
+        Holder<Power> power = null;
         try {
             context.getArgument("power", ResourceLocation.class);
-            power = SuperpowerCommand.getSuperpower(context, "power");
+            power = ResourceArgument.getResource(context, "power", PalladiumRegistryKeys.POWER);
         } catch (Exception ignored) {
         }
 
         if (power != null) {
-            for (EnergyBarConfiguration energyBar : power.getEnergyBars()) {
-                energyBars.add(energyBar.name());
+            for (EnergyBarConfiguration energyBar : power.value().getEnergyBars().values()) {
+                energyBars.add(energyBar.getKey());
             }
         }
 

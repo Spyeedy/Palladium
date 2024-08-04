@@ -1,26 +1,27 @@
 package net.threetag.palladium.condition;
 
-import com.google.gson.JsonObject;
-import net.minecraft.world.entity.EquipmentSlot;
+import com.mojang.serialization.MapCodec;
+import com.mojang.serialization.codecs.RecordCodecBuilder;
+import net.minecraft.network.RegistryFriendlyByteBuf;
+import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.item.Items;
 import net.minecraft.world.item.crafting.Ingredient;
-import net.threetag.palladium.util.context.DataContext;
-import net.threetag.palladium.util.context.DataContextType;
 import net.threetag.palladium.util.PlayerSlot;
-import net.threetag.palladium.util.property.IngredientProperty;
-import net.threetag.palladium.util.property.PalladiumProperty;
-import net.threetag.palladium.util.property.PlayerSlotProperty;
+import net.threetag.palladium.util.context.DataContext;
 
-public class ItemInSlotCondition extends Condition {
+public record ItemInSlotCondition(Ingredient ingredient, PlayerSlot slot) implements Condition {
 
-    private final Ingredient ingredient;
-    private final PlayerSlot slot;
-
-    public ItemInSlotCondition(Ingredient ingredient, PlayerSlot slot) {
-        this.ingredient = ingredient;
-        this.slot = slot;
-    }
+    public static final MapCodec<ItemInSlotCondition> CODEC = RecordCodecBuilder.mapCodec(instance -> instance
+            .group(
+                    Ingredient.CODEC.fieldOf("item").forGetter(ItemInSlotCondition::ingredient),
+                    PlayerSlot.CODEC.fieldOf("slot").forGetter(ItemInSlotCondition::slot)
+            ).apply(instance, ItemInSlotCondition::new)
+    );
+    public static final StreamCodec<RegistryFriendlyByteBuf, ItemInSlotCondition> STREAM_CODEC = StreamCodec.composite(
+            Ingredient.CONTENTS_STREAM_CODEC, ItemInSlotCondition::ingredient,
+            PlayerSlot.STREAM_CODEC, ItemInSlotCondition::slot,
+            ItemInSlotCondition::new
+    );
 
     @Override
     public boolean active(DataContext context) {
@@ -39,23 +40,20 @@ public class ItemInSlotCondition extends Condition {
     }
 
     @Override
-    public ConditionSerializer getSerializer() {
+    public ConditionSerializer<ItemInSlotCondition> getSerializer() {
         return ConditionSerializers.ITEM_IN_SLOT.get();
     }
 
-    public static class Serializer extends ConditionSerializer {
+    public static class Serializer extends ConditionSerializer<ItemInSlotCondition> {
 
-        public static final PalladiumProperty<Ingredient> ITEM = new IngredientProperty("item").configurable("Item (defined as an ingredient) that must be in the given slot");
-        public static final PalladiumProperty<PlayerSlot> SLOT = new PlayerSlotProperty("slot").configurable("Slot that must contain the item");
-
-        public Serializer() {
-            this.withProperty(ITEM, Ingredient.of(Items.LEATHER_CHESTPLATE));
-            this.withProperty(SLOT, PlayerSlot.get(EquipmentSlot.CHEST.getName()));
+        @Override
+        public MapCodec<ItemInSlotCondition> codec() {
+            return CODEC;
         }
 
         @Override
-        public Condition make(JsonObject json) {
-            return new ItemInSlotCondition(this.getProperty(json, ITEM), this.getProperty(json, SLOT));
+        public StreamCodec<RegistryFriendlyByteBuf, ItemInSlotCondition> streamCodec() {
+            return STREAM_CODEC;
         }
 
         @Override

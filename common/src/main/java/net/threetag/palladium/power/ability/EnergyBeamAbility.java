@@ -21,7 +21,6 @@ import net.minecraft.world.phys.HitResult;
 import net.minecraft.world.phys.Vec3;
 import net.threetag.palladium.client.energybeam.EnergyBeamManager;
 import net.threetag.palladium.entity.effect.EnergyBeamEffect;
-import net.threetag.palladium.power.IPowerHolder;
 import net.threetag.palladium.util.EntityUtil;
 import net.threetag.palladium.util.PalladiumBlockUtil;
 import net.threetag.palladium.util.property.*;

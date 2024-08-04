@@ -23,7 +23,7 @@ public class SuitSetPowerProvider extends PowerProvider {
         }
     }
 
-    public record Validator(SuitSet suitSet) implements IPowerValidator {
+    public record Validator(SuitSet suitSet) implements PowerValidator {
 
         @Override
             public boolean stillValid(LivingEntity entity, Power power) {

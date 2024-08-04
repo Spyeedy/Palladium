@@ -7,11 +7,13 @@ import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.Mth;
 import net.threetag.palladium.client.dynamictexture.TextureReference;
-import net.threetag.palladium.network.RequestAbilityBuyScreenMessage;
-import net.threetag.palladium.power.IPowerHolder;
+import net.threetag.palladium.network.RequestAbilityBuyScreenPacket;
+import net.threetag.palladium.power.PowerHolder;
 import net.threetag.palladium.power.ability.Ability;
 import net.threetag.palladium.power.ability.AbilityInstance;
+import net.threetag.palladium.power.ability.AbilityUtil;
 import net.threetag.palladium.util.context.DataContext;
+import net.threetag.palladiumcore.network.NetworkManager;
 import org.jetbrains.annotations.Nullable;
 
 import java.awt.*;
@@ -33,7 +35,7 @@ public class TreePowerTab extends PowerTab {
     private int maxY = -2147483648;
     private boolean centered;
 
-    public TreePowerTab(Minecraft minecraft, PowersScreen powersScreen, PowerTabType tabType, int tabIndex, IPowerHolder powerHolder) {
+    public TreePowerTab(Minecraft minecraft, PowersScreen powersScreen, PowerTabType tabType, int tabIndex, PowerHolder powerHolder) {
         super(minecraft, powersScreen, tabType, tabIndex, powerHolder);
         this.populate();
     }
@@ -180,7 +182,7 @@ public class TreePowerTab extends PowerTab {
         guiGraphics.pose().pushPose();
         guiGraphics.pose().translate((float) x, (float) y, 0.0F);
         TextureReference backgroundTexture = this.powerHolder.getPower().getBackground();
-        var texture = backgroundTexture != null ? backgroundTexture.getTexture(DataContext.forPower(minecraft.player, this.powerHolder)) : new ResourceLocation("textures/block/red_wool.png");
+        var texture = backgroundTexture != null ? backgroundTexture.getTexture(DataContext.forPower(minecraft.player, this.powerHolder)) : ResourceLocation.withDefaultNamespace("textures/block/red_wool.png");
 
         int i = Mth.floor(this.scrollX);
         int j = Mth.floor(this.scrollY);
@@ -256,7 +258,7 @@ public class TreePowerTab extends PowerTab {
     }
 
     @Nullable
-    public static TreePowerTab create(Minecraft minecraft, PowersScreen screen, int tabIndex, IPowerHolder powerHolder) {
+    public static TreePowerTab create(Minecraft minecraft, PowersScreen screen, int tabIndex, PowerHolder powerHolder) {
         PowerTabType[] tabTypes = PowerTabType.values();
 
         for (PowerTabType tabType : tabTypes) {
@@ -270,10 +272,10 @@ public class TreePowerTab extends PowerTab {
         return null;
     }
 
-    public static boolean canBeTree(IPowerHolder holder) {
+    public static boolean canBeTree(PowerHolder holder) {
         return holder.getAbilities().values().stream().filter(entry -> !entry.getProperty(Ability.HIDDEN_IN_GUI)).anyMatch(entry -> {
-            List<AbilityInstance> parents = Ability.findParentsWithinHolder(entry.getConfiguration(), holder);
-            List<AbilityInstance> children = Ability.findChildrenWithinHolder(entry.getConfiguration(), holder);
+            List<AbilityInstance> parents = AbilityUtil.findParentsWithinHolder(entry.getConfiguration(), holder);
+            List<AbilityInstance> children = AbilityUtil.findChildrenWithinHolder(entry.getConfiguration(), holder);
 
             return !parents.isEmpty() || !children.isEmpty();
         });
@@ -294,8 +296,8 @@ public class TreePowerTab extends PowerTab {
         int i = (this.screen.width - PowersScreen.WINDOW_WIDTH) / 2;
         int j = (this.screen.height - PowersScreen.WINDOW_HEIGHT) / 2;
         TreeAbilityWidget entry = this.getAbilityHoveredOver((int) (mouseX - i - 9), (int) (mouseY - j - 18), i, j);
-        if (entry != null && entry.abilityInstance.getConfiguration().isBuyable()) {
-            new RequestAbilityBuyScreenMessage(entry.abilityInstance.getReference()).send();
+        if (entry != null && entry.abilityInstance.getConfiguration().getConditions().isBuyable()) {
+            NetworkManager.get().sendToServer(new RequestAbilityBuyScreenPacket(entry.abilityInstance.getReference()));
         }
     }
 

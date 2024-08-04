@@ -4,11 +4,12 @@ import net.minecraft.client.model.geom.ModelLayerLocation;
 import net.minecraft.core.Holder;
 import net.minecraft.resources.ResourceLocation;
 import net.threetag.palladium.Palladium;
+import net.threetag.palladium.registry.PalladiumRegistryKeys;
 import net.threetag.palladiumcore.registry.DeferredRegister;
 
 public class Accessories {
 
-    public static final DeferredRegister<Accessory> ACCESSORIES = DeferredRegister.create(Palladium.MOD_ID, Accessory.REGISTRY);
+    public static final DeferredRegister<Accessory> ACCESSORIES = DeferredRegister.create(Palladium.MOD_ID, PalladiumRegistryKeys.ACCESSORY);
 
     public static final Holder<Accessory> LUCRAFT_ARC_REACTOR = ACCESSORIES.register("lucraft_arc_reactor",
             () -> new OverlayAccessory("lucraft_arc_reactor").glowing().slot(AccessorySlot.SPECIAL).setExclusive());

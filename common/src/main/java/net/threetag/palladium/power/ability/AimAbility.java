@@ -2,7 +2,6 @@ package net.threetag.palladium.power.ability;
 
 import net.minecraft.util.Mth;
 import net.minecraft.world.entity.LivingEntity;
-import net.threetag.palladium.power.IPowerHolder;
 import net.threetag.palladium.util.property.*;
 
 public class AimAbility extends Ability implements AnimationTimer {

@@ -1,18 +1,33 @@
 package net.threetag.palladium.condition;
 
-import com.google.gson.JsonObject;
+import com.mojang.serialization.Codec;
+import com.mojang.serialization.MapCodec;
+import com.mojang.serialization.codecs.RecordCodecBuilder;
+import net.minecraft.network.RegistryFriendlyByteBuf;
+import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.world.entity.Pose;
 import net.threetag.palladium.util.context.DataContext;
 import net.threetag.palladium.util.context.DataContextType;
-import net.threetag.palladium.util.property.PalladiumProperty;
-import net.threetag.palladium.util.property.PoseProperty;
 
-public class PoseCondition extends Condition {
+import java.util.Locale;
 
-    public final Pose pose;
+public record PoseCondition(Pose pose) implements Condition {
 
-    public PoseCondition(Pose pose) {
-        this.pose = pose;
+    public static final MapCodec<PoseCondition> CODEC = RecordCodecBuilder.mapCodec(instance -> instance
+            .group(Codec.STRING.xmap(PoseCondition::poseFromName, p -> p.toString().toLowerCase(Locale.ROOT)).fieldOf("pose").forGetter(PoseCondition::pose)
+            ).apply(instance, PoseCondition::new)
+    );
+    public static final StreamCodec<RegistryFriendlyByteBuf, PoseCondition> STREAM_CODEC = StreamCodec.composite(
+            Pose.STREAM_CODEC, PoseCondition::pose, PoseCondition::new
+    );
+
+    private static Pose poseFromName(String name) {
+        for (Pose pose : Pose.values()) {
+            if (pose.toString().toLowerCase().equalsIgnoreCase(name)) {
+                return pose;
+            }
+        }
+        return null;
     }
 
     @Override
@@ -27,21 +42,20 @@ public class PoseCondition extends Condition {
     }
 
     @Override
-    public ConditionSerializer getSerializer() {
+    public ConditionSerializer<PoseCondition> getSerializer() {
         return ConditionSerializers.POSE.get();
     }
 
-    public static class Serializer extends ConditionSerializer {
+    public static class Serializer extends ConditionSerializer<PoseCondition> {
 
-        public static final PalladiumProperty<Pose> POSE = new PoseProperty("pose").configurable("Determines the pose the entity must be in");
-
-        public Serializer() {
-            this.withProperty(POSE, Pose.CROUCHING);
+        @Override
+        public MapCodec<PoseCondition> codec() {
+            return CODEC;
         }
 
         @Override
-        public Condition make(JsonObject json) {
-            return new PoseCondition(this.getProperty(json, POSE));
+        public StreamCodec<RegistryFriendlyByteBuf, PoseCondition> streamCodec() {
+            return STREAM_CODEC;
         }
 
         @Override

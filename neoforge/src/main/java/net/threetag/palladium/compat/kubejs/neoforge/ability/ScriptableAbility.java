@@ -1,7 +1,6 @@
 package net.threetag.palladium.compat.kubejs.neoforge.ability;
 
 import net.minecraft.world.entity.LivingEntity;
-import net.threetag.palladium.power.IPowerHolder;
 import net.threetag.palladium.power.ability.Ability;
 import net.threetag.palladium.power.ability.AbilityInstance;
 import net.threetag.palladium.util.property.PalladiumProperty;

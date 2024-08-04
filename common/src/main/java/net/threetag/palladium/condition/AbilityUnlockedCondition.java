@@ -1,19 +1,24 @@
 package net.threetag.palladium.condition;
 
-import com.google.gson.JsonObject;
+import com.mojang.serialization.MapCodec;
+import com.mojang.serialization.codecs.RecordCodecBuilder;
+import net.minecraft.network.RegistryFriendlyByteBuf;
+import net.minecraft.network.codec.StreamCodec;
 import net.threetag.palladium.power.ability.AbilityInstance;
 import net.threetag.palladium.power.ability.AbilityReference;
 import net.threetag.palladium.util.context.DataContext;
 
 import java.util.List;
 
-public class AbilityUnlockedCondition extends Condition {
+public record AbilityUnlockedCondition(AbilityReference ability) implements Condition {
 
-    private final AbilityReference ability;
-
-    public AbilityUnlockedCondition(AbilityReference ability) {
-        this.ability = ability;
-    }
+    public static final MapCodec<AbilityUnlockedCondition> CODEC = RecordCodecBuilder.mapCodec(instance -> instance
+            .group(AbilityReference.CODEC.fieldOf("ability").forGetter(AbilityUnlockedCondition::ability)
+            ).apply(instance, AbilityUnlockedCondition::new)
+    );
+    public static final StreamCodec<RegistryFriendlyByteBuf, AbilityUnlockedCondition> STREAM_CODEC = StreamCodec.composite(
+            AbilityReference.STREAM_CODEC, AbilityUnlockedCondition::ability, AbilityUnlockedCondition::new
+    );
 
     @Override
     public boolean active(DataContext context) {
@@ -30,30 +35,24 @@ public class AbilityUnlockedCondition extends Condition {
 
     @Override
     public List<String> getDependentAbilities() {
-        return List.of(this.ability.abilityId());
+        return List.of(this.ability.abilityKey());
     }
 
     @Override
-    public ConditionSerializer getSerializer() {
+    public ConditionSerializer<AbilityUnlockedCondition> getSerializer() {
         return ConditionSerializers.ABILITY_UNLOCKED.get();
     }
 
-    public static class Serializer extends ConditionSerializer {
+    public static class Serializer extends ConditionSerializer<AbilityUnlockedCondition> {
 
-        public Serializer() {
-            this.withProperty(AbilityEnabledCondition.Serializer.POWER, null);
-            this.withProperty(AbilityEnabledCondition.Serializer.ABILITY, "ability_id");
+        @Override
+        public MapCodec<AbilityUnlockedCondition> codec() {
+            return CODEC;
         }
 
         @Override
-        public Condition make(JsonObject json) {
-            AbilityReference abilityReference = AbilityReference.parse(this.getProperty(json, AbilityEnabledCondition.Serializer.ABILITY));
-
-            if (this.getProperty(json, AbilityEnabledCondition.Serializer.POWER) != null) {
-                abilityReference = new AbilityReference(this.getProperty(json, AbilityEnabledCondition.Serializer.POWER), this.getProperty(json, AbilityEnabledCondition.Serializer.ABILITY));
-            }
-
-            return new AbilityUnlockedCondition(abilityReference);
+        public StreamCodec<RegistryFriendlyByteBuf, AbilityUnlockedCondition> streamCodec() {
+            return STREAM_CODEC;
         }
 
         @Override

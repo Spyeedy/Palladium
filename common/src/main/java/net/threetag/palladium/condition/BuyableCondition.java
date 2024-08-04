@@ -5,13 +5,14 @@ import net.threetag.palladium.util.context.DataContext;
 import net.threetag.palladium.util.context.DataContextType;
 import net.threetag.palladium.power.ability.AbilityConfiguration;
 import net.threetag.palladium.power.ability.AbilityInstance;
-import net.threetag.palladium.util.property.BooleanProperty;
 import net.threetag.palladium.util.property.PalladiumProperty;
+import net.threetag.palladium.util.property.PalladiumPropertyBuilder;
+import net.threetag.palladium.util.property.PalladiumPropertyType;
 import net.threetag.palladium.util.property.PropertyManager;
 
-public abstract class BuyableCondition extends Condition {
+public abstract class BuyableCondition implements Condition {
 
-    public static final PalladiumProperty<Boolean> BOUGHT = new BooleanProperty("bought");
+    public static final PalladiumProperty<Boolean> BOUGHT = PalladiumPropertyBuilder.create("bought", PalladiumPropertyType.BOOLEAN).build();
 
     @Override
     public void registerAbilityProperties(AbilityInstance entry, PropertyManager manager) {

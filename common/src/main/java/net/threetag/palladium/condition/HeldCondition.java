@@ -1,20 +1,37 @@
 package net.threetag.palladium.condition;
 
-import com.google.gson.JsonObject;
+import com.mojang.serialization.Codec;
+import com.mojang.serialization.MapCodec;
+import com.mojang.serialization.codecs.RecordCodecBuilder;
+import net.minecraft.network.RegistryFriendlyByteBuf;
+import net.minecraft.network.codec.ByteBufCodecs;
+import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.world.entity.LivingEntity;
+import net.threetag.palladium.power.Power;
+import net.threetag.palladium.power.PowerHolder;
+import net.threetag.palladium.power.ability.AbilityConditions;
 import net.threetag.palladium.power.ability.AbilityInstance;
 import net.threetag.palladium.util.context.DataContext;
 import net.threetag.palladium.util.context.DataContextType;
-import net.threetag.palladium.power.IPowerHolder;
-import net.threetag.palladium.power.Power;
-import net.threetag.palladium.power.ability.AbilityConfiguration;
-import net.threetag.palladium.util.property.IntegerProperty;
-import net.threetag.palladium.util.property.PalladiumProperty;
 import net.threetag.palladium.util.property.PropertyManager;
 
 public class HeldCondition extends KeyCondition {
 
-    public HeldCondition(int cooldown, AbilityConfiguration.KeyType type, boolean needsEmptyHand) {
+    public static final MapCodec<HeldCondition> CODEC = RecordCodecBuilder.mapCodec(instance -> instance
+            .group(
+                    Codec.INT.optionalFieldOf("cooldown", 0).forGetter(HeldCondition::getCooldown),
+                    AbilityConditions.KeyType.CODEC.optionalFieldOf("key_type", AbilityConditions.KeyType.KEY_BIND).forGetter(HeldCondition::getKeyType),
+                    Codec.BOOL.optionalFieldOf("needs_empty_hand", false).forGetter(HeldCondition::needsEmptyHand)
+            ).apply(instance, HeldCondition::new)
+    );
+    public static final StreamCodec<RegistryFriendlyByteBuf, HeldCondition> STREAM_CODEC = StreamCodec.composite(
+            ByteBufCodecs.VAR_INT, HeldCondition::getCooldown,
+            AbilityConditions.KeyType.STREAM_CODEC, HeldCondition::getKeyType,
+            ByteBufCodecs.BOOL, HeldCondition::needsEmptyHand,
+            HeldCondition::new
+    );
+
+    public HeldCondition(int cooldown, AbilityConditions.KeyType type, boolean needsEmptyHand) {
         super(cooldown, type, needsEmptyHand, true);
     }
 
@@ -39,18 +56,18 @@ public class HeldCondition extends KeyCondition {
     }
 
     @Override
-    public void onKeyPressed(LivingEntity entity, AbilityInstance entry, Power power, IPowerHolder holder) {
+    public void onKeyPressed(LivingEntity entity, AbilityInstance entry, Power power, PowerHolder holder) {
         entry.keyPressed = true;
     }
 
     @Override
-    public void onKeyReleased(LivingEntity entity, AbilityInstance entry, Power power, IPowerHolder holder) {
+    public void onKeyReleased(LivingEntity entity, AbilityInstance entry, Power power, PowerHolder holder) {
         entry.keyPressed = false;
     }
 
     @Override
-    public AbilityConfiguration.KeyPressType getKeyPressType() {
-        return AbilityConfiguration.KeyPressType.HOLD;
+    public AbilityConditions.KeyPressType getKeyPressType() {
+        return AbilityConditions.KeyPressType.HOLD;
     }
 
     @Override
@@ -59,23 +76,20 @@ public class HeldCondition extends KeyCondition {
     }
 
     @Override
-    public ConditionSerializer getSerializer() {
+    public ConditionSerializer<HeldCondition> getSerializer() {
         return ConditionSerializers.HELD.get();
     }
 
-    public static class Serializer extends ConditionSerializer {
+    public static class Serializer extends ConditionSerializer<HeldCondition> {
 
-        public static final PalladiumProperty<Integer> COOLDOWN = new IntegerProperty("cooldown").configurable("Amount of ticks the ability can be used for");
-
-        public Serializer() {
-            this.withProperty(COOLDOWN, 0);
-            this.withProperty(KeyCondition.KEY_TYPE_WITHOUT_SCROLLING, AbilityConfiguration.KeyType.KEY_BIND);
-            this.withProperty(KeyCondition.NEEDS_EMPTY_HAND, false);
+        @Override
+        public MapCodec<HeldCondition> codec() {
+            return CODEC;
         }
 
         @Override
-        public Condition make(JsonObject json) {
-            return new HeldCondition(this.getProperty(json, COOLDOWN), this.getProperty(json, KeyCondition.KEY_TYPE_WITHOUT_SCROLLING), this.getProperty(json, KeyCondition.NEEDS_EMPTY_HAND));
+        public StreamCodec<RegistryFriendlyByteBuf, HeldCondition> streamCodec() {
+            return STREAM_CODEC;
         }
 
         @Override

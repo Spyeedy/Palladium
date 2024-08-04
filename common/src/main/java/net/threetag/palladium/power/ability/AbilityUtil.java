@@ -2,10 +2,7 @@ package net.threetag.palladium.power.ability;
 
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.LivingEntity;
-import net.threetag.palladium.power.IPowerHandler;
-import net.threetag.palladium.power.IPowerHolder;
-import net.threetag.palladium.power.Power;
-import net.threetag.palladium.power.PowerEventHandler;
+import net.threetag.palladium.power.*;
 import net.threetag.palladium.registry.PalladiumRegistries;
 import net.threetag.palladium.registry.PalladiumRegistryKeys;
 import org.jetbrains.annotations.NotNull;
@@ -25,14 +22,8 @@ public class AbilityUtil {
     @NotNull
     public static Collection<AbilityInstance> getInstances(LivingEntity entity) {
         List<AbilityInstance> instances = new ArrayList<>();
-        PowerEventHandler.getPowerHandler(entity).ifPresent(handler -> handler.getPowerHolders().values().stream().map(holder -> holder.getAbilities().values()).forEach(instances::addAll));
+        PowerUtil.getPowerHandler(entity).ifPresent(handler -> handler.getPowerHolders().values().stream().map(holder -> holder.getAbilities().values()).forEach(instances::addAll));
         return instances;
-    }
-
-    @NotNull
-    @Deprecated
-    public static Collection<AbilityInstance> getEntries(LivingEntity entity) {
-        return getInstances(entity);
     }
 
     /**
@@ -51,12 +42,6 @@ public class AbilityUtil {
         return getInstances(entity, PalladiumRegistries.ABILITY.get(abilityId));
     }
 
-    @NotNull
-    @Deprecated
-    public static Collection<AbilityInstance> getEntries(LivingEntity entity, ResourceLocation abilityId) {
-        return getInstances(entity, abilityId);
-    }
-
     /**
      * Returns all ability instances of the given ability type from the entity
      *
@@ -67,14 +52,8 @@ public class AbilityUtil {
     @NotNull
     public static Collection<AbilityInstance> getInstances(LivingEntity entity, Ability ability) {
         List<AbilityInstance> instances = new ArrayList<>();
-        PowerEventHandler.getPowerHandler(entity).ifPresent(handler -> handler.getPowerHolders().values().stream().map(holder -> holder.getAbilities().values().stream().filter(instance -> instance.getConfiguration().getAbility() == ability).collect(Collectors.toList())).forEach(instances::addAll));
+        PowerUtil.getPowerHandler(entity).ifPresent(handler -> handler.getPowerHolders().values().stream().map(holder -> holder.getAbilities().values().stream().filter(instance -> instance.getConfiguration().getAbility() == ability).collect(Collectors.toList())).forEach(instances::addAll));
         return instances;
-    }
-
-    @NotNull
-    @Deprecated
-    public static Collection<AbilityInstance> getEntries(LivingEntity entity, Ability ability) {
-        return getInstances(entity, ability);
     }
 
     /**
@@ -86,8 +65,8 @@ public class AbilityUtil {
     @NotNull
     public static Collection<AbilityInstance> getEnabledInstances(LivingEntity entity) {
         List<AbilityInstance> instances = new ArrayList<>();
-        PowerEventHandler.getPowerHandler(entity).ifPresent(handler -> {
-            for (IPowerHolder holder : handler.getPowerHolders().values()) {
+        PowerUtil.getPowerHandler(entity).ifPresent(handler -> {
+            for (PowerHolder holder : handler.getPowerHolders().values()) {
                 Collection<AbilityInstance> values = holder.getAbilities().values();
                 for (AbilityInstance value : values) {
                     if (value.isEnabled()) {
@@ -99,12 +78,6 @@ public class AbilityUtil {
         return instances;
     }
 
-    @NotNull
-    @Deprecated
-    public static Collection<AbilityInstance> getEnabledEntries(LivingEntity entity) {
-        return getEnabledInstances(entity);
-    }
-
     /**
      * Returns all enabled render layer ability instances from the given entity
      *
@@ -114,8 +87,8 @@ public class AbilityUtil {
     @NotNull
     public static Collection<AbilityInstance> getEnabledRenderLayerInstances(LivingEntity entity) {
         List<AbilityInstance> instances = new ArrayList<>();
-        PowerEventHandler.getPowerHandler(entity).ifPresent(handler -> {
-            for (IPowerHolder holder : handler.getPowerHolders().values()) {
+        PowerUtil.getPowerHandler(entity).ifPresent(handler -> {
+            for (PowerHolder holder : handler.getPowerHolders().values()) {
                 Collection<AbilityInstance> values = holder.getAbilities().values();
                 for (AbilityInstance value : values) {
                     if (value.getConfiguration().getAbility() instanceof RenderLayerProviderAbility && value.isEnabled()) {
@@ -125,12 +98,6 @@ public class AbilityUtil {
             }
         });
         return instances;
-    }
-
-    @NotNull
-    @Deprecated
-    public static Collection<AbilityInstance> getEnabledRenderLayerEntries(LivingEntity entity) {
-        return getEnabledRenderLayerInstances(entity);
     }
 
     /**
@@ -149,12 +116,6 @@ public class AbilityUtil {
         return getEnabledInstances(entity, PalladiumRegistries.ABILITY.get(abilityId));
     }
 
-    @NotNull
-    @Deprecated
-    public static Collection<AbilityInstance> getEnabledEntries(LivingEntity entity, ResourceLocation abilityId) {
-        return getEnabledInstances(entity, abilityId);
-    }
-
     /**
      * Returns all enabled ability instances of the given ability type from the entity
      *
@@ -165,14 +126,8 @@ public class AbilityUtil {
     @NotNull
     public static Collection<AbilityInstance> getEnabledInstances(LivingEntity entity, Ability ability) {
         List<AbilityInstance> instances = new ArrayList<>();
-        PowerEventHandler.getPowerHandler(entity).ifPresent(handler -> handler.getPowerHolders().values().stream().map(holder -> holder.getAbilities().values().stream().filter(instance -> instance.isEnabled() && instance.getConfiguration().getAbility() == ability).collect(Collectors.toList())).forEach(instances::addAll));
+        PowerUtil.getPowerHandler(entity).ifPresent(handler -> handler.getPowerHolders().values().stream().map(holder -> holder.getAbilities().values().stream().filter(instance -> instance.isEnabled() && instance.getConfiguration().getAbility() == ability).collect(Collectors.toList())).forEach(instances::addAll));
         return instances;
-    }
-
-    @NotNull
-    @Deprecated
-    public static Collection<AbilityInstance> getEnabledEntries(LivingEntity entity, Ability ability) {
-        return getEnabledInstances(entity, ability);
     }
 
     /**
@@ -191,25 +146,19 @@ public class AbilityUtil {
             return null;
         }
 
-        IPowerHandler handler = PowerEventHandler.getPowerHandler(entity).orElse(null);
+        EntityPowerHandler handler = PowerUtil.getPowerHandler(entity).orElse(null);
 
         if (handler == null) {
             return null;
         }
 
-        IPowerHolder holder = handler.getPowerHolder(power);
+        PowerHolder holder = handler.getPowerHolder(power);
 
         if (holder == null) {
             return null;
         }
 
         return holder.getAbilities().get(abilityKey);
-    }
-
-    @Nullable
-    @Deprecated
-    public static AbilityInstance getEntry(LivingEntity entity, ResourceLocation powerId, String abilityKey) {
-        return getInstance(entity, powerId, abilityKey);
     }
 
     /**
@@ -302,7 +251,7 @@ public class AbilityUtil {
             return false;
         }
 
-        IPowerHandler handler = PowerEventHandler.getPowerHandler(entity).orElse(null);
+        EntityPowerHandler handler = PowerUtil.getPowerHandler(entity).orElse(null);
 
         if (handler == null) {
             return false;
@@ -311,9 +260,9 @@ public class AbilityUtil {
         return handler.getPowerHolder(power) != null;
     }
 
-    public static List<AbilityInstance> findParentsWithinHolder(AbilityConfiguration ability, IPowerHolder powerHolder) {
+    public static List<AbilityInstance> findParentsWithinHolder(AbilityConfiguration ability, PowerHolder powerHolder) {
         List<AbilityInstance> list = new ArrayList<>();
-        for (String key : ability.getDependencies()) {
+        for (String key : ability.getConditions().getDependencies()) {
             AbilityInstance parent = powerHolder.getAbilities().get(key);
 
             if (parent != null) {
@@ -323,10 +272,10 @@ public class AbilityUtil {
         return list;
     }
 
-    public static List<AbilityInstance> findChildrenWithinHolder(AbilityConfiguration ability, IPowerHolder powerHolder) {
+    public static List<AbilityInstance> findChildrenWithinHolder(AbilityConfiguration ability, PowerHolder powerHolder) {
         List<AbilityInstance> list = new ArrayList<>();
         for (Map.Entry<String, AbilityInstance> entries : powerHolder.getAbilities().entrySet()) {
-            for (String key : ability.getDependencies()) {
+            for (String key : ability.getConditions().getDependencies()) {
                 if (key.equals(entries.getKey())) {
                     list.add(entries.getValue());
                 }

@@ -1,10 +1,17 @@
 package net.threetag.palladium.condition;
 
-import com.google.gson.JsonObject;
+import com.mojang.serialization.MapCodec;
+import net.minecraft.network.RegistryFriendlyByteBuf;
+import net.minecraft.network.codec.StreamCodec;
 import net.threetag.palladium.util.context.DataContext;
 import net.threetag.palladium.util.context.DataContextType;
 
-public class IsSwimmingCondition extends Condition {
+public class IsSwimmingCondition implements Condition {
+
+    public static final IsSwimmingCondition INSTANCE = new IsSwimmingCondition();
+
+    public static final MapCodec<IsSwimmingCondition> CODEC = MapCodec.unit(INSTANCE);
+    public static final StreamCodec<RegistryFriendlyByteBuf, IsSwimmingCondition> STREAM_CODEC = StreamCodec.unit(INSTANCE);
 
     @Override
     public boolean active(DataContext context) {
@@ -18,15 +25,20 @@ public class IsSwimmingCondition extends Condition {
     }
 
     @Override
-    public ConditionSerializer getSerializer() {
+    public ConditionSerializer<IsSwimmingCondition> getSerializer() {
         return ConditionSerializers.IS_SWIMMING.get();
     }
 
-    public static class Serializer extends ConditionSerializer {
+    public static class Serializer extends ConditionSerializer<IsSwimmingCondition> {
 
         @Override
-        public Condition make(JsonObject json) {
-            return new IsSwimmingCondition();
+        public MapCodec<IsSwimmingCondition> codec() {
+            return CODEC;
+        }
+
+        @Override
+        public StreamCodec<RegistryFriendlyByteBuf, IsSwimmingCondition> streamCodec() {
+            return STREAM_CODEC;
         }
 
         @Override

@@ -1,19 +1,25 @@
 package net.threetag.palladium.condition;
 
-import com.google.gson.JsonObject;
+import com.mojang.serialization.MapCodec;
+import com.mojang.serialization.codecs.RecordCodecBuilder;
+import net.minecraft.core.registries.BuiltInRegistries;
+import net.minecraft.core.registries.Registries;
+import net.minecraft.network.RegistryFriendlyByteBuf;
+import net.minecraft.network.codec.ByteBufCodecs;
+import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.world.entity.EntityType;
 import net.threetag.palladium.util.context.DataContext;
 import net.threetag.palladium.util.context.DataContextType;
-import net.threetag.palladium.util.property.EntityTypeProperty;
-import net.threetag.palladium.util.property.PalladiumProperty;
 
-public class EntityTypeCondition extends Condition {
+public record EntityTypeCondition(EntityType<?> entityType) implements Condition {
 
-    private final EntityType<?> entityType;
-
-    public EntityTypeCondition(EntityType<?> entityType) {
-        this.entityType = entityType;
-    }
+    public static final MapCodec<EntityTypeCondition> CODEC = RecordCodecBuilder.mapCodec(instance -> instance
+            .group(BuiltInRegistries.ENTITY_TYPE.byNameCodec().fieldOf("entity_type").forGetter(EntityTypeCondition::entityType)
+            ).apply(instance, EntityTypeCondition::new)
+    );
+    public static final StreamCodec<RegistryFriendlyByteBuf, EntityTypeCondition> STREAM_CODEC = StreamCodec.composite(
+            ByteBufCodecs.registry(Registries.ENTITY_TYPE), EntityTypeCondition::entityType, EntityTypeCondition::new
+    );
 
     @Override
     public boolean active(DataContext context) {
@@ -27,21 +33,20 @@ public class EntityTypeCondition extends Condition {
     }
 
     @Override
-    public ConditionSerializer getSerializer() {
+    public ConditionSerializer<EntityTypeCondition> getSerializer() {
         return ConditionSerializers.ENTITY_TYPE.get();
     }
 
-    public static class Serializer extends ConditionSerializer {
+    public static class Serializer extends ConditionSerializer<EntityTypeCondition> {
 
-        public static final PalladiumProperty<EntityType<?>> ENTITY_TYPE = new EntityTypeProperty("entity_type").configurable("The entity type the entity must be of for the condition to be active");
-
-        public Serializer() {
-            this.withProperty(ENTITY_TYPE, EntityType.PLAYER);
+        @Override
+        public MapCodec<EntityTypeCondition> codec() {
+            return CODEC;
         }
 
         @Override
-        public Condition make(JsonObject json) {
-            return new EntityTypeCondition(this.getProperty(json, ENTITY_TYPE));
+        public StreamCodec<RegistryFriendlyByteBuf, EntityTypeCondition> streamCodec() {
+            return STREAM_CODEC;
         }
 
         @Override

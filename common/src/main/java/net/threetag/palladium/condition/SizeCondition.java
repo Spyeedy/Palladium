@@ -1,20 +1,28 @@
 package net.threetag.palladium.condition;
 
-import com.google.gson.JsonObject;
+import com.mojang.serialization.Codec;
+import com.mojang.serialization.MapCodec;
+import com.mojang.serialization.codecs.RecordCodecBuilder;
+import net.minecraft.network.RegistryFriendlyByteBuf;
+import net.minecraft.network.codec.ByteBufCodecs;
+import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.world.entity.Entity;
 import net.threetag.palladium.util.SizeUtil;
 import net.threetag.palladium.util.context.DataContext;
-import net.threetag.palladium.util.property.FloatProperty;
-import net.threetag.palladium.util.property.PalladiumProperty;
 
-public class SizeCondition extends Condition {
+public record SizeCondition(float min, float max) implements Condition {
 
-    private final float min, max;
-
-    public SizeCondition(float min, float max) {
-        this.min = min;
-        this.max = max;
-    }
+    public static final MapCodec<SizeCondition> CODEC = RecordCodecBuilder.mapCodec(instance -> instance
+            .group(
+                    Codec.floatRange(0, Float.MAX_VALUE).optionalFieldOf("min", 0F).forGetter(SizeCondition::min),
+                    Codec.floatRange(0, Float.MAX_VALUE).optionalFieldOf("max", Float.MAX_VALUE).forGetter(SizeCondition::max)
+            ).apply(instance, SizeCondition::new)
+    );
+    public static final StreamCodec<RegistryFriendlyByteBuf, SizeCondition> STREAM_CODEC = StreamCodec.composite(
+            ByteBufCodecs.FLOAT, SizeCondition::min,
+            ByteBufCodecs.FLOAT, SizeCondition::max,
+            SizeCondition::new
+    );
 
     @Override
     public boolean active(DataContext context) {
@@ -29,25 +37,20 @@ public class SizeCondition extends Condition {
     }
 
     @Override
-    public ConditionSerializer getSerializer() {
+    public ConditionSerializer<SizeCondition> getSerializer() {
         return ConditionSerializers.SIZE.get();
     }
 
-    public static class Serializer extends ConditionSerializer {
+    public static class Serializer extends ConditionSerializer<SizeCondition> {
 
-        public static final PalladiumProperty<Float> MIN = new FloatProperty("min").configurable("Minimum required average size");
-        public static final PalladiumProperty<Float> MAX = new FloatProperty("max").configurable("Minimum required average size");
-
-        public Serializer() {
-            this.withProperty(MIN, 0F);
-            this.withProperty(MAX, Float.MAX_VALUE);
+        @Override
+        public MapCodec<SizeCondition> codec() {
+            return CODEC;
         }
 
         @Override
-        public Condition make(JsonObject json) {
-            return new SizeCondition(
-                    this.getProperty(json, MIN),
-                    this.getProperty(json, MAX));
+        public StreamCodec<RegistryFriendlyByteBuf, SizeCondition> streamCodec() {
+            return STREAM_CODEC;
         }
 
         @Override

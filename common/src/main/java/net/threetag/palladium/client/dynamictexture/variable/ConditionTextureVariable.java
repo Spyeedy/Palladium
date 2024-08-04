@@ -32,7 +32,7 @@ public class ConditionTextureVariable extends AbstractBooleanTextureVariable {
         return true;
     }
 
-    public static class Serializer implements ITextureVariableSerializer {
+    public static class Serializer implements TextureVariableSerializer {
 
         @Override
         public ITextureVariable parse(JsonObject json) {

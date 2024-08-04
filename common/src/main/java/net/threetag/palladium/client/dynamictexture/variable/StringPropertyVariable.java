@@ -9,7 +9,7 @@ import net.threetag.palladium.documentation.JsonDocumentationBuilder;
 import net.threetag.palladium.util.context.DataContext;
 import net.threetag.palladium.util.property.EntityPropertyHandler;
 import net.threetag.palladium.util.property.PalladiumProperty;
-import net.threetag.palladium.util.property.StringProperty;
+import net.threetag.palladium.util.property.PalladiumPropertyType;
 
 import java.util.concurrent.atomic.AtomicReference;
 
@@ -25,14 +25,14 @@ public class StringPropertyVariable implements ITextureVariable {
         AtomicReference<String> result = new AtomicReference<>("");
         EntityPropertyHandler.getHandler(context.getEntity()).ifPresent(handler -> {
             PalladiumProperty<?> property = handler.getPropertyByName(this.propertyKey);
-            if (property instanceof StringProperty stringProperty) {
-                result.set(handler.get(stringProperty));
+            if (property.getType() == PalladiumPropertyType.STRING) {
+                result.set((String) handler.get(property));
             }
         });
         return result.get();
     }
 
-    public static class Serializer implements ITextureVariableSerializer {
+    public static class Serializer implements TextureVariableSerializer {
 
         @Override
         public ITextureVariable parse(JsonObject json) {

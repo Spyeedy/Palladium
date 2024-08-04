@@ -3,7 +3,7 @@ package net.threetag.palladium.client.screen.power;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.network.chat.Component;
-import net.threetag.palladium.power.IPowerHolder;
+import net.threetag.palladium.power.PowerHolder;
 import net.threetag.palladium.util.context.DataContext;
 import net.threetag.palladium.util.icon.Icon;
 
@@ -13,12 +13,12 @@ public abstract class PowerTab {
     protected final PowersScreen screen;
     protected final PowerTabType type;
     protected final int index;
-    protected final IPowerHolder powerHolder;
+    protected final PowerHolder powerHolder;
     protected final Icon icon;
     protected final Component title;
     public float fade = 0F;
 
-    protected PowerTab(Minecraft minecraft, PowersScreen screen, PowerTabType type, int tabIndex, IPowerHolder powerHolder) {
+    protected PowerTab(Minecraft minecraft, PowersScreen screen, PowerTabType type, int tabIndex, PowerHolder powerHolder) {
         this.minecraft = minecraft;
         this.screen = screen;
         this.type = type;

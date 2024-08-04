@@ -1,10 +1,17 @@
 package net.threetag.palladium.condition;
 
-import com.google.gson.JsonObject;
+import com.mojang.serialization.MapCodec;
+import net.minecraft.network.RegistryFriendlyByteBuf;
+import net.minecraft.network.codec.StreamCodec;
 import net.threetag.palladium.util.context.DataContext;
 import net.threetag.palladium.util.context.DataContextType;
 
-public class IsInWaterRainOrBubbleCondition extends Condition {
+public class IsInWaterRainOrBubbleCondition implements Condition {
+
+    public static final IsInWaterRainOrBubbleCondition INSTANCE = new IsInWaterRainOrBubbleCondition();
+
+    public static final MapCodec<IsInWaterRainOrBubbleCondition> CODEC = MapCodec.unit(INSTANCE);
+    public static final StreamCodec<RegistryFriendlyByteBuf, IsInWaterRainOrBubbleCondition> STREAM_CODEC = StreamCodec.unit(INSTANCE);
 
     @Override
     public boolean active(DataContext context) {
@@ -18,15 +25,20 @@ public class IsInWaterRainOrBubbleCondition extends Condition {
     }
 
     @Override
-    public ConditionSerializer getSerializer() {
+    public ConditionSerializer<IsInWaterRainOrBubbleCondition> getSerializer() {
         return ConditionSerializers.IS_IN_WATER_RAIN_OR_BUBBLE.get();
     }
 
-    public static class Serializer extends ConditionSerializer {
+    public static class Serializer extends ConditionSerializer<IsInWaterRainOrBubbleCondition> {
 
         @Override
-        public Condition make(JsonObject json) {
-            return new IsInWaterRainOrBubbleCondition();
+        public MapCodec<IsInWaterRainOrBubbleCondition> codec() {
+            return CODEC;
+        }
+
+        @Override
+        public StreamCodec<RegistryFriendlyByteBuf, IsInWaterRainOrBubbleCondition> streamCodec() {
+            return STREAM_CODEC;
         }
 
         @Override

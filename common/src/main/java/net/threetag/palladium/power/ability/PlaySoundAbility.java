@@ -6,7 +6,6 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
-import net.threetag.palladium.power.IPowerHolder;
 import net.threetag.palladium.sound.AbilitySound;
 import net.threetag.palladium.util.PlayerUtil;
 import net.threetag.palladium.util.property.BooleanProperty;

@@ -36,7 +36,7 @@ public class SkinChangeAbility extends Ability {
     }
 
     @Environment(EnvType.CLIENT)
-    public static class SkinProvider implements PlayerSkinHandler.ISkinProvider {
+    public static class SkinProvider implements PlayerSkinHandler.SkinProvider {
 
         @Override
         public ResourceLocation getSkin(AbstractClientPlayer player, ResourceLocation previousSkin, ResourceLocation defaultSkin) {
@@ -59,7 +59,7 @@ public class SkinChangeAbility extends Ability {
                 return ability.getProperty(SkinChangeAbility.MODEL_TYPE);
             }
 
-            return PlayerSkinHandler.ISkinProvider.super.getModelType(player);
+            return PlayerSkinHandler.SkinProvider.super.getModelType(player);
         }
     }
 

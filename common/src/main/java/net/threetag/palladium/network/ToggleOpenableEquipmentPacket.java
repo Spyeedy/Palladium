@@ -1,33 +1,20 @@
 package net.threetag.palladium.network;
 
 import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.network.codec.StreamCodec;
+import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
 import net.minecraft.world.entity.EquipmentSlot;
+import net.threetag.palladium.Palladium;
 import net.threetag.palladium.item.Openable;
-import net.threetag.palladiumcore.network.MessageC2S;
-import net.threetag.palladiumcore.network.MessageContext;
-import net.threetag.palladiumcore.network.MessageType;
+import net.threetag.palladiumcore.network.NetworkManager;
 import org.jetbrains.annotations.NotNull;
 
-public class ToggleOpenableEquipmentMessage extends MessageC2S {
+public class ToggleOpenableEquipmentPacket implements CustomPacketPayload {
 
-    public ToggleOpenableEquipmentMessage() {
-    }
+    public static final CustomPacketPayload.Type<ToggleOpenableEquipmentPacket> TYPE = new CustomPacketPayload.Type<>(Palladium.id("toggle_openable_equipment"));
+    public static final StreamCodec<FriendlyByteBuf, ToggleOpenableEquipmentPacket> STREAM_CODEC = StreamCodec.unit(new ToggleOpenableEquipmentPacket());
 
-    public ToggleOpenableEquipmentMessage(FriendlyByteBuf buf) {
-    }
-
-    @Override
-    public @NotNull MessageType getType() {
-        return PalladiumNetwork.TOGGLE_OPENABLE_EQUIPMENT;
-    }
-
-    @Override
-    public void toBytes(FriendlyByteBuf buf) {
-
-    }
-
-    @Override
-    public void handle(MessageContext context) {
+    public static void handle(ToggleOpenableEquipmentPacket packet, NetworkManager.Context context) {
         var opened = false;
 
         for (EquipmentSlot slot : EquipmentSlot.values()) {
@@ -45,5 +32,10 @@ public class ToggleOpenableEquipmentMessage extends MessageC2S {
                 openable.setOpen(context.getPlayer(), stack, !opened);
             }
         }
+    }
+
+    @Override
+    public @NotNull Type<? extends CustomPacketPayload> type() {
+        return TYPE;
     }
 }

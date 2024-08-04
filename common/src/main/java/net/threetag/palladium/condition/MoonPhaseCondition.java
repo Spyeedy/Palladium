@@ -1,19 +1,26 @@
 package net.threetag.palladium.condition;
 
-import com.google.gson.JsonObject;
+import com.mojang.serialization.Codec;
+import com.mojang.serialization.MapCodec;
+import com.mojang.serialization.codecs.RecordCodecBuilder;
+import net.minecraft.network.RegistryFriendlyByteBuf;
+import net.minecraft.network.codec.ByteBufCodecs;
+import net.minecraft.network.codec.StreamCodec;
 import net.threetag.palladium.util.context.DataContext;
-import net.threetag.palladium.util.context.DataContextType;
-import net.threetag.palladium.util.property.IntegerProperty;
-import net.threetag.palladium.util.property.PalladiumProperty;
 
-public class MoonPhaseCondition extends Condition {
+public record MoonPhaseCondition(int min, int max) implements Condition {
 
-    private final int min, max;
-
-    public MoonPhaseCondition(int min, int max) {
-        this.min = min;
-        this.max = max;
-    }
+    public static final MapCodec<MoonPhaseCondition> CODEC = RecordCodecBuilder.mapCodec(instance -> instance
+            .group(
+                    Codec.intRange(0, 7).optionalFieldOf("min", 0).forGetter(MoonPhaseCondition::min),
+                    Codec.intRange(0, 7).optionalFieldOf("max", 7).forGetter(MoonPhaseCondition::max)
+            ).apply(instance, MoonPhaseCondition::new)
+    );
+    public static final StreamCodec<RegistryFriendlyByteBuf, MoonPhaseCondition> STREAM_CODEC = StreamCodec.composite(
+            ByteBufCodecs.VAR_INT, MoonPhaseCondition::min,
+            ByteBufCodecs.VAR_INT, MoonPhaseCondition::max,
+            MoonPhaseCondition::new
+    );
 
     @Override
     public boolean active(DataContext context) {
@@ -27,23 +34,20 @@ public class MoonPhaseCondition extends Condition {
     }
 
     @Override
-    public ConditionSerializer getSerializer() {
+    public ConditionSerializer<MoonPhaseCondition> getSerializer() {
         return ConditionSerializers.MOON_PHASE.get();
     }
 
-    public static class Serializer extends ConditionSerializer {
+    public static class Serializer extends ConditionSerializer<MoonPhaseCondition> {
 
-        public static final PalladiumProperty<Integer> MIN = new IntegerProperty("min_phase").configurable("Minimum phase required to be active");
-        public static final PalladiumProperty<Integer> MAX = new IntegerProperty("max_phase").configurable("Maximum phase required to be active");
-
-        public Serializer() {
-            this.withProperty(MIN, 0);
-            this.withProperty(MAX, 7);
+        @Override
+        public MapCodec<MoonPhaseCondition> codec() {
+            return CODEC;
         }
 
         @Override
-        public Condition make(JsonObject json) {
-            return new MoonPhaseCondition(this.getProperty(json, MIN), this.getProperty(json, MAX));
+        public StreamCodec<RegistryFriendlyByteBuf, MoonPhaseCondition> streamCodec() {
+            return STREAM_CODEC;
         }
 
         @Override

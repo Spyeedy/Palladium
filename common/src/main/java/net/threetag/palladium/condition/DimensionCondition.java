@@ -1,23 +1,24 @@
 package net.threetag.palladium.condition;
 
-import com.google.gson.JsonObject;
-import net.minecraft.core.Registry;
+import com.mojang.serialization.MapCodec;
+import com.mojang.serialization.codecs.RecordCodecBuilder;
 import net.minecraft.core.registries.Registries;
+import net.minecraft.network.RegistryFriendlyByteBuf;
+import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.resources.ResourceKey;
-import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.level.Level;
 import net.threetag.palladium.util.context.DataContext;
 import net.threetag.palladium.util.context.DataContextType;
-import net.threetag.palladium.util.property.PalladiumProperty;
-import net.threetag.palladium.util.property.ResourceLocationProperty;
 
-public class DimensionCondition extends Condition {
+public record DimensionCondition(ResourceKey<Level> dimension) implements Condition {
 
-    private final ResourceKey<Level> dimension;
-
-    public DimensionCondition(ResourceKey<Level> dimension) {
-        this.dimension = dimension;
-    }
+    public static final MapCodec<DimensionCondition> CODEC = RecordCodecBuilder.mapCodec(instance -> instance
+            .group(ResourceKey.codec(Registries.DIMENSION).fieldOf("dimension").forGetter(DimensionCondition::dimension)
+            ).apply(instance, DimensionCondition::new)
+    );
+    public static final StreamCodec<RegistryFriendlyByteBuf, DimensionCondition> STREAM_CODEC = StreamCodec.composite(
+            ResourceKey.streamCodec(Registries.DIMENSION), DimensionCondition::dimension, DimensionCondition::new
+    );
 
     @Override
     public boolean active(DataContext context) {
@@ -26,21 +27,20 @@ public class DimensionCondition extends Condition {
     }
 
     @Override
-    public ConditionSerializer getSerializer() {
+    public ConditionSerializer<DimensionCondition> getSerializer() {
         return ConditionSerializers.DIMENSION.get();
     }
 
-    public static class Serializer extends ConditionSerializer {
+    public static class Serializer extends ConditionSerializer<DimensionCondition> {
 
-        public static final PalladiumProperty<ResourceLocation> DIMENSION = new ResourceLocationProperty("dimension").configurable("ID of the dimension the player must be in. Example values: minecraft:overworld, minecraft:the_nether, minecraft:the_end");
-
-        public Serializer() {
-            this.withProperty(DIMENSION, new ResourceLocation("minecraft:overworld"));
+        @Override
+        public MapCodec<DimensionCondition> codec() {
+            return CODEC;
         }
 
         @Override
-        public Condition make(JsonObject json) {
-            return new DimensionCondition(ResourceKey.create(Registries.DIMENSION, this.getProperty(json, DIMENSION)));
+        public StreamCodec<RegistryFriendlyByteBuf, DimensionCondition> streamCodec() {
+            return STREAM_CODEC;
         }
 
         @Override

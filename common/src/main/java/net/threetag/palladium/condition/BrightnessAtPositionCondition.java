@@ -1,19 +1,27 @@
 package net.threetag.palladium.condition;
 
-import com.google.gson.JsonObject;
+import com.mojang.serialization.Codec;
+import com.mojang.serialization.MapCodec;
+import com.mojang.serialization.codecs.RecordCodecBuilder;
+import net.minecraft.network.RegistryFriendlyByteBuf;
+import net.minecraft.network.codec.ByteBufCodecs;
+import net.minecraft.network.codec.StreamCodec;
 import net.threetag.palladium.util.context.DataContext;
 import net.threetag.palladium.util.context.DataContextType;
-import net.threetag.palladium.util.property.IntegerProperty;
-import net.threetag.palladium.util.property.PalladiumProperty;
 
-public class BrightnessAtPositionCondition extends Condition {
+public record BrightnessAtPositionCondition(int min, int max) implements Condition {
 
-    private final int min, max;
-
-    public BrightnessAtPositionCondition(int minHealth, int maxHealth) {
-        this.min = minHealth;
-        this.max = maxHealth;
-    }
+    public static final MapCodec<BrightnessAtPositionCondition> CODEC = RecordCodecBuilder.mapCodec(instance -> instance
+            .group(
+                    Codec.intRange(0, 16).optionalFieldOf("min", 0).forGetter(BrightnessAtPositionCondition::min),
+                    Codec.intRange(0, 16).optionalFieldOf("max", 16).forGetter(BrightnessAtPositionCondition::max)
+            ).apply(instance, BrightnessAtPositionCondition::new)
+    );
+    public static final StreamCodec<RegistryFriendlyByteBuf, BrightnessAtPositionCondition> STREAM_CODEC = StreamCodec.composite(
+            ByteBufCodecs.VAR_INT, BrightnessAtPositionCondition::min,
+            ByteBufCodecs.VAR_INT, BrightnessAtPositionCondition::max,
+            BrightnessAtPositionCondition::new
+    );
 
     @Override
     public boolean active(DataContext context) {
@@ -28,23 +36,20 @@ public class BrightnessAtPositionCondition extends Condition {
     }
 
     @Override
-    public ConditionSerializer getSerializer() {
+    public ConditionSerializer<BrightnessAtPositionCondition> getSerializer() {
         return ConditionSerializers.BRIGHTNESS_AT_POSITION.get();
     }
 
-    public static class Serializer extends ConditionSerializer {
+    public static class Serializer extends ConditionSerializer<BrightnessAtPositionCondition> {
 
-        public static final PalladiumProperty<Integer> MIN = new IntegerProperty("min_brightness").configurable("Minimum required brightness at entity's position");
-        public static final PalladiumProperty<Integer> MAX = new IntegerProperty("max_brightness").configurable("Maximum required brightness at entity's position");
-
-        public Serializer() {
-            this.withProperty(MIN, 0);
-            this.withProperty(MAX, 16);
+        @Override
+        public MapCodec<BrightnessAtPositionCondition> codec() {
+            return CODEC;
         }
 
         @Override
-        public Condition make(JsonObject json) {
-            return new BrightnessAtPositionCondition(getProperty(json, MIN), getProperty(json, MAX));
+        public StreamCodec<RegistryFriendlyByteBuf, BrightnessAtPositionCondition> streamCodec() {
+            return STREAM_CODEC;
         }
 
         @Override

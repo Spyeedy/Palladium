@@ -1,24 +1,25 @@
 package net.threetag.palladium.condition;
 
-import com.google.gson.JsonObject;
-import net.minecraft.core.Registry;
+import com.mojang.serialization.MapCodec;
+import com.mojang.serialization.codecs.RecordCodecBuilder;
 import net.minecraft.core.registries.Registries;
+import net.minecraft.network.RegistryFriendlyByteBuf;
+import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraft.tags.EntityTypeTags;
 import net.minecraft.tags.TagKey;
 import net.minecraft.world.entity.EntityType;
 import net.threetag.palladium.util.context.DataContext;
 import net.threetag.palladium.util.context.DataContextType;
-import net.threetag.palladium.util.property.PalladiumProperty;
-import net.threetag.palladium.util.property.ResourceLocationProperty;
 
-public class EntityTypeTagCondition extends Condition {
+public record EntityTypeTagCondition(TagKey<EntityType<?>> tag) implements Condition {
 
-    private final TagKey<EntityType<?>> tag;
-
-    public EntityTypeTagCondition(TagKey<EntityType<?>> tag) {
-        this.tag = tag;
-    }
+    public static final MapCodec<EntityTypeTagCondition> CODEC = RecordCodecBuilder.mapCodec(instance -> instance
+            .group(TagKey.codec(Registries.ENTITY_TYPE).fieldOf("entity_type_tag").forGetter(EntityTypeTagCondition::tag)
+            ).apply(instance, EntityTypeTagCondition::new)
+    );
+    public static final StreamCodec<RegistryFriendlyByteBuf, EntityTypeTagCondition> STREAM_CODEC = StreamCodec.composite(
+            ResourceLocation.STREAM_CODEC.map(loc -> TagKey.create(Registries.ENTITY_TYPE, loc), TagKey::location), EntityTypeTagCondition::tag, EntityTypeTagCondition::new
+    );
 
     @Override
     public boolean active(DataContext context) {
@@ -32,21 +33,20 @@ public class EntityTypeTagCondition extends Condition {
     }
 
     @Override
-    public ConditionSerializer getSerializer() {
+    public ConditionSerializer<EntityTypeTagCondition> getSerializer() {
         return ConditionSerializers.ENTITY_TYPE_TAG.get();
     }
 
-    public static class Serializer extends ConditionSerializer {
+    public static class Serializer extends ConditionSerializer<EntityTypeTagCondition> {
 
-        public static final PalladiumProperty<ResourceLocation> ENTITY_TYPE = new ResourceLocationProperty("entity_type_tag").configurable("The tag the type of the entity must be in for the condition to be active");
-
-        public Serializer() {
-            this.withProperty(ENTITY_TYPE, EntityTypeTags.SKELETONS.location());
+        @Override
+        public MapCodec<EntityTypeTagCondition> codec() {
+            return CODEC;
         }
 
         @Override
-        public Condition make(JsonObject json) {
-            return new EntityTypeTagCondition(TagKey.create(Registries.ENTITY_TYPE, this.getProperty(json, ENTITY_TYPE)));
+        public StreamCodec<RegistryFriendlyByteBuf, EntityTypeTagCondition> streamCodec() {
+            return STREAM_CODEC;
         }
 
         @Override

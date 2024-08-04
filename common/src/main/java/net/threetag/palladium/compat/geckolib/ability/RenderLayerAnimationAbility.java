@@ -10,27 +10,26 @@ import net.threetag.palladium.client.renderer.renderlayer.IPackRenderLayer;
 import net.threetag.palladium.client.renderer.renderlayer.PackRenderLayerManager;
 import net.threetag.palladium.compat.geckolib.renderlayer.GeckoLayerState;
 import net.threetag.palladium.entity.PalladiumLivingEntityExtension;
-import net.threetag.palladium.power.IPowerHolder;
+import net.threetag.palladium.power.PowerHolder;
 import net.threetag.palladium.power.ability.Ability;
 import net.threetag.palladium.power.ability.AbilityInstance;
 import net.threetag.palladium.util.property.PalladiumProperty;
-import net.threetag.palladium.util.property.ResourceLocationProperty;
-import net.threetag.palladium.util.property.StringProperty;
-import software.bernie.geckolib.core.animation.AnimatableManager;
+import net.threetag.palladium.util.property.PalladiumPropertyBuilder;
+import net.threetag.palladium.util.property.PalladiumPropertyType;
+import net.threetag.palladium.util.property_old.ResourceLocationProperty;
+import software.bernie.geckolib.animation.AnimatableManager;
 
 import java.util.Collections;
 import java.util.List;
 
 public class RenderLayerAnimationAbility extends Ability {
 
-    public static final PalladiumProperty<ResourceLocation> RENDER_LAYER = new ResourceLocationProperty("render_layer").configurable("Determines the ID of the render layer receiving the animation. Must be a gecko render layer!");
-    public static final PalladiumProperty<String> CONTROLLER = new StringProperty("controller").configurable("Name of the animation controller the animation is played on. Leave it as 'main' if you didnt specify one.");
-    public static final PalladiumProperty<String> ANIMATION_TRIGGER = new StringProperty("animation_trigger").configurable("Name of the animation trigger");
+    public static final PalladiumProperty<ResourceLocation> RENDER_LAYER = PalladiumPropertyBuilder.create("render_layer", PalladiumPropertyType.RESOURCE_LOCATION).configurable("Determines the ID of the render layer receiving the animation. Must be a gecko render layer!", true).build();
+    public static final PalladiumProperty<String> CONTROLLER = PalladiumPropertyBuilder.create("controller", PalladiumPropertyType.STRING).configurable("Name of the animation controller the animation is played on. Leave it as 'main' if you didnt specify one.", false, "main").build();
+    public static final PalladiumProperty<String> ANIMATION_TRIGGER = PalladiumPropertyBuilder.create("animation_trigger", PalladiumPropertyType.STRING).configurable("Name of the animation trigger", true).build();
 
     public RenderLayerAnimationAbility() {
-        this.withProperty(RENDER_LAYER, new ResourceLocation("test", "example_layer"));
-        this.withProperty(CONTROLLER, "main");
-        this.withProperty(ANIMATION_TRIGGER, "animation_trigger_name");
+        this.withProperty(RENDER_LAYER, CONTROLLER, ANIMATION_TRIGGER);
     }
 
     @Override
@@ -39,7 +38,7 @@ public class RenderLayerAnimationAbility extends Ability {
     }
 
     @Override
-    public void tick(LivingEntity entity, AbilityInstance entry, IPowerHolder holder, boolean enabled) {
+    public void tick(LivingEntity entity, AbilityInstance entry, PowerHolder holder, boolean enabled) {
         if (enabled && entity.level().isClientSide && entity instanceof PalladiumLivingEntityExtension extension) {
             this.playAnimation(extension, entry);
         }

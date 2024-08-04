@@ -1,20 +1,35 @@
 package net.threetag.palladium.condition;
 
-import com.google.gson.JsonObject;
+import com.mojang.serialization.Codec;
+import com.mojang.serialization.MapCodec;
+import com.mojang.serialization.codecs.RecordCodecBuilder;
+import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.chat.Component;
+import net.minecraft.network.codec.ByteBufCodecs;
+import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
 import net.threetag.palladium.power.ability.AbilityConfiguration;
 import net.threetag.palladium.util.icon.ExperienceIcon;
-import net.threetag.palladium.util.property.IntegerProperty;
-import net.threetag.palladium.util.property.PalladiumProperty;
 
 public class ExperienceLevelBuyableCondition extends BuyableCondition {
+
+    public static final MapCodec<ExperienceLevelBuyableCondition> CODEC = RecordCodecBuilder.mapCodec(instance -> instance
+            .group(Codec.intRange(1, 512).fieldOf("xp_level").forGetter(ExperienceLevelBuyableCondition::getXpLevel)
+            ).apply(instance, ExperienceLevelBuyableCondition::new)
+    );
+    public static final StreamCodec<RegistryFriendlyByteBuf, ExperienceLevelBuyableCondition> STREAM_CODEC = StreamCodec.composite(
+            ByteBufCodecs.VAR_INT, ExperienceLevelBuyableCondition::getXpLevel, ExperienceLevelBuyableCondition::new
+    );
 
     private final int xpLevel;
 
     public ExperienceLevelBuyableCondition(int xpLevel) {
         this.xpLevel = xpLevel;
+    }
+
+    public int getXpLevel() {
+        return xpLevel;
     }
 
     @Override
@@ -44,26 +59,25 @@ public class ExperienceLevelBuyableCondition extends BuyableCondition {
     }
 
     @Override
-    public ConditionSerializer getSerializer() {
+    public ConditionSerializer<ExperienceLevelBuyableCondition> getSerializer() {
         return ConditionSerializers.EXPERIENCE_LEVEL_BUYABLE.get();
     }
 
-    public static class Serializer extends ConditionSerializer {
+    public static class Serializer extends ConditionSerializer<ExperienceLevelBuyableCondition> {
 
-        public static final PalladiumProperty<Integer> XP_LEVEL = new IntegerProperty("xp_level").configurable("Amount xp level that the player needs to spend");
+        @Override
+        public MapCodec<ExperienceLevelBuyableCondition> codec() {
+            return CODEC;
+        }
 
-        public Serializer() {
-            this.withProperty(XP_LEVEL, 3);
+        @Override
+        public StreamCodec<RegistryFriendlyByteBuf, ExperienceLevelBuyableCondition> streamCodec() {
+            return STREAM_CODEC;
         }
 
         @Override
         public ConditionEnvironment getContextEnvironment() {
             return ConditionEnvironment.DATA;
-        }
-
-        @Override
-        public Condition make(JsonObject json) {
-            return new ExperienceLevelBuyableCondition(getProperty(json, XP_LEVEL));
         }
 
         @Override

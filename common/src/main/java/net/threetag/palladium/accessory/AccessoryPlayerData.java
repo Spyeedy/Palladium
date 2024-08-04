@@ -1,12 +1,16 @@
 package net.threetag.palladium.accessory;
 
+import com.google.common.graph.Network;
 import com.mojang.datafixers.util.Pair;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
 import net.minecraft.nbt.StringTag;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.entity.player.Player;
-import net.threetag.palladium.network.SyncAccessoriesMessage;
+import net.threetag.palladium.network.SyncAccessoriesPacket;
+import net.threetag.palladium.registry.PalladiumRegistries;
+import net.threetag.palladiumcore.network.NetworkManager;
 import net.threetag.palladiumcore.util.Platform;
 
 import org.jetbrains.annotations.Nullable;
@@ -14,7 +18,7 @@ import java.util.*;
 
 public class AccessoryPlayerData {
 
-    public Map<AccessorySlot, Collection<Accessory>> accessories = new HashMap<>();
+    public Map<AccessorySlot, List<Accessory>> accessories = new HashMap<>();
 
     public void enable(AccessorySlot slot, Accessory accessory, Player player) {
         if (slot != null && accessory != null && accessory.getPossibleSlots().contains(slot) && canEnable(accessory, player)) {
@@ -28,7 +32,7 @@ public class AccessoryPlayerData {
             }
 
             if (!player.level().isClientSide)
-                new SyncAccessoriesMessage(player.getId(), this.accessories).sendToDimension(player.level());
+                NetworkManager.get().sendToPlayersInDimension((ServerLevel) player.level(), new SyncAccessoriesPacket(player.getId(), this.accessories));
         }
     }
 
@@ -45,7 +49,7 @@ public class AccessoryPlayerData {
                 this.accessories.put(slot, new ArrayList<>());
             }
             if (!player.level().isClientSide)
-                new SyncAccessoriesMessage(player.getId(), this.accessories).sendToDimension(player.level());
+                NetworkManager.get().sendToPlayersInDimension((ServerLevel) player.level(), new SyncAccessoriesPacket(player.getId(), this.accessories));
         }
     }
 
@@ -70,10 +74,10 @@ public class AccessoryPlayerData {
             this.accessories.put(slot, new ArrayList<>());
         }
         if (!player.level().isClientSide)
-            new SyncAccessoriesMessage(player.getId(), this.accessories).sendToDimension(player.level());
+            NetworkManager.get().sendToPlayersInDimension((ServerLevel) player.level(), new SyncAccessoriesPacket(player.getId(), this.accessories));
     }
 
-    public Map<AccessorySlot, Collection<Accessory>> getSlots() {
+    public Map<AccessorySlot, List<Accessory>> getSlots() {
         return this.accessories;
     }
 
@@ -82,7 +86,7 @@ public class AccessoryPlayerData {
         this.accessories.forEach((slot, list) -> {
             ListTag listNBT = new ListTag();
             for (Accessory accessory : list) {
-                listNBT.add(StringTag.valueOf(Objects.requireNonNull(Accessory.REGISTRY.getKey(accessory)).toString()));
+                listNBT.add(StringTag.valueOf(Objects.requireNonNull(PalladiumRegistries.ACCESSORY.getKey(accessory)).toString()));
             }
             nbt.put(slot.getName().toString(), listNBT);
         });
@@ -95,7 +99,7 @@ public class AccessoryPlayerData {
             ListTag listNBT = nbt.getList(slot.getName().toString(), 8);
             List<Accessory> accessories = new ArrayList<>();
             for (int i = 0; i < listNBT.size(); i++) {
-                Accessory accessory = Accessory.REGISTRY.get(new ResourceLocation(listNBT.getString(i)));
+                Accessory accessory =PalladiumRegistries.ACCESSORY.get(ResourceLocation.parse(listNBT.getString(i)));
                 if (accessory != null) {
                     accessories.add(accessory);
                 }

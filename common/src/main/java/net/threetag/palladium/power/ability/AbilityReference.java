@@ -4,19 +4,27 @@ import com.mojang.serialization.Codec;
 import com.mojang.serialization.DataResult;
 import net.minecraft.ResourceLocationException;
 import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.LivingEntity;
 import net.threetag.palladium.power.*;
-import net.threetag.palladium.registry.PalladiumRegistryKeys;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.Objects;
 import java.util.Optional;
 
-public record AbilityReference(@Nullable ResourceLocation powerId, @NotNull String abilityId) {
+public record AbilityReference(@Nullable ResourceLocation powerId, @NotNull String abilityKey) {
 
     public static final Codec<AbilityReference> CODEC = Codec.STRING.comapFlatMap(AbilityReference::read, AbilityReference::toString).stable();
+    public static final StreamCodec<FriendlyByteBuf, AbilityReference> STREAM_CODEC = StreamCodec.of((buf, ref) -> {
+        buf.writeNullable(ref.powerId, FriendlyByteBuf::writeResourceLocation);
+        buf.writeUtf(ref.abilityKey);
+    }, buf -> {
+        var powerId = buf.readNullable(FriendlyByteBuf::readResourceLocation);
+        var barName = buf.readUtf();
+        return new AbilityReference(powerId, barName);
+    });
 
     public static AbilityReference parse(String parse) {
         String[] s = parse.split("#", 2);
@@ -42,32 +50,31 @@ public record AbilityReference(@Nullable ResourceLocation powerId, @NotNull Stri
     }
 
     @Nullable
-    public AbilityInstance getInstance(LivingEntity entity, @Nullable IPowerHolder powerHolder) {
+    public AbilityInstance getInstance(LivingEntity entity, @Nullable PowerHolder powerHolder) {
         if (this.powerId != null) {
-            IPowerHandler handler = PowerUtil.getPowerHandler(entity).orElse(null);
-            Power power = entity.registryAccess().registry(PalladiumRegistryKeys.POWER).orElseThrow().get(this.powerId);
+            EntityPowerHandler handler = PowerUtil.getPowerHandler(entity).orElse(null);
 
-            if (power != null && handler != null) {
-                powerHolder = handler.getPowerHolder(power);
+            if (handler != null) {
+                powerHolder = handler.getPowerHolder(this.powerId);
             } else {
                 powerHolder = null;
             }
         }
 
         if (powerHolder != null) {
-            return powerHolder.getAbilities().get(this.abilityId);
+            return powerHolder.getAbilities().get(this.abilityKey);
         }
 
         return null;
     }
 
-    public Optional<AbilityInstance> optional(LivingEntity entity, @Nullable IPowerHolder powerHolder) {
+    public Optional<AbilityInstance> optional(LivingEntity entity, @Nullable PowerHolder powerHolder) {
         return Optional.ofNullable(this.getInstance(entity, powerHolder));
     }
 
     public void toBuffer(FriendlyByteBuf buf) {
         buf.writeNullable(this.powerId, (buf1, resourceLocation) -> buf.writeResourceLocation(resourceLocation));
-        buf.writeUtf(this.abilityId);
+        buf.writeUtf(this.abilityKey);
     }
 
     public static AbilityReference fromBuffer(FriendlyByteBuf buf) {
@@ -77,15 +84,15 @@ public record AbilityReference(@Nullable ResourceLocation powerId, @NotNull Stri
     @Override
     public String toString() {
         if (this.powerId == null) {
-            return this.abilityId;
+            return this.abilityKey;
         }
-        return this.powerId + "#" + this.abilityId;
+        return this.powerId + "#" + this.abilityKey;
     }
 
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
         if (!(o instanceof AbilityReference that)) return false;
-        return Objects.equals(this.powerId, that.powerId) && Objects.equals(this.abilityId, that.abilityId);
+        return Objects.equals(this.powerId, that.powerId) && Objects.equals(this.abilityKey, that.abilityKey);
     }
 }

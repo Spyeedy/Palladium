@@ -1,74 +1,70 @@
 package net.threetag.palladium.condition;
 
 import com.mojang.serialization.Codec;
+import net.minecraft.network.RegistryFriendlyByteBuf;
+import net.minecraft.network.codec.ByteBufCodecs;
+import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.world.entity.LivingEntity;
-import net.threetag.palladium.power.IPowerHolder;
 import net.threetag.palladium.power.Power;
+import net.threetag.palladium.power.PowerHolder;
 import net.threetag.palladium.power.ability.AbilityConditions;
 import net.threetag.palladium.power.ability.AbilityInstance;
 import net.threetag.palladium.registry.PalladiumRegistries;
+import net.threetag.palladium.registry.PalladiumRegistryKeys;
 import net.threetag.palladium.util.context.DataContext;
+import net.threetag.palladium.util.icon.Icon;
+import net.threetag.palladium.util.icon.IconSerializer;
 import net.threetag.palladium.util.property.PropertyManager;
 
 import java.util.Collections;
 import java.util.List;
 
-public abstract class Condition {
+public interface Condition {
 
-    public static final Codec<Condition> CODEC = PalladiumRegistries.CONDITION_SERIALIZER.byNameCodec().dispatch(Condition::getSerializer, ConditionSerializer::codec);
+    Codec<Condition> CODEC = PalladiumRegistries.CONDITION_SERIALIZER.byNameCodec().dispatch(Condition::getSerializer, ConditionSerializer::codec);
+    StreamCodec<RegistryFriendlyByteBuf, Condition> STREAM_CODEC = ByteBufCodecs.registry(PalladiumRegistryKeys.CONDITION_SERIALIZER).dispatch(Condition::getSerializer, ConditionSerializer::streamCodec);
 
-    private ConditionEnvironment environment;
+    boolean active(DataContext context);
 
-    public Condition setEnvironment(ConditionEnvironment environment) {
-        this.environment = environment;
-        return this;
-    }
-
-    public ConditionEnvironment getEnvironment() {
-        return environment;
-    }
-
-    public abstract boolean active(DataContext context);
-
-    public boolean needsKey() {
+    default boolean needsKey() {
         return false;
     }
 
-    public AbilityConditions.KeyType getKeyType() {
+    default AbilityConditions.KeyType getKeyType() {
         return AbilityConditions.KeyType.KEY_BIND;
     }
 
-    public AbilityConditions.KeyPressType getKeyPressType() {
+    default AbilityConditions.KeyPressType getKeyPressType() {
         return AbilityConditions.KeyPressType.ACTION;
     }
 
-    public boolean handlesCooldown() {
+    default boolean handlesCooldown() {
         return false;
     }
 
-    public CooldownType getCooldownType() {
+    default CooldownType getCooldownType() {
         return CooldownType.STATIC;
     }
 
-    public void init(LivingEntity entity, AbilityInstance entry, PropertyManager manager) {
+    default void init(LivingEntity entity, AbilityInstance entry, PropertyManager manager) {
 
     }
 
-    public void registerAbilityProperties(AbilityInstance entry, PropertyManager manager) {
+    default void registerAbilityProperties(AbilityInstance entry, PropertyManager manager) {
 
     }
 
-    public void onKeyPressed(LivingEntity entity, AbilityInstance entry, Power power, IPowerHolder holder) {
+    default void onKeyPressed(LivingEntity entity, AbilityInstance entry, Power power, PowerHolder holder) {
 
     }
 
-    public void onKeyReleased(LivingEntity entity, AbilityInstance entry, Power power, IPowerHolder holder) {
+    default void onKeyReleased(LivingEntity entity, AbilityInstance entry, Power power, PowerHolder holder) {
 
     }
 
-    public abstract ConditionSerializer<?> getSerializer();
+    ConditionSerializer<?> getSerializer();
 
-    public List<String> getDependentAbilities() {
+    default List<String> getDependentAbilities() {
         return Collections.emptyList();
     }
 }

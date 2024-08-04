@@ -11,8 +11,8 @@ import net.threetag.palladium.power.ability.AbilityInstance;
 import net.threetag.palladium.power.ability.AbilityReference;
 import net.threetag.palladium.util.context.DataContext;
 import net.threetag.palladium.util.json.GsonUtil;
-import net.threetag.palladium.util.property.IntegerProperty;
 import net.threetag.palladium.util.property.PalladiumProperty;
+import net.threetag.palladium.util.property.PalladiumPropertyType;
 
 import java.util.List;
 
@@ -39,15 +39,15 @@ public class AbilityIntegerPropertyVariable extends AbstractIntegerTextureVariab
 
             PalladiumProperty<?> property = entry.getEitherPropertyByKey(this.propertyKey);
 
-            if (property instanceof IntegerProperty integerProperty) {
-                return entry.getProperty(integerProperty);
+            if (property.getType() == PalladiumPropertyType.INTEGER) {
+                return (int) entry.getProperty(property);
             }
         }
 
         return 0;
     }
 
-    public static class Serializer implements ITextureVariableSerializer {
+    public static class Serializer implements TextureVariableSerializer {
 
         @Override
         public ITextureVariable parse(JsonObject json) {

@@ -3,15 +3,20 @@ package net.threetag.palladium.util.icon;
 import com.google.gson.JsonParseException;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.DataResult;
+import io.netty.buffer.ByteBuf;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.minecraft.ResourceLocationException;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.core.registries.BuiltInRegistries;
+import net.minecraft.network.RegistryFriendlyByteBuf;
+import net.minecraft.network.codec.ByteBufCodecs;
+import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.resources.ResourceLocation;
 import net.threetag.palladium.client.dynamictexture.TextureReference;
 import net.threetag.palladium.registry.PalladiumRegistries;
+import net.threetag.palladium.registry.PalladiumRegistryKeys;
 import net.threetag.palladium.util.context.DataContext;
 
 public interface Icon {
@@ -20,6 +25,8 @@ public interface Icon {
             PalladiumRegistries.ICON_SERIALIZER.byNameCodec().dispatch(Icon::getSerializer, IconSerializer::codec),
             Codec.STRING.comapFlatMap(Icon::read, Icon::toSimpleString).stable()
     );
+
+    StreamCodec<RegistryFriendlyByteBuf, Icon> STREAM_CODEC = ByteBufCodecs.registry(PalladiumRegistryKeys.ICON_SERIALIZER).dispatch(Icon::getSerializer, IconSerializer::streamCodec);
 
     static Icon parse(String input) {
         if (input.endsWith(".png")) {

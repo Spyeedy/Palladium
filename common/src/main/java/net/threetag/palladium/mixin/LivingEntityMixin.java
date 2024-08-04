@@ -10,7 +10,7 @@ import net.threetag.palladium.client.renderer.renderlayer.RenderLayerStates;
 import net.threetag.palladium.entity.PalladiumAttributes;
 import net.threetag.palladium.entity.PalladiumEntityExtension;
 import net.threetag.palladium.entity.PalladiumLivingEntityExtension;
-import net.threetag.palladium.power.PowerHandler;
+import net.threetag.palladium.power.EntityPowerHandler;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.Unique;
@@ -26,7 +26,7 @@ import java.util.Objects;
 public abstract class LivingEntityMixin implements PalladiumLivingEntityExtension {
 
     @Unique
-    private PowerHandler palladium$powerHandler;
+    private EntityPowerHandler palladium$powerHandler;
 
     @Unique
     private RenderLayerStates palladium$renderLayerStates;
@@ -38,7 +38,7 @@ public abstract class LivingEntityMixin implements PalladiumLivingEntityExtensio
 
     @Inject(method = "<init>", at = @At("RETURN"))
     public void init(EntityType entityType, Level level, CallbackInfo ci) {
-        this.palladium$powerHandler = new PowerHandler((LivingEntity) (Object) this);
+        this.palladium$powerHandler = new EntityPowerHandler((LivingEntity) (Object) this);
         this.palladium$renderLayerStates = new RenderLayerStates();
     }
 
@@ -75,7 +75,7 @@ public abstract class LivingEntityMixin implements PalladiumLivingEntityExtensio
     }
 
     @Override
-    public PowerHandler palladium$getPowerHandler() {
+    public EntityPowerHandler palladium$getPowerHandler() {
         return this.palladium$powerHandler;
     }
 

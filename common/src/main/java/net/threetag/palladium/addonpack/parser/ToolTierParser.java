@@ -3,24 +3,33 @@ package net.threetag.palladium.addonpack.parser;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonPrimitive;
+import com.mojang.serialization.Codec;
+import com.mojang.serialization.JsonOps;
+import com.mojang.serialization.codecs.RecordCodecBuilder;
 import net.minecraft.CrashReport;
 import net.minecraft.CrashReportCategory;
 import net.minecraft.ReportedException;
+import net.minecraft.core.registries.Registries;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.packs.resources.ResourceManager;
 import net.minecraft.server.packs.resources.SimpleJsonResourceReloadListener;
 import net.minecraft.tags.ItemTags;
+import net.minecraft.tags.TagKey;
 import net.minecraft.util.GsonHelper;
 import net.minecraft.util.profiling.ProfilerFiller;
+import net.minecraft.world.entity.animal.Cod;
+import net.minecraft.world.item.Items;
 import net.minecraft.world.item.Tier;
 import net.minecraft.world.item.Tiers;
 import net.minecraft.world.item.crafting.Ingredient;
+import net.minecraft.world.level.block.Block;
 import net.threetag.palladium.Palladium;
 import net.threetag.palladium.addonpack.log.AddonPackLog;
 import net.threetag.palladium.documentation.HTMLBuilder;
 import net.threetag.palladium.documentation.JsonDocumentationBuilder;
+import net.threetag.palladium.util.CodecUtils;
 import net.threetag.palladium.util.json.GsonUtil;
-import net.threetag.palladiumcore.item.SimpleToolTier;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -28,6 +37,17 @@ import java.util.Set;
 import java.util.concurrent.atomic.AtomicInteger;
 
 public class ToolTierParser extends SimpleJsonResourceReloadListener {
+
+    public static final Codec<SimpleToolTier> CODEC = RecordCodecBuilder.create(instance ->
+            instance.group(
+                    TagKey.codec(Registries.BLOCK).fieldOf("incorrect_block_for_drops").forGetter(Tier::getIncorrectBlocksForDrops),
+                    Codec.intRange(1, Integer.MAX_VALUE).fieldOf("uses").forGetter(Tier::getUses),
+                    Codec.floatRange(0, Float.MAX_VALUE).fieldOf("speed").forGetter(Tier::getSpeed),
+                    Codec.floatRange(0, Float.MAX_VALUE).optionalFieldOf("attack_damage_bonus", 0F).forGetter(Tier::getAttackDamageBonus),
+                    Codec.intRange(0, Integer.MAX_VALUE).optionalFieldOf("enchantment_value", 0).forGetter(Tier::getEnchantmentValue),
+                    CodecUtils.SIMPLE_INGREDIENT_SUPPLIER.fieldOf("repair_ingredient").forGetter(SimpleToolTier::getSimpleRepairIngredient)
+            ).apply(instance, SimpleToolTier::new)
+    );
 
     private static final Map<ResourceLocation, Tier> TIERS = new HashMap<>();
 
@@ -37,18 +57,18 @@ public class ToolTierParser extends SimpleJsonResourceReloadListener {
 
     @Override
     protected void apply(Map<ResourceLocation, JsonElement> object, ResourceManager resourceManager, ProfilerFiller profiler) {
-        registerToolTier(new ResourceLocation("wood"), Tiers.WOOD);
-        registerToolTier(new ResourceLocation("stone"), Tiers.STONE);
-        registerToolTier(new ResourceLocation("iron"), Tiers.IRON);
-        registerToolTier(new ResourceLocation("gold"), Tiers.GOLD);
-        registerToolTier(new ResourceLocation("diamond"), Tiers.DIAMOND);
-        registerToolTier(new ResourceLocation("netherite"), Tiers.NETHERITE);
+        registerToolTier(ResourceLocation.withDefaultNamespace("wood"), Tiers.WOOD);
+        registerToolTier(ResourceLocation.withDefaultNamespace("stone"), Tiers.STONE);
+        registerToolTier(ResourceLocation.withDefaultNamespace("iron"), Tiers.IRON);
+        registerToolTier(ResourceLocation.withDefaultNamespace("gold"), Tiers.GOLD);
+        registerToolTier(ResourceLocation.withDefaultNamespace("diamond"), Tiers.DIAMOND);
+        registerToolTier(ResourceLocation.withDefaultNamespace("netherite"), Tiers.NETHERITE);
 
         AtomicInteger i = new AtomicInteger();
         object.forEach((id, jsonElement) -> {
             try {
                 JsonObject json = GsonHelper.convertToJsonObject(jsonElement, "$");
-                SimpleToolTier toolTier = parse(id, json);
+                SimpleToolTier toolTier = CODEC.parse(JsonOps.INSTANCE, json).getOrThrow();
                 registerToolTier(id, toolTier);
                 i.getAndIncrement();
             } catch (Exception e) {
@@ -74,16 +94,6 @@ public class ToolTierParser extends SimpleJsonResourceReloadListener {
 
     public static Set<ResourceLocation> getIds() {
         return TIERS.keySet();
-    }
-
-    public static SimpleToolTier parse(ResourceLocation id, JsonObject json) {
-        return new SimpleToolTier(
-                GsonUtil.getAsIntMin(json, "level", 0),
-                GsonUtil.getAsIntMin(json, "uses", 1),
-                GsonUtil.getAsFloatMin(json, "speed", 0),
-                GsonUtil.getAsFloatMin(json, "attack_damage_bonus", 0),
-                GsonUtil.getAsIntMin(json, "enchantment_value", 0),
-                () -> json.has("repair_ingredient") ? Ingredient.fromJson(json.get("repair_ingredient")) : Ingredient.EMPTY);
     }
 
     public static HTMLBuilder documentationBuilder() {
@@ -112,9 +122,63 @@ public class ToolTierParser extends SimpleJsonResourceReloadListener {
 
         builder.addProperty("repair_ingredient", Ingredient.class)
                 .description("Ingredient definition for repairing the item in an anvil. Can be defined like in recipes.")
-                .fallback(Ingredient.EMPTY, "empty ingredient").exampleJson(Ingredient.of(ItemTags.DIRT).toJson());
+                .fallback(Ingredient.EMPTY, "empty ingredient").exampleJson(CodecUtils.SIMPLE_INGREDIENT_SUPPLIER.encodeStart(JsonOps.INSTANCE, new CodecUtils.SimpleIngredientSupplierItem(Items.DIRT)).getOrThrow());
 
-        return new HTMLBuilder(new ResourceLocation(Palladium.MOD_ID, "tool_tiers"), "Tool Tiers").add(HTMLBuilder.heading("Tool Tiers")).addDocumentation(builder);
+        return new HTMLBuilder(Palladium.id("tool_tiers"), "Tool Tiers").add(HTMLBuilder.heading("Tool Tiers")).addDocumentation(builder);
+    }
+
+    public static class SimpleToolTier implements Tier {
+
+        private final TagKey<Block> incorrectBlocksForDrops;
+        private final int uses;
+        private final float speed;
+        private final float attackDamageBonus;
+        private final int enchantmentValue;
+        @NotNull
+        private final CodecUtils.SimpleIngredientSupplier repairIngredient;
+
+        public SimpleToolTier(TagKey<Block> incorrectBlocksForDrops, int uses, float speed, float attackDamageBonus, int enchantmentValue, @NotNull CodecUtils.SimpleIngredientSupplier repairIngredient) {
+            this.incorrectBlocksForDrops = incorrectBlocksForDrops;
+            this.uses = uses;
+            this.speed = speed;
+            this.attackDamageBonus = attackDamageBonus;
+            this.enchantmentValue = enchantmentValue;
+            this.repairIngredient = repairIngredient;
+        }
+
+        @Override
+        public int getUses() {
+            return this.uses;
+        }
+
+        @Override
+        public float getSpeed() {
+            return this.speed;
+        }
+
+        @Override
+        public float getAttackDamageBonus() {
+            return this.attackDamageBonus;
+        }
+
+        @Override
+        public TagKey<Block> getIncorrectBlocksForDrops() {
+            return this.incorrectBlocksForDrops;
+        }
+
+        @Override
+        public int getEnchantmentValue() {
+            return this.enchantmentValue;
+        }
+
+        @Override
+        public Ingredient getRepairIngredient() {
+            return this.repairIngredient.get();
+        }
+
+        public CodecUtils.SimpleIngredientSupplier getSimpleRepairIngredient() {
+            return this.repairIngredient;
+        }
     }
 
 }

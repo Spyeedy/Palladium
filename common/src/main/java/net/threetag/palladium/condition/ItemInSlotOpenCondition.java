@@ -1,21 +1,23 @@
 package net.threetag.palladium.condition;
 
-import com.google.gson.JsonObject;
-import net.minecraft.world.entity.EquipmentSlot;
+import com.mojang.serialization.MapCodec;
+import com.mojang.serialization.codecs.RecordCodecBuilder;
+import net.minecraft.network.RegistryFriendlyByteBuf;
+import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.world.item.ItemStack;
 import net.threetag.palladium.item.Openable;
 import net.threetag.palladium.util.PlayerSlot;
 import net.threetag.palladium.util.context.DataContext;
-import net.threetag.palladium.util.property.PalladiumProperty;
-import net.threetag.palladium.util.property.PlayerSlotProperty;
 
-public class ItemInSlotOpenCondition extends Condition {
+public record ItemInSlotOpenCondition(PlayerSlot slot) implements Condition {
 
-    private final PlayerSlot slot;
-
-    public ItemInSlotOpenCondition(PlayerSlot slot) {
-        this.slot = slot;
-    }
+    public static final MapCodec<ItemInSlotOpenCondition> CODEC = RecordCodecBuilder.mapCodec(instance -> instance
+            .group(PlayerSlot.CODEC.fieldOf("slot").forGetter(ItemInSlotOpenCondition::slot)
+            ).apply(instance, ItemInSlotOpenCondition::new)
+    );
+    public static final StreamCodec<RegistryFriendlyByteBuf, ItemInSlotOpenCondition> STREAM_CODEC = StreamCodec.composite(
+            PlayerSlot.STREAM_CODEC, ItemInSlotOpenCondition::slot, ItemInSlotOpenCondition::new
+    );
 
     @Override
     public boolean active(DataContext context) {
@@ -39,21 +41,20 @@ public class ItemInSlotOpenCondition extends Condition {
     }
 
     @Override
-    public ConditionSerializer getSerializer() {
+    public ConditionSerializer<ItemInSlotOpenCondition> getSerializer() {
         return ConditionSerializers.ITEM_IN_SLOT_OPEN.get();
     }
 
-    public static class Serializer extends ConditionSerializer {
+    public static class Serializer extends ConditionSerializer<ItemInSlotOpenCondition> {
 
-        public static final PalladiumProperty<PlayerSlot> SLOT = new PlayerSlotProperty("slot").configurable("Slot that must contain an opened item");
-
-        public Serializer() {
-            this.withProperty(SLOT, PlayerSlot.get(EquipmentSlot.CHEST.getName()));
+        @Override
+        public MapCodec<ItemInSlotOpenCondition> codec() {
+            return CODEC;
         }
 
         @Override
-        public Condition make(JsonObject json) {
-            return new ItemInSlotOpenCondition(this.getProperty(json, SLOT));
+        public StreamCodec<RegistryFriendlyByteBuf, ItemInSlotOpenCondition> streamCodec() {
+            return STREAM_CODEC;
         }
 
         @Override

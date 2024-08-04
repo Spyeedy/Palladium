@@ -1,6 +1,8 @@
 package net.threetag.palladium.util.property;
 
 import com.mojang.serialization.DynamicOps;
+import io.netty.buffer.ByteBuf;
+import net.minecraft.network.FriendlyByteBuf;
 
 public class PalladiumPropertyValue<T> {
 

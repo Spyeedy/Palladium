@@ -3,7 +3,7 @@ package net.threetag.palladium.documentation;
 import com.google.gson.JsonObject;
 import net.minecraft.resources.ResourceLocation;
 
-public interface IDocumentedConfigurable {
+public interface DocumentedConfigurable {
 
     void generateDocumentation(JsonDocumentationBuilder builder);
 

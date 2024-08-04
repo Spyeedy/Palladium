@@ -7,6 +7,8 @@ import net.minecraft.CrashReport;
 import net.minecraft.ReportedException;
 import net.minecraft.Util;
 import net.minecraft.client.gui.screens.TitleScreen;
+import net.minecraft.server.packs.PackLocationInfo;
+import net.minecraft.server.packs.PackSelectionConfig;
 import net.minecraft.server.packs.PackType;
 import net.minecraft.server.packs.repository.FolderRepositorySource;
 import net.minecraft.server.packs.repository.PackRepository;
@@ -15,6 +17,7 @@ import net.minecraft.server.packs.repository.RepositorySource;
 import net.minecraft.server.packs.resources.ReloadableResourceManager;
 import net.minecraft.util.GsonHelper;
 import net.minecraft.util.Unit;
+import net.minecraft.world.level.storage.LevelStorageSource;
 import net.threetag.palladium.Palladium;
 import net.threetag.palladium.addonpack.log.AddonPackLog;
 import net.threetag.palladium.addonpack.log.AddonPackLogEntry;
@@ -68,7 +71,7 @@ public class AddonPackManager {
     private AddonPackManager() {
         IGNORE_INJECT = true;
         this.resourceManager = new ReloadableResourceManager(getPackType());
-        this.folderPackFinder = new FolderRepositorySource(getLocation(), getPackType(), PackSource.DEFAULT);
+        this.folderPackFinder = new FolderRepositorySource(getLocation(), getPackType(), PackSource.DEFAULT, LevelStorageSource.parseValidator(Platform.getFolder().resolve("allowed_symlinks.txt")));
         var modSource = getModRepositorySource();
         RepositorySource[] sources = modSource == null ? new RepositorySource[]{this.folderPackFinder} : new RepositorySource[]{this.folderPackFinder, modSource};
         this.packList = new PackRepository(sources);
@@ -114,8 +117,8 @@ public class AddonPackManager {
 
     public static RepositorySource getWrappedPackFinder(RepositorySource folderPackFinder) {
         return (infoConsumer) -> folderPackFinder.loadPacks(pack -> {
-            pack.id = "addonpack:" + pack.getId();
-            pack.required = true;
+            pack.location = new PackLocationInfo("addonpack:" + pack.getId(), pack.location.title(), pack.location.source(), pack.location.knownPackInfo());
+            pack.selectionConfig = new PackSelectionConfig(true, pack.selectionConfig.defaultPosition(), pack.selectionConfig.fixedPosition());
             infoConsumer.accept(pack);
         });
     }

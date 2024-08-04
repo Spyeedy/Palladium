@@ -1,30 +1,39 @@
 package net.threetag.palladium.condition;
 
-import com.google.gson.JsonObject;
+import com.mojang.serialization.Codec;
+import com.mojang.serialization.MapCodec;
+import com.mojang.serialization.codecs.RecordCodecBuilder;
 import net.minecraft.commands.CommandSource;
 import net.minecraft.commands.CommandSourceStack;
+import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.chat.Component;
+import net.minecraft.network.codec.ByteBufCodecs;
+import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.server.level.ServerLevel;
 import net.threetag.palladium.addonpack.log.AddonPackLog;
 import net.threetag.palladium.util.context.DataContext;
 import net.threetag.palladium.util.context.DataContextType;
-import net.threetag.palladium.util.property.BooleanProperty;
-import net.threetag.palladium.util.property.IntegerProperty;
-import net.threetag.palladium.util.property.PalladiumProperty;
-import net.threetag.palladium.util.property.StringProperty;
 
-public class CommandResultCondition extends Condition implements CommandSource {
+import java.util.Objects;
 
-    private final String command, comparison;
-    private final int compare_to;
-    private final boolean log;
+public record CommandResultCondition(String command, String comparison, int compareTo,
+                                     boolean log) implements Condition, CommandSource {
 
-    public CommandResultCondition(String command, String comparison, int compare_to, boolean log) {
-        this.command = command;
-        this.comparison = comparison;
-        this.compare_to = compare_to;
-        this.log = log;
-    }
+    public static final MapCodec<CommandResultCondition> CODEC = RecordCodecBuilder.mapCodec(instance -> instance
+            .group(
+                    Codec.STRING.fieldOf("command").forGetter(CommandResultCondition::command),
+                    Codec.STRING.fieldOf("comparison").forGetter(CommandResultCondition::comparison),
+                    Codec.INT.fieldOf("compare_to").forGetter(CommandResultCondition::compareTo),
+                    Codec.BOOL.optionalFieldOf("log", false).forGetter(CommandResultCondition::log)
+            ).apply(instance, CommandResultCondition::new)
+    );
+    public static final StreamCodec<RegistryFriendlyByteBuf, CommandResultCondition> STREAM_CODEC = StreamCodec.composite(
+            ByteBufCodecs.STRING_UTF8, CommandResultCondition::command,
+            ByteBufCodecs.STRING_UTF8, CommandResultCondition::comparison,
+            ByteBufCodecs.VAR_INT, CommandResultCondition::compareTo,
+            ByteBufCodecs.BOOL, CommandResultCondition::log,
+            CommandResultCondition::new
+    );
 
     @Override
     public boolean active(DataContext context) {
@@ -36,7 +45,7 @@ public class CommandResultCondition extends Condition implements CommandSource {
 
         if (entity.level() instanceof ServerLevel serverLevel) {
             var stack = new CommandSourceStack(this, entity.position(), entity.getRotationVector(),
-                    serverLevel, 2, entity.getName().getString(), entity.getDisplayName(), entity.level().getServer(),
+                    serverLevel, 2, entity.getName().getString(), Objects.requireNonNull(entity.getDisplayName()), serverLevel.getServer(),
                     entity)
                     .withSuppressedOutput();
 
@@ -47,12 +56,12 @@ public class CommandResultCondition extends Condition implements CommandSource {
             int result = serverLevel.getServer().getCommands().performPrefixedCommand(stack, command);
 
             return switch (comparison) {
-                case ">=" -> (result >= compare_to);
-                case "<=" -> (result <= compare_to);
-                case ">" -> (result > compare_to);
-                case "<" -> (result < compare_to);
-                case "!=" -> (result != compare_to);
-                case "==" -> (result == compare_to);
+                case ">=" -> (result >= compareTo);
+                case "<=" -> (result <= compareTo);
+                case ">" -> (result > compareTo);
+                case "<" -> (result < compareTo);
+                case "!=" -> (result != compareTo);
+                case "==" -> (result == compareTo);
                 default -> false;
             };
         } else {
@@ -61,12 +70,7 @@ public class CommandResultCondition extends Condition implements CommandSource {
     }
 
     @Override
-    public ConditionEnvironment getEnvironment() {
-        return ConditionEnvironment.DATA;
-    }
-
-    @Override
-    public ConditionSerializer getSerializer() {
+    public ConditionSerializer<CommandResultCondition> getSerializer() {
         return ConditionSerializers.COMMAND_RESULT.get();
     }
 
@@ -92,23 +96,21 @@ public class CommandResultCondition extends Condition implements CommandSource {
         return this.log;
     }
 
-    public static class Serializer extends ConditionSerializer {
+    public static class Serializer extends ConditionSerializer<CommandResultCondition> {
 
-        public static final PalladiumProperty<String> COMMAND = new StringProperty("command").configurable("The command output to compare the 'compare_to' int with");
-        public static final PalladiumProperty<String> COMPARISON = new StringProperty("comparison").configurable("The comparison used between the 'command' and 'compare_to' fields, accepts >=, <=, >, <, !=, or == (note that the first number is from 'command' and the second from 'compare_to')");
-        public static final PalladiumProperty<Integer> COMPARE_TO = new IntegerProperty("compare_to").configurable("The number being compared to the output of 'command'");
-        public static final PalladiumProperty<Boolean> LOG = new BooleanProperty("log").configurable("If the command's output is sent to the entity or not (unless debugging, you probably want this false/unset)");
-
-        public Serializer() {
-            this.withProperty(COMMAND, "execute if entity @s");
-            this.withProperty(COMPARISON, "==");
-            this.withProperty(COMPARE_TO, 1);
-            this.withProperty(LOG, false);
+        @Override
+        public MapCodec<CommandResultCondition> codec() {
+            return CODEC;
         }
 
         @Override
-        public Condition make(JsonObject json) {
-            return new CommandResultCondition(this.getProperty(json, COMMAND), this.getProperty(json, COMPARISON), this.getProperty(json, COMPARE_TO), this.getProperty(json, LOG));
+        public StreamCodec<RegistryFriendlyByteBuf, CommandResultCondition> streamCodec() {
+            return STREAM_CODEC;
+        }
+
+        @Override
+        public ConditionEnvironment getContextEnvironment() {
+            return ConditionEnvironment.DATA;
         }
 
         @Override

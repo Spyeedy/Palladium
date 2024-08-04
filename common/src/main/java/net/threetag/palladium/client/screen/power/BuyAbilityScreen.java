@@ -10,7 +10,7 @@ import net.minecraft.sounds.SoundEvents;
 import net.minecraft.util.FormattedCharSequence;
 import net.threetag.palladium.client.screen.components.BackgroundlessButton;
 import net.threetag.palladium.client.screen.components.TextWithIconButton;
-import net.threetag.palladium.network.BuyAbilityUnlockMessage;
+import net.threetag.palladium.network.BuyAbilityUnlockPacket;
 import net.threetag.palladium.power.ability.AbilityConfiguration;
 import net.threetag.palladium.power.ability.AbilityReference;
 
@@ -44,7 +44,7 @@ public class BuyAbilityScreen extends Screen {
         int guiTop = (this.height - GUI_HEIGHT) / 2;
         this.addRenderableWidget(BackgroundlessButton.backgroundlessBuilder(Component.literal("x"), s -> parentScreen.closeOverlayScreen()).bounds(guiLeft + 193, guiTop + 3, 5, 5).build());
         Button button = TextWithIconButton.textWithIconBuilder(Component.literal(this.unlockData.amount + "x "), this.unlockData.icon, s -> {
-            new BuyAbilityUnlockMessage(this.reference).send();
+            new BuyAbilityUnlockPacket(this.reference).send();
             this.parentScreen.closeOverlayScreen();
             Objects.requireNonNull(Objects.requireNonNull(this.minecraft).player).playSound(SoundEvents.PLAYER_LEVELUP, 1F, 1F);
         }).bounds(guiLeft + 23, guiTop + 33, 54, 20).build();

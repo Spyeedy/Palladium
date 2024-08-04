@@ -13,15 +13,14 @@ import net.minecraft.world.entity.Entity;
 import net.threetag.palladium.client.renderer.renderlayer.IPackRenderLayer;
 import org.jetbrains.annotations.Nullable;
 import org.joml.Matrix4f;
+import software.bernie.geckolib.animation.AnimationState;
 import software.bernie.geckolib.cache.object.BakedGeoModel;
 import software.bernie.geckolib.cache.object.GeoBone;
 import software.bernie.geckolib.cache.texture.AnimatableTexture;
 import software.bernie.geckolib.constant.DataTickets;
-import software.bernie.geckolib.core.animatable.model.CoreGeoBone;
-import software.bernie.geckolib.core.animation.AnimationState;
 import software.bernie.geckolib.model.GeoModel;
 import software.bernie.geckolib.renderer.GeoRenderer;
-import software.bernie.geckolib.util.RenderUtils;
+import software.bernie.geckolib.util.RenderUtil;
 
 public class GeckoRenderLayerModel extends HumanoidModel<AbstractClientPlayer> implements GeoRenderer<GeckoLayerState> {
 
@@ -82,7 +81,7 @@ public class GeckoRenderLayerModel extends HumanoidModel<AbstractClientPlayer> i
     }
 
     @Override
-    public void preRender(PoseStack poseStack, GeckoLayerState animatable, BakedGeoModel model, MultiBufferSource bufferSource, VertexConsumer buffer, boolean isReRender, float partialTick, int packedLight, int packedOverlay, float red, float green, float blue, float alpha) {
+    public void preRender(PoseStack poseStack, GeckoLayerState animatable, BakedGeoModel model, MultiBufferSource bufferSource, VertexConsumer buffer, boolean isReRender, float partialTick, int packedLight, int packedOverlay, int colour) {
         this.entityRenderTranslations = new Matrix4f(poseStack.last().pose());
 
         applyBaseModel(this.baseModel);
@@ -92,14 +91,14 @@ public class GeckoRenderLayerModel extends HumanoidModel<AbstractClientPlayer> i
     }
 
     @Override
-    public void renderToBuffer(PoseStack poseStack, VertexConsumer buffer, int packedLight, int packedOverlay, float red, float green, float blue, float alpha) {
+    public void renderToBuffer(PoseStack poseStack, VertexConsumer buffer, int packedLight, int packedOverlay, int colour) {
         Minecraft mc = Minecraft.getInstance();
         MultiBufferSource bufferSource = mc.renderBuffers().bufferSource();
 
         if (mc.levelRenderer.shouldShowEntityOutlines() && mc.shouldEntityAppearGlowing(this.currentEntity))
             bufferSource = mc.renderBuffers().outlineBufferSource();
 
-        float partialTick = mc.getFrameTime();
+        float partialTick = mc.getTimer().getGameTimeDeltaTicks();
         buffer = this.currentState.layer.renderType.createVertexConsumer(bufferSource, this.getTextureLocation(this.currentState), false);
 
         poseStack.pushPose();
@@ -112,7 +111,7 @@ public class GeckoRenderLayerModel extends HumanoidModel<AbstractClientPlayer> i
         animationState.setData(DataTickets.TICK, this.currentState.getTick(this.currentEntity));
         animationState.setData(DataTickets.ENTITY, this.currentEntity);
         this.modelProvider.addAdditionalStateData(this.currentState, instanceId, animationState::setData);
-        this.modelProvider.handleAnimations(this.currentState, instanceId, animationState);
+        this.modelProvider.handleAnimations(this.currentState, instanceId, animationState, partialTick);
 
         defaultRender(poseStack, this.currentState, bufferSource, null, buffer,
                 0, partialTick, packedLight);
@@ -176,7 +175,7 @@ public class GeckoRenderLayerModel extends HumanoidModel<AbstractClientPlayer> i
         if (this.head != null) {
             ModelPart headPart = super.head;
 
-            RenderUtils.matchModelPartRot(headPart, this.head);
+            RenderUtil.matchModelPartRot(headPart, this.head);
             copyScaleAndVisibility(headPart, this.head);
             this.head.updatePosition(headPart.x, -headPart.y, headPart.z);
         }
@@ -184,7 +183,7 @@ public class GeckoRenderLayerModel extends HumanoidModel<AbstractClientPlayer> i
         if (this.body != null) {
             ModelPart bodyPart = super.body;
 
-            RenderUtils.matchModelPartRot(bodyPart, this.body);
+            RenderUtil.matchModelPartRot(bodyPart, this.body);
             copyScaleAndVisibility(bodyPart, this.body);
             this.body.updatePosition(bodyPart.x, -bodyPart.y, bodyPart.z);
         }
@@ -192,7 +191,7 @@ public class GeckoRenderLayerModel extends HumanoidModel<AbstractClientPlayer> i
         if (this.rightArm != null) {
             ModelPart rightArmPart = super.rightArm;
 
-            RenderUtils.matchModelPartRot(rightArmPart, this.rightArm);
+            RenderUtil.matchModelPartRot(rightArmPart, this.rightArm);
             copyScaleAndVisibility(rightArmPart, this.rightArm);
             this.rightArm.updatePosition(rightArmPart.x + 5, 2 - rightArmPart.y, rightArmPart.z);
         }
@@ -200,7 +199,7 @@ public class GeckoRenderLayerModel extends HumanoidModel<AbstractClientPlayer> i
         if (this.leftArm != null) {
             ModelPart leftArmPart = super.leftArm;
 
-            RenderUtils.matchModelPartRot(leftArmPart, this.leftArm);
+            RenderUtil.matchModelPartRot(leftArmPart, this.leftArm);
             copyScaleAndVisibility(leftArmPart, this.leftArm);
             this.leftArm.updatePosition(leftArmPart.x - 5f, 2f - leftArmPart.y, leftArmPart.z);
         }
@@ -208,7 +207,7 @@ public class GeckoRenderLayerModel extends HumanoidModel<AbstractClientPlayer> i
         if (this.rightLeg != null) {
             ModelPart rightLegPart = super.rightLeg;
 
-            RenderUtils.matchModelPartRot(rightLegPart, this.rightLeg);
+            RenderUtil.matchModelPartRot(rightLegPart, this.rightLeg);
             copyScaleAndVisibility(rightLegPart, this.rightLeg);
             this.rightLeg.updatePosition(rightLegPart.x + 2, 12 - rightLegPart.y, rightLegPart.z);
         }
@@ -216,13 +215,13 @@ public class GeckoRenderLayerModel extends HumanoidModel<AbstractClientPlayer> i
         if (this.leftLeg != null) {
             ModelPart leftLegPart = super.leftLeg;
 
-            RenderUtils.matchModelPartRot(leftLegPart, this.leftLeg);
+            RenderUtil.matchModelPartRot(leftLegPart, this.leftLeg);
             copyScaleAndVisibility(leftLegPart, this.leftLeg);
             this.leftLeg.updatePosition(leftLegPart.x - 2, 12 - leftLegPart.y, leftLegPart.z);
         }
     }
 
-    public static void copyScaleAndVisibility(ModelPart from, CoreGeoBone to) {
+    public static void copyScaleAndVisibility(ModelPart from, GeoBone to) {
         to.setScaleX(from.xScale);
         to.setScaleY(from.yScale);
         to.setScaleZ(from.zScale);

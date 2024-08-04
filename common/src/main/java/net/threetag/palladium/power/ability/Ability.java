@@ -7,9 +7,9 @@ import net.minecraft.world.item.Items;
 import net.minecraft.world.phys.Vec2;
 import net.threetag.palladium.Palladium;
 import net.threetag.palladium.documentation.HTMLBuilder;
-import net.threetag.palladium.documentation.IDefaultDocumentedConfigurable;
+import net.threetag.palladium.documentation.DocumentedPropertyManager;
 import net.threetag.palladium.documentation.JsonDocumentationBuilder;
-import net.threetag.palladium.power.IPowerHolder;
+import net.threetag.palladium.power.PowerHolder;
 import net.threetag.palladium.registry.PalladiumRegistries;
 import net.threetag.palladium.util.icon.Icon;
 import net.threetag.palladium.util.icon.ItemIcon;
@@ -18,7 +18,7 @@ import net.threetag.palladium.util.property.*;
 import java.util.Comparator;
 import java.util.stream.Collectors;
 
-public class Ability implements IDefaultDocumentedConfigurable {
+public class Ability implements DocumentedPropertyManager {
 
     public static final PalladiumProperty<Component> TITLE = PalladiumPropertyBuilder.create("title", PalladiumPropertyType.COMPONENT).configurable("Allows you to set a custom title for this ability", false).build();
     public static final PalladiumProperty<Icon> ICON = PalladiumPropertyBuilder.create("icon", PalladiumPropertyType.ICON).configurable("Icon for the ability", false, new ItemIcon(Items.BLAZE_ROD)).build();
@@ -48,15 +48,15 @@ public class Ability implements IDefaultDocumentedConfigurable {
         return false;
     }
 
-    public void tick(LivingEntity entity, AbilityInstance entry, IPowerHolder holder, boolean enabled) {
+    public void tick(LivingEntity entity, AbilityInstance entry, PowerHolder holder, boolean enabled) {
 
     }
 
-    public void firstTick(LivingEntity entity, AbilityInstance entry, IPowerHolder holder, boolean enabled) {
+    public void firstTick(LivingEntity entity, AbilityInstance entry, PowerHolder holder, boolean enabled) {
 
     }
 
-    public void lastTick(LivingEntity entity, AbilityInstance entry, IPowerHolder holder, boolean enabled) {
+    public void lastTick(LivingEntity entity, AbilityInstance entry, PowerHolder holder, boolean enabled) {
 
     }
 
@@ -94,7 +94,7 @@ public class Ability implements IDefaultDocumentedConfigurable {
 
     @Override
     public void generateDocumentation(JsonDocumentationBuilder builder) {
-        IDefaultDocumentedConfigurable.super.generateDocumentation(builder);
+        DocumentedPropertyManager.super.generateDocumentation(builder);
         builder.setTitle(this.getId().getPath());
 
         var desc = this.getDocumentationDescription();

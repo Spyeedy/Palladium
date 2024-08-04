@@ -22,7 +22,7 @@ public class EntityHealthTextureVariable extends AbstractFloatTextureVariable {
         return context.getEntity() instanceof LivingEntity livingEntity ? livingEntity.getHealth() : 0F;
     }
 
-    public static class Serializer implements ITextureVariableSerializer {
+    public static class Serializer implements TextureVariableSerializer {
 
         @Override
         public ITextureVariable parse(JsonObject json) {

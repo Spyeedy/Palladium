@@ -1,11 +1,18 @@
 package net.threetag.palladium.condition;
 
-import com.google.gson.JsonObject;
+import com.mojang.serialization.MapCodec;
+import net.minecraft.network.RegistryFriendlyByteBuf;
+import net.minecraft.network.codec.StreamCodec;
+import net.threetag.palladium.entity.PalladiumPlayerExtension;
 import net.threetag.palladium.util.context.DataContext;
 import net.threetag.palladium.util.context.DataContextType;
-import net.threetag.palladium.entity.PalladiumPlayerExtension;
 
-public class IsLevitatingCondition extends Condition {
+public class IsLevitatingCondition implements Condition {
+
+    public static final IsLevitatingCondition INSTANCE = new IsLevitatingCondition();
+
+    public static final MapCodec<IsLevitatingCondition> CODEC = MapCodec.unit(INSTANCE);
+    public static final StreamCodec<RegistryFriendlyByteBuf, IsLevitatingCondition> STREAM_CODEC = StreamCodec.unit(INSTANCE);
 
     @Override
     public boolean active(DataContext context) {
@@ -23,15 +30,20 @@ public class IsLevitatingCondition extends Condition {
     }
 
     @Override
-    public ConditionSerializer getSerializer() {
+    public ConditionSerializer<IsLevitatingCondition> getSerializer() {
         return ConditionSerializers.IS_LEVITATING.get();
     }
 
-    public static class Serializer extends ConditionSerializer {
+    public static class Serializer extends ConditionSerializer<IsLevitatingCondition> {
 
         @Override
-        public Condition make(JsonObject json) {
-            return new IsLevitatingCondition();
+        public MapCodec<IsLevitatingCondition> codec() {
+            return CODEC;
+        }
+
+        @Override
+        public StreamCodec<RegistryFriendlyByteBuf, IsLevitatingCondition> streamCodec() {
+            return STREAM_CODEC;
         }
 
         @Override

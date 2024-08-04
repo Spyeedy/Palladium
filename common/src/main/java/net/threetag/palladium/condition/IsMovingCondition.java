@@ -1,10 +1,17 @@
 package net.threetag.palladium.condition;
 
-import com.google.gson.JsonObject;
+import com.mojang.serialization.MapCodec;
+import net.minecraft.network.RegistryFriendlyByteBuf;
+import net.minecraft.network.codec.StreamCodec;
 import net.threetag.palladium.util.context.DataContext;
 import net.threetag.palladium.util.context.DataContextType;
 
-public class IsMovingCondition extends Condition {
+public class IsMovingCondition implements Condition {
+
+    public static final IsMovingCondition INSTANCE = new IsMovingCondition();
+
+    public static final MapCodec<IsMovingCondition> CODEC = MapCodec.unit(INSTANCE);
+    public static final StreamCodec<RegistryFriendlyByteBuf, IsMovingCondition> STREAM_CODEC = StreamCodec.unit(INSTANCE);
 
     @Override
     public boolean active(DataContext context) {
@@ -22,15 +29,20 @@ public class IsMovingCondition extends Condition {
     }
 
     @Override
-    public ConditionSerializer getSerializer() {
+    public ConditionSerializer<IsMovingCondition> getSerializer() {
         return ConditionSerializers.IS_MOVING.get();
     }
 
-    public static class Serializer extends ConditionSerializer {
+    public static class Serializer extends ConditionSerializer<IsMovingCondition> {
 
         @Override
-        public Condition make(JsonObject json) {
-            return new IsMovingCondition();
+        public MapCodec<IsMovingCondition> codec() {
+            return CODEC;
+        }
+
+        @Override
+        public StreamCodec<RegistryFriendlyByteBuf, IsMovingCondition> streamCodec() {
+            return STREAM_CODEC;
         }
 
         @Override

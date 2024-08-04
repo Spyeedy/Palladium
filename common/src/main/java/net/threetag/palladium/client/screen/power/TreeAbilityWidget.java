@@ -5,6 +5,7 @@ import net.minecraft.ChatFormatting;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.StringSplitter;
 import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.screens.advancements.AdvancementWidget;
 import net.minecraft.client.gui.screens.advancements.AdvancementWidgetType;
 import net.minecraft.locale.Language;
 import net.minecraft.network.chat.Component;
@@ -13,9 +14,10 @@ import net.minecraft.network.chat.FormattedText;
 import net.minecraft.network.chat.Style;
 import net.minecraft.util.FormattedCharSequence;
 import net.minecraft.util.Mth;
-import net.threetag.palladium.power.IPowerHolder;
+import net.threetag.palladium.power.PowerHolder;
 import net.threetag.palladium.power.ability.Ability;
 import net.threetag.palladium.power.ability.AbilityInstance;
+import net.threetag.palladium.power.ability.AbilityUtil;
 import net.threetag.palladium.util.context.DataContext;
 
 import java.util.Collection;
@@ -38,7 +40,7 @@ public class TreeAbilityWidget {
     private static final int TITLE_MAX_WIDTH = 163;
     private static final int[] TEST_SPLIT_OFFSETS = new int[]{0, 10, -10, 25, -25};
     private final TreePowerTab tab;
-    private final IPowerHolder holder;
+    private final PowerHolder holder;
     public final AbilityInstance abilityInstance;
     private final FormattedCharSequence title;
     private final int width;
@@ -51,7 +53,7 @@ public class TreeAbilityWidget {
     public double gridX, gridY;
     public boolean fixedPosition = false;
 
-    public TreeAbilityWidget(TreePowerTab tab, Minecraft mc, IPowerHolder holder, AbilityInstance abilityInstance) {
+    public TreeAbilityWidget(TreePowerTab tab, Minecraft mc, PowerHolder holder, AbilityInstance abilityInstance) {
         this.tab = tab;
         this.holder = holder;
         this.abilityInstance = abilityInstance;
@@ -100,8 +102,8 @@ public class TreeAbilityWidget {
     public TreeAbilityWidget updateRelatives(Collection<TreeAbilityWidget> list) {
         this.parents.clear();
         this.children.clear();
-        List<AbilityInstance> parents = Ability.findParentsWithinHolder(this.abilityInstance.getConfiguration(), this.holder);
-        List<AbilityInstance> children = Ability.findChildrenWithinHolder(this.abilityInstance.getConfiguration(), this.holder);
+        List<AbilityInstance> parents = AbilityUtil.findParentsWithinHolder(this.abilityInstance.getConfiguration(), this.holder);
+        List<AbilityInstance> children = AbilityUtil.findChildrenWithinHolder(this.abilityInstance.getConfiguration(), this.holder);
 
         for (TreeAbilityWidget widget : list) {
             if (!parents.isEmpty()) {
@@ -209,15 +211,15 @@ public class TreeAbilityWidget {
         int n = 32 + this.description.size() * 9;
         if (!this.description.isEmpty()) {
             if (bl2) {
-                guiGraphics.blitNineSliced(PowersScreen.WIDGETS, m, l + 26 - n, this.width, n, 10, 200, 26, 0, 52);
+                guiGraphics.blitSprite(PowersScreen.TITLE_BOX_SPRITE, m, l + 26 - n, this.width, n, 10, 200, 26, 0, 52);
             } else {
-                guiGraphics.blitNineSliced(PowersScreen.WIDGETS, m, l, this.width, n, 10, 200, 26, 0, 52);
+                guiGraphics.blitSprite(PowersScreen.TITLE_BOX_SPRITE, m, l, this.width, n, 10, 200, 26, 0, 52);
             }
         }
 
-        guiGraphics.blit(PowersScreen.WIDGETS, m, l, 0, advancementWidgetType.getIndex() * 26, j, 26);
-        guiGraphics.blit(PowersScreen.WIDGETS, m + j, l, 200 - k, advancementWidgetType2.getIndex() * 26, k, 26);
-        guiGraphics.blit(PowersScreen.WIDGETS, x + this.x + 3, y + this.y, 0, 78 + advancementWidgetType3.getIndex() * 26, 26, 26);
+        guiGraphics.blitSprite(advancementWidgetType.boxSprite(), 200, 26, 0, 0, m, l, j, 26);
+        guiGraphics.blitSprite(advancementWidgetType2.boxSprite(), 200, 26, 200 - k, 0, m + j, l, k, 26);
+//        guiGraphics.blitSprite(advancementWidgetType3.frameSprite(this.display.getType()), x + this.x + 3, y + this.y, 26, 26);
         if (bl) {
             guiGraphics.drawString(this.minecraft.font, this.title, m + 5, y + this.y + 9, -1);
             if (string != null) {

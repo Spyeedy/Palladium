@@ -1,6 +1,7 @@
 package net.threetag.palladium.power;
 
 import net.minecraft.world.entity.LivingEntity;
+import net.threetag.palladium.registry.PalladiumRegistryKeys;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -9,23 +10,23 @@ import java.util.function.Supplier;
 public class PowerCollector {
 
     private final LivingEntity entity;
-    private final IPowerHandler handler;
-    private final List<IPowerHolder> toRemove;
-    private final List<DefaultPowerHolder> powerHolders = new ArrayList<>();
+    private final EntityPowerHandler handler;
+    private final List<PowerHolder> toRemove;
+    private final List<PowerHolder> powerHolders = new ArrayList<>();
 
-    public PowerCollector(LivingEntity entity, IPowerHandler handler, List<IPowerHolder> toRemove) {
+    public PowerCollector(LivingEntity entity, EntityPowerHandler handler, List<PowerHolder> toRemove) {
         this.entity = entity;
         this.handler = handler;
         this.toRemove = toRemove;
     }
 
-    public void addPower(Power power, Supplier<IPowerValidator> validatorSupplier) {
+    public void addPower(Power power, Supplier<PowerValidator> validatorSupplier) {
         if (power == null) {
             return;
         }
 
-        IPowerHolder found = null;
-        for (IPowerHolder holder : this.toRemove) {
+        PowerHolder found = null;
+        for (PowerHolder holder : this.toRemove) {
             if (holder.getPower() == power) {
                 found = holder;
                 break;
@@ -38,12 +39,12 @@ public class PowerCollector {
             return;
         }
 
-        if (!this.handler.hasPower(power)) {
-            this.powerHolders.add(new DefaultPowerHolder(this.entity, power, validatorSupplier.get()));
+        if (!this.handler.hasPower(this.entity.registryAccess().registryOrThrow(PalladiumRegistryKeys.POWER).getKey(power))) {
+            this.powerHolders.add(new PowerHolder(this.entity, power, validatorSupplier.get()));
         }
     }
 
-    public List<DefaultPowerHolder> getAdded() {
+    public List<PowerHolder> getAdded() {
         return this.powerHolders;
     }
 }

@@ -1,11 +1,11 @@
 package net.threetag.palladium.entity;
 
 import net.threetag.palladium.client.renderer.renderlayer.RenderLayerStates;
-import net.threetag.palladium.power.PowerHandler;
+import net.threetag.palladium.power.EntityPowerHandler;
 
 public interface PalladiumLivingEntityExtension {
 
-    PowerHandler palladium$getPowerHandler();
+    EntityPowerHandler palladium$getPowerHandler();
 
     RenderLayerStates palladium$getRenderLayerStates();
 

@@ -1,26 +1,47 @@
 package net.threetag.palladium.condition;
 
-import com.google.gson.JsonObject;
+import com.mojang.serialization.Codec;
+import com.mojang.serialization.MapCodec;
+import com.mojang.serialization.codecs.RecordCodecBuilder;
+import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.chat.Component;
+import net.minecraft.network.codec.ByteBufCodecs;
+import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.item.Items;
 import net.minecraft.world.item.crafting.Ingredient;
 import net.threetag.palladium.power.ability.AbilityConfiguration;
 import net.threetag.palladium.util.icon.IngredientIcon;
-import net.threetag.palladium.util.property.IngredientProperty;
-import net.threetag.palladium.util.property.IntegerProperty;
-import net.threetag.palladium.util.property.PalladiumProperty;
 
 public class ItemBuyableCondition extends BuyableCondition {
 
-    private final Ingredient ingredient;
+    public static final MapCodec<ItemBuyableCondition> CODEC = RecordCodecBuilder.mapCodec(instance -> instance
+            .group(
+                    Ingredient.CODEC.fieldOf("ingredient").forGetter(ItemBuyableCondition::getIngredient),
+                    Codec.intRange(1, 512).optionalFieldOf("amount", 1).forGetter(ItemBuyableCondition::getAmount)
+            ).apply(instance, ItemBuyableCondition::new)
+    );
+    public static final StreamCodec<RegistryFriendlyByteBuf, ItemBuyableCondition> STREAM_CODEC = StreamCodec.composite(
+            Ingredient.CONTENTS_STREAM_CODEC, ItemBuyableCondition::getIngredient,
+            ByteBufCodecs.VAR_INT, ItemBuyableCondition::getAmount,
+            ItemBuyableCondition::new
+    );
+
+    public final Ingredient ingredient;
     private final int amount;
 
     public ItemBuyableCondition(Ingredient ingredient, int amount) {
         this.ingredient = ingredient;
         this.amount = amount;
+    }
+
+    public Ingredient getIngredient() {
+        return ingredient;
+    }
+
+    public int getAmount() {
+        return amount;
     }
 
     @Override
@@ -32,7 +53,7 @@ public class ItemBuyableCondition extends BuyableCondition {
             component.append(stacks[i].getItem().getName(stacks[i]));
 
             if (i < stacks.length - 1) {
-                if(i == stacks.length - 2) {
+                if (i == stacks.length - 2) {
                     component.append(" ").append(Component.translatable("gui.palladium.powers.buy_ability.or")).append(" ");
                 } else {
                     component.append(", ");
@@ -84,28 +105,25 @@ public class ItemBuyableCondition extends BuyableCondition {
     }
 
     @Override
-    public ConditionSerializer getSerializer() {
+    public ConditionSerializer<ItemBuyableCondition> getSerializer() {
         return ConditionSerializers.ITEM_BUYABLE.get();
     }
 
-    public static class Serializer extends ConditionSerializer {
+    public static class Serializer extends ConditionSerializer<ItemBuyableCondition> {
 
-        public static final PalladiumProperty<Ingredient> INGREDIENT = new IngredientProperty("ingredient").configurable("Ingredient predicate for the item");
-        public static final PalladiumProperty<Integer> AMOUNT = new IntegerProperty("amount").configurable("Amount of items that the player needs to spend");
+        @Override
+        public MapCodec<ItemBuyableCondition> codec() {
+            return CODEC;
+        }
 
-        public Serializer() {
-            this.withProperty(INGREDIENT, Ingredient.of(Items.IRON_INGOT));
-            this.withProperty(AMOUNT, 3);
+        @Override
+        public StreamCodec<RegistryFriendlyByteBuf, ItemBuyableCondition> streamCodec() {
+            return STREAM_CODEC;
         }
 
         @Override
         public ConditionEnvironment getContextEnvironment() {
             return ConditionEnvironment.DATA;
-        }
-
-        @Override
-        public Condition make(JsonObject json) {
-            return new ItemBuyableCondition(getProperty(json, INGREDIENT), getProperty(json, AMOUNT));
         }
 
         @Override

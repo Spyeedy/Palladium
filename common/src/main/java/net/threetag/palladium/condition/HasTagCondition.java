@@ -1,18 +1,23 @@
 package net.threetag.palladium.condition;
 
-import com.google.gson.JsonObject;
+import com.mojang.serialization.Codec;
+import com.mojang.serialization.MapCodec;
+import com.mojang.serialization.codecs.RecordCodecBuilder;
+import net.minecraft.network.RegistryFriendlyByteBuf;
+import net.minecraft.network.codec.ByteBufCodecs;
+import net.minecraft.network.codec.StreamCodec;
 import net.threetag.palladium.util.context.DataContext;
 import net.threetag.palladium.util.context.DataContextType;
-import net.threetag.palladium.util.property.PalladiumProperty;
-import net.threetag.palladium.util.property.StringProperty;
 
-public class HasTagCondition extends Condition {
+public record HasTagCondition(String tag) implements Condition {
 
-    private final String tag;
-
-    public HasTagCondition(String tag) {
-        this.tag = tag;
-    }
+    public static final MapCodec<HasTagCondition> CODEC = RecordCodecBuilder.mapCodec(instance -> instance
+            .group(Codec.STRING.fieldOf("tag").forGetter(HasTagCondition::tag)
+            ).apply(instance, HasTagCondition::new)
+    );
+    public static final StreamCodec<RegistryFriendlyByteBuf, HasTagCondition> STREAM_CODEC = StreamCodec.composite(
+            ByteBufCodecs.STRING_UTF8, HasTagCondition::tag, HasTagCondition::new
+    );
 
     @Override
     public boolean active(DataContext context) {
@@ -26,21 +31,20 @@ public class HasTagCondition extends Condition {
     }
 
     @Override
-    public ConditionSerializer getSerializer() {
+    public ConditionSerializer<HasTagCondition> getSerializer() {
         return ConditionSerializers.HAS_TAG.get();
     }
 
-    public static class Serializer extends ConditionSerializer {
+    public static class Serializer extends ConditionSerializer<HasTagCondition> {
 
-        public static final PalladiumProperty<String> TAG = new StringProperty("tag").configurable("The tag the entity must have.");
-
-        public Serializer() {
-            this.withProperty(TAG, "example_tag");
+        @Override
+        public MapCodec<HasTagCondition> codec() {
+            return CODEC;
         }
 
         @Override
-        public Condition make(JsonObject json) {
-            return new HasTagCondition(this.getProperty(json, TAG));
+        public StreamCodec<RegistryFriendlyByteBuf, HasTagCondition> streamCodec() {
+            return STREAM_CODEC;
         }
 
         @Override

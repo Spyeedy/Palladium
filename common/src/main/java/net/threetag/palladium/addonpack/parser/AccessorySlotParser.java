@@ -3,6 +3,7 @@ package net.threetag.palladium.addonpack.parser;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonPrimitive;
+import com.mojang.serialization.JsonOps;
 import net.minecraft.CrashReport;
 import net.minecraft.CrashReportCategory;
 import net.minecraft.ReportedException;
@@ -17,10 +18,13 @@ import net.threetag.palladium.addonpack.log.AddonPackLog;
 import net.threetag.palladium.condition.*;
 import net.threetag.palladium.documentation.HTMLBuilder;
 import net.threetag.palladium.documentation.JsonDocumentationBuilder;
+import net.threetag.palladium.power.ability.AbilityConditions;
 import net.threetag.palladium.power.ability.AbilityReference;
+import net.threetag.palladium.util.CodecUtils;
 import net.threetag.palladium.util.json.GsonUtil;
 import net.threetag.palladiumcore.event.LifecycleEvents;
 
+import java.util.Collections;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -44,7 +48,7 @@ public class AccessorySlotParser extends SimpleJsonResourceReloadListener {
                 }
 
                 if (json.has("menu_visibility")) {
-                    LifecycleEvents.CLIENT_SETUP.register(() -> ConditionSerializer.listFromJSON(json.get("menu_visibility"), ConditionEnvironment.ASSETS).forEach(slot::addVisibilityCondition));
+                    LifecycleEvents.CLIENT_SETUP.register(() -> CodecUtils.listOrPrimitive(Condition.CODEC).parse(JsonOps.INSTANCE, json.get("menu_visibility")).getOrThrow().forEach(slot::addVisibilityCondition));
                 }
 
                 i.getAndIncrement();
@@ -77,6 +81,6 @@ public class AccessorySlotParser extends SimpleJsonResourceReloadListener {
                 .description("Determines if the slot is visible in the menu. Can be ignored, set to 'false' or defined by conditions")
                 .fallback(null).exampleJson(new JsonPrimitive(true));
 
-        return new HTMLBuilder(new ResourceLocation(Palladium.MOD_ID, "accessory_slots"), "Accessory Slots").add(HTMLBuilder.heading("Accessory Slots")).addDocumentation(builder);
+        return new HTMLBuilder(Palladium.id("accessory_slots"), "Accessory Slots").add(HTMLBuilder.heading("Accessory Slots")).addDocumentation(builder);
     }
 }

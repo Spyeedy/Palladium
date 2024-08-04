@@ -5,9 +5,10 @@ import com.mojang.blaze3d.platform.Window;
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.*;
 import io.netty.util.collection.IntObjectHashMap;
+import net.minecraft.client.DeltaTracker;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.Gui;
 import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.LayeredDraw;
 import net.minecraft.client.gui.screens.ChatScreen;
 import net.minecraft.client.renderer.GameRenderer;
 import net.minecraft.network.chat.Component;
@@ -16,26 +17,25 @@ import net.minecraft.resources.ResourceLocation;
 import net.threetag.palladium.Palladium;
 import net.threetag.palladium.PalladiumConfig;
 import net.threetag.palladium.client.PalladiumKeyMappings;
-import net.threetag.palladium.power.IPowerHandler;
-import net.threetag.palladium.power.IPowerHolder;
+import net.threetag.palladium.power.EntityPowerHandler;
 import net.threetag.palladium.power.Power;
-import net.threetag.palladium.power.PowerEventHandler;
+import net.threetag.palladium.power.PowerHolder;
+import net.threetag.palladium.power.PowerUtil;
 import net.threetag.palladium.power.ability.Ability;
 import net.threetag.palladium.power.ability.AbilityColor;
-import net.threetag.palladium.power.ability.AbilityConfiguration;
+import net.threetag.palladium.power.ability.AbilityConditions;
 import net.threetag.palladium.power.ability.AbilityInstance;
 import net.threetag.palladium.power.energybar.EnergyBar;
 import net.threetag.palladium.util.context.DataContext;
 import net.threetag.palladiumcore.event.ClientTickEvents;
-import net.threetag.palladiumcore.registry.client.OverlayRegistry;
 
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
-public class AbilityBarRenderer implements OverlayRegistry.IngameOverlay {
+public class AbilityBarRenderer implements LayeredDraw.Layer {
 
-    public static final ResourceLocation TEXTURE = new ResourceLocation(Palladium.MOD_ID, "textures/gui/ability_bar.png");
+    public static final ResourceLocation TEXTURE = Palladium.id("textures/gui/ability_bar.png");
     public static List<AbilityList> ABILITY_LISTS = new ArrayList<>();
     public static int SELECTED = 0;
 
@@ -55,11 +55,12 @@ public class AbilityBarRenderer implements OverlayRegistry.IngameOverlay {
     }
 
     @Override
-    public void render(Minecraft mc, Gui gui, GuiGraphics guiGraphics, float partialTicks, int width, int height) {
+    public void render(GuiGraphics guiGraphics, DeltaTracker deltaTracker) {
         if (ABILITY_LISTS.isEmpty()) {
             return;
         }
 
+        var mc = Minecraft.getInstance();
         var poseStack = guiGraphics.pose();
         Position position = PalladiumConfig.Client.ABILITY_BAR_POSITION.get();
         AbilityList list = getSelectedList();
@@ -68,9 +69,10 @@ public class AbilityBarRenderer implements OverlayRegistry.IngameOverlay {
             return;
         }
 
-        if (position.top && mc.options.renderDebug) {
-            return;
-        }
+        // TODO not when rendering debug
+//        if (position.top && mc.options.renderDebug) {
+//            return;
+//        }
 
         if (!position.top && mc.screen instanceof ChatScreen) {
             position = position.left ? Position.TOP_LEFT : Position.TOP_RIGHT;
@@ -186,10 +188,9 @@ public class AbilityBarRenderer implements OverlayRegistry.IngameOverlay {
                     // Ability Name
                     if (showName) {
                         Tesselator tes = Tesselator.getInstance();
-                        BufferBuilder bb = tes.getBuilder();
                         Component name = entry.getConfiguration().getDisplayName();
                         int width = minecraft.font.width(name);
-                        renderBlackBox(bb, tes, poseStack, position.left ? 24 : -width - 10, i * 22 + 5, 10 + width, 14, 0.5F);
+                        renderBlackBox(tes, poseStack, position.left ? 24 : -width - 10, i * 22 + 5, 10 + width, 14, 0.5F);
                         guiGraphics.drawString(minecraft.font, name, position.left ? 29 : -width - 5, i * 22 + 8, 0xffffffff, false);
                     }
                 } else {
@@ -224,24 +225,24 @@ public class AbilityBarRenderer implements OverlayRegistry.IngameOverlay {
                 AbilityColor color = ability.getProperty(Ability.COLOR);
                 guiGraphics.blit(texture, 0, i * 22, color.getX(), color.getY(), 24, 24);
 
-                if (ability.getConfiguration().needsKey() && ability.isUnlocked()) {
-                    AbilityConfiguration.KeyType keyType = ability.getConfiguration().getKeyType();
+                if (ability.getConfiguration().getConditions().needsKey() && ability.isUnlocked()) {
+                    AbilityConditions.KeyType keyType = ability.getConfiguration().getConditions().getKeyType();
                     poseStack.pushPose();
                     poseStack.translate(0, 0, 200);
-                    if (keyType == AbilityConfiguration.KeyType.KEY_BIND) {
+                    if (keyType == AbilityConditions.KeyType.KEY_BIND) {
                         Component key = PalladiumKeyMappings.ABILITY_KEYS[i].getTranslatedKeyMessage();
                         guiGraphics.drawString(minecraft.font, key, 5 + 19 - 2 - minecraft.font.width(key), 5 + i * 22 + 7, 0xffffff, false);
-                    } else if (keyType == AbilityConfiguration.KeyType.LEFT_CLICK) {
+                    } else if (keyType == AbilityConditions.KeyType.LEFT_CLICK) {
                         guiGraphics.blit(texture, 5 + 19 - 8, 5 + i * 22 + 8, 24, 92, 5, 7);
-                    } else if (keyType == AbilityConfiguration.KeyType.RIGHT_CLICK) {
+                    } else if (keyType == AbilityConditions.KeyType.RIGHT_CLICK) {
                         guiGraphics.blit(texture, 5 + 19 - 8, 5 + i * 22 + 8, 29, 92, 5, 7);
-                    } else if (keyType == AbilityConfiguration.KeyType.SPACE_BAR) {
+                    } else if (keyType == AbilityConditions.KeyType.SPACE_BAR) {
                         guiGraphics.blit(texture, 5 + 19 - 13, 5 + i * 22 + 10, 34, 92, 10, 5);
-                    } else if (keyType == AbilityConfiguration.KeyType.SCROLL_UP) {
+                    } else if (keyType == AbilityConditions.KeyType.SCROLL_UP) {
                         guiGraphics.blit(texture, 5 + 19 - 8, 5 + i * 22 + 4, 24, 99, 5, 11);
-                    } else if (keyType == AbilityConfiguration.KeyType.SCROLL_DOWN) {
+                    } else if (keyType == AbilityConditions.KeyType.SCROLL_DOWN) {
                         guiGraphics.blit(texture, 5 + 19 - 8, 5 + i * 22 + 4, 29, 99, 5, 11);
-                    } else if (keyType == AbilityConfiguration.KeyType.SCROLL_EITHER) {
+                    } else if (keyType == AbilityConditions.KeyType.SCROLL_EITHER) {
                         guiGraphics.blit(texture, 5 + 19 - 8, 5 + i * 22 + 2, 34, 99, 5, 13);
                     }
 
@@ -281,17 +282,17 @@ public class AbilityBarRenderer implements OverlayRegistry.IngameOverlay {
         }
     }
 
-    public static void renderBlackBox(BufferBuilder bb, Tesselator tesselator, PoseStack matrixStack, int x, int y, int width, int height, float opacity) {
+    public static void renderBlackBox(Tesselator tesselator, PoseStack matrixStack, int x, int y, int width, int height, float opacity) {
         RenderSystem.enableBlend();
         RenderSystem.defaultBlendFunc();
         RenderSystem.setShader(GameRenderer::getPositionColorShader);
 
-        bb.begin(VertexFormat.Mode.QUADS, DefaultVertexFormat.POSITION_COLOR);
-        bb.vertex(matrixStack.last().pose(), x + width, y, 0).color(0F, 0F, 0F, opacity).endVertex();
-        bb.vertex(matrixStack.last().pose(), x, y, 0).color(0F, 0F, 0F, opacity).endVertex();
-        bb.vertex(matrixStack.last().pose(), x, y + height, 0).color(0F, 0F, 0F, opacity).endVertex();
-        bb.vertex(matrixStack.last().pose(), x + width, y + height, 0).color(0F, 0F, 0F, opacity).endVertex();
-        tesselator.end();
+        BufferBuilder bb = tesselator.begin(VertexFormat.Mode.QUADS, DefaultVertexFormat.POSITION_COLOR);
+        bb.addVertex(matrixStack.last().pose(), x + width, y, 0).setColor(0F, 0F, 0F, opacity);
+        bb.addVertex(matrixStack.last().pose(), x, y, 0).setColor(0F, 0F, 0F, opacity);
+        bb.addVertex(matrixStack.last().pose(), x, y + height, 0).setColor(0F, 0F, 0F, opacity);
+        bb.addVertex(matrixStack.last().pose(), x + width, y + height, 0).setColor(0F, 0F, 0F, opacity);
+        BufferUploader.drawWithShader(bb.buildOrThrow());
 
         RenderSystem.disableBlend();
     }
@@ -319,20 +320,20 @@ public class AbilityBarRenderer implements OverlayRegistry.IngameOverlay {
 
     public static List<AbilityList> getAbilityLists() {
         List<AbilityList> lists = new ArrayList<>();
-        IPowerHandler handler = PowerEventHandler.getPowerHandler(Minecraft.getInstance().player).orElse(null);
+        EntityPowerHandler handler = PowerUtil.getPowerHandler(Minecraft.getInstance().player).orElse(null);
 
         if (handler == null) {
             return lists;
         }
 
-        for (IPowerHolder holder : handler.getPowerHolders().values()) {
+        for (PowerHolder holder : handler.getPowerHolders().values()) {
             List<AbilityList> containerList = new ArrayList<>();
             List<AbilityList> remainingLists = new ArrayList<>();
             List<AbilityInstance> remaining = new ArrayList<>();
             for (AbilityInstance abilityInstance : holder.getAbilities().values()) {
                 int i = abilityInstance.getProperty(Ability.LIST_INDEX);
 
-                if (abilityInstance.getConfiguration().needsKey() && !abilityInstance.getProperty(Ability.HIDDEN_IN_BAR)) {
+                if (abilityInstance.getConfiguration().getConditions().needsKey() && !abilityInstance.getProperty(Ability.HIDDEN_IN_BAR)) {
                     if (i >= 0) {
                         int listIndex = Math.floorDiv(i, 5);
                         int index = i % 5;
@@ -385,14 +386,14 @@ public class AbilityBarRenderer implements OverlayRegistry.IngameOverlay {
     public static class AbilityList {
 
         private static final int SIZE = 5;
-        private final IPowerHolder powerHolder;
+        private final PowerHolder powerHolder;
         private final Power power;
         private final IntObjectHashMap<List<AbilityInstance>> abilities = new IntObjectHashMap<>();
         private final ResourceLocation texture;
         public boolean simple = false;
         private final Collection<EnergyBar> energyBars;
 
-        public AbilityList(IPowerHolder powerHolder) {
+        public AbilityList(PowerHolder powerHolder) {
             this.powerHolder = powerHolder;
             this.power = powerHolder.getPower();
             var powerTex = this.power.getAbilityBarTexture();
@@ -400,7 +401,7 @@ public class AbilityBarRenderer implements OverlayRegistry.IngameOverlay {
             this.energyBars = powerHolder.getEnergyBars().values();
         }
 
-        public IPowerHolder getPowerHolder() {
+        public PowerHolder getPowerHolder() {
             return this.powerHolder;
         }
 

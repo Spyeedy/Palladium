@@ -9,8 +9,8 @@ import net.threetag.palladium.Palladium;
 import net.threetag.palladium.documentation.JsonDocumentationBuilder;
 import net.threetag.palladium.util.context.DataContext;
 import net.threetag.palladium.util.property.EntityPropertyHandler;
-import net.threetag.palladium.util.property.IntegerProperty;
 import net.threetag.palladium.util.property.PalladiumProperty;
+import net.threetag.palladium.util.property.PalladiumPropertyType;
 
 import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -30,15 +30,15 @@ public class IntegerPropertyVariable extends AbstractIntegerTextureVariable {
         EntityPropertyHandler.getHandler(context.getEntity()).ifPresent(handler -> {
             PalladiumProperty<?> property = handler.getPropertyByName(this.propertyKey);
 
-            if (property instanceof IntegerProperty integerProperty) {
-                result.set(handler.get(integerProperty));
+            if (property.getType() == PalladiumPropertyType.INTEGER) {
+                result.set((int) handler.get(property));
             }
         });
 
         return result.get();
     }
 
-    public static class Serializer implements ITextureVariableSerializer {
+    public static class Serializer implements TextureVariableSerializer {
 
         @Override
         public ITextureVariable parse(JsonObject json) {

@@ -1,17 +1,26 @@
 package net.threetag.palladium.condition;
 
-import com.google.gson.JsonObject;
+import com.mojang.serialization.MapCodec;
+import com.mojang.serialization.codecs.RecordCodecBuilder;
+import net.minecraft.network.RegistryFriendlyByteBuf;
+import net.minecraft.network.codec.ByteBufCodecs;
+import net.minecraft.network.codec.StreamCodec;
+import net.threetag.palladium.util.CodecUtils;
 import net.threetag.palladium.util.context.DataContext;
-import net.threetag.palladium.util.property.ConditionArrayProperty;
-import net.threetag.palladium.util.property.PalladiumProperty;
 
-public class NotCondition extends Condition {
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
 
-    public final Condition[] conditions;
+public record NotCondition(List<Condition> conditions) implements Condition {
 
-    public NotCondition(Condition[] conditions) {
-        this.conditions = conditions;
-    }
+    public static final MapCodec<NotCondition> CODEC = RecordCodecBuilder.mapCodec(instance -> instance
+            .group(CodecUtils.listOrPrimitive(Condition.CODEC).fieldOf("conditions").forGetter(NotCondition::conditions)
+            ).apply(instance, NotCondition::new)
+    );
+    public static final StreamCodec<RegistryFriendlyByteBuf, NotCondition> STREAM_CODEC = StreamCodec.composite(
+            ByteBufCodecs.collection(ArrayList::new, Condition.STREAM_CODEC), NotCondition::conditions, NotCondition::new
+    );
 
     @Override
     public boolean active(DataContext context) {
@@ -24,21 +33,20 @@ public class NotCondition extends Condition {
     }
 
     @Override
-    public ConditionSerializer getSerializer() {
+    public ConditionSerializer<NotCondition> getSerializer() {
         return ConditionSerializers.NOT.get();
     }
 
-    public static class Serializer extends ConditionSerializer {
+    public static class Serializer extends ConditionSerializer<NotCondition> {
 
-        public static final PalladiumProperty<Condition[]> CONDITIONS = new ConditionArrayProperty("conditions").configurable("Array of conditions that must be disabled");
-
-        public Serializer() {
-            this.withProperty(CONDITIONS, new Condition[0]);
+        @Override
+        public MapCodec<NotCondition> codec() {
+            return CODEC;
         }
 
         @Override
-        public Condition make(JsonObject json) {
-            return new NotCondition(this.getProperty(json, CONDITIONS));
+        public StreamCodec<RegistryFriendlyByteBuf, NotCondition> streamCodec() {
+            return STREAM_CODEC;
         }
 
         @Override

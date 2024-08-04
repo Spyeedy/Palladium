@@ -1,19 +1,23 @@
 package net.threetag.palladium.condition;
 
-import com.google.gson.JsonObject;
+import com.mojang.serialization.MapCodec;
+import com.mojang.serialization.codecs.RecordCodecBuilder;
+import net.minecraft.network.RegistryFriendlyByteBuf;
+import net.minecraft.network.codec.StreamCodec;
 import net.threetag.palladium.accessory.AccessorySlot;
 import net.threetag.palladium.util.context.DataContext;
-import net.threetag.palladium.util.property.AccessorySlotProperty;
-import net.threetag.palladium.util.property.PalladiumProperty;
 
-public class InAccessorySlotMenuCondition extends Condition {
+public record InAccessorySlotMenuCondition(AccessorySlot slot) implements Condition {
+
+    public static final MapCodec<InAccessorySlotMenuCondition> CODEC = RecordCodecBuilder.mapCodec(instance -> instance
+            .group(AccessorySlot.BY_NAME_CODEC.fieldOf("accessory_slot").forGetter(InAccessorySlotMenuCondition::slot)
+            ).apply(instance, InAccessorySlotMenuCondition::new)
+    );
+    public static final StreamCodec<RegistryFriendlyByteBuf, InAccessorySlotMenuCondition> STREAM_CODEC = StreamCodec.composite(
+            AccessorySlot.STREAM_CODEC, InAccessorySlotMenuCondition::slot, InAccessorySlotMenuCondition::new
+    );
 
     public static AccessorySlot CURRENT_SLOT = null;
-    private final AccessorySlot slot;
-
-    public InAccessorySlotMenuCondition(AccessorySlot slot) {
-        this.slot = slot;
-    }
 
     @Override
     public boolean active(DataContext context) {
@@ -21,21 +25,20 @@ public class InAccessorySlotMenuCondition extends Condition {
     }
 
     @Override
-    public ConditionSerializer getSerializer() {
+    public ConditionSerializer<InAccessorySlotMenuCondition> getSerializer() {
         return ConditionSerializers.IN_ACCESSORY_SLOT_MENU.get();
     }
 
-    public static class Serializer extends ConditionSerializer {
+    public static class Serializer extends ConditionSerializer<InAccessorySlotMenuCondition> {
 
-        public static final PalladiumProperty<AccessorySlot> SLOT = new AccessorySlotProperty("accessory_slot").configurable("The acessory slot that must be open in the accessory menu.");
-
-        public Serializer() {
-            this.withProperty(SLOT, AccessorySlot.CHEST);
+        @Override
+        public MapCodec<InAccessorySlotMenuCondition> codec() {
+            return CODEC;
         }
 
         @Override
-        public Condition make(JsonObject json) {
-            return new InAccessorySlotMenuCondition(this.getProperty(json, SLOT));
+        public StreamCodec<RegistryFriendlyByteBuf, InAccessorySlotMenuCondition> streamCodec() {
+            return STREAM_CODEC;
         }
 
         @Override

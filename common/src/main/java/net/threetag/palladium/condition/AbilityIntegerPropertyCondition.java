@@ -1,25 +1,35 @@
 package net.threetag.palladium.condition;
 
-import com.google.gson.JsonObject;
+import com.mojang.serialization.Codec;
+import com.mojang.serialization.MapCodec;
+import com.mojang.serialization.codecs.RecordCodecBuilder;
+import net.minecraft.network.RegistryFriendlyByteBuf;
+import net.minecraft.network.codec.ByteBufCodecs;
+import net.minecraft.network.codec.StreamCodec;
 import net.threetag.palladium.power.ability.AbilityInstance;
 import net.threetag.palladium.power.ability.AbilityReference;
 import net.threetag.palladium.util.context.DataContext;
-import net.threetag.palladium.util.property.IntegerProperty;
 import net.threetag.palladium.util.property.PalladiumProperty;
-import net.threetag.palladium.util.property.StringProperty;
+import net.threetag.palladium.util.property.PalladiumPropertyType;
 
-public class AbilityIntegerPropertyCondition extends Condition {
+public record AbilityIntegerPropertyCondition(AbilityReference ability, String propertyKey, int min,
+                                              int max) implements Condition {
 
-    private final AbilityReference ability;
-    private final String propertyKey;
-    private final int min, max;
-
-    public AbilityIntegerPropertyCondition(AbilityReference ability, String propertyKey, int min, int max) {
-        this.ability = ability;
-        this.propertyKey = propertyKey;
-        this.min = min;
-        this.max = max;
-    }
+    public static final MapCodec<AbilityIntegerPropertyCondition> CODEC = RecordCodecBuilder.mapCodec(instance -> instance
+            .group(
+                    AbilityReference.CODEC.fieldOf("ability").forGetter(AbilityIntegerPropertyCondition::ability),
+                    Codec.STRING.fieldOf("property").forGetter(AbilityIntegerPropertyCondition::propertyKey),
+                    Codec.INT.optionalFieldOf("min", Integer.MIN_VALUE).forGetter(AbilityIntegerPropertyCondition::min),
+                    Codec.INT.optionalFieldOf("max", Integer.MAX_VALUE).forGetter(AbilityIntegerPropertyCondition::max)
+            ).apply(instance, AbilityIntegerPropertyCondition::new)
+    );
+    public static final StreamCodec<RegistryFriendlyByteBuf, AbilityIntegerPropertyCondition> STREAM_CODEC = StreamCodec.composite(
+            AbilityReference.STREAM_CODEC, AbilityIntegerPropertyCondition::ability,
+            ByteBufCodecs.STRING_UTF8, AbilityIntegerPropertyCondition::propertyKey,
+            ByteBufCodecs.VAR_INT, AbilityIntegerPropertyCondition::min,
+            ByteBufCodecs.VAR_INT, AbilityIntegerPropertyCondition::max,
+            AbilityIntegerPropertyCondition::new
+    );
 
     @Override
     public boolean active(DataContext context) {
@@ -38,8 +48,8 @@ public class AbilityIntegerPropertyCondition extends Condition {
 
         PalladiumProperty<?> property = dependency.getEitherPropertyByKey(this.propertyKey);
 
-        if (property instanceof IntegerProperty integerProperty) {
-            int value = dependency.getProperty(integerProperty);
+        if (property.getType() == PalladiumPropertyType.INTEGER) {
+            int value = (int) dependency.getProperty(property);
             return value >= this.min && value <= this.max;
         }
 
@@ -47,36 +57,20 @@ public class AbilityIntegerPropertyCondition extends Condition {
     }
 
     @Override
-    public ConditionSerializer getSerializer() {
+    public ConditionSerializer<AbilityIntegerPropertyCondition> getSerializer() {
         return ConditionSerializers.ABILITY_INTEGER_PROPERTY.get();
     }
 
-    public static class Serializer extends ConditionSerializer {
+    public static class Serializer extends ConditionSerializer<AbilityIntegerPropertyCondition> {
 
-        public static final PalladiumProperty<String> PROPERTY = new StringProperty("property").configurable("Name of the integer property in the ability. For animation-timer abilities it's 'value'");
-        public static final PalladiumProperty<Integer> MIN = new IntegerProperty("min").configurable("Minimum required amount of the property value");
-        public static final PalladiumProperty<Integer> MAX = new IntegerProperty("max").configurable("Maximum required amount of the property value");
-
-        public Serializer() {
-            this.withProperty(AbilityEnabledCondition.Serializer.POWER, null);
-            this.withProperty(AbilityEnabledCondition.Serializer.ABILITY, "ability_id");
-            this.withProperty(PROPERTY, "value");
-            this.withProperty(MIN, 0);
-            this.withProperty(MAX, 0);
+        @Override
+        public MapCodec<AbilityIntegerPropertyCondition> codec() {
+            return CODEC;
         }
 
         @Override
-        public Condition make(JsonObject json) {
-            AbilityReference abilityReference = AbilityReference.parse(this.getProperty(json, AbilityEnabledCondition.Serializer.ABILITY));
-
-            if (this.getProperty(json, AbilityEnabledCondition.Serializer.POWER) != null) {
-                abilityReference = new AbilityReference(this.getProperty(json, AbilityEnabledCondition.Serializer.POWER), this.getProperty(json, AbilityEnabledCondition.Serializer.ABILITY));
-            }
-
-            return new AbilityIntegerPropertyCondition(abilityReference,
-                    this.getProperty(json, PROPERTY),
-                    this.getProperty(json, MIN),
-                    this.getProperty(json, MAX));
+        public StreamCodec<RegistryFriendlyByteBuf, AbilityIntegerPropertyCondition> streamCodec() {
+            return STREAM_CODEC;
         }
 
         @Override

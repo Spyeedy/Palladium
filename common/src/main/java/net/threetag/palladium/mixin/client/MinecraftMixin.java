@@ -3,7 +3,7 @@ package net.threetag.palladium.mixin.client;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.player.LocalPlayer;
 import net.threetag.palladium.client.PalladiumKeyMappings;
-import net.threetag.palladium.network.AbilityKeyPressedMessage;
+import net.threetag.palladium.network.AbilityKeyPressedPacket;
 import net.threetag.palladium.power.ability.AbilityConfiguration;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
@@ -28,18 +28,18 @@ public class MinecraftMixin {
 
                 if (pressType == AbilityConfiguration.KeyPressType.ACTION) {
                     if (!entry.isOnCooldown()) {
-                        new AbilityKeyPressedMessage(entry.getReference(), true).send();
+                        new AbilityKeyPressedPacket(entry.getReference(), true).send();
                         PalladiumKeyMappings.LEFT_CLICKED_ABILITY = entry;
                         cir.setReturnValue(false);
                     }
                 } else if (pressType == AbilityConfiguration.KeyPressType.ACTIVATION) {
                     if (!entry.isOnCooldown() && !entry.isEnabled()) {
-                        new AbilityKeyPressedMessage(entry.getReference(), true).send();
+                        new AbilityKeyPressedPacket(entry.getReference(), true).send();
                         PalladiumKeyMappings.LEFT_CLICKED_ABILITY = entry;
                         cir.setReturnValue(false);
                     }
                 } else {
-                    new AbilityKeyPressedMessage(entry.getReference(), true).send();
+                    new AbilityKeyPressedPacket(entry.getReference(), true).send();
                     PalladiumKeyMappings.LEFT_CLICKED_ABILITY = entry;
                     cir.setReturnValue(false);
                 }
@@ -66,18 +66,18 @@ public class MinecraftMixin {
 
                 if (pressType == AbilityConfiguration.KeyPressType.ACTION) {
                     if (!entry.isOnCooldown()) {
-                        new AbilityKeyPressedMessage(entry.getReference(), true).send();
+                        new AbilityKeyPressedPacket(entry.getReference(), true).send();
                         PalladiumKeyMappings.RIGHT_CLICKED_ABILITY = entry;
                         ci.cancel();
                     }
                 } else if (pressType == AbilityConfiguration.KeyPressType.ACTIVATION) {
                     if (!entry.isOnCooldown() && !entry.isEnabled()) {
-                        new AbilityKeyPressedMessage(entry.getReference(), true).send();
+                        new AbilityKeyPressedPacket(entry.getReference(), true).send();
                         PalladiumKeyMappings.RIGHT_CLICKED_ABILITY = entry;
                         ci.cancel();
                     }
                 } else {
-                    new AbilityKeyPressedMessage(entry.getReference(), true).send();
+                    new AbilityKeyPressedPacket(entry.getReference(), true).send();
                     PalladiumKeyMappings.RIGHT_CLICKED_ABILITY = entry;
                     ci.cancel();
                 }

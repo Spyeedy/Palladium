@@ -19,7 +19,7 @@ public class SmallArmsTextureVariable extends AbstractBooleanTextureVariable {
         return context.getEntity() instanceof Player player && PlayerUtil.hasSmallArms(player);
     }
 
-    public static class Serializer implements ITextureVariableSerializer {
+    public static class Serializer implements TextureVariableSerializer {
 
         @Override
         public ITextureVariable parse(JsonObject json) {

@@ -7,7 +7,7 @@ import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.util.GsonHelper;
-import net.threetag.palladium.power.IPowerHolder;
+import net.threetag.palladium.power.PowerHolder;
 import net.threetag.palladium.util.json.GsonUtil;
 
 public record EnergyBarUsage(EnergyBarReference energyBar, int amount) {
@@ -21,7 +21,7 @@ public record EnergyBarUsage(EnergyBarReference energyBar, int amount) {
 
     public static final StreamCodec<FriendlyByteBuf, EnergyBarUsage> STREAM_CODEC = StreamCodec.composite(EnergyBarReference.STREAM_CODEC, EnergyBarUsage::energyBar, ByteBufCodecs.INT, EnergyBarUsage::amount, EnergyBarUsage::new);
 
-    public void consume(IPowerHolder holder) {
+    public void consume(PowerHolder holder) {
         var energyBar = this.energyBar.getBar(holder.getEntity(), holder);
 
         if (energyBar != null) {

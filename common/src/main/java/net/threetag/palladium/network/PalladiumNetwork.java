@@ -3,48 +3,61 @@ package net.threetag.palladium.network;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.LivingEntity;
 import net.threetag.palladium.accessory.Accessory;
-import net.threetag.palladium.power.PowerEventHandler;
+import net.threetag.palladium.power.PowerHolder;
+import net.threetag.palladium.power.PowerUtil;
 import net.threetag.palladium.power.ability.AbilityInstance;
 import net.threetag.palladium.power.ability.AbilityUtil;
+import net.threetag.palladium.power.energybar.EnergyBar;
+import net.threetag.palladium.power.energybar.EnergyBarReference;
 import net.threetag.palladium.util.property.EntityPropertyHandler;
-import net.threetag.palladiumcore.network.MessageType;
 import net.threetag.palladiumcore.network.NetworkManager;
 import net.threetag.palladiumcore.util.DataSyncUtil;
+import org.apache.commons.lang3.tuple.Triple;
 
+import java.util.ArrayList;
 import java.util.Collections;
+import java.util.List;
 
 public class PalladiumNetwork {
-
-    public static final MessageType SYNC_POWERS = NETWORK.registerS2C("sync_powers", SyncPowersMessage::new);
-    public static final MessageType UPDATE_POWERS = NETWORK.registerS2C("update_powers", UpdatePowersMessage::new);
-    public static final MessageType SYNC_ABILITY_STATE = NETWORK.registerS2C("sync_ability_state", SyncAbilityStateMessage::new);
-    public static final MessageType SYNC_PROPERTY = NETWORK.registerS2C("sync_property", SyncPropertyMessage::new);
-    public static final MessageType SYNC_ABILITY_ENTRY_PROPERTY = NETWORK.registerS2C("sync_ability_entry_property", SyncAbilityEntryPropertyMessage::new);
-    public static final MessageType ABILITY_KEY_PRESSED = NETWORK.registerC2S("ability_key_pressed", AbilityKeyPressedMessage::new);
-    public static final MessageType NOTIFY_MOVEMENT_KEY_LISTENER = NETWORK.registerC2S("notify_jump_key_listener", NotifyMovementKeyListenerMessage::new);
-    public static final MessageType SYNC_ACCESSORIES = NETWORK.registerS2C("sync_accessories", SyncAccessoriesMessage::new);
-    public static final MessageType TOGGLE_ACCESSORY = NETWORK.registerC2S("toggle_accessory", ToggleAccessoryMessage::new);
-    public static final MessageType REQUEST_ABILITY_BUY_SCREEN = NETWORK.registerC2S("request_ability_buy_screen", RequestAbilityBuyScreenMessage::new);
-    public static final MessageType OPEN_ABILITY_BUY_SCREEN = NETWORK.registerS2C("open_ability_buy_screen", OpenAbilityBuyScreenMessage::new);
-    public static final MessageType BUY_ABILITY_UNLOCK = NETWORK.registerC2S("buy_ability_unlock", BuyAbilityUnlockMessage::new);
-    public static final MessageType SET_FLYING_STATE = NETWORK.registerC2S("set_flying_state", SetFlyingStateMessage::new);
-    public static final MessageType SYNC_FLYING_STATE = NETWORK.registerS2C("sync_flying_state", SyncFlightStateMessage::new);
-    public static final MessageType TOGGLE_OPENABLE_EQUIPMENT = NETWORK.registerC2S("toggle_openable_equipment", ToggleOpenableEquipmentMessage::new);
-    public static final MessageType SET_ENERGY_BAR = NETWORK.registerS2C("set_energy_bar", SetEnergyBarMessage::new);
 
     public static void init() {
         var net = NetworkManager.get();
 
+        net.registerC2S(AbilityKeyPressedPacket.TYPE, AbilityKeyPressedPacket.STREAM_CODEC, AbilityKeyPressedPacket::handle);
+        net.registerC2S(BuyAbilityUnlockPacket.TYPE, BuyAbilityUnlockPacket.STREAM_CODEC, BuyAbilityUnlockPacket::handle);
+        net.registerC2S(NotifyMovementKeyListenerPacket.TYPE, NotifyMovementKeyListenerPacket.STREAM_CODEC, NotifyMovementKeyListenerPacket::handle);
+        net.registerC2S(SetFlyingStatePacket.TYPE, SetFlyingStatePacket.STREAM_CODEC, SetFlyingStatePacket::handle);
+        net.registerC2S(RequestAbilityBuyScreenPacket.TYPE, RequestAbilityBuyScreenPacket.STREAM_CODEC, RequestAbilityBuyScreenPacket::handle);
+        net.registerC2S(ToggleAccessoryPacket.TYPE, ToggleAccessoryPacket.STREAM_CODEC, ToggleAccessoryPacket::handle);
+        net.registerC2S(ToggleOpenableEquipmentPacket.TYPE, ToggleOpenableEquipmentPacket.STREAM_CODEC, ToggleOpenableEquipmentPacket::handle);
+
+        net.registerS2C(SyncAbilityStatePacket.TYPE, SyncAbilityStatePacket.STREAM_CODEC, SyncAbilityStatePacket::handle);
+        net.registerS2C(OpenAbilityBuyScreenPacket.TYPE, OpenAbilityBuyScreenPacket.STREAM_CODEC, OpenAbilityBuyScreenPacket::handle);
+        net.registerS2C(SyncEnergyBarPacket.TYPE, SyncEnergyBarPacket.STREAM_CODEC, SyncEnergyBarPacket::handle);
+        net.registerS2C(SyncAbilityStatePacket.TYPE, SyncAbilityStatePacket.STREAM_CODEC, SyncAbilityStatePacket::handle);
+        net.registerS2C(SyncAccessoriesPacket.TYPE, SyncAccessoriesPacket.STREAM_CODEC, SyncAccessoriesPacket::handle);
+        net.registerS2C(SyncFlightStatePacket.TYPE, SyncFlightStatePacket.STREAM_CODEC, SyncFlightStatePacket::handle);
+        net.registerS2C(SyncEntityPowersPacket.TYPE, SyncEntityPowersPacket.STREAM_CODEC, SyncEntityPowersPacket::handle);
+        net.registerS2C(SyncPropertyPacket.TYPE, SyncPropertyPacket.STREAM_CODEC, SyncPropertyPacket::handle);
+
         // Powers
         DataSyncUtil.registerEntitySync((entity, consumer) -> {
             if (entity instanceof LivingEntity livingEntity) {
-                var opt = PowerEventHandler.getPowerHandler(livingEntity);
+                var opt = PowerUtil.getPowerHandler(livingEntity);
 
                 if (opt.isPresent()) {
                     var handler = opt.get();
-                    consumer.accept(new UpdatePowersMessage(livingEntity, Collections.emptyList(), handler.getPowerHolders().values().stream().map(h -> h.getPower().getId()).toList()));
 
-                    for (AbilityInstance entry : AbilityUtil.getEntries(livingEntity)) {
+                    List<Triple<EnergyBarReference, Integer, Integer>> energyBars = new ArrayList<>();
+                    for (PowerHolder holder : opt.get().getPowerHolders().values()) {
+                        for (EnergyBar energyBar : holder.getEnergyBars().values()) {
+                            energyBars.add(Triple.of(new EnergyBarReference(holder.getPowerId(), energyBar.getConfiguration().getKey()), energyBar.get(), energyBar.getMax()));
+                        }
+                    }
+
+                    consumer.accept(new SyncEntityPowersPacket(livingEntity.getId(), Collections.emptyList(), handler.getPowerHolders().keySet().stream().toList(), energyBars));
+
+                    for (AbilityInstance entry : AbilityUtil.getInstances(livingEntity)) {
                         consumer.accept(entry.getSyncStateMessage(livingEntity));
                     }
                 }
@@ -55,16 +68,14 @@ public class PalladiumNetwork {
         DataSyncUtil.registerEntitySync((entity, consumer) -> {
             if (entity instanceof ServerPlayer serverPlayer) {
                 var opt = Accessory.getPlayerData(serverPlayer);
-                opt.ifPresent(accessoryPlayerData -> consumer.accept(new SyncAccessoriesMessage(serverPlayer.getId(), accessoryPlayerData.accessories)));
+                opt.ifPresent(accessoryPlayerData -> consumer.accept(new SyncAccessoriesPacket(serverPlayer.getId(), accessoryPlayerData.accessories)));
             }
         });
 
         // Properties
         DataSyncUtil.registerEntitySync((entity, consumer) -> {
             EntityPropertyHandler.getHandler(entity).ifPresent(properties -> {
-                properties.values().forEach((palladiumProperty, o) -> {
-                    consumer.accept(new SyncPropertyMessage(entity.getId(), palladiumProperty, o));
-                });
+                properties.getHolders().forEach((holder) -> consumer.accept(new SyncPropertyPacket<>(entity.getId(), holder)));
             });
         });
     }

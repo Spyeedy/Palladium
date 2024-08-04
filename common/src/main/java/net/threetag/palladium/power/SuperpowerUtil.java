@@ -2,6 +2,7 @@ package net.threetag.palladium.power;
 
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.LivingEntity;
+import net.threetag.palladium.registry.PalladiumRegistryKeys;
 import net.threetag.palladium.util.property.PalladiumProperties;
 
 import java.util.*;
@@ -19,7 +20,7 @@ public class SuperpowerUtil {
     public static Collection<Power> getSuperpowers(LivingEntity entity) {
         List<Power> powers = new ArrayList<>();
         for (ResourceLocation id : PalladiumProperties.SUPERPOWER_IDS.get(entity)) {
-            var power = PowerEventHandler.getInstance(entity.level()).getPower(id);
+            var power = entity.registryAccess().registryOrThrow(PalladiumRegistryKeys.POWER).get(id);
 
             if (power != null) {
                 powers.add(power);
@@ -55,7 +56,7 @@ public class SuperpowerUtil {
      * @param power  The {@link Power} being given to the {@link LivingEntity}
      */
     public static void setSuperpower(LivingEntity entity, Power power) {
-        setSuperpower(entity, power.getId());
+        setSuperpower(entity, entity.registryAccess().registryOrThrow(PalladiumRegistryKeys.POWER).getKey(power));
     }
 
     /**
@@ -75,7 +76,8 @@ public class SuperpowerUtil {
      * @param powers {@link List} of the {@link Power}s being given to the {@link LivingEntity}
      */
     public static void setSuperpowers(LivingEntity entity, List<Power> powers) {
-        setSuperpowerIds(entity, powers.stream().map(Power::getId).collect(Collectors.toList()));
+        var registry = entity.registryAccess().registryOrThrow(PalladiumRegistryKeys.POWER);
+        setSuperpowerIds(entity, powers.stream().map(registry::getKey).collect(Collectors.toList()));
     }
 
     /**
@@ -95,7 +97,8 @@ public class SuperpowerUtil {
      * @param powers Array of the {@link Power}s being given to the {@link LivingEntity}
      */
     public static void setSuperpower(LivingEntity entity, Power... powers) {
-        setSuperpowerIds(entity, Arrays.stream(powers).map(Power::getId).collect(Collectors.toList()));
+        var registry = entity.registryAccess().registryOrThrow(PalladiumRegistryKeys.POWER);
+        setSuperpowerIds(entity, Arrays.stream(powers).map(registry::getKey).collect(Collectors.toList()));
     }
 
     /**
@@ -117,7 +120,8 @@ public class SuperpowerUtil {
      * @return true if the entity has the superpower
      */
     public static boolean hasSuperpower(LivingEntity entity, Power power) {
-        return hasSuperpower(entity, power.getId());
+        var registry = entity.registryAccess().registryOrThrow(PalladiumRegistryKeys.POWER);
+        return hasSuperpower(entity, registry.getKey(power));
     }
 
     /**
@@ -128,9 +132,9 @@ public class SuperpowerUtil {
      * @return true if the {@link Power} exists and wasn't already given to the {@link LivingEntity}
      */
     public static boolean addSuperpower(LivingEntity entity, ResourceLocation powerId) {
-        PowerEventHandler powerEventHandler = PowerEventHandler.getInstance(entity.level());
+        var registry = entity.registryAccess().registryOrThrow(PalladiumRegistryKeys.POWER);
 
-        if (powerEventHandler.getPower(powerId) == null || hasSuperpower(entity, powerId)) {
+        if (!registry.containsKey(powerId) || hasSuperpower(entity, powerId)) {
             return false;
         }
 
@@ -148,7 +152,8 @@ public class SuperpowerUtil {
      * @return true if the {@link Power} exists and wasn't already given to the {@link LivingEntity}
      */
     public static boolean addSuperpower(LivingEntity entity, Power power) {
-        return addSuperpower(entity, power.getId());
+        var registry = entity.registryAccess().registryOrThrow(PalladiumRegistryKeys.POWER);
+        return addSuperpower(entity, registry.getKey(power));
     }
 
     /**
@@ -159,9 +164,9 @@ public class SuperpowerUtil {
      * @return true if the {@link Power} exists and was already given to the {@link LivingEntity}
      */
     public static boolean removeSuperpower(LivingEntity entity, ResourceLocation powerId) {
-        PowerEventHandler powerEventHandler = PowerEventHandler.getInstance(entity.level());
+        var registry = entity.registryAccess().registryOrThrow(PalladiumRegistryKeys.POWER);
 
-        if (powerEventHandler.getPower(powerId) == null || !hasSuperpower(entity, powerId)) {
+        if (!registry.containsKey(powerId) || !hasSuperpower(entity, powerId)) {
             return false;
         }
 
@@ -179,7 +184,8 @@ public class SuperpowerUtil {
      * @return true if the {@link Power} exists and was already given to the {@link LivingEntity}
      */
     public static boolean removeSuperpower(LivingEntity entity, Power power) {
-        return removeSuperpower(entity, power.getId());
+        var registry = entity.registryAccess().registryOrThrow(PalladiumRegistryKeys.POWER);
+        return removeSuperpower(entity, registry.getKey(power));
     }
 
     /**

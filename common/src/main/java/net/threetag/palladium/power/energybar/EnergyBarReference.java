@@ -7,23 +7,21 @@ import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.LivingEntity;
-import net.threetag.palladium.power.IPowerHandler;
-import net.threetag.palladium.power.IPowerHolder;
-import net.threetag.palladium.power.Power;
+import net.threetag.palladium.power.EntityPowerHandler;
+import net.threetag.palladium.power.PowerHolder;
 import net.threetag.palladium.power.PowerUtil;
-import net.threetag.palladium.registry.PalladiumRegistryKeys;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.Objects;
 import java.util.Optional;
 
-public record EnergyBarReference(@Nullable ResourceLocation powerId, @NotNull String energyBarName) {
+public record EnergyBarReference(@Nullable ResourceLocation powerId, @NotNull String energyBarKey) {
 
     public static final Codec<EnergyBarReference> CODEC = Codec.STRING.comapFlatMap(EnergyBarReference::read, EnergyBarReference::toString).stable();
     public static final StreamCodec<FriendlyByteBuf, EnergyBarReference> STREAM_CODEC = StreamCodec.of((buf, ref) -> {
         buf.writeNullable(ref.powerId, FriendlyByteBuf::writeResourceLocation);
-        buf.writeUtf(ref.energyBarName);
+        buf.writeUtf(ref.energyBarKey);
     }, buf -> {
         var powerId = buf.readNullable(FriendlyByteBuf::readResourceLocation);
         var barName = buf.readUtf();
@@ -54,32 +52,31 @@ public record EnergyBarReference(@Nullable ResourceLocation powerId, @NotNull St
     }
 
     @Nullable
-    public EnergyBar getBar(LivingEntity entity, @Nullable IPowerHolder powerHolder) {
+    public EnergyBar getBar(LivingEntity entity, @Nullable PowerHolder powerHolder) {
         if (this.powerId != null) {
-            IPowerHandler handler = PowerUtil.getPowerHandler(entity).orElse(null);
-            Power power = entity.registryAccess().registry(PalladiumRegistryKeys.POWER).orElseThrow().get(this.powerId);
+            EntityPowerHandler handler = PowerUtil.getPowerHandler(entity).orElse(null);
 
-            if (power != null && handler != null) {
-                powerHolder = handler.getPowerHolder(power);
+            if (handler != null) {
+                powerHolder = handler.getPowerHolder(this.powerId);
             } else {
                 powerHolder = null;
             }
         }
 
         if (powerHolder != null) {
-            return powerHolder.getEnergyBars().get(this.energyBarName);
+            return powerHolder.getEnergyBars().get(this.energyBarKey);
         }
 
         return null;
     }
 
-    public Optional<EnergyBar> optional(LivingEntity entity, @Nullable IPowerHolder powerHolder) {
+    public Optional<EnergyBar> optional(LivingEntity entity, @Nullable PowerHolder powerHolder) {
         return Optional.ofNullable(this.getBar(entity, powerHolder));
     }
 
     public void toBuffer(FriendlyByteBuf buf) {
         buf.writeNullable(this.powerId, (buf1, resourceLocation) -> buf.writeResourceLocation(resourceLocation));
-        buf.writeUtf(this.energyBarName);
+        buf.writeUtf(this.energyBarKey);
     }
 
     public static EnergyBarReference fromBuffer(FriendlyByteBuf buf) {
@@ -89,15 +86,15 @@ public record EnergyBarReference(@Nullable ResourceLocation powerId, @NotNull St
     @Override
     public String toString() {
         if (this.powerId == null) {
-            return this.energyBarName;
+            return this.energyBarKey;
         }
-        return this.powerId + "#" + this.energyBarName;
+        return this.powerId + "#" + this.energyBarKey;
     }
 
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
         if (!(o instanceof EnergyBarReference that)) return false;
-        return Objects.equals(this.powerId, that.powerId) && Objects.equals(this.energyBarName, that.energyBarName);
+        return Objects.equals(this.powerId, that.powerId) && Objects.equals(this.energyBarKey, that.energyBarKey);
     }
 }

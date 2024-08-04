@@ -1,17 +1,25 @@
 package net.threetag.palladium.condition;
 
-import com.google.gson.JsonObject;
+import com.mojang.serialization.MapCodec;
+import com.mojang.serialization.codecs.RecordCodecBuilder;
+import net.minecraft.network.RegistryFriendlyByteBuf;
+import net.minecraft.network.codec.ByteBufCodecs;
+import net.minecraft.network.codec.StreamCodec;
+import net.threetag.palladium.util.CodecUtils;
 import net.threetag.palladium.util.context.DataContext;
-import net.threetag.palladium.util.property.ConditionArrayProperty;
-import net.threetag.palladium.util.property.PalladiumProperty;
 
-public class OrCondition extends Condition {
+import java.util.ArrayList;
+import java.util.List;
 
-    public final Condition[] conditions;
+public record OrCondition(List<Condition> conditions) implements Condition {
 
-    public OrCondition(Condition[] conditions) {
-        this.conditions = conditions;
-    }
+    public static final MapCodec<OrCondition> CODEC = RecordCodecBuilder.mapCodec(instance -> instance
+            .group(CodecUtils.listOrPrimitive(Condition.CODEC).fieldOf("conditions").forGetter(OrCondition::conditions)
+            ).apply(instance, OrCondition::new)
+    );
+    public static final StreamCodec<RegistryFriendlyByteBuf, OrCondition> STREAM_CODEC = StreamCodec.composite(
+            ByteBufCodecs.collection(ArrayList::new, Condition.STREAM_CODEC), OrCondition::conditions, OrCondition::new
+    );
 
     @Override
     public boolean active(DataContext context) {
@@ -24,21 +32,20 @@ public class OrCondition extends Condition {
     }
 
     @Override
-    public ConditionSerializer getSerializer() {
+    public ConditionSerializer<OrCondition> getSerializer() {
         return ConditionSerializers.OR.get();
     }
 
-    public static class Serializer extends ConditionSerializer {
+    public static class Serializer extends ConditionSerializer<OrCondition> {
 
-        public static final PalladiumProperty<Condition[]> CONDITIONS = new ConditionArrayProperty("conditions").configurable("Array of conditions, at least one of which must be active");
-
-        public Serializer() {
-            this.withProperty(CONDITIONS, new Condition[0]);
+        @Override
+        public MapCodec<OrCondition> codec() {
+            return CODEC;
         }
 
         @Override
-        public Condition make(JsonObject json) {
-            return new OrCondition(this.getProperty(json, CONDITIONS));
+        public StreamCodec<RegistryFriendlyByteBuf, OrCondition> streamCodec() {
+            return STREAM_CODEC;
         }
 
         @Override

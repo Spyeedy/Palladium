@@ -4,7 +4,7 @@ import net.minecraft.client.player.LocalPlayer;
 import net.threetag.palladium.entity.FlightHandler;
 import net.threetag.palladium.entity.PalladiumAttributes;
 import net.threetag.palladium.entity.PalladiumPlayerExtension;
-import net.threetag.palladium.network.SetFlyingStateMessage;
+import net.threetag.palladium.network.SetFlyingStatePacket;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
@@ -26,7 +26,7 @@ public class LocalPlayerMixin {
             var flight = extension.palladium$getFlightHandler();
             if (player.getAbilities().flying) {
                 if (flight.getFlightType().isNotNull()) {
-                    new SetFlyingStateMessage(false).send();
+                    new SetFlyingStatePacket(false).send();
                     flight.setFlightType(FlightHandler.FlightType.NONE);
                 } else {
                     var flightType = FlightHandler.getAvailableFlightType(player);
@@ -35,11 +35,11 @@ public class LocalPlayerMixin {
                         return;
                     }
 
-                    new SetFlyingStateMessage(true).send();
+                    new SetFlyingStatePacket(true).send();
                     flight.setFlightType(flightType);
                 }
             } else {
-                new SetFlyingStateMessage(false).send();
+                new SetFlyingStatePacket(false).send();
                 flight.setFlightType(FlightHandler.FlightType.NONE);
             }
 

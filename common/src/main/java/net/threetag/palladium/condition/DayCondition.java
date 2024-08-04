@@ -1,10 +1,16 @@
 package net.threetag.palladium.condition;
 
-import com.google.gson.JsonObject;
+import com.mojang.serialization.MapCodec;
+import net.minecraft.network.RegistryFriendlyByteBuf;
+import net.minecraft.network.codec.StreamCodec;
 import net.threetag.palladium.util.context.DataContext;
-import net.threetag.palladium.util.context.DataContextType;
 
-public class DayCondition extends Condition {
+public class DayCondition implements Condition {
+
+    public static final DayCondition INSTANCE = new DayCondition();
+
+    public static final MapCodec<DayCondition> CODEC = MapCodec.unit(INSTANCE);
+    public static final StreamCodec<RegistryFriendlyByteBuf, DayCondition> STREAM_CODEC = StreamCodec.unit(INSTANCE);
 
     @Override
     public boolean active(DataContext context) {
@@ -13,15 +19,20 @@ public class DayCondition extends Condition {
     }
 
     @Override
-    public ConditionSerializer getSerializer() {
+    public ConditionSerializer<DayCondition> getSerializer() {
         return ConditionSerializers.DAY.get();
     }
 
-    public static class Serializer extends ConditionSerializer {
+    public static class Serializer extends ConditionSerializer<DayCondition> {
 
         @Override
-        public Condition make(JsonObject json) {
-            return new DayCondition();
+        public MapCodec<DayCondition> codec() {
+            return CODEC;
+        }
+
+        @Override
+        public StreamCodec<RegistryFriendlyByteBuf, DayCondition> streamCodec() {
+            return STREAM_CODEC;
         }
 
         @Override

@@ -1,26 +1,33 @@
 package net.threetag.palladium.condition;
 
-import com.google.gson.JsonObject;
+import com.mojang.serialization.MapCodec;
+import com.mojang.serialization.codecs.RecordCodecBuilder;
+import net.minecraft.network.RegistryFriendlyByteBuf;
+import net.minecraft.network.codec.ByteBufCodecs;
+import net.minecraft.network.codec.StreamCodec;
 import net.threetag.palladium.accessory.Accessory;
 import net.threetag.palladium.accessory.AccessoryPlayerData;
 import net.threetag.palladium.accessory.AccessorySlot;
+import net.threetag.palladium.registry.PalladiumRegistries;
+import net.threetag.palladium.registry.PalladiumRegistryKeys;
 import net.threetag.palladium.util.context.DataContext;
-import net.threetag.palladium.util.property.AccessorySlotProperty;
-import net.threetag.palladium.util.property.PalladiumProperty;
-import net.threetag.palladium.util.property.StringProperty;
 
 import java.util.Collection;
 import java.util.Optional;
 
-public class AccessorySelectedCondition extends Condition {
+public record AccessorySelectedCondition(AccessorySlot accessorySlot, Accessory accessory) implements Condition {
 
-    private final AccessorySlot accessorySlot;
-    private final String accessory;
-
-    public AccessorySelectedCondition(AccessorySlot accessorySlot, String accessory) {
-        this.accessorySlot = accessorySlot;
-        this.accessory = accessory;
-    }
+    public static final MapCodec<AccessorySelectedCondition> CODEC = RecordCodecBuilder.mapCodec(instance -> instance
+            .group(
+                    AccessorySlot.BY_NAME_CODEC.fieldOf("accessory_slot").forGetter(AccessorySelectedCondition::accessorySlot),
+                    PalladiumRegistries.ACCESSORY.byNameCodec().fieldOf("accessory").forGetter(AccessorySelectedCondition::accessory)
+            ).apply(instance, AccessorySelectedCondition::new)
+    );
+    public static final StreamCodec<RegistryFriendlyByteBuf, AccessorySelectedCondition> STREAM_CODEC = StreamCodec.composite(
+            AccessorySlot.STREAM_CODEC, AccessorySelectedCondition::accessorySlot,
+            ByteBufCodecs.registry(PalladiumRegistryKeys.ACCESSORY), AccessorySelectedCondition::accessory,
+            AccessorySelectedCondition::new
+    );
 
     @Override
     public boolean active(DataContext context) {
@@ -32,38 +39,24 @@ public class AccessorySelectedCondition extends Condition {
 
         AccessoryPlayerData data = dataOptional.get();
         Collection<Accessory> accessories = data.accessories.get(this.accessorySlot);
-
-        if (accessories == null || accessories.isEmpty()) {
-            return this.accessory.isEmpty();
-        }
-
-        for (Accessory accessory : accessories) {
-            if (accessory.toString().equals(this.accessory)) {
-                return true;
-            }
-        }
-
-        return false;
+        return accessories != null && accessories.contains(this.accessory);
     }
 
     @Override
-    public ConditionSerializer getSerializer() {
+    public ConditionSerializer<AccessorySelectedCondition> getSerializer() {
         return ConditionSerializers.ACCESSORY_SELECTED.get();
     }
 
-    public static class Serializer extends ConditionSerializer {
+    public static class Serializer extends ConditionSerializer<AccessorySelectedCondition> {
 
-        public static final PalladiumProperty<AccessorySlot> ACCESSORY_SLOT = new AccessorySlotProperty("accessory_slot").configurable("The ID of the accessory slot to read from");
-        public static final PalladiumProperty<String> ACCESSORY = new StringProperty("accessory").configurable("The accessory which needs to be selected in order for the condition to return true (include the namespace!)");
-
-        public Serializer() {
-            this.withProperty(ACCESSORY_SLOT, AccessorySlot.HEAD);
-            this.withProperty(ACCESSORY, "palladium:sea_pickle_hat");
+        @Override
+        public MapCodec<AccessorySelectedCondition> codec() {
+            return CODEC;
         }
 
         @Override
-        public Condition make(JsonObject json) {
-            return new AccessorySelectedCondition(getProperty(json, ACCESSORY_SLOT), getProperty(json, ACCESSORY));
+        public StreamCodec<RegistryFriendlyByteBuf, AccessorySelectedCondition> streamCodec() {
+            return STREAM_CODEC;
         }
 
         @Override

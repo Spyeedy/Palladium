@@ -1,25 +1,34 @@
 package net.threetag.palladium.condition;
 
-import com.google.gson.JsonObject;
+import com.mojang.serialization.Codec;
+import com.mojang.serialization.MapCodec;
+import com.mojang.serialization.codecs.RecordCodecBuilder;
+import net.minecraft.network.RegistryFriendlyByteBuf;
+import net.minecraft.network.codec.ByteBufCodecs;
+import net.minecraft.network.codec.StreamCodec;
+import net.threetag.palladium.power.ability.AbilityInstance;
 import net.threetag.palladium.util.context.DataContext;
 import net.threetag.palladium.util.context.DataContextType;
-import net.threetag.palladium.power.ability.AbilityInstance;
 import net.threetag.palladium.util.property.*;
 
 import java.util.Objects;
 
-public class IntervalCondition extends Condition {
+public record IntervalCondition(int activeTicks, int disabledTicks) implements Condition {
 
-    public static final PalladiumProperty<Integer> TICKS = new IntegerProperty("interval_ticks").sync(SyncOption.NONE);
-    public static final PalladiumProperty<Boolean> ACTIVE = new BooleanProperty("interval_active");
+    public static final PalladiumProperty<Integer> TICKS = PalladiumPropertyBuilder.create("interval_ticks", PalladiumPropertyType.INTEGER).sync(SyncOption.NONE).build();
+    public static final PalladiumProperty<Boolean> ACTIVE = PalladiumPropertyBuilder.create("interval_active", PalladiumPropertyType.BOOLEAN).sync(SyncOption.NONE).build();
 
-    private final int activeTicks;
-    private final int disabledTicks;
-
-    public IntervalCondition(int activeTicks, int disabledTicks) {
-        this.activeTicks = activeTicks;
-        this.disabledTicks = disabledTicks;
-    }
+    public static final MapCodec<IntervalCondition> CODEC = RecordCodecBuilder.mapCodec(instance -> instance
+            .group(
+                    Codec.INT.fieldOf("active_ticks").forGetter(IntervalCondition::activeTicks),
+                    Codec.INT.fieldOf("disabled_ticks").forGetter(IntervalCondition::disabledTicks)
+            ).apply(instance, IntervalCondition::new)
+    );
+    public static final StreamCodec<RegistryFriendlyByteBuf, IntervalCondition> STREAM_CODEC = StreamCodec.composite(
+            ByteBufCodecs.VAR_INT, IntervalCondition::activeTicks,
+            ByteBufCodecs.VAR_INT, IntervalCondition::disabledTicks,
+            IntervalCondition::new
+    );
 
     @Override
     public void registerAbilityProperties(AbilityInstance entry, PropertyManager manager) {
@@ -52,28 +61,25 @@ public class IntervalCondition extends Condition {
     }
 
     @Override
-    public ConditionSerializer getSerializer() {
+    public ConditionSerializer<IntervalCondition> getSerializer() {
         return ConditionSerializers.INTERVAL.get();
     }
 
-    public static class Serializer extends ConditionSerializer {
+    public static class Serializer extends ConditionSerializer<IntervalCondition> {
 
-        public static final PalladiumProperty<Integer> ACTIVE_TICKS = new IntegerProperty("active_ticks").configurable("Determines for how many ticks the condition will be active");
-        public static final PalladiumProperty<Integer> DISABLED_TICKS = new IntegerProperty("disabled_ticks").configurable("Determines for how many ticks the condition will be disabled");
+        @Override
+        public MapCodec<IntervalCondition> codec() {
+            return CODEC;
+        }
 
-        public Serializer() {
-            this.withProperty(ACTIVE_TICKS, 20);
-            this.withProperty(DISABLED_TICKS, 20);
+        @Override
+        public StreamCodec<RegistryFriendlyByteBuf, IntervalCondition> streamCodec() {
+            return STREAM_CODEC;
         }
 
         @Override
         public ConditionEnvironment getContextEnvironment() {
             return ConditionEnvironment.DATA;
-        }
-
-        @Override
-        public Condition make(JsonObject json) {
-            return new IntervalCondition(getProperty(json, ACTIVE_TICKS), getProperty(json, DISABLED_TICKS));
         }
 
         @Override

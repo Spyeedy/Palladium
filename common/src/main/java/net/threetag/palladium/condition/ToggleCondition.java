@@ -1,18 +1,40 @@
 package net.threetag.palladium.condition;
 
-import com.google.gson.JsonObject;
+import com.mojang.serialization.Codec;
+import com.mojang.serialization.MapCodec;
+import com.mojang.serialization.codecs.RecordCodecBuilder;
+import net.minecraft.network.RegistryFriendlyByteBuf;
+import net.minecraft.network.codec.ByteBufCodecs;
+import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.world.entity.LivingEntity;
+import net.threetag.palladium.power.Power;
+import net.threetag.palladium.power.PowerHolder;
+import net.threetag.palladium.power.ability.AbilityConditions;
 import net.threetag.palladium.power.ability.AbilityInstance;
 import net.threetag.palladium.util.context.DataContext;
 import net.threetag.palladium.util.context.DataContextType;
-import net.threetag.palladium.power.IPowerHolder;
-import net.threetag.palladium.power.Power;
-import net.threetag.palladium.power.ability.AbilityConfiguration;
 import net.threetag.palladium.util.property.PropertyManager;
 
 public class ToggleCondition extends KeyCondition {
 
-    public ToggleCondition(int cooldown, AbilityConfiguration.KeyType type, boolean needsEmptyHand, boolean allowScrollingWhenCrouching) {
+    public static final MapCodec<ToggleCondition> CODEC = RecordCodecBuilder.mapCodec(instance -> instance
+            .group(
+                    Codec.INT.optionalFieldOf("cooldown", 0).forGetter(ToggleCondition::getCooldown),
+                    AbilityConditions.KeyType.CODEC.optionalFieldOf("key_type", AbilityConditions.KeyType.KEY_BIND).forGetter(ToggleCondition::getKeyType),
+                    Codec.BOOL.optionalFieldOf("needs_empty_hand", false).forGetter(ToggleCondition::needsEmptyHand),
+                    Codec.BOOL.optionalFieldOf("allow_scrolling_when_crouching", true).forGetter(ToggleCondition::allowScrollingWhenCrouching)
+
+            ).apply(instance, ToggleCondition::new)
+    );
+    public static final StreamCodec<RegistryFriendlyByteBuf, ToggleCondition> STREAM_CODEC = StreamCodec.composite(
+            ByteBufCodecs.VAR_INT, ToggleCondition::getCooldown,
+            AbilityConditions.KeyType.STREAM_CODEC, ToggleCondition::getKeyType,
+            ByteBufCodecs.BOOL, ToggleCondition::needsEmptyHand,
+            ByteBufCodecs.BOOL, ToggleCondition::allowScrollingWhenCrouching,
+            ToggleCondition::new
+    );
+
+    public ToggleCondition(int cooldown, AbilityConditions.KeyType type, boolean needsEmptyHand, boolean allowScrollingWhenCrouching) {
         super(cooldown, type, needsEmptyHand, allowScrollingWhenCrouching);
     }
 
@@ -37,7 +59,7 @@ public class ToggleCondition extends KeyCondition {
     }
 
     @Override
-    public void onKeyPressed(LivingEntity entity, AbilityInstance entry, Power power, IPowerHolder holder) {
+    public void onKeyPressed(LivingEntity entity, AbilityInstance entry, Power power, PowerHolder holder) {
         entry.keyPressed = !entry.keyPressed;
     }
 
@@ -47,27 +69,25 @@ public class ToggleCondition extends KeyCondition {
     }
 
     @Override
-    public AbilityConfiguration.KeyPressType getKeyPressType() {
-        return AbilityConfiguration.KeyPressType.TOGGLE;
+    public AbilityConditions.KeyPressType getKeyPressType() {
+        return AbilityConditions.KeyPressType.TOGGLE;
     }
 
     @Override
-    public ConditionSerializer getSerializer() {
+    public ConditionSerializer<ToggleCondition> getSerializer() {
         return ConditionSerializers.TOGGLE.get();
     }
 
-    public static class Serializer extends ConditionSerializer {
+    public static class Serializer extends ConditionSerializer<ToggleCondition> {
 
-        public Serializer() {
-            this.withProperty(HeldCondition.Serializer.COOLDOWN, 0);
-            this.withProperty(KeyCondition.KEY_TYPE_WITH_SCROLLING, AbilityConfiguration.KeyType.KEY_BIND);
-            this.withProperty(KeyCondition.NEEDS_EMPTY_HAND, false);
-            this.withProperty(KeyCondition.ALLOW_SCROLLING_DURING_CROUCHING, true);
+        @Override
+        public MapCodec<ToggleCondition> codec() {
+            return CODEC;
         }
 
         @Override
-        public Condition make(JsonObject json) {
-            return new ToggleCondition(this.getProperty(json, HeldCondition.Serializer.COOLDOWN), this.getProperty(json, KeyCondition.KEY_TYPE_WITH_SCROLLING), this.getProperty(json, KeyCondition.NEEDS_EMPTY_HAND), this.getProperty(json, KeyCondition.ALLOW_SCROLLING_DURING_CROUCHING));
+        public StreamCodec<RegistryFriendlyByteBuf, ToggleCondition> streamCodec() {
+            return STREAM_CODEC;
         }
 
         @Override

@@ -1,17 +1,23 @@
 package net.threetag.palladium.condition;
 
 import com.google.gson.JsonObject;
+import com.mojang.serialization.MapCodec;
+import com.mojang.serialization.codecs.RecordCodecBuilder;
+import net.minecraft.network.RegistryFriendlyByteBuf;
+import net.minecraft.network.codec.StreamCodec;
 import net.threetag.palladium.power.ability.AbilityInstance;
 import net.threetag.palladium.power.ability.AbilityReference;
 import net.threetag.palladium.util.context.DataContext;
 
-public class AbilityOnCooldownCondition extends Condition {
+public record AbilityOnCooldownCondition(AbilityReference ability) implements Condition {
 
-    private final AbilityReference ability;
-
-    public AbilityOnCooldownCondition(AbilityReference ability) {
-        this.ability = ability;
-    }
+    public static final MapCodec<AbilityOnCooldownCondition> CODEC = RecordCodecBuilder.mapCodec(instance -> instance
+            .group(AbilityReference.CODEC.fieldOf("ability").forGetter(AbilityOnCooldownCondition::ability)
+            ).apply(instance, AbilityOnCooldownCondition::new)
+    );
+    public static final StreamCodec<RegistryFriendlyByteBuf, AbilityOnCooldownCondition> STREAM_CODEC = StreamCodec.composite(
+            AbilityReference.STREAM_CODEC, AbilityOnCooldownCondition::ability, AbilityOnCooldownCondition::new
+    );
 
     @Override
     public boolean active(DataContext context) {
@@ -27,31 +33,25 @@ public class AbilityOnCooldownCondition extends Condition {
     }
 
     @Override
-    public ConditionSerializer getSerializer() {
+    public ConditionSerializer<AbilityOnCooldownCondition> getSerializer() {
         return ConditionSerializers.ABILITY_ON_COOLDOWN.get();
     }
 
-    public static class Serializer extends ConditionSerializer {
+    public static class Serializer extends ConditionSerializer<AbilityOnCooldownCondition> {
+
+        @Override
+        public MapCodec<AbilityOnCooldownCondition> codec() {
+            return CODEC;
+        }
+
+        @Override
+        public StreamCodec<RegistryFriendlyByteBuf, AbilityOnCooldownCondition> streamCodec() {
+            return STREAM_CODEC;
+        }
 
         @Override
         public String getDocumentationDescription() {
             return "Checks if the ability is currently on cooldown. If the power is not null, it will look for the ability in the specified power. If the power is null, it will look for the ability in the current power.";
-        }
-
-        public Serializer() {
-            this.withProperty(AbilityEnabledCondition.Serializer.POWER, null);
-            this.withProperty(AbilityEnabledCondition.Serializer.ABILITY, "ability_id");
-        }
-
-        @Override
-        public Condition make(JsonObject json) {
-            AbilityReference abilityReference = AbilityReference.parse(this.getProperty(json, AbilityEnabledCondition.Serializer.ABILITY));
-
-            if (this.getProperty(json, AbilityEnabledCondition.Serializer.POWER) != null) {
-                abilityReference = new AbilityReference(this.getProperty(json, AbilityEnabledCondition.Serializer.POWER), this.getProperty(json, AbilityEnabledCondition.Serializer.ABILITY));
-            }
-
-            return new AbilityOnCooldownCondition(abilityReference);
         }
 
     }

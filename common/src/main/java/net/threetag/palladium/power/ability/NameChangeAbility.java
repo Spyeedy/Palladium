@@ -3,7 +3,6 @@ package net.threetag.palladium.power.ability;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
-import net.threetag.palladium.power.IPowerHolder;
 import net.threetag.palladium.util.property.BooleanProperty;
 import net.threetag.palladium.util.property.ComponentProperty;
 import net.threetag.palladium.util.property.PalladiumProperty;

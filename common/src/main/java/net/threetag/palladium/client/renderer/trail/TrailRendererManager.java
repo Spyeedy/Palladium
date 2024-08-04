@@ -13,7 +13,7 @@ import net.threetag.palladium.Palladium;
 import net.threetag.palladium.addonpack.log.AddonPackLog;
 import net.threetag.palladium.addonpack.parser.AddonParser;
 import net.threetag.palladium.documentation.HTMLBuilder;
-import net.threetag.palladium.documentation.IDocumentedConfigurable;
+import net.threetag.palladium.documentation.DocumentedConfigurable;
 import net.threetag.palladium.util.json.GsonUtil;
 
 import java.util.Comparator;
@@ -78,7 +78,7 @@ public class TrailRendererManager extends SimpleJsonResourceReloadListener {
                 .addDocumentationSettings(PARSERS.values().stream().sorted(Comparator.comparing(o -> o.getId().toString())).collect(Collectors.toList()));
     }
 
-    public interface TypeSerializer extends IDocumentedConfigurable {
+    public interface TypeSerializer extends DocumentedConfigurable {
 
         TrailRenderer<?> parse(JsonObject json);
 

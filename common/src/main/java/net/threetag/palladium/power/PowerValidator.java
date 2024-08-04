@@ -2,9 +2,9 @@ package net.threetag.palladium.power;
 
 import net.minecraft.world.entity.LivingEntity;
 
-public interface IPowerValidator {
+public interface PowerValidator {
 
-    IPowerValidator ALWAYS_ACTIVE = (entity, power) -> true;
+    PowerValidator ALWAYS_ACTIVE = (entity, power) -> true;
 
     boolean stillValid(LivingEntity entity, Power power);
 

@@ -1,17 +1,22 @@
 package net.threetag.palladium.condition;
 
-import com.google.gson.JsonObject;
+import com.mojang.serialization.MapCodec;
+import com.mojang.serialization.codecs.RecordCodecBuilder;
+import net.minecraft.network.RegistryFriendlyByteBuf;
+import net.minecraft.network.codec.StreamCodec;
 import net.threetag.palladium.power.ability.AbilityInstance;
 import net.threetag.palladium.power.ability.AbilityReference;
 import net.threetag.palladium.util.context.DataContext;
 
-public class AbilityLastTickCondition extends Condition {
+public record AbilityLastTickCondition(AbilityReference ability) implements Condition {
 
-    private final AbilityReference ability;
-
-    public AbilityLastTickCondition(AbilityReference ability) {
-        this.ability = ability;
-    }
+    public static final MapCodec<AbilityLastTickCondition> CODEC = RecordCodecBuilder.mapCodec(instance -> instance
+            .group(AbilityReference.CODEC.fieldOf("ability").forGetter(AbilityLastTickCondition::ability)
+            ).apply(instance, AbilityLastTickCondition::new)
+    );
+    public static final StreamCodec<RegistryFriendlyByteBuf, AbilityLastTickCondition> STREAM_CODEC = StreamCodec.composite(
+            AbilityReference.STREAM_CODEC, AbilityLastTickCondition::ability, AbilityLastTickCondition::new
+    );
 
     @Override
     public boolean active(DataContext context) {
@@ -32,26 +37,20 @@ public class AbilityLastTickCondition extends Condition {
     }
 
     @Override
-    public ConditionSerializer getSerializer() {
+    public ConditionSerializer<AbilityLastTickCondition> getSerializer() {
         return ConditionSerializers.ABILITY_LAST_TICK.get();
     }
 
-    public static class Serializer extends ConditionSerializer {
+    public static class Serializer extends ConditionSerializer<AbilityLastTickCondition> {
 
-        public Serializer() {
-            this.withProperty(AbilityEnabledCondition.Serializer.POWER, null);
-            this.withProperty(AbilityEnabledCondition.Serializer.ABILITY, "ability_id");
+        @Override
+        public MapCodec<AbilityLastTickCondition> codec() {
+            return CODEC;
         }
 
         @Override
-        public Condition make(JsonObject json) {
-            AbilityReference abilityReference = AbilityReference.parse(this.getProperty(json, AbilityEnabledCondition.Serializer.ABILITY));
-
-            if (this.getProperty(json, AbilityEnabledCondition.Serializer.POWER) != null) {
-                abilityReference = new AbilityReference(this.getProperty(json, AbilityEnabledCondition.Serializer.POWER), this.getProperty(json, AbilityEnabledCondition.Serializer.ABILITY));
-            }
-
-            return new AbilityLastTickCondition(abilityReference);
+        public StreamCodec<RegistryFriendlyByteBuf, AbilityLastTickCondition> streamCodec() {
+            return STREAM_CODEC;
         }
 
         @Override

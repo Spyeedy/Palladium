@@ -1,10 +1,17 @@
 package net.threetag.palladium.condition;
 
-import com.google.gson.JsonObject;
+import com.mojang.serialization.MapCodec;
+import net.minecraft.network.RegistryFriendlyByteBuf;
+import net.minecraft.network.codec.StreamCodec;
 import net.threetag.palladium.util.context.DataContext;
 import net.threetag.palladium.util.context.DataContextType;
 
-public class InLavaCondition extends Condition {
+public class InLavaCondition implements Condition {
+
+    public static final InLavaCondition INSTANCE = new InLavaCondition();
+
+    public static final MapCodec<InLavaCondition> CODEC = MapCodec.unit(INSTANCE);
+    public static final StreamCodec<RegistryFriendlyByteBuf, InLavaCondition> STREAM_CODEC = StreamCodec.unit(INSTANCE);
 
     @Override
     public boolean active(DataContext context) {
@@ -18,15 +25,20 @@ public class InLavaCondition extends Condition {
     }
 
     @Override
-    public ConditionSerializer getSerializer() {
+    public ConditionSerializer<InLavaCondition> getSerializer() {
         return ConditionSerializers.IN_LAVA.get();
     }
 
-    public static class Serializer extends ConditionSerializer {
+    public static class Serializer extends ConditionSerializer<InLavaCondition> {
 
         @Override
-        public Condition make(JsonObject json) {
-            return new InLavaCondition();
+        public MapCodec<InLavaCondition> codec() {
+            return CODEC;
+        }
+
+        @Override
+        public StreamCodec<RegistryFriendlyByteBuf, InLavaCondition> streamCodec() {
+            return STREAM_CODEC;
         }
 
         @Override

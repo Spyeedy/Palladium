@@ -2,7 +2,7 @@ package net.threetag.palladium.client.renderer.entity;
 
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
-import dev.kosmx.playerAnim.api.firstPerson.FirstPersonMode;
+//import dev.kosmx.playerAnim.api.firstPerson.FirstPersonMode;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.model.HumanoidModel;
 import net.minecraft.client.model.geom.ModelPart;
@@ -21,6 +21,7 @@ import net.threetag.palladium.mixin.client.AgeableListModelInvoker;
 import net.threetag.palladium.power.ability.Abilities;
 import net.threetag.palladium.power.ability.AnimationTimer;
 import net.threetag.palladium.util.Easing;
+import net.threetag.palladium.util.RenderUtil;
 import org.joml.Vector3f;
 
 @SuppressWarnings({"rawtypes"})
@@ -50,14 +51,14 @@ public class HumanoidRendererModifications {
         }
 
         // visibility
-        if (!FirstPersonMode.isFirstPersonPass()) {
-            BodyPart.resetBodyParts(entity, model);
-        }
+//        if (!FirstPersonMode.isFirstPersonPass()) {
+//            BodyPart.resetBodyParts(entity, model);
+//        }
         CACHED_HIDE_RESULT = BodyPart.getModifiedBodyParts(entity, false);
         BodyPart.hideHiddenOrRemovedParts(model, entity, CACHED_HIDE_RESULT);
 
         // layer shrinking
-        float scale = AnimationTimer.getValue(entity, Abilities.SHRINK_BODY_OVERLAY.get(), partialTick, Easing.INOUTSINE);
+        float scale = AnimationTimer.getValue(entity, Abilities.SHRINK_BODY_OVERLAY.value(), partialTick, Easing.INOUTSINE);
 
         if (scale != 0F) {
             float f = -0.11F * scale;
@@ -89,7 +90,7 @@ public class HumanoidRendererModifications {
 
     @SuppressWarnings("unchecked")
     public static void postLayers(LivingEntityRenderer renderer, LivingEntity entity, HumanoidModel model, PoseStack poseStack, MultiBufferSource buffer, int packedLight, float partialTick) {
-        float vibrate = AnimationTimer.getValue(entity, Abilities.VIBRATE.get(), partialTick, Easing.INOUTSINE);
+        float vibrate = AnimationTimer.getValue(entity, Abilities.VIBRATE.value(), partialTick, Easing.INOUTSINE);
 
         if (vibrate > 0F) {
             ALPHA_MULTIPLIER = 0.3F;
@@ -107,7 +108,7 @@ public class HumanoidRendererModifications {
                 if (renderType != null) {
                     VertexConsumer vertexConsumer = buffer.getBuffer(renderType);
                     int m = LivingEntityRenderer.getOverlayCoords(entity, renderer.getWhiteOverlayProgress(entity, partialTick));
-                    renderer.getModel().renderToBuffer(poseStack, vertexConsumer, packedLight, m, 1.0F, 1.0F, 1.0F, bl2 ? 0.15F : 1.0F);
+                    renderer.getModel().renderToBuffer(poseStack, vertexConsumer, packedLight, m, bl2 ? RenderUtil.rgbaToInt(1F, 1F, 1F, 0.15F) : -1);
                 }
 
                 poseStack.popPose();

@@ -1,17 +1,22 @@
 package net.threetag.palladium.condition;
 
-import com.google.gson.JsonObject;
+import com.mojang.serialization.MapCodec;
+import com.mojang.serialization.codecs.RecordCodecBuilder;
+import net.minecraft.network.RegistryFriendlyByteBuf;
+import net.minecraft.network.codec.StreamCodec;
 import net.threetag.palladium.power.ability.AbilityInstance;
 import net.threetag.palladium.power.ability.AbilityReference;
 import net.threetag.palladium.util.context.DataContext;
 
-public class AbilityFirstTickCondition extends Condition {
+public record AbilityFirstTickCondition(AbilityReference ability) implements Condition {
 
-    private final AbilityReference ability;
-
-    public AbilityFirstTickCondition(AbilityReference ability) {
-        this.ability = ability;
-    }
+    public static final MapCodec<AbilityFirstTickCondition> CODEC = RecordCodecBuilder.mapCodec(instance -> instance
+            .group(AbilityReference.CODEC.fieldOf("ability").forGetter(AbilityFirstTickCondition::ability)
+            ).apply(instance, AbilityFirstTickCondition::new)
+    );
+    public static final StreamCodec<RegistryFriendlyByteBuf, AbilityFirstTickCondition> STREAM_CODEC = StreamCodec.composite(
+            AbilityReference.STREAM_CODEC, AbilityFirstTickCondition::ability, AbilityFirstTickCondition::new
+    );
 
     @Override
     public boolean active(DataContext context) {
@@ -32,26 +37,20 @@ public class AbilityFirstTickCondition extends Condition {
     }
 
     @Override
-    public ConditionSerializer getSerializer() {
+    public ConditionSerializer<AbilityFirstTickCondition> getSerializer() {
         return ConditionSerializers.ABILITY_FIRST_TICK.get();
     }
 
-    public static class Serializer extends ConditionSerializer {
+    public static class Serializer extends ConditionSerializer<AbilityFirstTickCondition> {
 
-        public Serializer() {
-            this.withProperty(AbilityEnabledCondition.Serializer.POWER, null);
-            this.withProperty(AbilityEnabledCondition.Serializer.ABILITY, "ability_id");
+        @Override
+        public MapCodec<AbilityFirstTickCondition> codec() {
+            return CODEC;
         }
 
         @Override
-        public Condition make(JsonObject json) {
-            AbilityReference abilityReference = AbilityReference.parse(this.getProperty(json, AbilityEnabledCondition.Serializer.ABILITY));
-
-            if (this.getProperty(json, AbilityEnabledCondition.Serializer.POWER) != null) {
-                abilityReference = new AbilityReference(this.getProperty(json, AbilityEnabledCondition.Serializer.POWER), this.getProperty(json, AbilityEnabledCondition.Serializer.ABILITY));
-            }
-
-            return new AbilityFirstTickCondition(abilityReference);
+        public StreamCodec<RegistryFriendlyByteBuf, AbilityFirstTickCondition> streamCodec() {
+            return STREAM_CODEC;
         }
 
         @Override

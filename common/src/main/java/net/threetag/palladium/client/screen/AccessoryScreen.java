@@ -15,11 +15,11 @@ import net.minecraft.client.gui.components.AbstractSliderButton;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.components.Tooltip;
 import net.minecraft.client.gui.narration.NarrationElementOutput;
-import net.minecraft.client.gui.screens.OptionsSubScreen;
 import net.minecraft.client.gui.screens.Screen;
-import net.minecraft.client.gui.screens.SkinCustomizationScreen;
 import net.minecraft.client.gui.screens.inventory.CreativeModeInventoryScreen;
 import net.minecraft.client.gui.screens.inventory.InventoryScreen;
+import net.minecraft.client.gui.screens.options.OptionsSubScreen;
+import net.minecraft.client.gui.screens.options.SkinCustomizationScreen;
 import net.minecraft.client.renderer.GameRenderer;
 import net.minecraft.client.resources.sounds.SimpleSoundInstance;
 import net.minecraft.core.registries.BuiltInRegistries;
@@ -32,7 +32,7 @@ import net.threetag.palladium.accessory.AccessorySlot;
 import net.threetag.palladium.client.screen.components.EditButton;
 import net.threetag.palladium.client.screen.components.FlatIconButton;
 import net.threetag.palladium.condition.InAccessorySlotMenuCondition;
-import net.threetag.palladium.network.ToggleAccessoryMessage;
+import net.threetag.palladium.network.ToggleAccessoryPacket;
 import net.threetag.palladium.util.SupporterHandler;
 import net.threetag.palladium.util.context.DataContext;
 import net.threetag.palladiumcore.event.ScreenEvents;
@@ -318,7 +318,7 @@ public class AccessoryScreen extends OptionsSubScreen {
 
         @Override
         public boolean mouseClicked(double mouseX, double mouseY, int type) {
-            new ToggleAccessoryMessage(this.parent.currentSlot, this.accessory).send();
+            new ToggleAccessoryPacket(this.parent.currentSlot, this.accessory).send();
             this.parent.minecraft.getSoundManager().play(SimpleSoundInstance.forUI(SoundEvents.UI_BUTTON_CLICK, 1.0F));
             return false;
         }

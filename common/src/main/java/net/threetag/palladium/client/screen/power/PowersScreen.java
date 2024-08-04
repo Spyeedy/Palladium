@@ -20,10 +20,12 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.Blocks;
 import net.threetag.palladium.Palladium;
 import net.threetag.palladium.client.screen.components.IconButton;
+import net.threetag.palladium.power.EntityPowerHandler;
 import net.threetag.palladium.power.Power;
-import net.threetag.palladium.power.PowerHandler;
 import net.threetag.palladium.power.PowerEventHandler;
+import net.threetag.palladium.power.PowerUtil;
 import net.threetag.palladium.power.ability.Ability;
+import net.threetag.palladium.registry.PalladiumRegistryKeys;
 import net.threetag.palladium.util.icon.Icon;
 import net.threetag.palladium.util.icon.ItemIcon;
 import net.threetag.palladiumcore.event.ScreenEvents;
@@ -38,9 +40,10 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 public class PowersScreen extends Screen {
 
-    public static final ResourceLocation WINDOW = new ResourceLocation(Palladium.MOD_ID, "textures/gui/powers/window.png");
-    public static final ResourceLocation TABS = new ResourceLocation(Palladium.MOD_ID, "textures/gui/powers/tabs.png");
-    public static final ResourceLocation WIDGETS = new ResourceLocation(Palladium.MOD_ID, "textures/gui/powers/widgets.png");
+    public static final ResourceLocation WINDOW = Palladium.id("textures/gui/powers/window.png");
+    public static final ResourceLocation TABS = Palladium.id("textures/gui/powers/tabs.png");
+    public static final ResourceLocation WIDGETS = Palladium.id("textures/gui/powers/widgets.png");
+    public static final ResourceLocation TITLE_BOX_SPRITE = ResourceLocation.withDefaultNamespace("advancements/title_box");
 
     public static final int WINDOW_WIDTH = 252;
     public static final int WINDOW_HEIGHT = 196;
@@ -91,10 +94,10 @@ public class PowersScreen extends Screen {
         this.selectedTab = null;
 
         AtomicInteger i = new AtomicInteger();
-        PowerEventHandler.getPowerHandler(Objects.requireNonNull(this.minecraft).player).ifPresent(handler -> handler.getPowerHolders()
+        PowerUtil.getPowerHandler(Objects.requireNonNull(this.minecraft).player).ifPresent(handler -> handler.getPowerHolders()
                 .values()
                 .stream()
-                .sorted(Comparator.comparingInt(holder -> PowerEventHandler.getInstance(false).getPowers().stream().toList().indexOf(holder.getPower())))
+                .sorted(Comparator.comparingInt(holder -> Objects.requireNonNull(this.minecraft.player).registryAccess().registryOrThrow(PalladiumRegistryKeys.POWER).stream().toList().indexOf(holder.getPower())))
                 .forEach(holder -> {
                     if (!holder.getPower().isHidden() && holder.getAbilities().values().stream().anyMatch(en -> !en.getProperty(Ability.HIDDEN_IN_GUI))) {
                         var type = holder.getPower().getGuiDisplayType();
@@ -187,7 +190,7 @@ public class PowersScreen extends Screen {
     public void render(GuiGraphics guiGraphics, int mouseX, int mouseY, float partialTick) {
         int i = (this.width - WINDOW_WIDTH) / 2;
         int j = (this.height - WINDOW_HEIGHT) / 2;
-        this.renderBackground(guiGraphics);
+        this.renderBackground(guiGraphics, mouseX, mouseY, partialTick);
         this.renderInside(guiGraphics, mouseX, mouseY, i, j, partialTick);
         this.renderWindow(guiGraphics, i, j);
         this.renderTooltips(guiGraphics, mouseX, mouseY, i, j, partialTick);
@@ -299,7 +302,7 @@ public class PowersScreen extends Screen {
         public Icon getIcon() {
             List<Icon> icons = Lists.newArrayList();
             Minecraft mc = Minecraft.getInstance();
-            PowerEventHandler.getPowerHandler(mc.player).ifPresent(handler -> handler.getPowerHolders().values().stream().filter(holder -> !holder.getPower().isHidden() && holder.getAbilities().values().stream().anyMatch(en -> !en.getProperty(Ability.HIDDEN_IN_GUI))).forEach(holder -> icons.add(holder.getPower().getIcon())));
+            PowerUtil.getPowerHandler(mc.player).ifPresent(handler -> handler.getPowerHolders().values().stream().filter(holder -> !holder.getPower().isHidden() && holder.getAbilities().values().stream().anyMatch(en -> !en.getProperty(Ability.HIDDEN_IN_GUI))).forEach(holder -> icons.add(holder.getPower().getIcon())));
             if (icons.isEmpty()) {
                 this.visible = false;
                 icons.add(new ItemIcon(Blocks.BARRIER));
@@ -311,13 +314,13 @@ public class PowersScreen extends Screen {
         }
 
         @Override
-        public void render(GuiGraphics guiGraphics, int mouseX, int mouseY, float partialTicks) {
+        public void renderWidget(GuiGraphics guiGraphics, int mouseX, int mouseY, float partialTicks) {
             var pos = getPos(this.screen);
             if (pos != null) {
                 this.setPosition(pos.x, pos.y);
             }
-            this.active = this.visible && !PowerEventHandler.getPowerHandler(Minecraft.getInstance().player).orElse(new PowerHandler(null)).getPowerHolders().isEmpty();
-            super.render(guiGraphics, mouseX, mouseY, partialTicks);
+            this.active = this.visible && !PowerUtil.getPowerHandler(Minecraft.getInstance().player).orElse(new EntityPowerHandler(null)).getPowerHolders().isEmpty();
+            super.renderWidget(guiGraphics, mouseX, mouseY, partialTicks);
         }
 
         public static Vector2i getPos(Screen screen) {

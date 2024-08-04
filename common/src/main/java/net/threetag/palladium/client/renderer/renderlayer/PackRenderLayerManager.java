@@ -49,7 +49,7 @@ public class PackRenderLayerManager extends SimpleJsonResourceReloadListener {
         registerProvider((entity, layers) -> {
             if (entity instanceof LivingEntity livingEntity) {
                 var manager = PackRenderLayerManager.getInstance();
-                for (AbilityInstance entry : AbilityUtil.getEnabledRenderLayerEntries(livingEntity)) {
+                for (AbilityInstance entry : AbilityUtil.getEnabledRenderLayerInstances(livingEntity)) {
                     IPackRenderLayer layer = ((RenderLayerProviderAbility) entry.getConfiguration().getAbility()).getRenderLayer(entry, livingEntity, manager);
                     if (layer != null) {
                         layers.accept(DataContext.forAbility(livingEntity, entry), layer);
@@ -89,14 +89,14 @@ public class PackRenderLayerManager extends SimpleJsonResourceReloadListener {
             }
         });
 
-        registerParser(new ResourceLocation(Palladium.MOD_ID, "default"), PackRenderLayer::parse);
-        registerParser(new ResourceLocation(Palladium.MOD_ID, "compound"), CompoundPackRenderLayer::parse);
-        registerParser(new ResourceLocation(Palladium.MOD_ID, "skin_overlay"), SkinOverlayPackRenderLayer::parse);
-        registerParser(new ResourceLocation(Palladium.MOD_ID, "lightning_sparks"), LightningSparksRenderLayer::parse);
-        registerParser(new ResourceLocation(Palladium.MOD_ID, "thrusters"), ThrusterPackRenderLayer::parse);
+        registerParser(Palladium.id("default"), PackRenderLayer::parse);
+        registerParser(Palladium.id("compound"), CompoundPackRenderLayer::parse);
+        registerParser(Palladium.id("skin_overlay"), SkinOverlayPackRenderLayer::parse);
+        registerParser(Palladium.id("lightning_sparks"), LightningSparksRenderLayer::parse);
+        registerParser(Palladium.id("thrusters"), ThrusterPackRenderLayer::parse);
 
-        registerRenderType(new ResourceLocation("minecraft", "solid"), (source, texture, glint) -> ItemRenderer.getArmorFoilBuffer(source, RenderType.entityTranslucent(texture), false, glint));
-        registerRenderType(new ResourceLocation("minecraft", "glow"), (source, texture, glint) -> ItemRenderer.getArmorFoilBuffer(source, PalladiumRenderTypes.getGlowing(texture), false, glint));
+        registerRenderType(ResourceLocation.withDefaultNamespace("solid"), (source, texture, glint) -> ItemRenderer.getFoilBuffer(source, RenderType.entityTranslucent(texture), false, glint));
+        registerRenderType(ResourceLocation.withDefaultNamespace("glow"), (source, texture, glint) -> ItemRenderer.getFoilBuffer(source, PalladiumRenderTypes.getGlowing(texture), false, glint));
     }
 
     public PackRenderLayerManager() {
@@ -128,7 +128,7 @@ public class PackRenderLayerManager extends SimpleJsonResourceReloadListener {
     }
 
     public static IPackRenderLayer parseLayer(JsonObject json) {
-        ResourceLocation parserId = GsonUtil.getAsResourceLocation(json, "type", new ResourceLocation(Palladium.MOD_ID, "default"));
+        ResourceLocation parserId = GsonUtil.getAsResourceLocation(json, "type", Palladium.id("default"));
 
         if (!RENDER_LAYERS_PARSERS.containsKey(parserId)) {
             throw new JsonParseException("Unknown render layer type '" + parserId + "'");

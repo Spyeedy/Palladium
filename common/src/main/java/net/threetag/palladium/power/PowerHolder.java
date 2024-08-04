@@ -2,49 +2,56 @@ package net.threetag.palladium.power;
 
 import com.google.common.collect.ImmutableMap;
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.LivingEntity;
 import net.threetag.palladium.power.ability.AbilityConfiguration;
 import net.threetag.palladium.power.ability.AbilityInstance;
+import net.threetag.palladium.power.ability.AbilityReference;
 import net.threetag.palladium.power.energybar.EnergyBar;
 import net.threetag.palladium.power.energybar.EnergyBarConfiguration;
+import net.threetag.palladium.power.energybar.EnergyBarReference;
+import net.threetag.palladium.registry.PalladiumRegistryKeys;
 
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
-public class DefaultPowerHolder implements IPowerHolder {
+public class PowerHolder {
 
     public final LivingEntity entity;
     private final Power power;
+    private final ResourceLocation powerId;
     private final Map<String, AbilityInstance> entryMap = new HashMap<>();
     private final Map<String, EnergyBar> energyBars = new LinkedHashMap<>();
-    private IPowerValidator validator;
+    private PowerValidator validator;
 
-    public DefaultPowerHolder(LivingEntity entity, Power power, IPowerValidator validator) {
+    public PowerHolder(LivingEntity entity, Power power, PowerValidator validator) {
         this.entity = entity;
         this.power = power;
-        for (AbilityConfiguration ability : this.getPower().getAbilities()) {
-            AbilityInstance entry = new AbilityInstance(ability, this);
-            entry.id = ability.getId();
-            this.entryMap.put(ability.getId(), entry);
-        }
-        for (EnergyBarConfiguration energyBar : this.getPower().getEnergyBars()) {
-            this.energyBars.put(energyBar.name(), new EnergyBar(this, energyBar));
-        }
+        this.powerId = entity.registryAccess().registryOrThrow(PalladiumRegistryKeys.POWER).getKey(power);
         this.validator = validator;
+
+        for (Map.Entry<String, AbilityConfiguration> e : this.getPower().getAbilities().entrySet()) {
+            AbilityInstance entry = new AbilityInstance(e.getValue(), this, new AbilityReference(entity.registryAccess().registryOrThrow(PalladiumRegistryKeys.POWER).getKey(power), e.getKey()));
+            this.entryMap.put(e.getKey(), entry);
+        }
+        for (Map.Entry<String, EnergyBarConfiguration> e : this.getPower().getEnergyBars().entrySet()) {
+            this.energyBars.put(e.getKey(), new EnergyBar(e.getValue(), this, new EnergyBarReference(entity.registryAccess().registryOrThrow(PalladiumRegistryKeys.POWER).getKey(power), e.getKey())));
+        }
     }
 
-    @Override
     public Power getPower() {
         return this.power;
     }
 
-    @Override
+    public ResourceLocation getPowerId() {
+        return this.powerId;
+    }
+
     public LivingEntity getEntity() {
         return this.entity;
     }
 
-    @Override
     public void fromNBT(CompoundTag tag) {
         for (Map.Entry<String, AbilityInstance> entry : this.entryMap.entrySet()) {
             if (tag.contains(entry.getKey())) {
@@ -63,7 +70,6 @@ public class DefaultPowerHolder implements IPowerHolder {
         }
     }
 
-    @Override
     public CompoundTag toNBT(boolean toDisk) {
         CompoundTag tag = new CompoundTag();
 
@@ -81,17 +87,14 @@ public class DefaultPowerHolder implements IPowerHolder {
         return tag;
     }
 
-    @Override
     public Map<String, AbilityInstance> getAbilities() {
         return ImmutableMap.copyOf(this.entryMap);
     }
 
-    @Override
     public Map<String, EnergyBar> getEnergyBars() {
         return ImmutableMap.copyOf(this.energyBars);
     }
 
-    @Override
     public void tick() {
         this.entryMap.forEach((id, entry) -> entry.tick(entity, this));
 
@@ -100,23 +103,19 @@ public class DefaultPowerHolder implements IPowerHolder {
         }
     }
 
-    @Override
     public void firstTick() {
         this.entryMap.forEach((id, entry) -> entry.getConfiguration().getAbility().firstTick(entity, entry, this, entry.isEnabled()));
     }
 
-    @Override
     public void lastTick() {
         this.entryMap.forEach((id, entry) -> entry.getConfiguration().getAbility().lastTick(entity, entry, this, entry.isEnabled()));
     }
 
-    @Override
     public boolean isInvalid() {
         return this.power.isInvalid() || !this.validator.stillValid(this.entity, this.power);
     }
 
-    @Override
-    public void switchValidator(IPowerValidator validator) {
+    public void switchValidator(PowerValidator validator) {
         this.validator = validator;
     }
 }

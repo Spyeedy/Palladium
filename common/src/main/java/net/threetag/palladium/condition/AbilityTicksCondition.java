@@ -1,22 +1,33 @@
 package net.threetag.palladium.condition;
 
-import com.google.gson.JsonObject;
+import com.mojang.serialization.Codec;
+import com.mojang.serialization.MapCodec;
+import com.mojang.serialization.codecs.RecordCodecBuilder;
+import net.minecraft.network.RegistryFriendlyByteBuf;
+import net.minecraft.network.codec.ByteBufCodecs;
+import net.minecraft.network.codec.StreamCodec;
 import net.threetag.palladium.power.ability.AbilityInstance;
 import net.threetag.palladium.power.ability.AbilityReference;
 import net.threetag.palladium.util.context.DataContext;
-import net.threetag.palladium.util.property.IntegerProperty;
-import net.threetag.palladium.util.property.PalladiumProperty;
 
-public class AbilityTicksCondition extends Condition {
+public record AbilityTicksCondition(AbilityReference ability, String propertyKey, int min,
+                                    int max) implements Condition {
 
-    private final AbilityReference ability;
-    private final int min, max;
-
-    public AbilityTicksCondition(AbilityReference ability, int min, int max) {
-        this.ability = ability;
-        this.min = min;
-        this.max = max;
-    }
+    public static final MapCodec<AbilityTicksCondition> CODEC = RecordCodecBuilder.mapCodec(instance -> instance
+            .group(
+                    AbilityReference.CODEC.fieldOf("ability").forGetter(AbilityTicksCondition::ability),
+                    Codec.STRING.fieldOf("property").forGetter(AbilityTicksCondition::propertyKey),
+                    Codec.INT.optionalFieldOf("min", Integer.MIN_VALUE).forGetter(AbilityTicksCondition::min),
+                    Codec.INT.optionalFieldOf("max", Integer.MAX_VALUE).forGetter(AbilityTicksCondition::max)
+            ).apply(instance, AbilityTicksCondition::new)
+    );
+    public static final StreamCodec<RegistryFriendlyByteBuf, AbilityTicksCondition> STREAM_CODEC = StreamCodec.composite(
+            AbilityReference.STREAM_CODEC, AbilityTicksCondition::ability,
+            ByteBufCodecs.STRING_UTF8, AbilityTicksCondition::propertyKey,
+            ByteBufCodecs.VAR_INT, AbilityTicksCondition::min,
+            ByteBufCodecs.VAR_INT, AbilityTicksCondition::max,
+            AbilityTicksCondition::new
+    );
 
     @Override
     public boolean active(DataContext context) {
@@ -37,33 +48,20 @@ public class AbilityTicksCondition extends Condition {
     }
 
     @Override
-    public ConditionSerializer getSerializer() {
+    public ConditionSerializer<AbilityTicksCondition> getSerializer() {
         return ConditionSerializers.ABILITY_TICKS.get();
     }
 
-    public static class Serializer extends ConditionSerializer {
+    public static class Serializer extends ConditionSerializer<AbilityTicksCondition> {
 
-        public static final PalladiumProperty<Integer> MIN = new IntegerProperty("min").configurable("Minimum required amount of enabled ticks");
-        public static final PalladiumProperty<Integer> MAX = new IntegerProperty("max").configurable("Maximum required amount of enabled ticks");
-
-        public Serializer() {
-            this.withProperty(AbilityEnabledCondition.Serializer.POWER, null);
-            this.withProperty(AbilityEnabledCondition.Serializer.ABILITY, "ability_id");
-            this.withProperty(MIN, 0);
-            this.withProperty(MAX, 0);
+        @Override
+        public MapCodec<AbilityTicksCondition> codec() {
+            return CODEC;
         }
 
         @Override
-        public Condition make(JsonObject json) {
-            AbilityReference abilityReference = AbilityReference.parse(this.getProperty(json, AbilityEnabledCondition.Serializer.ABILITY));
-
-            if (this.getProperty(json, AbilityEnabledCondition.Serializer.POWER) != null) {
-                abilityReference = new AbilityReference(this.getProperty(json, AbilityEnabledCondition.Serializer.POWER), this.getProperty(json, AbilityEnabledCondition.Serializer.ABILITY));
-            }
-
-            return new AbilityTicksCondition(abilityReference,
-                    this.getProperty(json, MIN),
-                    this.getProperty(json, MAX));
+        public StreamCodec<RegistryFriendlyByteBuf, AbilityTicksCondition> streamCodec() {
+            return STREAM_CODEC;
         }
 
         @Override

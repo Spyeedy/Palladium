@@ -27,7 +27,7 @@ public class OpenableEquipmentProgressVariable extends AbstractIntegerTextureVar
         return 0;
     }
 
-    public static class Serializer implements ITextureVariableSerializer {
+    public static class Serializer implements TextureVariableSerializer {
 
         @Override
         public ITextureVariable parse(JsonObject json) {

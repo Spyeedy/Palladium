@@ -16,7 +16,7 @@ import net.threetag.palladium.block.AddonBlock;
 import net.threetag.palladium.block.BlockMaterialRegistry;
 import net.threetag.palladium.block.IAddonBlock;
 import net.threetag.palladium.documentation.HTMLBuilder;
-import net.threetag.palladium.documentation.IDocumentedConfigurable;
+import net.threetag.palladium.documentation.DocumentedConfigurable;
 import net.threetag.palladium.documentation.JsonDocumentationBuilder;
 import net.threetag.palladium.util.json.GsonUtil;
 
@@ -85,7 +85,7 @@ public class BlockParser extends AddonParser<Block> {
     }
 
     public static HTMLBuilder documentationBuilder() {
-        return new HTMLBuilder(new ResourceLocation(Palladium.MOD_ID, "blocks"), "Blocks")
+        return new HTMLBuilder(Palladium.id("blocks"), "Blocks")
                 .add(HTMLBuilder.heading("Blocks"))
                 .add(HTMLBuilder.subHeading("Global Settings"))
                 .addDocumentation(getDefaultDocumentationBuilder())
@@ -99,7 +99,7 @@ public class BlockParser extends AddonParser<Block> {
 
         builder.addProperty("type", ResourceLocation.class)
                 .description("Block Type, each come with new different settings. Listed below on this page.")
-                .fallback(new ResourceLocation("palladium:default"));
+                .fallback(Palladium.id("default"));
         builder.addProperty("map_color", ResourceLocation.class)
                 .description("Determines the color displayed on maps. Possible values: " + Arrays.toString(BlockMaterialRegistry.getAllColorIds().toArray()))
                 .fallback(null).exampleJson(new JsonPrimitive("minecraft:color_blue"));
@@ -132,7 +132,7 @@ public class BlockParser extends AddonParser<Block> {
         return builder;
     }
 
-    public interface BlockTypeSerializer extends IDocumentedConfigurable {
+    public interface BlockTypeSerializer extends DocumentedConfigurable {
 
         IAddonBlock parse(JsonObject json, Block.Properties properties);
     }

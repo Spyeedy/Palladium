@@ -10,8 +10,9 @@ import net.threetag.palladium.accessory.*;
 import net.threetag.palladium.addonpack.builder.AccessoryBuilder;
 import net.threetag.palladium.addonpack.builder.AddonBuilder;
 import net.threetag.palladium.documentation.HTMLBuilder;
-import net.threetag.palladium.documentation.IDocumentedConfigurable;
+import net.threetag.palladium.documentation.DocumentedConfigurable;
 import net.threetag.palladium.documentation.JsonDocumentationBuilder;
+import net.threetag.palladium.registry.PalladiumRegistryKeys;
 import net.threetag.palladium.util.json.GsonUtil;
 
 import java.util.ArrayList;
@@ -24,7 +25,7 @@ public class AccessoryParser extends AddonParser<Accessory> {
     private static final Map<ResourceLocation, TypeSerializer> TYPE_SERIALIZERS = new LinkedHashMap<>();
 
     public AccessoryParser() {
-        super(GSON, "accessories", Accessory.REGISTRY.getRegistryKey());
+        super(GSON, "accessories", PalladiumRegistryKeys.ACCESSORY);
     }
 
     @Override
@@ -59,7 +60,7 @@ public class AccessoryParser extends AddonParser<Accessory> {
     }
 
     public static HTMLBuilder documentationBuilder() {
-        return new HTMLBuilder(new ResourceLocation(Palladium.MOD_ID, "accessories"), "Accessories")
+        return new HTMLBuilder(Palladium.id("accessories"), "Accessories")
                 .add(HTMLBuilder.heading("Accessories"))
                 .addDocumentationSettings(new ArrayList<>(TYPE_SERIALIZERS.values()));
     }
@@ -70,7 +71,7 @@ public class AccessoryParser extends AddonParser<Accessory> {
                 .required().exampleJson(new JsonPrimitive("palladium:head"));
     }
 
-    public interface TypeSerializer extends IDocumentedConfigurable {
+    public interface TypeSerializer extends DocumentedConfigurable {
 
         DefaultAccessory parse(JsonObject json);
 

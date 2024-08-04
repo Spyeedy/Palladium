@@ -1,18 +1,16 @@
 package net.threetag.palladium.command;
 
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
-import com.mojang.brigadier.suggestion.Suggestions;
 import com.mojang.brigadier.suggestion.SuggestionsBuilder;
 import net.minecraft.commands.arguments.selector.EntitySelectorParser;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.threetag.palladium.Palladium;
 import net.threetag.palladium.mixin.EntitySelectorOptionsInvoker;
-import net.threetag.palladium.power.PowerEventHandler;
+import net.threetag.palladium.registry.PalladiumRegistryKeys;
 import net.threetag.palladiumcore.util.Platform;
 
 import java.util.Locale;
-import java.util.concurrent.CompletableFuture;
 import java.util.function.Consumer;
 import java.util.function.Function;
 
@@ -34,16 +32,16 @@ public class PalladiumEntitySelectorOptions {
     }
 
     private static ResourceLocation parsePowerId(EntitySelectorParser parser) throws CommandSyntaxException {
-        var powers = PowerEventHandler.getInstance(Platform.isServer());
+        var registry = Platform.getCurrentServer().registryAccess().registryOrThrow(PalladiumRegistryKeys.POWER);
 
         parser.setSuggestions((builder, consumer) -> {
-            suggestIdentifiersIgnoringNamespace(Palladium.MOD_ID, powers.getIds(), builder);
+            suggestIdentifiersIgnoringNamespace(Palladium.MOD_ID, registry.keySet(), builder);
             return builder.buildFuture();
         });
         return ResourceLocation.read(parser.getReader());
     }
 
-    public static CompletableFuture<Suggestions> suggestIdentifiersIgnoringNamespace(String namespace, Iterable<ResourceLocation> candidates, SuggestionsBuilder builder) {
+    public static void suggestIdentifiersIgnoringNamespace(String namespace, Iterable<ResourceLocation> candidates, SuggestionsBuilder builder) {
         forEachMatchingIgnoringNamespace(
                 namespace,
                 candidates,
@@ -52,7 +50,7 @@ public class PalladiumEntitySelectorOptions {
                 id -> builder.suggest(String.valueOf(id))
         );
 
-        return builder.buildFuture();
+        builder.buildFuture();
     }
 
     public static <T> void forEachMatchingIgnoringNamespace(String namespace, Iterable<T> candidates, String string, Function<T, ResourceLocation> idFunc, Consumer<T> action) {

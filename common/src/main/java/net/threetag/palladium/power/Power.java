@@ -61,7 +61,11 @@ public class Power {
         this.energyBars = energyBars;
 
         for (Map.Entry<String, AbilityConfiguration> e : this.abilities.entrySet()) {
-            e.getValue().setId(e.getKey());
+            e.getValue().setKey(e.getKey());
+        }
+
+        for (Map.Entry<String, EnergyBarConfiguration> e : this.energyBars.entrySet()) {
+            e.getValue().setKey(e.getKey());
         }
     }
 

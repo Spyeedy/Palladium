@@ -3,16 +3,18 @@ package net.threetag.palladium.power.ability;
 import com.google.gson.JsonParseException;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
+import io.netty.buffer.ByteBuf;
 import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
+import net.minecraft.util.StringRepresentable;
 import net.threetag.palladium.condition.*;
 import net.threetag.palladium.util.CodecUtils;
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.Objects;
+import java.util.*;
+import java.util.stream.Collectors;
 
 public final class AbilityConditions {
 
@@ -213,10 +215,30 @@ public final class AbilityConditions {
         return Objects.hash(this.unlocking, this.enabling);
     }
 
-    public enum KeyType {
+    public enum KeyType implements StringRepresentable {
 
-        KEY_BIND, LEFT_CLICK, RIGHT_CLICK, SPACE_BAR, SCROLL_UP, SCROLL_DOWN, SCROLL_EITHER;
+        KEY_BIND("key_bind"),
+        LEFT_CLICK("left_click"),
+        RIGHT_CLICK("right_click"),
+        SPACE_BAR("space_bar"),
+        SCROLL_UP("scroll_up"),
+        SCROLL_DOWN("scroll_down"),
+        SCROLL_EITHER("scroll_either");
 
+        public static final Codec<KeyType> CODEC = StringRepresentable.fromEnum(KeyType::values);
+        public static final Codec<KeyType> CODEC_WITHOUT_SCROLLING = StringRepresentable.fromEnum(() -> Arrays.stream(values()).filter(kt -> !kt.name.contains("scroll")).toArray(KeyType[]::new));
+        public static final StreamCodec<ByteBuf, KeyType> STREAM_CODEC = ByteBufCodecs.VAR_INT.map(i -> KeyType.values()[i], Enum::ordinal);
+
+        private final String name;
+
+        KeyType(String name) {
+            this.name = name;
+        }
+
+        @Override
+        public @NotNull String getSerializedName() {
+            return this.name;
+        }
     }
 
     public enum KeyPressType {

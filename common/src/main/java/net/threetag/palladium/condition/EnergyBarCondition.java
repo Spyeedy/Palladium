@@ -1,25 +1,30 @@
 package net.threetag.palladium.condition;
 
-import com.google.gson.JsonObject;
-import net.minecraft.resources.ResourceLocation;
+import com.mojang.serialization.Codec;
+import com.mojang.serialization.MapCodec;
+import com.mojang.serialization.codecs.RecordCodecBuilder;
+import net.minecraft.network.RegistryFriendlyByteBuf;
+import net.minecraft.network.codec.ByteBufCodecs;
+import net.minecraft.network.codec.StreamCodec;
 import net.threetag.palladium.power.energybar.EnergyBar;
 import net.threetag.palladium.power.energybar.EnergyBarReference;
 import net.threetag.palladium.util.context.DataContext;
-import net.threetag.palladium.util.property.IntegerProperty;
-import net.threetag.palladium.util.property.PalladiumProperty;
-import net.threetag.palladium.util.property.ResourceLocationProperty;
-import net.threetag.palladium.util.property.StringProperty;
 
-public class EnergyBarCondition extends Condition {
+public record EnergyBarCondition(EnergyBarReference energyBar, int min, int max) implements Condition {
 
-    private final EnergyBarReference energyBar;
-    private final int min, max;
-
-    public EnergyBarCondition(EnergyBarReference energyBar, int min, int max) {
-        this.energyBar = energyBar;
-        this.min = min;
-        this.max = max;
-    }
+    public static final MapCodec<EnergyBarCondition> CODEC = RecordCodecBuilder.mapCodec(instance -> instance
+            .group(
+                    EnergyBarReference.CODEC.fieldOf("energy_bar").forGetter(EnergyBarCondition::energyBar),
+                    Codec.INT.optionalFieldOf("min", Integer.MIN_VALUE).forGetter(EnergyBarCondition::min),
+                    Codec.INT.optionalFieldOf("max", Integer.MAX_VALUE).forGetter(EnergyBarCondition::max)
+            ).apply(instance, EnergyBarCondition::new)
+    );
+    public static final StreamCodec<RegistryFriendlyByteBuf, EnergyBarCondition> STREAM_CODEC = StreamCodec.composite(
+            EnergyBarReference.STREAM_CODEC, EnergyBarCondition::energyBar,
+            ByteBufCodecs.VAR_INT, EnergyBarCondition::min,
+            ByteBufCodecs.VAR_INT, EnergyBarCondition::max,
+            EnergyBarCondition::new
+    );
 
     @Override
     public boolean active(DataContext context) {
@@ -34,36 +39,20 @@ public class EnergyBarCondition extends Condition {
     }
 
     @Override
-    public ConditionSerializer getSerializer() {
+    public ConditionSerializer<EnergyBarCondition> getSerializer() {
         return ConditionSerializers.ENERGY_BAR.get();
     }
 
-    public static class Serializer extends ConditionSerializer {
+    public static class Serializer extends ConditionSerializer<EnergyBarCondition> {
 
-        // TODO remove in 1.21
-        public static final PalladiumProperty<ResourceLocation> POWER = new ResourceLocationProperty("power").configurable("ID of the power where is the desired energy bar is located. Can be null IF used for abilities, then it will look into the current power");
-        public static final PalladiumProperty<String> ENERGY_BAR = new StringProperty("energy_bar").configurable("ID of the desired energy bar");
-        public static final PalladiumProperty<Integer> MIN = new IntegerProperty("min").configurable("Minimum required amount of the energy in the energy bar");
-        public static final PalladiumProperty<Integer> MAX = new IntegerProperty("max").configurable("Maximum required amount of the energy in the energy bar");
-
-        public Serializer() {
-            this.withProperty(POWER, null);
-            this.withProperty(ENERGY_BAR, "energy_bar_name");
-            this.withProperty(MIN, 0);
-            this.withProperty(MAX, Integer.MAX_VALUE);
+        @Override
+        public MapCodec<EnergyBarCondition> codec() {
+            return CODEC;
         }
 
         @Override
-        public Condition make(JsonObject json) {
-            EnergyBarReference energyBar = EnergyBarReference.fromString(this.getProperty(json, ENERGY_BAR));
-
-            if (this.getProperty(json, POWER) != null) {
-                energyBar = new EnergyBarReference(this.getProperty(json, POWER), this.getProperty(json, ENERGY_BAR));
-            }
-
-            return new EnergyBarCondition(energyBar,
-                    this.getProperty(json, MIN),
-                    this.getProperty(json, MAX));
+        public StreamCodec<RegistryFriendlyByteBuf, EnergyBarCondition> streamCodec() {
+            return STREAM_CODEC;
         }
 
         @Override

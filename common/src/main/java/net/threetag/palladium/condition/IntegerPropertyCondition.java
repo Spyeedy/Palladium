@@ -1,25 +1,34 @@
 package net.threetag.palladium.condition;
 
-import com.google.gson.JsonObject;
+import com.mojang.serialization.Codec;
+import com.mojang.serialization.MapCodec;
+import com.mojang.serialization.codecs.RecordCodecBuilder;
+import net.minecraft.network.RegistryFriendlyByteBuf;
+import net.minecraft.network.codec.ByteBufCodecs;
+import net.minecraft.network.codec.StreamCodec;
 import net.threetag.palladium.util.context.DataContext;
 import net.threetag.palladium.util.context.DataContextType;
 import net.threetag.palladium.util.property.EntityPropertyHandler;
-import net.threetag.palladium.util.property.IntegerProperty;
 import net.threetag.palladium.util.property.PalladiumProperty;
-import net.threetag.palladium.util.property.StringProperty;
+import net.threetag.palladium.util.property.PalladiumPropertyType;
 
 import java.util.concurrent.atomic.AtomicBoolean;
 
-public class IntegerPropertyCondition extends Condition {
+public record IntegerPropertyCondition(String propertyKey, int min, int max) implements Condition {
 
-    private final String propertyKey;
-    private final int min, max;
-
-    public IntegerPropertyCondition(String propertyKey, int min, int max) {
-        this.propertyKey = propertyKey;
-        this.min = min;
-        this.max = max;
-    }
+    public static final MapCodec<IntegerPropertyCondition> CODEC = RecordCodecBuilder.mapCodec(instance -> instance
+            .group(
+                    Codec.STRING.fieldOf("property").forGetter(IntegerPropertyCondition::propertyKey),
+                    Codec.INT.optionalFieldOf("min", Integer.MIN_VALUE).forGetter(IntegerPropertyCondition::min),
+                    Codec.INT.optionalFieldOf("max", Integer.MAX_VALUE).forGetter(IntegerPropertyCondition::max)
+            ).apply(instance, IntegerPropertyCondition::new)
+    );
+    public static final StreamCodec<RegistryFriendlyByteBuf, IntegerPropertyCondition> STREAM_CODEC = StreamCodec.composite(
+            ByteBufCodecs.STRING_UTF8, IntegerPropertyCondition::propertyKey,
+            ByteBufCodecs.VAR_INT, IntegerPropertyCondition::min,
+            ByteBufCodecs.VAR_INT, IntegerPropertyCondition::max,
+            IntegerPropertyCondition::new
+    );
 
     @Override
     public boolean active(DataContext context) {
@@ -33,8 +42,8 @@ public class IntegerPropertyCondition extends Condition {
 
         EntityPropertyHandler.getHandler(entity).ifPresent(handler -> {
             PalladiumProperty<?> property = handler.getPropertyByName(this.propertyKey);
-            if (property instanceof IntegerProperty integerProperty) {
-                int value = handler.get(integerProperty);
+            if (property.getType() == PalladiumPropertyType.INTEGER) {
+                int value = (int) handler.get(property);
                 result.set(value >= this.min && value <= this.max);
             }
         });
@@ -43,28 +52,20 @@ public class IntegerPropertyCondition extends Condition {
     }
 
     @Override
-    public ConditionSerializer getSerializer() {
+    public ConditionSerializer<IntegerPropertyCondition> getSerializer() {
         return ConditionSerializers.INTEGER_PROPERTY.get();
     }
 
-    public static class Serializer extends ConditionSerializer {
+    public static class Serializer extends ConditionSerializer<IntegerPropertyCondition> {
 
-        public static final PalladiumProperty<String> PROPERTY = new StringProperty("property").configurable("Name of the integer property in the entity");
-        public static final PalladiumProperty<Integer> MIN = new IntegerProperty("min").configurable("Minimum required amount of the property value");
-        public static final PalladiumProperty<Integer> MAX = new IntegerProperty("max").configurable("Maximum required amount of the property value");
-
-        public Serializer() {
-            this.withProperty(PROPERTY, "value");
-            this.withProperty(MIN, 0);
-            this.withProperty(MAX, 0);
+        @Override
+        public MapCodec<IntegerPropertyCondition> codec() {
+            return CODEC;
         }
 
         @Override
-        public Condition make(JsonObject json) {
-            return new IntegerPropertyCondition(
-                    this.getProperty(json, PROPERTY),
-                    this.getProperty(json, MIN),
-                    this.getProperty(json, MAX));
+        public StreamCodec<RegistryFriendlyByteBuf, IntegerPropertyCondition> streamCodec() {
+            return STREAM_CODEC;
         }
 
         @Override

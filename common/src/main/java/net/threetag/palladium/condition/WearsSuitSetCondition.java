@@ -1,19 +1,24 @@
 package net.threetag.palladium.condition;
 
-import com.google.gson.JsonObject;
-import net.threetag.palladium.util.context.DataContext;
-import net.threetag.palladium.util.context.DataContextType;
+import com.mojang.serialization.MapCodec;
+import com.mojang.serialization.codecs.RecordCodecBuilder;
+import net.minecraft.network.RegistryFriendlyByteBuf;
+import net.minecraft.network.codec.ByteBufCodecs;
+import net.minecraft.network.codec.StreamCodec;
 import net.threetag.palladium.item.SuitSet;
-import net.threetag.palladium.util.property.PalladiumProperty;
-import net.threetag.palladium.util.property.SuitSetPropertyPalladium;
+import net.threetag.palladium.registry.PalladiumRegistries;
+import net.threetag.palladium.registry.PalladiumRegistryKeys;
+import net.threetag.palladium.util.context.DataContext;
 
-public class WearsSuitSetCondition extends Condition {
+public record WearsSuitSetCondition(SuitSet suitSet) implements Condition {
 
-    public final SuitSet suitSet;
-
-    public WearsSuitSetCondition(SuitSet suitSet) {
-        this.suitSet = suitSet;
-    }
+    public static final MapCodec<WearsSuitSetCondition> CODEC = RecordCodecBuilder.mapCodec(instance -> instance
+            .group(PalladiumRegistries.SUIT_SET.byNameCodec().fieldOf("suit_set").forGetter(WearsSuitSetCondition::suitSet)
+            ).apply(instance, WearsSuitSetCondition::new)
+    );
+    public static final StreamCodec<RegistryFriendlyByteBuf, WearsSuitSetCondition> STREAM_CODEC = StreamCodec.composite(
+            ByteBufCodecs.registry(PalladiumRegistryKeys.SUIT_SET), WearsSuitSetCondition::suitSet, WearsSuitSetCondition::new
+    );
 
     @Override
     public boolean active(DataContext context) {
@@ -27,21 +32,20 @@ public class WearsSuitSetCondition extends Condition {
     }
 
     @Override
-    public ConditionSerializer getSerializer() {
+    public ConditionSerializer<WearsSuitSetCondition> getSerializer() {
         return ConditionSerializers.WEARS_SUIT_SET.get();
     }
 
-    public static class Serializer extends ConditionSerializer {
+    public static class Serializer extends ConditionSerializer<WearsSuitSetCondition> {
 
-        public static final PalladiumProperty<SuitSet> SUIT_SET = new SuitSetPropertyPalladium("suit_set").configurable("ID of the suit set that must be worn");
-
-        public Serializer() {
-            this.withProperty(SUIT_SET, null);
+        @Override
+        public MapCodec<WearsSuitSetCondition> codec() {
+            return CODEC;
         }
 
         @Override
-        public Condition make(JsonObject json) {
-            return new WearsSuitSetCondition(this.getProperty(json, SUIT_SET));
+        public StreamCodec<RegistryFriendlyByteBuf, WearsSuitSetCondition> streamCodec() {
+            return STREAM_CODEC;
         }
 
         @Override

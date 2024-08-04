@@ -25,13 +25,13 @@ public class FluxCrystalGeodeBlock extends Block {
             BlockPos blockPos = pos.relative(direction);
             Block block = null;
             if (canClusterGrowAtState(blockState)) {
-                block = PalladiumBlocks.SMALL_REDSTONE_FLUX_CRYSTAL_BUD.get();
-            } else if (blockState.is(PalladiumBlocks.SMALL_REDSTONE_FLUX_CRYSTAL_BUD.get()) && blockState.getValue(AmethystClusterBlock.FACING) == direction) {
-                block = PalladiumBlocks.MEDIUM_REDSTONE_FLUX_CRYSTAL_BUD.get();
-            } else if (blockState.is(PalladiumBlocks.MEDIUM_REDSTONE_FLUX_CRYSTAL_BUD.get()) && blockState.getValue(AmethystClusterBlock.FACING) == direction) {
-                block = PalladiumBlocks.LARGE_REDSTONE_FLUX_CRYSTAL_BUD.get();
-            } else if (blockState.is(PalladiumBlocks.LARGE_REDSTONE_FLUX_CRYSTAL_BUD.get()) && blockState.getValue(AmethystClusterBlock.FACING) == direction) {
-                block = PalladiumBlocks.REDSTONE_FLUX_CRYSTAL_CLUSTER.get();
+                block = PalladiumBlocks.SMALL_REDSTONE_FLUX_CRYSTAL_BUD.value();
+            } else if (blockState.is(PalladiumBlocks.SMALL_REDSTONE_FLUX_CRYSTAL_BUD.value()) && blockState.getValue(AmethystClusterBlock.FACING) == direction) {
+                block = PalladiumBlocks.MEDIUM_REDSTONE_FLUX_CRYSTAL_BUD.value();
+            } else if (blockState.is(PalladiumBlocks.MEDIUM_REDSTONE_FLUX_CRYSTAL_BUD.value()) && blockState.getValue(AmethystClusterBlock.FACING) == direction) {
+                block = PalladiumBlocks.LARGE_REDSTONE_FLUX_CRYSTAL_BUD.value();
+            } else if (blockState.is(PalladiumBlocks.LARGE_REDSTONE_FLUX_CRYSTAL_BUD.value()) && blockState.getValue(AmethystClusterBlock.FACING) == direction) {
+                block = PalladiumBlocks.REDSTONE_FLUX_CRYSTAL_CLUSTER.value();
             }
 
             if (block != null) {

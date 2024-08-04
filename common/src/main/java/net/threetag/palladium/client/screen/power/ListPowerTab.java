@@ -8,12 +8,14 @@ import net.minecraft.client.gui.narration.NarrationElementOutput;
 import net.minecraft.locale.Language;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.Mth;
+import net.threetag.palladium.Palladium;
 import net.threetag.palladium.client.dynamictexture.TextureReference;
-import net.threetag.palladium.network.RequestAbilityBuyScreenMessage;
-import net.threetag.palladium.power.IPowerHolder;
+import net.threetag.palladium.network.RequestAbilityBuyScreenPacket;
+import net.threetag.palladium.power.PowerHolder;
 import net.threetag.palladium.power.ability.Ability;
 import net.threetag.palladium.power.ability.AbilityInstance;
 import net.threetag.palladium.util.context.DataContext;
+import net.threetag.palladiumcore.network.NetworkManager;
 import org.jetbrains.annotations.Nullable;
 
 public class ListPowerTab extends PowerTab {
@@ -21,7 +23,7 @@ public class ListPowerTab extends PowerTab {
     private AbilityList list;
     private AbilityInstance hovered;
 
-    protected ListPowerTab(Minecraft minecraft, PowersScreen screen, PowerTabType type, int tabIndex, IPowerHolder powerHolder) {
+    protected ListPowerTab(Minecraft minecraft, PowersScreen screen, PowerTabType type, int tabIndex, PowerHolder powerHolder) {
         super(minecraft, screen, type, tabIndex, powerHolder);
     }
 
@@ -57,7 +59,7 @@ public class ListPowerTab extends PowerTab {
     @Override
     public void drawContents(GuiGraphics guiGraphics, int x, int y, int mouseX, int mouseY, float partialTick) {
         TextureReference backgroundTexture = this.powerHolder.getPower().getBackground();
-        var texture = backgroundTexture != null ? backgroundTexture.getTexture(DataContext.forPower(minecraft.player, this.powerHolder)) : new ResourceLocation("textures/block/red_wool.png");
+        var texture = backgroundTexture != null ? backgroundTexture.getTexture(DataContext.forPower(minecraft.player, this.powerHolder)) : ResourceLocation.withDefaultNamespace("textures/block/red_wool.png");
 
         for (int m = -1; m <= 13; ++m) {
             for (int n = -1; n <= 9; ++n) {
@@ -92,7 +94,7 @@ public class ListPowerTab extends PowerTab {
     }
 
     @Nullable
-    public static ListPowerTab create(Minecraft minecraft, PowersScreen screen, int tabIndex, IPowerHolder powerHolder) {
+    public static ListPowerTab create(Minecraft minecraft, PowersScreen screen, int tabIndex, PowerHolder powerHolder) {
         PowerTabType[] tabTypes = PowerTabType.values();
 
         for (PowerTabType tabType : tabTypes) {
@@ -112,17 +114,21 @@ public class ListPowerTab extends PowerTab {
         private final int listWidth;
 
         public AbilityList(Minecraft minecraft, ListPowerTab screen, int width, int height, int x, int y, int itemHeight) {
-            super(minecraft, width, height, y, y + height, itemHeight);
-            this.setLeftPos(x);
+            super(minecraft, width, height, y, itemHeight);
+            this.setPosition(x, y);
             this.populate(screen.powerHolder);
-            this.setRenderBackground(false);
-            this.setRenderTopAndBottom(false);
-            this.setRenderSelection(false);
+            this.setRenderHeader(false, 0);
+//            this.setRenderSelection(false);
             this.parent = screen;
             this.listWidth = width;
         }
 
-        public void populate(IPowerHolder powerHolder) {
+        @Override
+        protected void renderListBackground(GuiGraphics guiGraphics) {
+
+        }
+
+        public void populate(PowerHolder powerHolder) {
             this.clearEntries();
 
             for (AbilityInstance ability : powerHolder.getAbilities().values()) {
@@ -139,11 +145,11 @@ public class ListPowerTab extends PowerTab {
 
         @Override
         protected int getScrollbarPosition() {
-            return this.x0 + this.listWidth - 9;
+            return this.getX() + this.listWidth - 9;
         }
 
         @Override
-        public void updateNarration(NarrationElementOutput narrationElementOutput) {
+        protected void updateWidgetNarration(NarrationElementOutput narrationElementOutput) {
 
         }
     }
@@ -171,7 +177,7 @@ public class ListPowerTab extends PowerTab {
             } else {
                 RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
                 guiGraphics.blit(PowersScreen.WIDGETS, left + 5, top + 5, 90, 83, 16, 16);
-                if (this.abilityInstance.getConfiguration().isBuyable()) {
+                if (this.abilityInstance.getConfiguration().getConditions().isBuyable()) {
                     guiGraphics.blit(PowersScreen.WIDGETS, left + 14, top + 16, 106, 83, 7, 7);
                 }
             }
@@ -186,8 +192,8 @@ public class ListPowerTab extends PowerTab {
 
         @Override
         public boolean mouseClicked(double mouseX, double mouseY, int button) {
-            if (this.abilityInstance.getConfiguration().isBuyable()) {
-                new RequestAbilityBuyScreenMessage(this.abilityInstance.getReference()).send();
+            if (this.abilityInstance.getConfiguration().getConditions().isBuyable()) {
+                NetworkManager.get().sendToServer(new RequestAbilityBuyScreenPacket(this.abilityInstance.getReference()));
             }
             return true;
         }

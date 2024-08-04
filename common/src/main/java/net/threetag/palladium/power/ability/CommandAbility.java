@@ -6,7 +6,6 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.level.block.Blocks;
-import net.threetag.palladium.power.IPowerHolder;
 import net.threetag.palladium.util.icon.ItemIcon;
 import net.threetag.palladium.util.property.CommandFunctionProperty;
 import net.threetag.palladium.util.property.PalladiumProperty;

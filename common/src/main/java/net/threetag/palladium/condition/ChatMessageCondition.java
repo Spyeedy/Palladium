@@ -3,14 +3,10 @@ package net.threetag.palladium.condition;
 import net.minecraft.world.entity.LivingEntity;
 import net.threetag.palladium.power.PowerEventHandler;
 import net.threetag.palladium.power.ability.AbilityInstance;
-import net.threetag.palladium.util.property.PalladiumProperty;
-import net.threetag.palladium.util.property.StringProperty;
 
 import java.util.Locale;
 
-public abstract class ChatMessageCondition extends Condition {
-
-    public static final PalladiumProperty<String> CHAT_MESSAGE = new StringProperty("chat_message").configurable("The chat message to look for, will check case insensitive.");
+public abstract class ChatMessageCondition implements Condition {
 
     public final String chatMessage;
     public final int cooldown;
@@ -19,6 +15,14 @@ public abstract class ChatMessageCondition extends Condition {
         this.chatMessage = chatMessage;
         this.cooldown = cooldown;
         PowerEventHandler.CHECK_FOR_CHAT_MESSAGES.add(chatMessage.trim().toLowerCase(Locale.ROOT));
+    }
+
+    public String getChatMessage() {
+        return chatMessage;
+    }
+
+    public int getCooldown() {
+        return cooldown;
     }
 
     public abstract void onChat(LivingEntity entity, AbilityInstance entry);

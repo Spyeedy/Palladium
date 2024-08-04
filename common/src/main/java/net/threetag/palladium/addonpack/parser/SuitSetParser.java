@@ -11,12 +11,13 @@ import net.threetag.palladium.addonpack.AddonPackManager;
 import net.threetag.palladium.addonpack.builder.AddonBuilder;
 import net.threetag.palladium.addonpack.builder.SuitSetBuilder;
 import net.threetag.palladium.item.SuitSet;
+import net.threetag.palladium.registry.PalladiumRegistryKeys;
 import net.threetag.palladium.util.json.GsonUtil;
 
 public class SuitSetParser extends AddonParser<SuitSet> {
 
     public SuitSetParser() {
-        super(AddonParser.GSON, "suit_sets", SuitSet.REGISTRY.getRegistryKey());
+        super(AddonParser.GSON, "suit_sets", PalladiumRegistryKeys.SUIT_SET);
     }
 
     @Override
@@ -32,7 +33,7 @@ public class SuitSetParser extends AddonParser<SuitSet> {
             GsonUtil.ifHasObject(jsonElement.getAsJsonObject(), slot.getName(), jsonObject -> {
                 JsonObject json = GsonUtil.merge(copy, jsonObject);
 
-                if (slot.getType() == EquipmentSlot.Type.ARMOR) {
+                if (slot.getType() == EquipmentSlot.Type.HUMANOID_ARMOR) {
                     if (!GsonHelper.isValidNode(json, "type")) {
                         json.addProperty("type", "palladium:armor");
                     }
@@ -47,7 +48,7 @@ public class SuitSetParser extends AddonParser<SuitSet> {
                 }
 
                 String name = GsonHelper.isValidNode(json, "item_name") ? GsonHelper.getAsString(json, "item_name") : id.getPath() + "_" + slot.getName();
-                var itemBuilder = AddonPackManager.ITEM_PARSER.parse(new ResourceLocation(id.getNamespace(), name), json);
+                var itemBuilder = AddonPackManager.ITEM_PARSER.parse(ResourceLocation.fromNamespaceAndPath(id.getNamespace(), name), json);
 
                 if (slot == EquipmentSlot.MAINHAND)
                     builder.mainHand(itemBuilder);

@@ -5,6 +5,8 @@ import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.network.RegistryFriendlyByteBuf;
+import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
@@ -18,6 +20,9 @@ public class ItemIcon implements Icon {
     public static final MapCodec<ItemIcon> CODEC = RecordCodecBuilder.mapCodec((instance) -> instance
             .group(ItemStack.CODEC.fieldOf("item").forGetter(ItemIcon::getItem))
             .apply(instance, ItemIcon::new));
+    public static final StreamCodec<RegistryFriendlyByteBuf, ItemIcon> STREAM_CODEC = StreamCodec.composite(
+            ItemStack.STREAM_CODEC, ItemIcon::getItem, ItemIcon::new
+    );
 
     public final ItemStack stack;
 
@@ -74,6 +79,11 @@ public class ItemIcon implements Icon {
         @Override
         public MapCodec<ItemIcon> codec() {
             return CODEC;
+        }
+
+        @Override
+        public StreamCodec<RegistryFriendlyByteBuf, ItemIcon> streamCodec() {
+            return STREAM_CODEC;
         }
 
         @Override

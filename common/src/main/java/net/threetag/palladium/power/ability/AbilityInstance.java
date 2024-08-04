@@ -1,24 +1,27 @@
 package net.threetag.palladium.power.ability;
 
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.LivingEntity;
 import net.threetag.palladium.condition.Condition;
 import net.threetag.palladium.condition.CooldownType;
-import net.threetag.palladium.network.SyncAbilityEntryPropertyMessage;
-import net.threetag.palladium.network.SyncAbilityStateMessage;
+import net.threetag.palladium.network.SyncAbilityInstancePropertyPacket;
+import net.threetag.palladium.network.SyncAbilityStatePacket;
+import net.threetag.palladium.power.PowerHolder;
 import net.threetag.palladium.power.energybar.EnergyBarUsage;
-import net.threetag.palladium.power.IPowerHolder;
 import net.threetag.palladium.util.context.DataContext;
 import net.threetag.palladium.util.property.PalladiumProperty;
+import net.threetag.palladium.util.property.PalladiumPropertyValue;
 import net.threetag.palladium.util.property.PropertyManager;
 import net.threetag.palladium.util.property.SyncOption;
+import net.threetag.palladiumcore.network.NetworkManager;
 import org.jetbrains.annotations.Nullable;
 
 public class AbilityInstance {
 
     private final AbilityConfiguration abilityConfiguration;
-    private final IPowerHolder holder;
+    private final PowerHolder holder;
     private boolean unlocked = false;
     private boolean enabled = false;
     public boolean keyPressed = false;
@@ -27,15 +30,15 @@ public class AbilityInstance {
     private int lifetime = 0;
     private int prevEnabledTicks = 0;
     private int enabledTicks = 0;
-    public String id;
+    public AbilityReference reference;
     private final PropertyManager propertyManager = new PropertyManager().setListener(new PropertyManager.Listener() {
         @Override
-        public <T> void onChanged(PalladiumProperty<T> property, T oldValue, T newValue) {
+        public <T> void onChanged(PalladiumProperty<T> property, PalladiumPropertyValue<T> valueHolder, T oldValue, T newValue) {
             syncProperty(property, holder.getEntity(), null);
         }
     });
 
-    public AbilityInstance(AbilityConfiguration abilityConfiguration, IPowerHolder holder) {
+    public AbilityInstance(AbilityConfiguration abilityConfiguration, PowerHolder holder, AbilityReference reference) {
         this.abilityConfiguration = abilityConfiguration;
         this.holder = holder;
         this.abilityConfiguration.getAbility().registerUniqueProperties(this.propertyManager);
@@ -48,15 +51,15 @@ public class AbilityInstance {
     }
 
     public PropertyManager getPropertyManager() {
-        return propertyManager;
+        return this.propertyManager;
     }
 
-    public IPowerHolder getHolder() {
-        return holder;
+    public PowerHolder getHolder() {
+        return this.holder;
     }
 
     public AbilityReference getReference() {
-        return new AbilityReference(this.holder.getPower().getId(), this.id);
+        return this.reference;
     }
 
     @SuppressWarnings({"unchecked", "rawtypes", "UnnecessaryLocalVariable"})
@@ -66,13 +69,11 @@ public class AbilityInstance {
                 syncOption = property.getSyncType();
             }
 
-            CompoundTag tag = new CompoundTag();
             PalladiumProperty property1 = property;
-            tag.put(property.getKey(), property1.toNBT(this.propertyManager.get(property)));
             if (syncOption == SyncOption.EVERYONE) {
-                new SyncAbilityEntryPropertyMessage(entity.getId(), new AbilityReference(holder.getPower().getId(), abilityConfiguration.getId()), property.getKey(), tag).sendToDimension(entity.level());
+                NetworkManager.get().sendToPlayersInDimension((ServerLevel) entity.level(), new SyncAbilityInstancePropertyPacket(entity.getId(), this.reference, this.propertyManager.getHolder(property1)));
             } else if (syncOption == SyncOption.SELF && entity instanceof ServerPlayer serverPlayer) {
-                new SyncAbilityEntryPropertyMessage(entity.getId(), new AbilityReference(holder.getPower().getId(), abilityConfiguration.getId()), property.getKey(), tag).send(serverPlayer);
+                NetworkManager.get().sendToPlayer(serverPlayer, new SyncAbilityInstancePropertyPacket(entity.getId(), this.reference, this.propertyManager.getHolder(property1)));
             }
         }
     }
@@ -86,7 +87,7 @@ public class AbilityInstance {
     }
 
     public boolean isOnCooldown() {
-        return this.getConfiguration().getCooldownType() == CooldownType.STATIC ? this.cooldown > 0 : this.cooldown < this.maxCooldown;
+        return this.getConfiguration().getConditions().getCooldownType() == CooldownType.STATIC ? this.cooldown > 0 : this.cooldown < this.maxCooldown;
     }
 
     public int getEnabledTicks() {
@@ -97,7 +98,7 @@ public class AbilityInstance {
         return this.prevEnabledTicks;
     }
 
-    public void setClientState(LivingEntity entity, IPowerHolder powerHolder, boolean unlocked, boolean enabled, int maxCooldown, int cooldown, int maxActivationTimer, int activationTimer) {
+    public void setClientState(LivingEntity entity, PowerHolder powerHolder, boolean unlocked, boolean enabled, int maxCooldown, int cooldown, int maxActivationTimer, int activationTimer) {
         this.unlocked = unlocked;
         this.maxCooldown = maxCooldown;
         this.cooldown = cooldown;
@@ -115,19 +116,19 @@ public class AbilityInstance {
         }
     }
 
-    public void tick(LivingEntity entity, IPowerHolder powerHolder) {
+    public void tick(LivingEntity entity, PowerHolder powerHolder) {
         this.prevEnabledTicks = this.enabledTicks;
 
         if (!entity.level().isClientSide) {
             if (this.lifetime == 0) {
-                this.abilityConfiguration.getUnlockingConditions().forEach(condition -> condition.init(entity, this, this.propertyManager));
-                this.abilityConfiguration.getEnablingConditions().forEach(condition -> condition.init(entity, this, this.propertyManager));
+                this.abilityConfiguration.getConditions().getUnlockingConditions().forEach(condition -> condition.init(entity, this, this.propertyManager));
+                this.abilityConfiguration.getConditions().getEnablingConditions().forEach(condition -> condition.init(entity, this, this.propertyManager));
             }
 
             boolean unlocked = true;
             boolean sync = false;
 
-            for (Condition unlockingCondition : this.abilityConfiguration.getUnlockingConditions()) {
+            for (Condition unlockingCondition : this.abilityConfiguration.getConditions().getUnlockingConditions()) {
                 if (!unlockingCondition.active(DataContext.forAbility(entity, this))) {
                     unlocked = false;
                     break;
@@ -146,7 +147,7 @@ public class AbilityInstance {
             boolean enabled = this.unlocked;
 
             if (this.unlocked) {
-                for (Condition enablingCondition : this.abilityConfiguration.getEnablingConditions()) {
+                for (Condition enablingCondition : this.abilityConfiguration.getConditions().getEnablingConditions()) {
                     if (!enablingCondition.active(DataContext.forAbility(entity, this))) {
                         enabled = false;
                         break;
@@ -187,11 +188,11 @@ public class AbilityInstance {
             this.enabledTicks--;
         }
 
-        if (this.abilityConfiguration.getCooldownType() == CooldownType.STATIC) {
+        if (this.abilityConfiguration.getConditions().getCooldownType() == CooldownType.STATIC) {
             if (this.cooldown > 0) {
                 this.cooldown--;
             }
-        } else if (this.abilityConfiguration.getCooldownType() == CooldownType.DYNAMIC) {
+        } else if (this.abilityConfiguration.getConditions().getCooldownType() == CooldownType.DYNAMIC) {
             if (this.isEnabled() && this.cooldown > 0) {
                 this.cooldown--;
             } else if (!this.isEnabled() && this.cooldown < this.maxCooldown) {
@@ -211,8 +212,8 @@ public class AbilityInstance {
         getSyncStateMessage(entity).sendToDimension(entity.level());
     }
 
-    public SyncAbilityStateMessage getSyncStateMessage(LivingEntity entity) {
-        return new SyncAbilityStateMessage(entity.getId(), this.getReference(), this.unlocked, this.enabled, this.maxCooldown, this.cooldown, this.maxActivationTimer, this.activationTimer);
+    public SyncAbilityStatePacket getSyncStateMessage(LivingEntity entity) {
+        return new SyncAbilityStatePacket(entity.getId(), this.getReference(), this.unlocked, this.enabled, this.maxCooldown, this.cooldown, this.maxActivationTimer, this.activationTimer);
     }
 
     public void startCooldown(LivingEntity entity, int cooldown) {
@@ -226,7 +227,7 @@ public class AbilityInstance {
     }
 
     public void keyPressed(LivingEntity entity, boolean pressed) {
-        for (Condition condition : this.getConfiguration().getUnlockingConditions()) {
+        for (Condition condition : this.getConfiguration().getConditions().getUnlockingConditions()) {
             if (condition.needsKey()) {
                 if (pressed) {
                     condition.onKeyPressed(entity, this, holder.getPower(), holder);
@@ -237,7 +238,7 @@ public class AbilityInstance {
             }
         }
 
-        for (Condition condition : this.getConfiguration().getEnablingConditions()) {
+        for (Condition condition : this.getConfiguration().getConditions().getEnablingConditions()) {
             if (condition.needsKey()) {
                 if (pressed) {
                     condition.onKeyPressed(entity, this, holder.getPower(), holder);
@@ -273,7 +274,7 @@ public class AbilityInstance {
         PalladiumProperty property = this.getPropertyManager().getPropertyByName(key);
 
         if (property != null) {
-            this.setUniqueProperty(property, PalladiumProperty.fixValues(property, value));
+            this.setUniqueProperty(property, value);
             return true;
         }
 

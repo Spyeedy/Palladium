@@ -1,20 +1,23 @@
 package net.threetag.palladium.condition;
 
-import com.google.gson.JsonObject;
+import com.mojang.serialization.MapCodec;
+import com.mojang.serialization.codecs.RecordCodecBuilder;
+import net.minecraft.network.RegistryFriendlyByteBuf;
+import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.resources.ResourceLocation;
+import net.threetag.palladium.power.EntityPowerHandler;
+import net.threetag.palladium.power.PowerUtil;
 import net.threetag.palladium.util.context.DataContext;
-import net.threetag.palladium.power.IPowerHandler;
-import net.threetag.palladium.power.PowerEventHandler;
-import net.threetag.palladium.util.property.PalladiumProperty;
-import net.threetag.palladium.util.property.ResourceLocationProperty;
 
-public class HasPowerCondition extends Condition {
+public record HasPowerCondition(ResourceLocation powerId) implements Condition {
 
-    public final ResourceLocation powerId;
-
-    public HasPowerCondition(ResourceLocation powerId) {
-        this.powerId = powerId;
-    }
+    public static final MapCodec<HasPowerCondition> CODEC = RecordCodecBuilder.mapCodec(instance -> instance
+            .group(ResourceLocation.CODEC.fieldOf("power").forGetter(HasPowerCondition::powerId)
+            ).apply(instance, HasPowerCondition::new)
+    );
+    public static final StreamCodec<RegistryFriendlyByteBuf, HasPowerCondition> STREAM_CODEC = StreamCodec.composite(
+            ResourceLocation.STREAM_CODEC, HasPowerCondition::powerId, HasPowerCondition::new
+    );
 
     @Override
     public boolean active(DataContext context) {
@@ -24,26 +27,25 @@ public class HasPowerCondition extends Condition {
             return false;
         }
 
-        IPowerHandler handler = PowerEventHandler.getPowerHandler(entity).orElse(null);
+        EntityPowerHandler handler = PowerUtil.getPowerHandler(entity).orElse(null);
         return handler != null && handler.getPowerHolders().containsKey(this.powerId);
     }
 
     @Override
-    public ConditionSerializer getSerializer() {
+    public ConditionSerializer<HasPowerCondition> getSerializer() {
         return ConditionSerializers.HAS_POWER.get();
     }
 
-    public static class Serializer extends ConditionSerializer {
+    public static class Serializer extends ConditionSerializer<HasPowerCondition> {
 
-        public static final PalladiumProperty<ResourceLocation> POWER = new ResourceLocationProperty("power").configurable("ID of the power that is required");
-
-        public Serializer() {
-            this.withProperty(POWER, new ResourceLocation("example:power_id"));
+        @Override
+        public MapCodec<HasPowerCondition> codec() {
+            return CODEC;
         }
 
         @Override
-        public Condition make(JsonObject json) {
-            return new HasPowerCondition(this.getProperty(json, POWER));
+        public StreamCodec<RegistryFriendlyByteBuf, HasPowerCondition> streamCodec() {
+            return STREAM_CODEC;
         }
 
         @Override

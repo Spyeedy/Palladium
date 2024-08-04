@@ -36,7 +36,7 @@ public class CuriosPowerProvider extends PowerProvider {
         });
     }
 
-    public record Validator(Item item, String slot) implements IPowerValidator {
+    public record Validator(Item item, String slot) implements PowerValidator {
 
         @Override
         public boolean stillValid(LivingEntity entity, Power power) {

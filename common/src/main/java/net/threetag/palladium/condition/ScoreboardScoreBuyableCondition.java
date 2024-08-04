@@ -1,16 +1,36 @@
 package net.threetag.palladium.condition;
 
-import com.google.gson.JsonObject;
+import com.mojang.serialization.Codec;
+import com.mojang.serialization.MapCodec;
+import com.mojang.serialization.codecs.RecordCodecBuilder;
+import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.ComponentSerialization;
+import net.minecraft.network.codec.ByteBufCodecs;
+import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.item.Items;
 import net.threetag.palladium.power.ability.AbilityConfiguration;
+import net.threetag.palladium.util.ScoreboardUtil;
 import net.threetag.palladium.util.icon.Icon;
-import net.threetag.palladium.util.icon.ItemIcon;
-import net.threetag.palladium.util.property.*;
 
 public class ScoreboardScoreBuyableCondition extends BuyableCondition {
+
+    public static final MapCodec<ScoreboardScoreBuyableCondition> CODEC = RecordCodecBuilder.mapCodec(instance -> instance
+            .group(
+                    Codec.STRING.fieldOf("objective").forGetter(ScoreboardScoreBuyableCondition::getObjective),
+                    Codec.intRange(1, Integer.MAX_VALUE).fieldOf("score").forGetter(ScoreboardScoreBuyableCondition::getAmount),
+                    Icon.CODEC.fieldOf("icon").forGetter(ScoreboardScoreBuyableCondition::getIcon),
+                    ComponentSerialization.CODEC.fieldOf("description").forGetter(ScoreboardScoreBuyableCondition::getDescription)
+            ).apply(instance, ScoreboardScoreBuyableCondition::new)
+    );
+    public static final StreamCodec<RegistryFriendlyByteBuf, ScoreboardScoreBuyableCondition> STREAM_CODEC = StreamCodec.composite(
+            ByteBufCodecs.STRING_UTF8, ScoreboardScoreBuyableCondition::getObjective,
+            ByteBufCodecs.VAR_INT, ScoreboardScoreBuyableCondition::getAmount,
+            Icon.STREAM_CODEC, ScoreboardScoreBuyableCondition::getIcon,
+            ComponentSerialization.STREAM_CODEC, ScoreboardScoreBuyableCondition::getDescription,
+            ScoreboardScoreBuyableCondition::new
+    );
 
     private final String objective;
     private final int amount;
@@ -24,6 +44,22 @@ public class ScoreboardScoreBuyableCondition extends BuyableCondition {
         this.description = description;
     }
 
+    public String getObjective() {
+        return objective;
+    }
+
+    public int getAmount() {
+        return amount;
+    }
+
+    public Icon getIcon() {
+        return icon;
+    }
+
+    public Component getDescription() {
+        return description;
+    }
+
     @Override
     public AbilityConfiguration.UnlockData createData() {
         return new AbilityConfiguration.UnlockData(this.icon, this.amount, this.description);
@@ -32,8 +68,8 @@ public class ScoreboardScoreBuyableCondition extends BuyableCondition {
     @Override
     public boolean isAvailable(LivingEntity entity) {
         if (entity instanceof Player player) {
-            var objective = player.getScoreboard().getObjective(this.objective);
-            return objective != null && player.getScoreboard().getOrCreatePlayerScore(player.getScoreboardName(), objective).getScore() >= this.amount;
+            int score = ScoreboardUtil.getScore(player, this.objective);
+            return score >= this.amount;
         }
 
         return false;
@@ -42,15 +78,11 @@ public class ScoreboardScoreBuyableCondition extends BuyableCondition {
     @Override
     public boolean takeFromEntity(LivingEntity entity) {
         if (entity instanceof Player player) {
-            var objective = player.getScoreboard().getObjective(this.objective);
+            int score = ScoreboardUtil.getScore(player, this.objective);
 
-            if(objective != null) {
-                var score = player.getScoreboard().getOrCreatePlayerScore(player.getScoreboardName(), objective);
-
-                if(score.getScore() >= this.amount) {
-                    score.setScore(score.getScore() - this.amount);
-                    return true;
-                }
+            if (score >= this.amount) {
+                ScoreboardUtil.setScore(player, this.objective, score - this.amount);
+                return true;
             }
         }
 
@@ -58,32 +90,25 @@ public class ScoreboardScoreBuyableCondition extends BuyableCondition {
     }
 
     @Override
-    public ConditionSerializer getSerializer() {
+    public ConditionSerializer<ScoreboardScoreBuyableCondition> getSerializer() {
         return ConditionSerializers.SCOREBOARD_SCORE_BUYABLE.get();
     }
 
-    public static class Serializer extends ConditionSerializer {
+    public static class Serializer extends ConditionSerializer<ScoreboardScoreBuyableCondition> {
 
-        public static final PalladiumProperty<String> OBJECTIVE = new StringProperty("objective").configurable("Name of the scoreboard objective");
-        public static final PalladiumProperty<Integer> SCORE = new IntegerProperty("score").configurable("Required player score for the scoreboard objective");
-        public static final PalladiumProperty<Icon> ICON = new IconProperty("icon").configurable("Icon that will be displayed during buying");
-        public static final PalladiumProperty<Component> DESCRIPTION = new ComponentProperty("description").configurable("Name of the score that will be displayed during buying");
+        @Override
+        public MapCodec<ScoreboardScoreBuyableCondition> codec() {
+            return CODEC;
+        }
 
-        public Serializer() {
-            this.withProperty(OBJECTIVE, "objective_name");
-            this.withProperty(SCORE, 3);
-            this.withProperty(ICON, new ItemIcon(Items.COMMAND_BLOCK));
-            this.withProperty(DESCRIPTION, Component.literal("Scoreboard Score"));
+        @Override
+        public StreamCodec<RegistryFriendlyByteBuf, ScoreboardScoreBuyableCondition> streamCodec() {
+            return STREAM_CODEC;
         }
 
         @Override
         public ConditionEnvironment getContextEnvironment() {
             return ConditionEnvironment.DATA;
-        }
-
-        @Override
-        public Condition make(JsonObject json) {
-            return new ScoreboardScoreBuyableCondition(getProperty(json, OBJECTIVE), getProperty(json, SCORE), getProperty(json, ICON), getProperty(json, DESCRIPTION));
         }
 
         @Override
