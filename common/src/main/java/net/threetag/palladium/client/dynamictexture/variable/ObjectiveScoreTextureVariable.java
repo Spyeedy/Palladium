@@ -7,6 +7,7 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.GsonHelper;
 import net.threetag.palladium.Palladium;
 import net.threetag.palladium.documentation.JsonDocumentationBuilder;
+import net.threetag.palladium.util.ScoreboardUtil;
 import net.threetag.palladium.util.context.DataContext;
 
 import java.util.List;
@@ -22,20 +23,8 @@ public class ObjectiveScoreTextureVariable extends AbstractIntegerTextureVariabl
 
     @Override
     public int getNumber(DataContext context) {
-        var level = context.getLevel();
         var entity = context.getEntity();
-
-        if(level != null && entity != null) {
-            var objective = level.getScoreboard().getObjective(this.objectiveName);
-
-            if(objective != null) {
-                if (level.getScoreboard().hasPlayerScore(entity.getScoreboardName(), objective)) {
-                    return level.getScoreboard().getOrCreatePlayerScore(entity.getScoreboardName(), objective).getScore();
-                }
-            }
-        }
-
-        return 0;
+        return ScoreboardUtil.getScore(entity, this.objectiveName);
     }
 
     public static class Serializer implements TextureVariableSerializer {

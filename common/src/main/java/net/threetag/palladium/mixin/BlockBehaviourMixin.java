@@ -10,7 +10,7 @@ import net.minecraft.world.level.block.LiquidBlockContainer;
 import net.minecraft.world.level.block.state.BlockBehaviour;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.shapes.*;
-import net.threetag.palladium.power.ability.Abilities;
+import net.threetag.palladium.power.ability.AbilitySerializers;
 import net.threetag.palladium.power.ability.AbilityUtil;
 import net.threetag.palladium.power.ability.FluidWalkingAbility;
 import org.spongepowered.asm.mixin.Mixin;
@@ -37,7 +37,7 @@ public abstract class BlockBehaviourMixin {
         var state = this.asState();
 
         if (state.getBlock() instanceof LiquidBlockContainer && state.getFluidState().is(FluidTags.WATER)) {
-            if (context instanceof EntityCollisionContext entityCollisionContext && entityCollisionContext.getEntity() instanceof LivingEntity living && AbilityUtil.isTypeEnabled(living, Abilities.WATER_WALK.get())) {
+            if (context instanceof EntityCollisionContext entityCollisionContext && entityCollisionContext.getEntity() instanceof LivingEntity living && AbilityUtil.isTypeEnabled(living, AbilitySerializers.WATER_WALK.get())) {
                 cir.setReturnValue(Shapes.join(cir.getReturnValue(), palladium$SHAPES.computeIfAbsent(15, i -> Block.box(0.0, 0.0, 0.0, 16.0, i, 16.0)), BooleanOp.OR));
             }
         } else if (state.getBlock() instanceof LiquidBlock && !state.getFluidState().isEmpty()) {

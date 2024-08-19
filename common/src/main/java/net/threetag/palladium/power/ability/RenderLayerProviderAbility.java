@@ -9,6 +9,6 @@ import net.threetag.palladium.client.renderer.renderlayer.PackRenderLayerManager
 public interface RenderLayerProviderAbility {
 
     @Environment(EnvType.CLIENT)
-    IPackRenderLayer getRenderLayer(AbilityInstance entry, LivingEntity entity, PackRenderLayerManager manager);
+    IPackRenderLayer getRenderLayer(AbilityInstance instance, LivingEntity entity, PackRenderLayerManager manager);
 
 }

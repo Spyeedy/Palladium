@@ -4,6 +4,7 @@ import com.mojang.authlib.GameProfile;
 import com.mojang.datafixers.util.Pair;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.player.AbstractClientPlayer;
+import net.minecraft.client.resources.PlayerSkin;
 import net.minecraft.resources.ResourceLocation;
 import net.threetag.palladium.power.ability.SkinChangeAbility;
 import net.threetag.palladium.util.PlayerModelChangeType;
@@ -16,38 +17,30 @@ public class PlayerSkinHandler {
 
     private static final List<Pair<Integer, SkinProvider>> PROVIDER = new ArrayList<>();
 
-    public static ResourceLocation getCurrentSkin(GameProfile gameProfile, ResourceLocation defaultSkin) {
+    public static PlayerSkin getCurrentSkin(GameProfile gameProfile, PlayerSkin original) {
+        if (PROVIDER.isEmpty()) {
+            return original;
+        }
+
         AbstractClientPlayer player = (AbstractClientPlayer) Objects.requireNonNull(Minecraft.getInstance().level).getPlayerByUUID(gameProfile.getId());
 
         if (player != null) {
-            ResourceLocation start = defaultSkin;
+            ResourceLocation startSkin = original.texture();
+            var modelType = original.model();
 
             for (Pair<Integer, SkinProvider> pair : PROVIDER) {
-                start = pair.getSecond().getSkin(player, start, defaultSkin);
+                startSkin = pair.getSecond().getSkin(player, startSkin, original.texture());
+                modelType = pair.getSecond().getModelType(player).toPlayerSkinModelType(modelType);
             }
 
-            return start;
-        }
-
-        return defaultSkin;
-    }
-
-    public static String getCurrentModelType(GameProfile gameProfile, String modelType) {
-        AbstractClientPlayer player = (AbstractClientPlayer) Objects.requireNonNull(Minecraft.getInstance().level).getPlayerByUUID(gameProfile.getId());
-
-        if (player != null && !PROVIDER.isEmpty()) {
-            var overriddenType = PROVIDER.getLast().getSecond().getModelType(player);
-
-            if (overriddenType == PlayerModelChangeType.KEEP) {
-                return modelType;
-            } else if (overriddenType == PlayerModelChangeType.NORMAL) {
-                return "default";
-            } else {
-                return "slim";
+            if (original.model() == modelType && startSkin.equals(original.texture())) {
+                return original;
             }
+
+            return new PlayerSkin(startSkin, original.textureUrl(), original.capeTexture(), original.elytraTexture(), modelType, original.secure());
         }
 
-        return modelType;
+        return original;
     }
 
     public static void registerSkinProvider(int priority, SkinProvider provider) {

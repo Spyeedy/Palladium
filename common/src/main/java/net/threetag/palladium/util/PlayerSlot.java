@@ -27,6 +27,10 @@ public abstract class PlayerSlot {
 
     @Nullable
     public static PlayerSlot get(String name) {
+        if (name.equalsIgnoreCase("any") || name.equalsIgnoreCase("*")) {
+            return AnySlot.INSTANCE;
+        }
+
         for (EquipmentSlot slot : EquipmentSlot.values()) {
             if (slot.getName().equalsIgnoreCase(name)) {
                 return EQUIPMENT_SLOTS.computeIfAbsent(slot, EquipmentPlayerSlot::new);
@@ -55,6 +59,40 @@ public abstract class PlayerSlot {
     @Nullable
     public EquipmentSlot getEquipmentSlot() {
         return null;
+    }
+
+    public static class AnySlot extends PlayerSlot {
+
+        public static final AnySlot INSTANCE = new AnySlot();
+
+        @Override
+        public List<ItemStack> getItems(LivingEntity entity) {
+            List<ItemStack> list = new ArrayList<>();
+            for (ItemStack slot : entity.getAllSlots()) {
+                list.add(slot);
+            }
+            return list;
+        }
+
+        @Override
+        public void setItem(LivingEntity entity, ItemStack stack) {
+            // unsupported
+        }
+
+        @Override
+        public void clear(LivingEntity entity) {
+            // unsupported
+        }
+
+        @Override
+        public Type getType() {
+            return Type.ANY_SLOT;
+        }
+
+        @Override
+        public String toString() {
+            return "any";
+        }
     }
 
     private static class EquipmentPlayerSlot extends PlayerSlot {
@@ -137,6 +175,7 @@ public abstract class PlayerSlot {
 
     public enum Type {
 
+        ANY_SLOT,
         EQUIPMENT_SLOT,
         CURIOS_TRINKET
 

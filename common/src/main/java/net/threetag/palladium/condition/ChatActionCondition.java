@@ -6,7 +6,9 @@ import com.mojang.serialization.codecs.RecordCodecBuilder;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
+import net.minecraft.util.ExtraCodecs;
 import net.minecraft.world.entity.LivingEntity;
+import net.threetag.palladium.component.PalladiumDataComponents;
 import net.threetag.palladium.power.ability.AbilityInstance;
 import net.threetag.palladium.util.context.DataContext;
 import net.threetag.palladium.util.context.DataContextType;
@@ -18,7 +20,7 @@ public class ChatActionCondition extends ChatMessageCondition {
     public static final MapCodec<ChatActionCondition> CODEC = RecordCodecBuilder.mapCodec(instance -> instance
             .group(
                     Codec.STRING.fieldOf("chat_message").forGetter(ChatActionCondition::getChatMessage),
-                    Codec.intRange(0, Integer.MAX_VALUE).optionalFieldOf("cooldown", 0).forGetter(ChatActionCondition::getCooldown)
+                    ExtraCodecs.NON_NEGATIVE_INT.optionalFieldOf("cooldown", 0).forGetter(ChatActionCondition::getCooldown)
             ).apply(instance, ChatActionCondition::new)
     );
     public static final StreamCodec<RegistryFriendlyByteBuf, ChatActionCondition> STREAM_CODEC = StreamCodec.composite(
@@ -34,26 +36,26 @@ public class ChatActionCondition extends ChatMessageCondition {
     @Override
     public boolean active(DataContext context) {
         var entity = context.get(DataContextType.ENTITY);
-        var entry = context.get(DataContextType.ABILITY);
+        var abilityInstance = context.get(DataContextType.ABILITY_INSTANCE);
 
-        if (entity == null || entry == null) {
+        if (entity == null || abilityInstance == null) {
             return false;
         }
 
-        if (Objects.requireNonNull(entry).keyPressed) {
-            entry.keyPressed = false;
+        if (Objects.requireNonNull(abilityInstance).isKeyPressed()) {
+            abilityInstance.set(PalladiumDataComponents.Abilities.KEY_PRESSED.get(), false);
             return true;
         }
         return false;
     }
 
     @Override
-    public void onChat(LivingEntity entity, AbilityInstance entry) {
-        if (entry.cooldown == 0) {
-            entry.keyPressed = true;
+    public void onChat(LivingEntity entity, AbilityInstance<?> abilityInstance) {
+        if (abilityInstance.getCooldown() == 0) {
+            abilityInstance.set(PalladiumDataComponents.Abilities.KEY_PRESSED.get(), false);
 
             if (this.cooldown != 0) {
-                entry.startCooldown(entity, this.cooldown);
+                abilityInstance.startCooldown(entity, this.cooldown);
             }
         }
     }

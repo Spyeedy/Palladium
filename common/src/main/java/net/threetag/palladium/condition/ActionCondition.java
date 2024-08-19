@@ -7,7 +7,7 @@ import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.world.entity.LivingEntity;
-import net.threetag.palladium.power.Power;
+import net.threetag.palladium.component.PalladiumDataComponents;
 import net.threetag.palladium.power.PowerHolder;
 import net.threetag.palladium.power.ability.AbilityConditions;
 import net.threetag.palladium.power.ability.AbilityInstance;
@@ -42,14 +42,14 @@ public class ActionCondition extends KeyCondition {
     @Override
     public boolean active(DataContext context) {
         var entity = context.getLivingEntity();
-        var ability = context.get(DataContextType.ABILITY);
+        var ability = context.get(DataContextType.ABILITY_INSTANCE);
 
         if (entity == null || ability == null) {
             return false;
         }
 
-        if (Objects.requireNonNull(ability).keyPressed) {
-            ability.keyPressed = false;
+        if (Objects.requireNonNull(ability).isKeyPressed()) {
+            ability.set(PalladiumDataComponents.Abilities.KEY_PRESSED.get(), false);
             if (ability.getEnabledTicks() == 0 && this.cooldown != 0) {
                 ability.startCooldown(entity, this.cooldown);
             }
@@ -60,9 +60,9 @@ public class ActionCondition extends KeyCondition {
     }
 
     @Override
-    public void onKeyPressed(LivingEntity entity, AbilityInstance entry, Power power, PowerHolder holder) {
-        if (entry.cooldown == 0) {
-            entry.keyPressed = true;
+    public void onKeyPressed(LivingEntity entity, AbilityInstance<?> abilityInstance, PowerHolder holder) {
+        if (abilityInstance.getCooldown() == 0) {
+            abilityInstance.set(PalladiumDataComponents.Abilities.KEY_PRESSED.get(), true);
         }
     }
 

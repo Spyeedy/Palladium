@@ -7,14 +7,14 @@ import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.item.Item;
 import net.threetag.palladium.compat.geckolib.armor.AddonGeoArmorItem;
 import net.threetag.palladium.power.PowerHolder;
-import net.threetag.palladium.power.ability.Ability;
+import net.threetag.palladium.power.ability.AbilitySerializer;
 import net.threetag.palladium.power.ability.AbilityInstance;
 import net.threetag.palladium.util.property.PalladiumProperty;
 import net.threetag.palladium.util.property.PalladiumPropertyBuilder;
 import net.threetag.palladium.util.property.PalladiumPropertyType;
 import software.bernie.geckolib.animatable.GeoItem;
 
-public class ArmorAnimationAbility extends Ability {
+public class ArmorAnimationAbility extends AbilitySerializer {
 
     public static final PalladiumProperty<ResourceLocation> ITEM = PalladiumPropertyBuilder.create("item", PalladiumPropertyType.RESOURCE_LOCATION).configurable("ID of the gecko armor item that must be worn currently.", true).build();
     public static final PalladiumProperty<String> CONTROLLER = PalladiumPropertyBuilder.create("controller", PalladiumPropertyType.STRING).configurable("Name of the animation controller the animation is played on. Leave it as 'main' if you didnt specify one.", false, "main").build();
@@ -30,22 +30,22 @@ public class ArmorAnimationAbility extends Ability {
     }
 
     @Override
-    public void tick(LivingEntity entity, AbilityInstance entry, PowerHolder holder, boolean enabled) {
+    public void tick(LivingEntity entity, AbilityInstance ability, PowerHolder holder, boolean enabled) {
         if (enabled) {
             if (entity.level().isClientSide) {
-                Item item = BuiltInRegistries.ITEM.get(entry.getProperty(ITEM));
+                Item item = BuiltInRegistries.ITEM.get(ability.getProperty(ITEM));
 
                 if (item instanceof AddonGeoArmorItem geo) {
                     for (EquipmentSlot slot : EquipmentSlot.values()) {
                         if (slot.getType() == EquipmentSlot.Type.HUMANOID_ARMOR) {
                             if (entity.getItemBySlot(slot).is(item) && !entity.getItemBySlot(slot).isEmpty()) {
                                 long geoId = GeoItem.getId(entity.getItemBySlot(slot)) + entity.getId();
-                                var controller = geo.getAnimatableInstanceCache().getManagerForId(geoId).getAnimationControllers().get(entry.getProperty(CONTROLLER));
+                                var controller = geo.getAnimatableInstanceCache().getManagerForId(geoId).getAnimationControllers().get(ability.getProperty(CONTROLLER));
 
                                 if (controller != null) {
                                     controller.forceAnimationReset();
                                     controller.stop();
-                                    controller.tryTriggerAnimation(entry.getProperty(ANIMATION_TRIGGER));
+                                    controller.tryTriggerAnimation(ability.getProperty(ANIMATION_TRIGGER));
                                 }
                             }
                         }

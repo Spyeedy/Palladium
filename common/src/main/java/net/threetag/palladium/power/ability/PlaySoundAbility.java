@@ -1,68 +1,84 @@
 package net.threetag.palladium.power.ability;
 
+import com.mojang.serialization.Codec;
+import com.mojang.serialization.MapCodec;
+import com.mojang.serialization.codecs.RecordCodecBuilder;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.minecraft.client.Minecraft;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
+import net.threetag.palladium.power.PowerHolder;
+import net.threetag.palladium.power.energybar.EnergyBarUsage;
 import net.threetag.palladium.sound.AbilitySound;
+import net.threetag.palladium.util.CodecUtils;
 import net.threetag.palladium.util.PlayerUtil;
-import net.threetag.palladium.util.property.BooleanProperty;
-import net.threetag.palladium.util.property.FloatProperty;
-import net.threetag.palladium.util.property.PalladiumProperty;
-import net.threetag.palladium.util.property.ResourceLocationProperty;
 import net.threetag.palladiumcore.util.Platform;
+
+import java.util.List;
 
 public class PlaySoundAbility extends Ability {
 
-    public static final PalladiumProperty<ResourceLocation> SOUND = new ResourceLocationProperty("sound").configurable("Sound ID that is being played");
-    public static final PalladiumProperty<Float> VOLUME = new FloatProperty("volume").configurable("Volume for the played sound");
-    public static final PalladiumProperty<Float> PITCH = new FloatProperty("pitch").configurable("Pitch for the played sound");
-    public static final PalladiumProperty<Boolean> LOOPING = new BooleanProperty("looping").configurable("Whether or not the sound should loop during the time the ability is enabled");
-    public static final PalladiumProperty<Boolean> PLAY_SELF = new BooleanProperty("play_self").configurable("Whether or not the sound should be played to just the player executing the ability, or to all players");
+    public static final MapCodec<PlaySoundAbility> CODEC = RecordCodecBuilder.mapCodec(instance ->
+            instance.group(
+                    ResourceLocation.CODEC.fieldOf("sound").forGetter(ab -> ab.sound),
+                    CodecUtils.NON_NEGATIVE_FLOAT.optionalFieldOf("volume", 1F).forGetter(ab -> ab.volume),
+                    CodecUtils.NON_NEGATIVE_FLOAT.optionalFieldOf("pitch", 1F).forGetter(ab -> ab.pitch),
+                    Codec.BOOL.optionalFieldOf("looping", false).forGetter(ab -> ab.looping),
+                    Codec.BOOL.optionalFieldOf("play_self", false).forGetter(ab -> ab.playSelf),
+                    propertiesCodec(), conditionsCodec(), energyBarUsagesCodec()
+            ).apply(instance, PlaySoundAbility::new));
 
-    public PlaySoundAbility() {
-        this.withProperty(SOUND, new ResourceLocation("item.elytra.flying"))
-                .withProperty(VOLUME, 1F)
-                .withProperty(PITCH, 1F)
-                .withProperty(LOOPING, false)
-                .withProperty(PLAY_SELF, false);
+    public final ResourceLocation sound;
+    public final float volume, pitch;
+    public final boolean looping, playSelf;
+
+    public PlaySoundAbility(ResourceLocation sound, float volume, float pitch, boolean looping, boolean playSelf, AbilityProperties properties, AbilityConditions conditions, List<EnergyBarUsage> energyBarUsages) {
+        super(properties, conditions, energyBarUsages);
+        this.sound = sound;
+        this.volume = volume;
+        this.pitch = pitch;
+        this.looping = looping;
+        this.playSelf = playSelf;
     }
 
     @Override
-    public String getDocumentationDescription() {
-        return "Plays a sound when being enabled.";
+    public AbilitySerializer<PlaySoundAbility> getSerializer() {
+        return AbilitySerializers.PLAY_SOUND.get();
     }
 
     @Override
-    public boolean isEffect() {
-        return true;
-    }
-
-    @Override
-    public void firstTick(LivingEntity entity, AbilityInstance entry, IPowerHolder holder, boolean enabled) {
+    public void firstTick(LivingEntity entity, AbilityInstance<?> instance, PowerHolder holder, boolean enabled) {
         if (enabled) {
-            if (entry.getProperty(LOOPING)) {
+            if (this.looping) {
                 if (Platform.isClient()) {
-                    this.startSound(entity, entry);
+                    this.startSound(entity, instance);
                 }
             } else if (!entity.level().isClientSide) {
-                if(entry.getProperty(PLAY_SELF)) {
-                    if(entity instanceof Player player) {
-                        PlayerUtil.playSound(player, entity.getX(), entity.getEyeY(), entity.getZ(), entry.getProperty(SOUND), entity.getSoundSource(), entry.getProperty(VOLUME), entry.getProperty(PITCH));
+                if (this.playSelf) {
+                    if (entity instanceof Player player) {
+                        PlayerUtil.playSound(player, entity.getX(), entity.getEyeY(), entity.getZ(), this.sound, entity.getSoundSource(), this.volume, this.pitch);
                     }
                 } else {
-                    PlayerUtil.playSoundToAll(entity.level(), entity.getX(), entity.getEyeY(), entity.getZ(), 100, entry.getProperty(SOUND), entity.getSoundSource(), entry.getProperty(VOLUME), entry.getProperty(PITCH));
+                    PlayerUtil.playSoundToAll(entity.level(), entity.getX(), entity.getEyeY(), entity.getZ(), 100, this.sound, entity.getSoundSource(), this.volume, this.pitch);
                 }
             }
         }
     }
 
     @Environment(EnvType.CLIENT)
-    public void startSound(LivingEntity entity, AbilityInstance entry) {
-        if (!entry.getProperty(PLAY_SELF) || Minecraft.getInstance().player == entity) {
-            Minecraft.getInstance().getSoundManager().play(new AbilitySound(entry.getReference(), entity, entry.getProperty(SOUND), entity.getSoundSource(), entry.getProperty(VOLUME), entry.getProperty(PITCH)));
+    public void startSound(LivingEntity entity, AbilityInstance<?> instance) {
+        if (!this.playSelf || Minecraft.getInstance().player == entity) {
+            Minecraft.getInstance().getSoundManager().play(new AbilitySound(instance.getReference(), entity, this.sound, entity.getSoundSource(), this.volume, this.pitch));
+        }
+    }
+
+    public static class Serializer extends AbilitySerializer<PlaySoundAbility> {
+
+        @Override
+        public MapCodec<PlaySoundAbility> codec() {
+            return CODEC;
         }
     }
 }

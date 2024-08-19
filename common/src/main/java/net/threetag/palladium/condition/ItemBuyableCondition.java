@@ -1,17 +1,17 @@
 package net.threetag.palladium.condition;
 
-import com.mojang.serialization.Codec;
 import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
+import net.minecraft.util.ExtraCodecs;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.crafting.Ingredient;
-import net.threetag.palladium.power.ability.AbilityConfiguration;
+import net.threetag.palladium.power.ability.Ability;
 import net.threetag.palladium.util.icon.IngredientIcon;
 
 public class ItemBuyableCondition extends BuyableCondition {
@@ -19,7 +19,7 @@ public class ItemBuyableCondition extends BuyableCondition {
     public static final MapCodec<ItemBuyableCondition> CODEC = RecordCodecBuilder.mapCodec(instance -> instance
             .group(
                     Ingredient.CODEC.fieldOf("ingredient").forGetter(ItemBuyableCondition::getIngredient),
-                    Codec.intRange(1, 512).optionalFieldOf("amount", 1).forGetter(ItemBuyableCondition::getAmount)
+                    ExtraCodecs.POSITIVE_INT.optionalFieldOf("amount", 1).forGetter(ItemBuyableCondition::getAmount)
             ).apply(instance, ItemBuyableCondition::new)
     );
     public static final StreamCodec<RegistryFriendlyByteBuf, ItemBuyableCondition> STREAM_CODEC = StreamCodec.composite(
@@ -45,7 +45,7 @@ public class ItemBuyableCondition extends BuyableCondition {
     }
 
     @Override
-    public AbilityConfiguration.UnlockData createData() {
+    public Ability.UnlockData createData() {
         var stacks = this.ingredient.getItems();
         var component = Component.empty();
 
@@ -61,7 +61,7 @@ public class ItemBuyableCondition extends BuyableCondition {
             }
         }
 
-        return new AbilityConfiguration.UnlockData(new IngredientIcon(this.ingredient), this.amount, component);
+        return new Ability.UnlockData(new IngredientIcon(this.ingredient), this.amount, component);
     }
 
     @Override

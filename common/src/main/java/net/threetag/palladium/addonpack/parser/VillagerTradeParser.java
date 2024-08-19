@@ -4,7 +4,7 @@ import com.google.common.collect.ImmutableMap;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParseException;
-import net.minecraft.core.Registry;
+import com.mojang.serialization.JsonOps;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.packs.resources.ResourceManager;
@@ -12,6 +12,7 @@ import net.minecraft.server.packs.resources.SimpleJsonResourceReloadListener;
 import net.minecraft.util.GsonHelper;
 import net.minecraft.util.profiling.ProfilerFiller;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.trading.ItemCost;
 import net.threetag.palladium.entity.BasicItemListing;
 import net.threetag.palladium.util.json.GsonUtil;
 import net.threetag.palladiumcore.event.LifecycleEvents;
@@ -65,8 +66,8 @@ public class VillagerTradeParser extends SimpleJsonResourceReloadListener {
     }
 
     public static BasicItemListing parseListing(JsonObject json) {
-        ItemStack price = GsonUtil.getAsItemStack(json, "price");
-        ItemStack price2 = GsonUtil.getAsItemStack(json, "price_2", ItemStack.EMPTY);
+        ItemCost price = ItemCost.CODEC.parse(JsonOps.INSTANCE, json.get("price")).getOrThrow();
+        ItemCost price2 = json.has("price_2") ? ItemCost.CODEC.parse(JsonOps.INSTANCE, json.get("price_2")).getOrThrow() : null;
         ItemStack forSale = GsonUtil.getAsItemStack(json, "for_sale");
         int maxTrades = GsonUtil.getAsIntMin(json, "max_trades", 1);
         int xp = GsonUtil.getAsIntMin(json, "max_trades", 0);

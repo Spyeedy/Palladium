@@ -8,11 +8,10 @@ import net.minecraft.client.gui.narration.NarrationElementOutput;
 import net.minecraft.locale.Language;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.Mth;
-import net.threetag.palladium.Palladium;
 import net.threetag.palladium.client.dynamictexture.TextureReference;
 import net.threetag.palladium.network.RequestAbilityBuyScreenPacket;
 import net.threetag.palladium.power.PowerHolder;
-import net.threetag.palladium.power.ability.Ability;
+import net.threetag.palladium.power.ability.AbilitySerializer;
 import net.threetag.palladium.power.ability.AbilityInstance;
 import net.threetag.palladium.util.context.DataContext;
 import net.threetag.palladiumcore.network.NetworkManager;
@@ -81,7 +80,7 @@ public class ListPowerTab extends PowerTab {
         guiGraphics.pose().popPose();
 
         if (this.hovered != null && !overlayActive) {
-            var description = this.hovered.getProperty(Ability.DESCRIPTION);
+            var description = this.hovered.getProperty(AbilitySerializer.DESCRIPTION);
 
             if (description != null) {
                 guiGraphics.renderTooltip(this.minecraft.font, this.minecraft.font.split(description.get(this.hovered.isUnlocked()), 150), mouseX, mouseY);
@@ -132,7 +131,7 @@ public class ListPowerTab extends PowerTab {
             this.clearEntries();
 
             for (AbilityInstance ability : powerHolder.getAbilities().values()) {
-                if (!ability.getProperty(Ability.HIDDEN_IN_GUI)) {
+                if (!ability.getProperty(AbilitySerializer.HIDDEN_IN_GUI)) {
                     this.addEntry(new ListEntry(ability, this, minecraft));
                 }
             }
@@ -173,7 +172,7 @@ public class ListPowerTab extends PowerTab {
             guiGraphics.blit(PowersScreen.WIDGETS, left, top, 0, 130 + (this.abilityInstance.isUnlocked() ? (hovering ? 2 : 0) : 1) * 26, width, height);
 
             if (this.abilityInstance.isUnlocked()) {
-                this.abilityInstance.getProperty(Ability.ICON).draw(this.minecraft, guiGraphics, DataContext.forAbility(this.minecraft.player, this.abilityInstance), left + 5, top + 5);
+                this.abilityInstance.getProperty(AbilitySerializer.ICON).draw(this.minecraft, guiGraphics, DataContext.forAbility(this.minecraft.player, this.abilityInstance), left + 5, top + 5);
             } else {
                 RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
                 guiGraphics.blit(PowersScreen.WIDGETS, left + 5, top + 5, 90, 83, 16, 16);

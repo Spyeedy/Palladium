@@ -1,5 +1,6 @@
 package net.threetag.palladium.power.ability;
 
+import com.mojang.datafixers.util.Either;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import net.minecraft.network.RegistryFriendlyByteBuf;
@@ -9,13 +10,23 @@ import net.minecraft.network.codec.StreamCodec;
 
 public class AbilityDescription {
 
-    public static final Codec<AbilityDescription> CODEC = Codec.withAlternative(
-            RecordCodecBuilder.create(instance ->
-                    instance.group(
-                            ComponentSerialization.CODEC.fieldOf("locked").forGetter(AbilityDescription::getLockedDescription),
-                            ComponentSerialization.CODEC.fieldOf("unlocked").forGetter(AbilityDescription::getUnlockedDescription)
-                    ).apply(instance, AbilityDescription::new)),
-            ComponentSerialization.CODEC.xmap(AbilityDescription::new, AbilityDescription::getUnlockedDescription)
+    public static final AbilityDescription EMPTY = new AbilityDescription(Component.empty());
+
+    private static final Codec<AbilityDescription> DIRECT_CODEC = RecordCodecBuilder.create(instance ->
+            instance.group(
+                    ComponentSerialization.CODEC.fieldOf("locked").forGetter(AbilityDescription::getLockedDescription),
+                    ComponentSerialization.CODEC.fieldOf("unlocked").forGetter(AbilityDescription::getUnlockedDescription)
+            ).apply(instance, AbilityDescription::new));
+
+    public static final Codec<AbilityDescription> CODEC = Codec.either(
+            DIRECT_CODEC,
+            ComponentSerialization.CODEC
+    ).xmap(
+            either -> either.map(
+                    left -> left,
+                    AbilityDescription::new
+            ),
+            desc -> desc.isSimple() ? Either.right(desc.getLockedDescription()) : Either.left(desc)
     );
 
     public static final StreamCodec<RegistryFriendlyByteBuf, AbilityDescription> STREAM_CODEC = StreamCodec.composite(
@@ -26,14 +37,17 @@ public class AbilityDescription {
 
     private final Component lockedDescription;
     private final Component unlockedDescription;
+    private final boolean simple;
 
     public AbilityDescription(Component lockedDescription, Component unlockedDescription) {
         this.lockedDescription = lockedDescription;
         this.unlockedDescription = unlockedDescription;
+        this.simple = false;
     }
 
     public AbilityDescription(Component description) {
         this.lockedDescription = this.unlockedDescription = description;
+        this.simple = true;
     }
 
     public Component getLockedDescription() {
@@ -42,6 +56,10 @@ public class AbilityDescription {
 
     public Component getUnlockedDescription() {
         return this.unlockedDescription;
+    }
+
+    public boolean isSimple() {
+        return this.simple;
     }
 
     public Component get(boolean unlocked) {

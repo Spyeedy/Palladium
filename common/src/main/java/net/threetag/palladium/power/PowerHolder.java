@@ -1,16 +1,16 @@
 package net.threetag.palladium.power;
 
 import com.google.common.collect.ImmutableMap;
+import net.minecraft.core.Holder;
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.Tag;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.LivingEntity;
-import net.threetag.palladium.power.ability.AbilityConfiguration;
+import net.threetag.palladium.power.ability.Ability;
 import net.threetag.palladium.power.ability.AbilityInstance;
-import net.threetag.palladium.power.ability.AbilityReference;
 import net.threetag.palladium.power.energybar.EnergyBar;
 import net.threetag.palladium.power.energybar.EnergyBarConfiguration;
 import net.threetag.palladium.power.energybar.EnergyBarReference;
-import net.threetag.palladium.registry.PalladiumRegistryKeys;
 
 import java.util.HashMap;
 import java.util.LinkedHashMap;
@@ -19,28 +19,28 @@ import java.util.Map;
 public class PowerHolder {
 
     public final LivingEntity entity;
-    private final Power power;
+    private final Holder<Power> power;
     private final ResourceLocation powerId;
-    private final Map<String, AbilityInstance> entryMap = new HashMap<>();
+    private final Map<String, AbilityInstance<?>> entryMap = new HashMap<>();
     private final Map<String, EnergyBar> energyBars = new LinkedHashMap<>();
     private PowerValidator validator;
 
-    public PowerHolder(LivingEntity entity, Power power, PowerValidator validator) {
+    public PowerHolder(LivingEntity entity, Holder<Power> power, PowerValidator validator, CompoundTag componentTag) {
         this.entity = entity;
         this.power = power;
-        this.powerId = entity.registryAccess().registryOrThrow(PalladiumRegistryKeys.POWER).getKey(power);
+        this.powerId = power.unwrapKey().orElseThrow().location();
         this.validator = validator;
 
-        for (Map.Entry<String, AbilityConfiguration> e : this.getPower().getAbilities().entrySet()) {
-            AbilityInstance entry = new AbilityInstance(e.getValue(), this, new AbilityReference(entity.registryAccess().registryOrThrow(PalladiumRegistryKeys.POWER).getKey(power), e.getKey()));
+        for (Map.Entry<String, Ability> e : this.getPower().value().getAbilities().entrySet()) {
+            AbilityInstance<?> entry = new AbilityInstance<>(e.getValue(), this, componentTag.getCompound(e.getKey()));
             this.entryMap.put(e.getKey(), entry);
         }
-        for (Map.Entry<String, EnergyBarConfiguration> e : this.getPower().getEnergyBars().entrySet()) {
-            this.energyBars.put(e.getKey(), new EnergyBar(e.getValue(), this, new EnergyBarReference(entity.registryAccess().registryOrThrow(PalladiumRegistryKeys.POWER).getKey(power), e.getKey())));
+        for (Map.Entry<String, EnergyBarConfiguration> e : this.getPower().value().getEnergyBars().entrySet()) {
+            this.energyBars.put(e.getKey(), new EnergyBar(e.getValue(), this, new EnergyBarReference(power.unwrapKey().orElseThrow().location(), e.getKey())));
         }
     }
 
-    public Power getPower() {
+    public Holder<Power> getPower() {
         return this.power;
     }
 
@@ -52,42 +52,47 @@ public class PowerHolder {
         return this.entity;
     }
 
-    public void fromNBT(CompoundTag tag) {
-        for (Map.Entry<String, AbilityInstance> entry : this.entryMap.entrySet()) {
-            if (tag.contains(entry.getKey())) {
-                CompoundTag abData = tag.getCompound(entry.getKey());
-                entry.getValue().fromNBT(abData);
-            }
-        }
+//    public void load(CompoundTag tag) {
+//        if (tag.contains("abilities", 10)) {
+//            var abilities = tag.getCompound("abilities");
+//            for (Map.Entry<String, AbilityInstance<?>> instance : this.entryMap.entrySet()) {
+//                if (abilities.contains(instance.getKey())) {
+//                    CompoundTag abData = abilities.getCompound(instance.getKey());
+//                    instance.getValue().fromNBT(abData);
+//                }
+//            }
+//        }
+//
+//        if (tag.contains("energy_bars", 10)) {
+//            var energies = tag.getCompound("energy_bars");
+//            for (String key : energies.getAllKeys()) {
+//                if (this.energyBars.containsKey(key)) {
+//                    this.energyBars.get(key).load(energies.getCompound(key));
+//                }
+//            }
+//        }
+//    }
 
-        if (tag.contains("_EnergyBars", 10)) {
-            var energies = tag.getCompound("_EnergyBars");
-            for (String key : energies.getAllKeys()) {
-                if (this.energyBars.containsKey(key)) {
-                    this.energyBars.get(key).fromNBT(energies.getCompound(key));
-                }
-            }
-        }
-    }
-
-    public CompoundTag toNBT(boolean toDisk) {
+    public CompoundTag save() {
         CompoundTag tag = new CompoundTag();
 
-        for (Map.Entry<String, AbilityInstance> entry : this.entryMap.entrySet()) {
-            CompoundTag abData = entry.getValue().toNBT(toDisk);
-            tag.put(entry.getKey(), abData);
+        CompoundTag abilities = new CompoundTag();
+        for (Map.Entry<String, AbilityInstance<?>> entry : this.entryMap.entrySet()) {
+            Tag abData = entry.getValue().save();
+            abilities.put(entry.getKey(), abData);
         }
+        tag.put("abilities", abilities);
 
         CompoundTag energies = new CompoundTag();
         for (Map.Entry<String, EnergyBar> entry : this.energyBars.entrySet()) {
-            energies.put(entry.getKey(), entry.getValue().toNBT());
+            energies.put(entry.getKey(), entry.getValue().save());
         }
-        tag.put("_EnergyBars", energies);
+        tag.put("energy_bars", energies);
 
         return tag;
     }
 
-    public Map<String, AbilityInstance> getAbilities() {
+    public Map<String, AbilityInstance<?>> getAbilities() {
         return ImmutableMap.copyOf(this.entryMap);
     }
 
@@ -104,15 +109,15 @@ public class PowerHolder {
     }
 
     public void firstTick() {
-        this.entryMap.forEach((id, entry) -> entry.getConfiguration().getAbility().firstTick(entity, entry, this, entry.isEnabled()));
+        this.entryMap.forEach((id, instance) -> instance.getAbility().firstTick(entity, instance, this, instance.isEnabled()));
     }
 
     public void lastTick() {
-        this.entryMap.forEach((id, entry) -> entry.getConfiguration().getAbility().lastTick(entity, entry, this, entry.isEnabled()));
+        this.entryMap.forEach((id, instance) -> instance.getAbility().lastTick(entity, instance, this, instance.isEnabled()));
     }
 
     public boolean isInvalid() {
-        return this.power.isInvalid() || !this.validator.stillValid(this.entity, this.power);
+        return !this.validator.stillValid(this.entity, this.power);
     }
 
     public void switchValidator(PowerValidator validator) {

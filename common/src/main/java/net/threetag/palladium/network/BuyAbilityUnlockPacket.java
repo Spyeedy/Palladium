@@ -4,7 +4,7 @@ import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
 import net.threetag.palladium.Palladium;
-import net.threetag.palladium.condition.BuyableCondition;
+import net.threetag.palladium.component.PalladiumDataComponents;
 import net.threetag.palladium.power.ability.AbilityInstance;
 import net.threetag.palladium.power.ability.AbilityReference;
 import net.threetag.palladiumcore.network.NetworkManager;
@@ -19,13 +19,13 @@ public record BuyAbilityUnlockPacket(AbilityReference reference) implements Cust
     );
 
     public static void handle(BuyAbilityUnlockPacket packet, NetworkManager.Context context) {
-        AbilityInstance entry = packet.reference.getInstance(context.getPlayer());
+        AbilityInstance<?> instance = packet.reference.getInstance(context.getPlayer());
 
-        if (entry != null) {
-            var buyableCondition = entry.getConfiguration().getConditions().findBuyCondition();
+        if (instance != null) {
+            var buyableCondition = instance.getAbility().getConditions().findBuyCondition();
 
-            if (buyableCondition != null && !entry.getProperty(BuyableCondition.BOUGHT) && buyableCondition.isAvailable(context.getPlayer())) {
-                buyableCondition.buy(context.getPlayer(), entry);
+            if (buyableCondition != null && !instance.getOrDefault(PalladiumDataComponents.Abilities.BOUGHT.get(), false) && buyableCondition.isAvailable(context.getPlayer())) {
+                buyableCondition.buy(context.getPlayer(), instance);
             }
         }
     }

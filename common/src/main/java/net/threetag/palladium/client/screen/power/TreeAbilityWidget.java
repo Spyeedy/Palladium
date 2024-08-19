@@ -5,7 +5,6 @@ import net.minecraft.ChatFormatting;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.StringSplitter;
 import net.minecraft.client.gui.GuiGraphics;
-import net.minecraft.client.gui.screens.advancements.AdvancementWidget;
 import net.minecraft.client.gui.screens.advancements.AdvancementWidgetType;
 import net.minecraft.locale.Language;
 import net.minecraft.network.chat.Component;
@@ -15,7 +14,7 @@ import net.minecraft.network.chat.Style;
 import net.minecraft.util.FormattedCharSequence;
 import net.minecraft.util.Mth;
 import net.threetag.palladium.power.PowerHolder;
-import net.threetag.palladium.power.ability.Ability;
+import net.threetag.palladium.power.ability.AbilitySerializer;
 import net.threetag.palladium.power.ability.AbilityInstance;
 import net.threetag.palladium.power.ability.AbilityUtil;
 import net.threetag.palladium.util.context.DataContext;
@@ -60,7 +59,7 @@ public class TreeAbilityWidget {
         this.minecraft = mc;
         this.title = Language.getInstance().getVisualOrder(mc.font.substrByWidth(abilityInstance.getConfiguration().getDisplayName(), 163));
         int l = 29 + mc.font.width(this.title);
-        var description = abilityInstance.getProperty(Ability.DESCRIPTION);
+        var description = abilityInstance.getProperty(AbilitySerializer.DESCRIPTION);
         this.description = Language.getInstance()
                 .getVisualOrder(
                         this.findOptimalLines(ComponentUtils.mergeStyles(description != null ? description.get(this.abilityInstance.isUnlocked()).copy() : Component.empty(), Style.EMPTY.withColor(ChatFormatting.WHITE)), l)
@@ -149,7 +148,7 @@ public class TreeAbilityWidget {
 
     public void drawDisplayIcon(Minecraft mc, GuiGraphics guiGraphics, int x, int y) {
         if (this.abilityInstance.isUnlocked()) {
-            this.abilityInstance.getProperty(Ability.ICON).draw(mc, guiGraphics, DataContext.forAbility(mc.player, this.abilityInstance), x, y);
+            this.abilityInstance.getProperty(AbilitySerializer.ICON).draw(mc, guiGraphics, DataContext.forAbility(mc.player, this.abilityInstance), x, y);
         } else {
             RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
             guiGraphics.blit(PowersScreen.WIDGETS, x, y, 90, 83, 16, 16);

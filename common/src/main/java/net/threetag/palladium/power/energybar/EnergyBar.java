@@ -4,7 +4,6 @@ import net.minecraft.nbt.CompoundTag;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.util.Mth;
 import net.minecraft.world.entity.LivingEntity;
-import net.threetag.palladium.network.PalladiumNetwork;
 import net.threetag.palladium.network.SyncEnergyBarPacket;
 import net.threetag.palladium.power.PowerHolder;
 import net.threetag.palladiumcore.network.NetworkManager;
@@ -120,18 +119,18 @@ public class EnergyBar {
         }
     }
 
-    public CompoundTag toNBT() {
+    public CompoundTag save() {
         var nbt = new CompoundTag();
-        nbt.putInt("Value", this.value);
-        nbt.putInt("MaxValue", this.maxValue);
-        nbt.putInt("OverriddenMaxValue", this.overriddenMaxValue);
+        nbt.putInt("value", this.value);
+        nbt.putInt("max_value", this.maxValue);
+        nbt.putInt("overridden_max_value", this.overriddenMaxValue);
         return nbt;
     }
 
-    public void fromNBT(CompoundTag nbt) {
-        this.set(nbt.getInt("Value"));
-        this.setMax(nbt.getInt("MaxValue"));
-        this.overriddenMaxValue = nbt.getInt("OverriddenMaxValue");
+    public void load(CompoundTag nbt) {
+        this.set(nbt.getInt("value"));
+        this.setMax(nbt.getInt("max_value"));
+        this.overriddenMaxValue = nbt.getInt("overridden_max_value");
     }
 
 }

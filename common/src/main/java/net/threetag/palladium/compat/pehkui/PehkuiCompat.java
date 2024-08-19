@@ -32,7 +32,7 @@ public class PehkuiCompat extends SizeUtil {
         float f = 1F;
 
         try {
-            for (AbilityInstance enabledEntry : AbilityUtil.getEnabledEntries(entity, Abilities.SIZE.get())) {
+            for (AbilityInstance enabledEntry : AbilityUtil.getEnabledEntries(entity, AbilitySerializers.SIZE.get())) {
                 f *= enabledEntry.getProperty(SizeAbility.SCALE);
             }
         } catch (Exception ignored) {

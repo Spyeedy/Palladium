@@ -1,51 +1,66 @@
 package net.threetag.palladium.power.ability;
 
+import com.mojang.serialization.MapCodec;
+import com.mojang.serialization.codecs.RecordCodecBuilder;
+import net.minecraft.core.component.DataComponentMap;
 import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.ComponentSerialization;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
-import net.threetag.palladium.util.property.BooleanProperty;
-import net.threetag.palladium.util.property.ComponentProperty;
-import net.threetag.palladium.util.property.PalladiumProperty;
+import net.threetag.palladium.component.PalladiumDataComponents;
+import net.threetag.palladium.power.PowerHolder;
+import net.threetag.palladium.power.energybar.EnergyBarUsage;
 import net.threetag.palladium.util.property.PropertyManager;
 import net.threetag.palladiumcore.util.PlayerUtil;
 
+import java.util.List;
+
 public class NameChangeAbility extends Ability {
 
-    public static final PalladiumProperty<Component> NAME = new ComponentProperty("name").configurable("The name the player's one will turn into");
-    public static final PalladiumProperty<Boolean> ACTIVE = new BooleanProperty("active");
+    public static final MapCodec<NameChangeAbility> CODEC = RecordCodecBuilder.mapCodec(instance ->
+            instance.group(
+                    ComponentSerialization.CODEC.fieldOf("name").forGetter(ab -> ab.name),
+                    propertiesCodec(), conditionsCodec(), energyBarUsagesCodec()
+            ).apply(instance, NameChangeAbility::new));
 
-    public NameChangeAbility() {
-        this.withProperty(NAME, Component.literal("John Doe"));
+    public final Component name;
+
+    public NameChangeAbility(Component name, AbilityProperties properties, AbilityConditions conditions, List<EnergyBarUsage> energyBarUsages) {
+        super(properties, conditions, energyBarUsages);
+        this.name = name;
     }
 
     @Override
-    public void registerUniqueProperties(PropertyManager manager) {
-        manager.register(ACTIVE, false);
+    public AbilitySerializer<?> getSerializer() {
+        return AbilitySerializers.NAME_CHANGE.get();
     }
 
     @Override
-    public void firstTick(LivingEntity entity, AbilityInstance entry, IPowerHolder holder, boolean enabled) {
+    public void registerDataComponents(DataComponentMap.Builder components) {
+        components.set(PalladiumDataComponents.Abilities.NAME_CHANGE_ACTIVE.get(), false);
+    }
+
+    @Override
+    public void firstTick(LivingEntity entity, AbilityInstance<?> instance, PowerHolder holder, boolean enabled) {
         if (entity instanceof Player player) {
-            entry.setUniqueProperty(ACTIVE, true);
+            instance.set(PalladiumDataComponents.Abilities.NAME_CHANGE_ACTIVE.get(), true);
             PlayerUtil.refreshDisplayName(player);
         }
     }
 
     @Override
-    public void lastTick(LivingEntity entity, AbilityInstance entry, IPowerHolder holder, boolean enabled) {
+    public void lastTick(LivingEntity entity, AbilityInstance<?> instance, PowerHolder holder, boolean enabled) {
         if (entity instanceof Player player) {
-            entry.setUniqueProperty(ACTIVE, false);
+            instance.set(PalladiumDataComponents.Abilities.NAME_CHANGE_ACTIVE.get(), false);
             PlayerUtil.refreshDisplayName(player);
         }
     }
 
-    @Override
-    public boolean isEffect() {
-        return true;
-    }
+    public static class Serializer extends AbilitySerializer<NameChangeAbility> {
 
-    @Override
-    public String getDocumentationDescription() {
-        return "Lets you change the name of the player (in chat, tablist, above head).";
+        @Override
+        public MapCodec<NameChangeAbility> codec() {
+            return CODEC;
+        }
     }
 }

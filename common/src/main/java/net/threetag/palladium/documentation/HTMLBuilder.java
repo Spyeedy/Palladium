@@ -80,7 +80,7 @@ public class HTMLBuilder {
                 .add(table(Arrays.asList("Setting", "Type", "Description", "Required", "Fallback Value"), builder.getEntries().stream().map(entry -> {
                     List<Object> list = new ArrayList<>();
                     list.add(entry.getName());
-                    list.add(entry.getTypeClass().getSimpleName());
+                    list.add(entry.getClass().getSimpleName());
                     list.add(entry.getDescription());
                     list.add(entry.isRequired());
                     list.add(Utils.orElse(entry.getFallbackValueSerialized(), "/"));
@@ -147,7 +147,7 @@ public class HTMLBuilder {
                             .add(table(Arrays.asList("Setting", "Type", "Description", "Required", "Fallback Value"), builder.getEntries().stream().map(entry -> {
                                 List<Object> list = new ArrayList<>();
                                 list.add(entry.getName());
-                                list.add(entry.getTypeClass().getSimpleName());
+                                list.add(entry.getClass().getSimpleName());
                                 list.add(entry.getDescription());
                                 list.add(entry.isRequired());
                                 list.add(Utils.orElse(entry.getFallbackValueSerialized(), "/"));
@@ -155,7 +155,7 @@ public class HTMLBuilder {
                             }).collect(Collectors.toList())));
                 }
 
-                if (json.keySet().size() > 0) {
+                if (!json.keySet().isEmpty()) {
                     div.add(subSubHeading("Example:"))
                             .add(new HTMLObject("pre", json.toString()).addAttribute("class", "json-snippet"));
                     this.hasJson = true;

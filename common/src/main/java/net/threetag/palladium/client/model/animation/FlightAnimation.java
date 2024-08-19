@@ -118,7 +118,7 @@ public class FlightAnimation extends PalladiumAnimation implements ViewportEvent
     }
 
     @Override
-    public void computeCameraAngles(GameRenderer gameRenderer, Camera camera, double partialTick, AtomicReference<Float> yaw, AtomicReference<Float> pitch, AtomicReference<Float> roll) {
+    public void computeCameraAngles(Camera camera, double partialTick, AtomicReference<Float> yaw, AtomicReference<Float> pitch, AtomicReference<Float> roll) {
         if (Minecraft.getInstance().player instanceof PalladiumPlayerExtension extension) {
             var flight = extension.palladium$getFlightHandler();
             float anim = flight.getFlightAnimation((float) partialTick);
@@ -136,4 +136,5 @@ public class FlightAnimation extends PalladiumAnimation implements ViewportEvent
             roll.set((float) tilt * Easing.INOUTCUBIC.apply(anim));
         }
     }
+
 }

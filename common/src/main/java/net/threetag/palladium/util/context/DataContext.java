@@ -1,5 +1,6 @@
 package net.threetag.palladium.util.context;
 
+import net.minecraft.core.Holder;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.LivingEntity;
@@ -49,11 +50,11 @@ public class DataContext {
         return context;
     }
 
-    public static DataContext forAbility(LivingEntity entity, AbilityInstance abilityInstance) {
+    public static DataContext forAbility(LivingEntity entity, AbilityInstance<?> abilityInstance) {
         var context = forEntity(entity);
 
         if (abilityInstance != null) {
-            context.with(DataContextType.ABILITY, abilityInstance);
+            context.with(DataContextType.ABILITY_INSTANCE, abilityInstance);
             context.with(DataContextType.POWER_HOLDER, abilityInstance.getHolder());
             context.with(DataContextType.POWER, abilityInstance.getHolder().getPower());
         }
@@ -114,12 +115,12 @@ public class DataContext {
     }
 
     @Nullable
-    public AbilityInstance getAbility() {
-        return this.get(DataContextType.ABILITY);
+    public AbilityInstance<?> getAbility() {
+        return this.get(DataContextType.ABILITY_INSTANCE);
     }
 
     @Nullable
-    public Power getPower() {
+    public Holder<Power> getPower() {
         return this.get(DataContextType.POWER);
     }
 

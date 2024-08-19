@@ -39,7 +39,7 @@ public record IntervalCondition(int activeTicks, int disabledTicks) implements C
     @Override
     public boolean active(DataContext context) {
         var entity = context.get(DataContextType.ENTITY);
-        var entry = context.get(DataContextType.ABILITY);
+        var entry = context.get(DataContextType.ABILITY_INSTANCE);
 
         if (entity == null || entry == null) {
             return false;

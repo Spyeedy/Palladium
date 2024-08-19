@@ -25,7 +25,7 @@ public abstract class ChatMessageCondition implements Condition {
         return cooldown;
     }
 
-    public abstract void onChat(LivingEntity entity, AbilityInstance entry);
+    public abstract void onChat(LivingEntity entity, AbilityInstance<?> abilityInstance);
 
     @Override
     public boolean handlesCooldown() {

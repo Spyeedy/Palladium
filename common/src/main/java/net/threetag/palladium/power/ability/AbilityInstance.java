@@ -1,57 +1,61 @@
 package net.threetag.palladium.power.ability;
 
+import net.minecraft.core.component.*;
 import net.minecraft.nbt.CompoundTag;
-import net.minecraft.server.level.ServerLevel;
-import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.nbt.NbtOps;
+import net.minecraft.nbt.Tag;
 import net.minecraft.world.entity.LivingEntity;
+import net.threetag.palladium.component.PalladiumDataComponents;
 import net.threetag.palladium.condition.Condition;
 import net.threetag.palladium.condition.CooldownType;
-import net.threetag.palladium.network.SyncAbilityInstancePropertyPacket;
-import net.threetag.palladium.network.SyncAbilityStatePacket;
 import net.threetag.palladium.power.PowerHolder;
 import net.threetag.palladium.power.energybar.EnergyBarUsage;
 import net.threetag.palladium.util.context.DataContext;
-import net.threetag.palladium.util.property.PalladiumProperty;
-import net.threetag.palladium.util.property.PalladiumPropertyValue;
-import net.threetag.palladium.util.property.PropertyManager;
-import net.threetag.palladium.util.property.SyncOption;
-import net.threetag.palladiumcore.network.NetworkManager;
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-public class AbilityInstance {
+import java.util.function.BiFunction;
+import java.util.function.UnaryOperator;
 
-    private final AbilityConfiguration abilityConfiguration;
+public class AbilityInstance<T extends Ability> implements DataComponentHolder {
+
+    private final T ability;
     private final PowerHolder holder;
-    private boolean unlocked = false;
-    private boolean enabled = false;
-    public boolean keyPressed = false;
-    public int maxCooldown = 0, cooldown = 0;
-    public int maxActivationTimer = 0, activationTimer = 0;
     private int lifetime = 0;
     private int prevEnabledTicks = 0;
     private int enabledTicks = 0;
-    public AbilityReference reference;
-    private final PropertyManager propertyManager = new PropertyManager().setListener(new PropertyManager.Listener() {
-        @Override
-        public <T> void onChanged(PalladiumProperty<T> property, PalladiumPropertyValue<T> valueHolder, T oldValue, T newValue) {
-            syncProperty(property, holder.getEntity(), null);
-        }
-    });
+    private PatchedDataComponentMap components;
+    private final AbilityReference reference;
+    private final AnimationTimer animationTimer;
 
-    public AbilityInstance(AbilityConfiguration abilityConfiguration, PowerHolder holder, AbilityReference reference) {
-        this.abilityConfiguration = abilityConfiguration;
+    public AbilityInstance(T ability, PowerHolder holder) {
+        this.ability = ability;
         this.holder = holder;
-        this.abilityConfiguration.getAbility().registerUniqueProperties(this.propertyManager);
-        this.abilityConfiguration.getConditions().getUnlockingConditions().forEach(condition -> condition.registerAbilityProperties(this, this.propertyManager));
-        this.abilityConfiguration.getConditions().getEnablingConditions().forEach(condition -> condition.registerAbilityProperties(this, this.propertyManager));
+        this.reference = new AbilityReference(holder.getPowerId(), ability.getKey());
+        this.animationTimer = ability.getProperties().getAnimationTimerSetting() != null ? new AnimationTimer(ability.getProperties().getAnimationTimerSetting(), ability.getProperties().getAnimationTimerSetting().min()) : null;
+
+        var componentsBuilder = DataComponentMap.builder().addAll(PalladiumDataComponents.Abilities.getCommonComponents());
+        this.ability.registerDataComponents(componentsBuilder);
+        this.ability.getConditions().getUnlockingConditions().forEach(condition -> condition.registerDataComponents(componentsBuilder));
+        this.ability.getConditions().getEnablingConditions().forEach(condition -> condition.registerDataComponents(componentsBuilder));
+        this.components = new PatchedDataComponentMap(componentsBuilder.build());
     }
 
-    public AbilityConfiguration getConfiguration() {
-        return this.abilityConfiguration;
+    public AbilityInstance(T ability, PowerHolder holder, CompoundTag componentData) {
+        this.ability = ability;
+        this.holder = holder;
+        this.reference = new AbilityReference(holder.getPowerId(), ability.getKey());
+        this.animationTimer = ability.getProperties().getAnimationTimerSetting() != null ? new AnimationTimer(ability.getProperties().getAnimationTimerSetting(), ability.getProperties().getAnimationTimerSetting().min()) : null;
+
+        var componentsBuilder = DataComponentMap.builder().addAll(PalladiumDataComponents.Abilities.getCommonComponents());
+        this.ability.registerDataComponents(componentsBuilder);
+        this.ability.getConditions().getUnlockingConditions().forEach(condition -> condition.registerDataComponents(componentsBuilder));
+        this.ability.getConditions().getEnablingConditions().forEach(condition -> condition.registerDataComponents(componentsBuilder));
+        this.components = PatchedDataComponentMap.fromPatch(componentsBuilder.build(), DataComponentPatch.CODEC.parse(this.holder.entity.registryAccess().createSerializationContext(NbtOps.INSTANCE), componentData).getOrThrow());
     }
 
-    public PropertyManager getPropertyManager() {
-        return this.propertyManager;
+    public T getAbility() {
+        return this.ability;
     }
 
     public PowerHolder getHolder() {
@@ -62,32 +66,28 @@ public class AbilityInstance {
         return this.reference;
     }
 
-    @SuppressWarnings({"unchecked", "rawtypes", "UnnecessaryLocalVariable"})
-    public void syncProperty(PalladiumProperty<?> property, LivingEntity entity, @Nullable SyncOption syncOption) {
-        if (!entity.level().isClientSide && this.propertyManager.isRegistered(property)) {
-            if (syncOption == null) {
-                syncOption = property.getSyncType();
-            }
-
-            PalladiumProperty property1 = property;
-            if (syncOption == SyncOption.EVERYONE) {
-                NetworkManager.get().sendToPlayersInDimension((ServerLevel) entity.level(), new SyncAbilityInstancePropertyPacket(entity.getId(), this.reference, this.propertyManager.getHolder(property1)));
-            } else if (syncOption == SyncOption.SELF && entity instanceof ServerPlayer serverPlayer) {
-                NetworkManager.get().sendToPlayer(serverPlayer, new SyncAbilityInstancePropertyPacket(entity.getId(), this.reference, this.propertyManager.getHolder(property1)));
-            }
-        }
-    }
-
     public boolean isUnlocked() {
-        return unlocked;
+        return this.components.getOrDefault(PalladiumDataComponents.Abilities.UNLOCKED.get(), true);
     }
 
     public boolean isEnabled() {
-        return enabled;
+        return this.components.getOrDefault(PalladiumDataComponents.Abilities.ENABLED.get(), true);
+    }
+
+    public int getCooldown() {
+        return this.components.getOrDefault(PalladiumDataComponents.Abilities.COOLDOWN.get(), 0);
     }
 
     public boolean isOnCooldown() {
-        return this.getConfiguration().getConditions().getCooldownType() == CooldownType.STATIC ? this.cooldown > 0 : this.cooldown < this.maxCooldown;
+        return this.ability.getConditions().getCooldownType() == CooldownType.STATIC ? this.getOrDefault(PalladiumDataComponents.Abilities.COOLDOWN.get(), 0) > 0 : this.getOrDefault(PalladiumDataComponents.Abilities.COOLDOWN.get(), 0) < this.getOrDefault(PalladiumDataComponents.Abilities.MAX_COOLDOWN.get(), 0);
+    }
+
+    public int getActivatedTime() {
+        return this.components.getOrDefault(PalladiumDataComponents.Abilities.ACTIVATED_TIME.get(), 0);
+    }
+
+    public boolean isKeyPressed() {
+        return this.components.getOrDefault(PalladiumDataComponents.Abilities.KEY_PRESSED.get(), false);
     }
 
     public int getEnabledTicks() {
@@ -98,37 +98,19 @@ public class AbilityInstance {
         return this.prevEnabledTicks;
     }
 
-    public void setClientState(LivingEntity entity, PowerHolder powerHolder, boolean unlocked, boolean enabled, int maxCooldown, int cooldown, int maxActivationTimer, int activationTimer) {
-        this.unlocked = unlocked;
-        this.maxCooldown = maxCooldown;
-        this.cooldown = cooldown;
-        this.maxActivationTimer = maxActivationTimer;
-        this.activationTimer = activationTimer;
-
-        if (this.enabled != enabled) {
-            this.enabled = enabled;
-
-            if (this.enabled) {
-                this.abilityConfiguration.getAbility().firstTick(entity, this, powerHolder, this.isEnabled());
-            } else {
-                this.abilityConfiguration.getAbility().lastTick(entity, this, powerHolder, !this.isEnabled());
-            }
-        }
-    }
-
     public void tick(LivingEntity entity, PowerHolder powerHolder) {
         this.prevEnabledTicks = this.enabledTicks;
 
         if (!entity.level().isClientSide) {
             if (this.lifetime == 0) {
-                this.abilityConfiguration.getConditions().getUnlockingConditions().forEach(condition -> condition.init(entity, this, this.propertyManager));
-                this.abilityConfiguration.getConditions().getEnablingConditions().forEach(condition -> condition.init(entity, this, this.propertyManager));
+                this.ability.getConditions().getUnlockingConditions().forEach(condition -> condition.init(entity, this));
+                this.ability.getConditions().getEnablingConditions().forEach(condition -> condition.init(entity, this));
             }
 
             boolean unlocked = true;
             boolean sync = false;
 
-            for (Condition unlockingCondition : this.abilityConfiguration.getConditions().getUnlockingConditions()) {
+            for (Condition unlockingCondition : this.ability.getConditions().getUnlockingConditions()) {
                 if (!unlockingCondition.active(DataContext.forAbility(entity, this))) {
                     unlocked = false;
                     break;
@@ -139,15 +121,15 @@ public class AbilityInstance {
                 unlocked = false;
             }
 
-            if (this.unlocked != unlocked) {
-                this.unlocked = unlocked;
+            if (this.isUnlocked() != unlocked) {
+                this.set(PalladiumDataComponents.Abilities.UNLOCKED.get(), unlocked);
                 sync = true;
             }
 
-            boolean enabled = this.unlocked;
+            boolean enabled = this.isUnlocked();
 
-            if (this.unlocked) {
-                for (Condition enablingCondition : this.abilityConfiguration.getConditions().getEnablingConditions()) {
+            if (this.isUnlocked()) {
+                for (Condition enablingCondition : this.ability.getConditions().getEnablingConditions()) {
                     if (!enablingCondition.active(DataContext.forAbility(entity, this))) {
                         enabled = false;
                         break;
@@ -159,134 +141,145 @@ public class AbilityInstance {
                 enabled = false;
             }
 
-            if (this.enabled != enabled) {
-                if (!this.enabled) {
-                    this.enabled = true;
-                    sync = true;
-                    this.abilityConfiguration.getAbility().firstTick(entity, this, powerHolder, this.isEnabled());
+            if (this.isEnabled() != enabled) {
+                if (!this.isEnabled()) {
+                    this.set(PalladiumDataComponents.Abilities.ENABLED.get(), true);
+                    this.ability.firstTick(entity, this, powerHolder, this.isEnabled());
                 } else {
-                    this.keyPressed = false;
-                    this.abilityConfiguration.getAbility().lastTick(entity, this, powerHolder, this.isEnabled());
-                    this.enabled = false;
-                    sync = true;
-
+                    this.set(PalladiumDataComponents.Abilities.KEY_PRESSED.get(), false);
+                    this.ability.lastTick(entity, this, powerHolder, this.isEnabled());
+                    this.set(PalladiumDataComponents.Abilities.ENABLED.get(), false);
                 }
-            }
-
-            if (sync || lifetime == 0) {
-                this.syncState(entity);
             }
         }
 
         if (this.isEnabled()) {
             this.enabledTicks++;
 
-            for (EnergyBarUsage usage : this.getConfiguration().getEnergyBarUsages()) {
+            for (EnergyBarUsage usage : this.ability.getEnergyBarUsages()) {
                 usage.consume(this.holder);
             }
         } else if (this.enabledTicks > 0) {
             this.enabledTicks--;
         }
 
-        if (this.abilityConfiguration.getConditions().getCooldownType() == CooldownType.STATIC) {
-            if (this.cooldown > 0) {
-                this.cooldown--;
+        int cooldown = this.getOrDefault(PalladiumDataComponents.Abilities.COOLDOWN.get(), 0);
+
+        if (this.ability.getConditions().getCooldownType() == CooldownType.STATIC) {
+            if (cooldown > 0) {
+                this.set(PalladiumDataComponents.Abilities.COOLDOWN.get(), cooldown - 1);
             }
-        } else if (this.abilityConfiguration.getConditions().getCooldownType() == CooldownType.DYNAMIC) {
-            if (this.isEnabled() && this.cooldown > 0) {
-                this.cooldown--;
-            } else if (!this.isEnabled() && this.cooldown < this.maxCooldown) {
-                this.cooldown++;
+        } else if (this.ability.getConditions().getCooldownType() == CooldownType.DYNAMIC) {
+            if (this.isEnabled() && cooldown > 0) {
+                this.set(PalladiumDataComponents.Abilities.COOLDOWN.get(), cooldown - 1);
+            } else if (!this.isEnabled() && this.getOrDefault(PalladiumDataComponents.Abilities.COOLDOWN.get(), 0) < this.getOrDefault(PalladiumDataComponents.Abilities.MAX_COOLDOWN.get(), 0)) {
+                this.set(PalladiumDataComponents.Abilities.COOLDOWN.get(), cooldown + 1);
             }
         }
 
-        if (this.activationTimer > 0) {
-            this.activationTimer--;
+        var activationTimer = this.getOrDefault(PalladiumDataComponents.Abilities.ACTIVATED_TIME.get(), 0);
+        if (activationTimer > 0) {
+            this.set(PalladiumDataComponents.Abilities.ACTIVATED_TIME.get(), activationTimer - 1);
         }
 
         this.lifetime++;
-        this.abilityConfiguration.getAbility().tick(entity, this, powerHolder, this.isEnabled());
-    }
+        this.ability.tick(entity, this, powerHolder, this.isEnabled());
 
-    public void syncState(LivingEntity entity) {
-        getSyncStateMessage(entity).sendToDimension(entity.level());
-    }
-
-    public SyncAbilityStatePacket getSyncStateMessage(LivingEntity entity) {
-        return new SyncAbilityStatePacket(entity.getId(), this.getReference(), this.unlocked, this.enabled, this.maxCooldown, this.cooldown, this.maxActivationTimer, this.activationTimer);
+        if (this.animationTimer != null) {
+            this.ability.animationTimerTick(entity, this, powerHolder, this.isEnabled(), this.animationTimer);
+        }
     }
 
     public void startCooldown(LivingEntity entity, int cooldown) {
-        this.maxCooldown = this.cooldown = cooldown;
-        this.syncState(entity);
+        this.set(PalladiumDataComponents.Abilities.COOLDOWN.get(), cooldown);
+        this.set(PalladiumDataComponents.Abilities.MAX_COOLDOWN.get(), cooldown);
     }
 
     public void startActivationTimer(LivingEntity entity, int activationTimer) {
-        this.maxActivationTimer = this.activationTimer = activationTimer;
-        this.syncState(entity);
+        this.set(PalladiumDataComponents.Abilities.ACTIVATED_TIME.get(), activationTimer);
+        this.set(PalladiumDataComponents.Abilities.MAX_ACTIVATED_TIME.get(), activationTimer);
     }
 
     public void keyPressed(LivingEntity entity, boolean pressed) {
-        for (Condition condition : this.getConfiguration().getConditions().getUnlockingConditions()) {
+        for (Condition condition : this.ability.getConditions().getUnlockingConditions()) {
             if (condition.needsKey()) {
                 if (pressed) {
-                    condition.onKeyPressed(entity, this, holder.getPower(), holder);
+                    condition.onKeyPressed(entity, this, holder);
                 } else {
-                    condition.onKeyReleased(entity, this, holder.getPower(), holder);
+                    condition.onKeyReleased(entity, this, holder);
                 }
                 return;
             }
         }
 
-        for (Condition condition : this.getConfiguration().getConditions().getEnablingConditions()) {
+        for (Condition condition : this.ability.getConditions().getEnablingConditions()) {
             if (condition.needsKey()) {
                 if (pressed) {
-                    condition.onKeyPressed(entity, this, holder.getPower(), holder);
+                    condition.onKeyPressed(entity, this, holder);
                 } else {
-                    condition.onKeyReleased(entity, this, holder.getPower(), holder);
+                    condition.onKeyReleased(entity, this, holder);
                 }
                 return;
             }
         }
     }
 
-    public PalladiumProperty<?> getEitherPropertyByKey(String key) {
-        PalladiumProperty<?> property = this.propertyManager.getPropertyByName(key);
-        return property != null ? property : this.abilityConfiguration.getPropertyManager().getPropertyByName(key);
+    @Nullable
+    public AnimationTimer getAnimationTimer() {
+        return this.animationTimer;
     }
 
-    public <T> T getProperty(PalladiumProperty<T> property) {
-        return this.propertyManager.isRegistered(property) ? this.propertyManager.get(property) : this.abilityConfiguration.get(property);
+    @Override
+    public @NotNull DataComponentMap getComponents() {
+        return this.components;
     }
 
-    public Object getPropertyByName(String key) {
-        var property = getEitherPropertyByKey(key);
-        return property != null ? this.getProperty(property) : null;
-    }
-
-    public <T> AbilityInstance setUniqueProperty(PalladiumProperty<T> property, T value) {
-        this.propertyManager.set(property, value);
-        return this;
-    }
-
-    @SuppressWarnings({"rawtypes", "unchecked"})
-    public boolean setUniquePropertyByName(String key, Object value) {
-        PalladiumProperty property = this.getPropertyManager().getPropertyByName(key);
-
-        if (property != null) {
-            this.setUniqueProperty(property, value);
-            return true;
+    @Nullable
+    public <T> T set(DataComponentType<? super T> component, @Nullable T value) {
+        var changed = this.components.set(component, value);
+        if (!this.holder.getEntity().level().isClientSide) {
+            var patch = DataComponentPatch.builder().set(component, value).build();
+            // sync
         }
-
-        return false;
+        return changed;
     }
 
-    public void fromNBT(CompoundTag tag) {
-        this.propertyManager.fromNBT(tag);
+    @Nullable
+    public <T> T setSilently(DataComponentType<? super T> component, @Nullable T value) {
+        return this.components.set(component, value);
     }
 
-    public CompoundTag toNBT(boolean toDisk) {
-        return this.propertyManager.toNBT(toDisk);
+    @Nullable
+    public <T, U> T update(DataComponentType<T> component, T defaultValue, U updateValue, BiFunction<T, U, T> updater) {
+        return this.set(component, updater.apply(this.getOrDefault(component, defaultValue), updateValue));
+    }
+
+    @Nullable
+    public <T> T update(DataComponentType<T> component, T defaultValue, UnaryOperator<T> updater) {
+        T object = this.getOrDefault(component, defaultValue);
+        return this.set(component, updater.apply(object));
+    }
+
+    @Nullable
+    public <T, U> T updateSilently(DataComponentType<T> component, T defaultValue, U updateValue, BiFunction<T, U, T> updater) {
+        return this.setSilently(component, updater.apply(this.getOrDefault(component, defaultValue), updateValue));
+    }
+
+    @Nullable
+    public <T> T remove(DataComponentType<? extends T> component) {
+        return this.components.remove(component);
+    }
+
+    public void applyComponents(DataComponentPatch components) {
+        this.components.applyPatch(components);
+    }
+
+    public void applyComponents(DataComponentMap components) {
+        this.components.setAll(components);
+    }
+
+    public Tag save() {
+        return DataComponentMap.CODEC.encodeStart(this.holder.entity.registryAccess().createSerializationContext(NbtOps.INSTANCE), this.components).getOrThrow();
     }
 
 }

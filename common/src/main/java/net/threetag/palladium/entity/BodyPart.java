@@ -2,6 +2,8 @@ package net.threetag.palladium.entity;
 
 import com.google.gson.JsonParseException;
 import com.mojang.blaze3d.vertex.PoseStack;
+import com.mojang.serialization.Codec;
+import io.netty.buffer.ByteBuf;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.minecraft.client.Minecraft;
@@ -11,7 +13,11 @@ import net.minecraft.client.model.geom.ModelPart;
 import net.minecraft.client.player.AbstractClientPlayer;
 import net.minecraft.client.renderer.entity.EntityRenderer;
 import net.minecraft.client.renderer.entity.player.PlayerRenderer;
+import net.minecraft.network.codec.ByteBufCodecs;
+import net.minecraft.network.codec.StreamCodec;
+import net.minecraft.util.ByIdMap;
 import net.minecraft.util.Mth;
+import net.minecraft.util.StringRepresentable;
 import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
@@ -27,6 +33,7 @@ import net.threetag.palladium.mixin.client.PlayerRendererInvoker;
 import net.threetag.palladium.power.ability.*;
 import net.threetag.palladium.util.SizeUtil;
 import net.threetag.palladium.util.context.DataContext;
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.joml.Matrix4f;
 import org.joml.Vector3f;
@@ -35,33 +42,45 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.function.IntFunction;
 
-public enum BodyPart {
+public enum BodyPart implements StringRepresentable {
 
-    HEAD("head", false),
-    HEAD_OVERLAY("head_overlay", true),
-    CHEST("chest", false),
-    CHEST_OVERLAY("chest_overlay", true),
-    RIGHT_ARM("right_arm", false),
-    RIGHT_ARM_OVERLAY("right_arm_overlay", true),
-    LEFT_ARM("left_arm", false),
-    LEFT_ARM_OVERLAY("left_arm_overlay", true),
-    RIGHT_LEG("right_leg", false),
-    RIGHT_LEG_OVERLAY("right_leg_overlay", true),
-    LEFT_LEG("left_leg", false),
-    LEFT_LEG_OVERLAY("left_leg_overlay", true),
-    CAPE("cape", false);
+    HEAD(0, "head", false),
+    HEAD_OVERLAY(1, "head_overlay", true),
+    CHEST(2, "chest", false),
+    CHEST_OVERLAY(3, "chest_overlay", true),
+    RIGHT_ARM(4, "right_arm", false),
+    RIGHT_ARM_OVERLAY(5, "right_arm_overlay", true),
+    LEFT_ARM(6, "left_arm", false),
+    LEFT_ARM_OVERLAY(7, "left_arm_overlay", true),
+    RIGHT_LEG(8, "right_leg", false),
+    RIGHT_LEG_OVERLAY(9, "right_leg_overlay", true),
+    LEFT_LEG(10, "left_leg", false),
+    LEFT_LEG_OVERLAY(11, "left_leg_overlay", true),
+    CAPE(12, "cape", false);
 
+    public static final IntFunction<BodyPart> BY_ID = ByIdMap.continuous(BodyPart::id, values(), ByIdMap.OutOfBoundsStrategy.ZERO);
+    public static final Codec<BodyPart> CODEC = StringRepresentable.fromEnum(BodyPart::values);
+    public static final StreamCodec<ByteBuf, BodyPart> STREAM_CODEC = ByteBufCodecs.idMapper(BY_ID, BodyPart::id);
+
+    private final int id;
     private final String name;
     private final boolean overlay;
     public static final List<Item> HIDES_LAYER = new ArrayList<>();
 
-    BodyPart(String name, boolean overlay) {
+    BodyPart(int id, String name, boolean overlay) {
+        this.id = id;
         this.name = name;
         this.overlay = overlay;
     }
 
-    public String getName() {
+    public int id() {
+        return id;
+    }
+
+    @Override
+    public @NotNull String getSerializedName() {
         return this.name;
     }
 
@@ -205,17 +224,17 @@ public enum BodyPart {
             }
         }
 
-        for (AbilityInstance bodyPartHide : AbilityUtil.getEnabledInstances(entity, Abilities.HIDE_BODY_PART.value())) {
-            if (isFirstPerson ? bodyPartHide.getProperty(HideBodyPartAbility.AFFECTS_FIRST_PERSON) : true) {
-                for (BodyPart part : bodyPartHide.getProperty(HideBodyPartAbility.BODY_PARTS)) {
+        for (AbilityInstance<HideBodyPartAbility> bodyPartHide : AbilityUtil.getEnabledInstances(entity, AbilitySerializers.HIDE_BODY_PART.get())) {
+            if (!isFirstPerson || bodyPartHide.getAbility().affectsFirstPerson) {
+                for (BodyPart part : bodyPartHide.getAbility().bodyParts) {
                     result.hide(part);
                 }
             }
         }
 
-        for (AbilityInstance bodyPartHide : AbilityUtil.getEnabledInstances(entity, Abilities.REMOVE_BODY_PART.value())) {
-            if (isFirstPerson ? bodyPartHide.getProperty(RemoveBodyPartAbility.AFFECTS_FIRST_PERSON) : true) {
-                for (BodyPart part : bodyPartHide.getProperty(RemoveBodyPartAbility.BODY_PARTS)) {
+        for (AbilityInstance<RemoveBodyPartAbility> bodyPartHide : AbilityUtil.getEnabledInstances(entity, AbilitySerializers.REMOVE_BODY_PART.get())) {
+            if (!isFirstPerson || bodyPartHide.getAbility().affectsFirstPerson) {
+                for (BodyPart part : bodyPartHide.getAbility().bodyParts) {
                     result.remove(part);
                 }
             }

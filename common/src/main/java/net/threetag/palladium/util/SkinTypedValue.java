@@ -2,6 +2,9 @@ package net.threetag.palladium.util;
 
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
+import com.mojang.datafixers.util.Either;
+import com.mojang.serialization.Codec;
+import com.mojang.serialization.codecs.RecordCodecBuilder;
 import net.minecraft.util.GsonHelper;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.player.Player;
@@ -81,6 +84,23 @@ public class SkinTypedValue<T> {
             json.add("slim", serializer.apply(this.slim));
             return json;
         }
+    }
+
+    public static <T> Codec<SkinTypedValue<T>> codec(Codec<T> typeCodec) {
+        Codec<SkinTypedValue<T>> recordCodec = RecordCodecBuilder.create(instance ->
+                instance.group(
+                        typeCodec.fieldOf("normal").forGetter(SkinTypedValue::getNormal),
+                        typeCodec.fieldOf("slim").forGetter(SkinTypedValue::getSlim)
+                ).apply(instance, SkinTypedValue::new));
+
+        return Codec.either(recordCodec, typeCodec)
+                .xmap(
+                        either -> either.map(
+                                left -> left,
+                                SkinTypedValue::new
+                        ),
+                        value -> value.normal == value.slim ? Either.right(value.normal) : Either.left(value)
+                );
     }
 
 }

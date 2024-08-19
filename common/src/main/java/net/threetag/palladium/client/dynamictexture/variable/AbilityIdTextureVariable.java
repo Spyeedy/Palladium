@@ -11,7 +11,7 @@ public class AbilityIdTextureVariable implements ITextureVariable {
     @Override
     public Object get(DataContext context) {
         var ability = context.getAbility();
-        return ability != null ? ability.getConfiguration().getKey() : "";
+        return ability != null ? ability.getAbility().getKey() : "";
     }
 
     public static class Serializer implements TextureVariableSerializer {

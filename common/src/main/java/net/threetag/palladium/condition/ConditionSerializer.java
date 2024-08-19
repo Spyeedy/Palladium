@@ -45,11 +45,6 @@ public abstract class ConditionSerializer<T extends Condition> implements Docume
         return PalladiumRegistries.CONDITION_SERIALIZER.getKey(this);
     }
 
-    @Override
-    public MapCodec<T> documentedCodec() {
-        return this.codec();
-    }
-
     public String getDocumentationDescription() {
         return "";
     }

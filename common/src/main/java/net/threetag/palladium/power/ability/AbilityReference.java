@@ -45,12 +45,12 @@ public record AbilityReference(@Nullable ResourceLocation powerId, @NotNull Stri
     }
 
     @Nullable
-    public AbilityInstance getInstance(LivingEntity entity) {
+    public AbilityInstance<?> getInstance(LivingEntity entity) {
         return this.getInstance(entity, null);
     }
 
     @Nullable
-    public AbilityInstance getInstance(LivingEntity entity, @Nullable PowerHolder powerHolder) {
+    public AbilityInstance<?> getInstance(LivingEntity entity, @Nullable PowerHolder powerHolder) {
         if (this.powerId != null) {
             EntityPowerHandler handler = PowerUtil.getPowerHandler(entity).orElse(null);
 

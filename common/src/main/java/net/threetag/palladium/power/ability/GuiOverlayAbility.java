@@ -2,61 +2,79 @@ package net.threetag.palladium.power.ability;
 
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.math.Axis;
+import com.mojang.serialization.MapCodec;
+import com.mojang.serialization.codecs.RecordCodecBuilder;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
+import net.minecraft.client.DeltaTracker;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.Gui;
 import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.LayeredDraw;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.util.ExtraCodecs;
 import net.minecraft.world.phys.Vec3;
 import net.threetag.palladium.client.dynamictexture.TextureReference;
+import net.threetag.palladium.power.energybar.EnergyBarUsage;
+import net.threetag.palladium.util.HudElementAlignment;
 import net.threetag.palladium.util.context.DataContext;
-import net.threetag.palladium.util.property.*;
-import net.threetag.palladiumcore.registry.client.OverlayRegistry;
 
 import java.util.List;
 
 public class GuiOverlayAbility extends Ability {
 
-    public static final PalladiumProperty<TextureReference> TEXTURE = new TextureReferenceProperty("texture").sync(SyncOption.SELF).configurable("Texture path for the gui overlay");
-    public static final PalladiumProperty<Integer> TEXTURE_WIDTH = new IntegerProperty("texture_width").sync(SyncOption.SELF).configurable("Width of the texture file");
-    public static final PalladiumProperty<Integer> TEXTURE_HEIGHT = new IntegerProperty("texture_height").sync(SyncOption.SELF).configurable("Width of the texture file");
-    public static final PalladiumProperty<Vec3> TRANSLATE = new Vec3Property("translate").sync(SyncOption.SELF).configurable("Translation of the rendered object");
-    public static final PalladiumProperty<Vec3> ROTATE = new Vec3Property("rotate").sync(SyncOption.SELF).configurable("Rotation of the rendered object");
-    public static final PalladiumProperty<Vec3> SCALE = new Vec3Property("scale").sync(SyncOption.SELF).configurable("Scale of the rendered object");
-    public static final PalladiumProperty<TextureAlignmentProperty.TextureAlignment> ALIGNMENT = new TextureAlignmentProperty("alignment").sync(SyncOption.SELF).configurable("Determines how the image is aligned on the screen");
+    public static final MapCodec<GuiOverlayAbility> CODEC = RecordCodecBuilder.mapCodec(instance ->
+            instance.group(
+                    TextureReference.CODEC.fieldOf("texture").forGetter(ab -> ab.texture),
+                    ExtraCodecs.NON_NEGATIVE_INT.optionalFieldOf("texture_width", 256).forGetter(ab -> ab.textureWidth),
+                    ExtraCodecs.NON_NEGATIVE_INT.optionalFieldOf("texture_height", 256).forGetter(ab -> ab.textureHeight),
+                    Vec3.CODEC.optionalFieldOf("translate", Vec3.ZERO).forGetter(ab -> ab.translate),
+                    Vec3.CODEC.optionalFieldOf("rotate", Vec3.ZERO).forGetter(ab -> ab.rotate),
+                    Vec3.CODEC.optionalFieldOf("scale", new Vec3(1, 1, 1)).forGetter(ab -> ab.scale),
+                    HudElementAlignment.CODEC.fieldOf("alignment").forGetter(ab -> ab.alignment),
+                    propertiesCodec(), conditionsCodec(), energyBarUsagesCodec()
+            ).apply(instance, GuiOverlayAbility::new));
 
-    public GuiOverlayAbility() {
-        this.withProperty(TEXTURE, TextureReference.normal(new ResourceLocation("textures/gui/presets/isles.png")));
-        this.withProperty(TEXTURE_WIDTH, 256);
-        this.withProperty(TEXTURE_HEIGHT, 256);
-        this.withProperty(TRANSLATE, Vec3.ZERO);
-        this.withProperty(ROTATE, Vec3.ZERO);
-        this.withProperty(SCALE, new Vec3(1, 1, 1));
-        this.withProperty(ALIGNMENT, TextureAlignmentProperty.TextureAlignment.STRETCH);
+    public final TextureReference texture;
+    public final int textureWidth, textureHeight;
+    public final Vec3 translate, rotate, scale;
+    public final HudElementAlignment alignment;
+
+    public GuiOverlayAbility(TextureReference texture, int textureWidth, int textureHeight, Vec3 translate, Vec3 rotate, Vec3 scale, HudElementAlignment alignment, AbilityProperties properties, AbilityConditions conditions, List<EnergyBarUsage> energyBarUsages) {
+        super(properties, conditions, energyBarUsages);
+        this.texture = texture;
+        this.textureWidth = textureWidth;
+        this.textureHeight = textureHeight;
+        this.translate = translate;
+        this.rotate = rotate;
+        this.scale = scale;
+        this.alignment = alignment;
     }
 
     @Override
-    public boolean isEffect() {
-        return true;
+    public AbilitySerializer<GuiOverlayAbility> getSerializer() {
+        return AbilitySerializers.GUI_OVERLAY.get();
     }
 
     @Environment(EnvType.CLIENT)
-    public static class Renderer implements OverlayRegistry.IngameOverlay {
+    public static class Renderer implements LayeredDraw.Layer {
 
         @Override
-        public void render(Minecraft minecraft, Gui gui, GuiGraphics guiGraphics, float partialTicks, int width, int height) {
-            List<AbilityInstance> entries = AbilityUtil.getEnabledEntries(minecraft.player, Abilities.GUI_OVERLAY.get()).stream().sorted((a1, a2) -> (int) (a1.getProperty(TRANSLATE).z - a2.getProperty(TRANSLATE).z)).toList();
-            for (AbilityInstance entry : entries) {
-                RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
-                var texture = entry.getProperty(TEXTURE).getTexture(DataContext.forAbility(minecraft.player, entry));
+        public void render(GuiGraphics guiGraphics, DeltaTracker deltaTracker) {
+            var minecraft = Minecraft.getInstance();
+            var width = minecraft.getWindow().getGuiScaledWidth();
+            var height = minecraft.getWindow().getGuiScaledHeight();
 
-                var textureWidth = entry.getProperty(TEXTURE_WIDTH);
-                var textureHeight = entry.getProperty(TEXTURE_HEIGHT);
-                var alignment = entry.getProperty(ALIGNMENT);
-                var translate = entry.getProperty(TRANSLATE);
-                var rotate = entry.getProperty(ROTATE);
-                var scale = entry.getProperty(SCALE);
+            List<AbilityInstance<GuiOverlayAbility>> abilityInstances = AbilityUtil.getEnabledInstances(minecraft.player, AbilitySerializers.GUI_OVERLAY.get()).stream().sorted((a1, a2) -> (int) (a1.getAbility().translate.z - a2.getAbility().translate.z)).toList();
+            for (AbilityInstance<GuiOverlayAbility> instance : abilityInstances) {
+                RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
+                var texture = instance.getAbility().texture.getTexture(DataContext.forAbility(minecraft.player, instance));
+
+                var textureWidth = instance.getAbility().textureWidth;
+                var textureHeight = instance.getAbility().textureHeight;
+                var alignment = instance.getAbility().alignment;
+                var translate = instance.getAbility().translate;
+                var rotate = instance.getAbility().rotate;
+                var scale = instance.getAbility().scale;
 
                 guiGraphics.pose().pushPose();
 
@@ -101,10 +119,15 @@ public class GuiOverlayAbility extends Ability {
             guiGraphics.pose().scale((float) scale.x, (float) scale.y, (float) scale.z);
             guiGraphics.blit(texture, -textureWidth / 2, -textureHeight / 2, 0, 0, 0, textureWidth, textureHeight, textureWidth, textureHeight);
         }
+
     }
 
-    @Override
-    public String getDocumentationDescription() {
-        return "Displays a gui overlay on the screen.";
+    public static class Serializer extends AbilitySerializer<GuiOverlayAbility> {
+
+        @Override
+        public MapCodec<GuiOverlayAbility> codec() {
+            return CODEC;
+        }
     }
+
 }

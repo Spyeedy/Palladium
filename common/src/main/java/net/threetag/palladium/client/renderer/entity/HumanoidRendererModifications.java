@@ -18,11 +18,13 @@ import net.threetag.palladium.client.model.animation.PalladiumAnimationRegistry;
 import net.threetag.palladium.entity.BodyPart;
 import net.threetag.palladium.entity.PlayerModelCacheExtension;
 import net.threetag.palladium.mixin.client.AgeableListModelInvoker;
-import net.threetag.palladium.power.ability.Abilities;
-import net.threetag.palladium.power.ability.AnimationTimer;
+import net.threetag.palladium.power.ability.AbilitySerializers;
+import net.threetag.palladium.power.ability.AbilityUtil;
 import net.threetag.palladium.util.Easing;
 import net.threetag.palladium.util.RenderUtil;
 import org.joml.Vector3f;
+
+import java.util.Objects;
 
 @SuppressWarnings({"rawtypes"})
 public class HumanoidRendererModifications {
@@ -58,7 +60,7 @@ public class HumanoidRendererModifications {
         BodyPart.hideHiddenOrRemovedParts(model, entity, CACHED_HIDE_RESULT);
 
         // layer shrinking
-        float scale = AnimationTimer.getValue(entity, Abilities.SHRINK_BODY_OVERLAY.value(), partialTick, Easing.INOUTSINE);
+        float scale = AbilityUtil.getHighestAnimationTimerProgress(entity, AbilitySerializers.SHRINK_BODY_OVERLAY.value(), partialTick, Easing.INOUTSINE);
 
         if (scale != 0F) {
             float f = -0.11F * scale;
@@ -90,13 +92,13 @@ public class HumanoidRendererModifications {
 
     @SuppressWarnings("unchecked")
     public static void postLayers(LivingEntityRenderer renderer, LivingEntity entity, HumanoidModel model, PoseStack poseStack, MultiBufferSource buffer, int packedLight, float partialTick) {
-        float vibrate = AnimationTimer.getValue(entity, Abilities.VIBRATE.value(), partialTick, Easing.INOUTSINE);
+        float vibrate = AbilityUtil.getHighestAnimationTimerProgress(entity, AbilitySerializers.VIBRATE.value(), partialTick, Easing.INOUTSINE);
 
         if (vibrate > 0F) {
             ALPHA_MULTIPLIER = 0.3F;
             var minecraft = Minecraft.getInstance();
             boolean bl = renderer.isBodyVisible(entity);
-            boolean bl2 = !bl && !entity.isInvisibleTo(minecraft.player);
+            boolean bl2 = !bl && !entity.isInvisibleTo(Objects.requireNonNull(minecraft.player));
             boolean bl3 = minecraft.shouldEntityAppearGlowing(entity);
             RenderType renderType = renderer.getRenderType(entity, bl, true, bl3);
             for (int i = 0; i < 10; i++) {

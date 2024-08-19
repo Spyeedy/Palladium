@@ -2,7 +2,7 @@ package net.threetag.palladium.energy.neoforge;
 
 import net.minecraft.world.item.ItemStack;
 import net.minecraftforge.energy.IEnergyStorage;
-import net.threetag.palladium.item.EnergyItem;
+import net.threetag.palladium.item.BaseEnergyItem;
 
 public class ItemEnergyStorage implements IEnergyStorage {
 
@@ -11,7 +11,7 @@ public class ItemEnergyStorage implements IEnergyStorage {
     protected int maxReceive;
     protected int maxExtract;
 
-    public ItemEnergyStorage(ItemStack stack, EnergyItem energyItem) {
+    public ItemEnergyStorage(ItemStack stack, BaseEnergyItem energyItem) {
         this(stack, energyItem.getEnergyCapacity(stack), energyItem.getEnergyMaxInput(stack), energyItem.getEnergyMaxOutput(stack));
     }
 

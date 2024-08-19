@@ -1,44 +1,77 @@
 package net.threetag.palladium.power.ability;
 
-import net.minecraft.world.entity.LivingEntity;
-import net.threetag.palladium.util.Easing;
+import net.minecraft.util.Mth;
 
-public interface AnimationTimer {
+public class AnimationTimer {
 
-    /**
-     * Calculates and returns the animation value
-     *
-     * @return Value between 0.0-1.0 that determines the state
-     */
-    float getAnimationValue(AbilityInstance entry, float partialTick);
+    private final AnimationTimerSetting setting;
+    private int value, prev;
 
-    /**
-     * Gets the raw animation timer value
-     *
-     * @return Value for the actual timer
-     */
-    float getAnimationTimer(AbilityInstance entry, float partialTick, boolean maxedOut);
-
-    default float getAnimationTimer(AbilityInstance entry, float partialTick) {
-        return this.getAnimationTimer(entry, partialTick, false);
+    public AnimationTimer(AnimationTimerSetting setting, int value) {
+        this.setting = setting;
+        this.value = value;
+        this.prev = value;
     }
 
-    static float getValue(LivingEntity entity, Ability ability, float partialTick, Easing easing) {
-        if (ability instanceof AnimationTimer timer) {
-            float f = 0F;
+    public AnimationTimer tick() {
+        this.prev = this.value;
+        return this;
+    }
 
-            for (AbilityInstance entry : AbilityUtil.getEntries(entity, ability)) {
-                f = Math.max(f, timer.getAnimationValue(entry, partialTick));
-            }
+    public AnimationTimer tickAndUpdate(boolean increase) {
+        this.tick();
 
-            return easing.apply(f);
+        if (increase && this.value < this.setting.max()) {
+            return this.incr();
+        } else if (!increase && this.value > this.setting.min()) {
+            return this.decr();
         }
 
-        return 0F;
+        return this;
     }
 
-    static float getValue(LivingEntity entity, Ability ability, float partialTick) {
-        return getValue(entity, ability, partialTick, Easing.LINEAR);
+    public AnimationTimer set(int value) {
+        this.value = value;
+        return this;
     }
 
+    public AnimationTimer incr(int amount) {
+        return this.set(this.value + amount);
+    }
+
+    public AnimationTimer incr() {
+        return this.incr(1);
+    }
+
+    public AnimationTimer decr(int amount) {
+        return this.set(this.value - amount);
+    }
+
+    public AnimationTimer decr() {
+        return this.incr(1);
+    }
+
+    public int value() {
+        return this.value;
+    }
+
+    public int prev() {
+        return this.prev;
+    }
+
+    public int min() {
+        return this.setting.min();
+    }
+
+    public int max() {
+        return this.setting.max();
+    }
+
+    public float interpolated(float partialTick) {
+        return Mth.lerp(partialTick, this.prev, this.value);
+    }
+
+    public float progress(float partialTick) {
+        return (this.interpolated(partialTick) - this.setting.min()) / (this.setting.max() - this.setting.min());
+    }
 }

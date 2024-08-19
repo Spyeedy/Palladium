@@ -5,6 +5,7 @@ import net.threetag.palladium.entity.FlightHandler;
 import net.threetag.palladium.entity.PalladiumAttributes;
 import net.threetag.palladium.entity.PalladiumPlayerExtension;
 import net.threetag.palladium.network.SetFlyingStatePacket;
+import net.threetag.palladiumcore.network.NetworkManager;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
@@ -26,7 +27,7 @@ public class LocalPlayerMixin {
             var flight = extension.palladium$getFlightHandler();
             if (player.getAbilities().flying) {
                 if (flight.getFlightType().isNotNull()) {
-                    new SetFlyingStatePacket(false).send();
+                    NetworkManager.get().sendToServer(new SetFlyingStatePacket(false));
                     flight.setFlightType(FlightHandler.FlightType.NONE);
                 } else {
                     var flightType = FlightHandler.getAvailableFlightType(player);
@@ -35,11 +36,11 @@ public class LocalPlayerMixin {
                         return;
                     }
 
-                    new SetFlyingStatePacket(true).send();
+                    NetworkManager.get().sendToServer(new SetFlyingStatePacket(true));
                     flight.setFlightType(flightType);
                 }
             } else {
-                new SetFlyingStatePacket(false).send();
+                NetworkManager.get().sendToServer(new SetFlyingStatePacket(false));
                 flight.setFlightType(FlightHandler.FlightType.NONE);
             }
 
@@ -51,7 +52,7 @@ public class LocalPlayerMixin {
     private void aiStepTop(CallbackInfo ci) {
         LocalPlayer player = (LocalPlayer) (Object) this;
         this.cachedMayFly = player.getAbilities().mayfly;
-        player.getAbilities().mayfly |= player.getAttributeValue(PalladiumAttributes.LEVITATION_SPEED.get()) > 0D || player.getAttributeValue(PalladiumAttributes.FLIGHT_SPEED.get()) > 0D;
+        player.getAbilities().mayfly |= player.getAttributeValue(PalladiumAttributes.LEVITATION_SPEED) > 0D || player.getAttributeValue(PalladiumAttributes.FLIGHT_SPEED) > 0D;
     }
 
     @Inject(method = "aiStep", at = @At("RETURN"))

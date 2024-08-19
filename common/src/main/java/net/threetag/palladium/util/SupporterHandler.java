@@ -18,10 +18,11 @@ import net.minecraft.util.GsonHelper;
 import net.minecraft.world.entity.player.Player;
 import net.threetag.palladium.Palladium;
 import net.threetag.palladium.accessory.Accessory;
+import net.threetag.palladium.registry.PalladiumRegistries;
 import net.threetag.palladiumcore.event.PlayerEvents;
 import net.threetag.palladiumcore.util.Platform;
-
 import org.jetbrains.annotations.Nullable;
+
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
@@ -137,14 +138,14 @@ public class SupporterHandler {
             JsonArray data = GsonHelper.getAsJsonArray(json, "accessoires", new JsonArray());
 
             for (int i = 0; i < data.size(); i++) {
-                ResourceLocation id = new ResourceLocation(data.get(i).getAsString());
+                ResourceLocation id = ResourceLocation.parse(data.get(i).getAsString());
 
                 if (id.getNamespace().equalsIgnoreCase("threecore")) {
                     id = Palladium.id(id.getPath());
                 }
 
-                if (Accessory.REGISTRY.containsKey(id)) {
-                    this.accessories.add(Accessory.REGISTRY.get(id));
+                if (PalladiumRegistries.ACCESSORY.containsKey(id)) {
+                    this.accessories.add(PalladiumRegistries.ACCESSORY.get(id));
                 }
             }
 

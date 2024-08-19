@@ -1,13 +1,13 @@
 package net.threetag.palladium.mixin.neoforge;
 
-import net.threetag.palladium.energy.IEnergyStorage;
+import net.threetag.palladium.energy.PalladiumEnergyStorage;
 import org.spongepowered.asm.mixin.Mixin;
 
-@Mixin(IEnergyStorage.class)
+@Mixin(PalladiumEnergyStorage.class)
 public interface IEnergyStorageMixin extends net.minecraftforge.energy.IEnergyStorage {
 
-    default IEnergyStorage cast() {
-        return (IEnergyStorage) this;
+    default PalladiumEnergyStorage cast() {
+        return (PalladiumEnergyStorage) this;
     }
 
     @Override

@@ -2,7 +2,6 @@ package net.threetag.palladium.item;
 
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
-import net.minecraft.core.NonNullList;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.stats.Stats;
 import net.minecraft.world.InteractionHand;
@@ -11,16 +10,18 @@ import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.MobSpawnType;
 import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.item.CreativeModeTab;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
+import net.minecraft.world.item.component.CustomData;
 import net.minecraft.world.level.ClipContext;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.gameevent.GameEvent;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.HitResult;
+import net.threetag.palladium.component.PalladiumDataComponents;
 import net.threetag.palladium.entity.Bottable;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.function.Supplier;
 
@@ -34,7 +35,7 @@ public class MobBottleItem extends Item {
     }
 
     @Override
-    public InteractionResultHolder<ItemStack> use(Level level, Player player, InteractionHand usedHand) {
+    public @NotNull InteractionResultHolder<ItemStack> use(Level level, Player player, InteractionHand usedHand) {
         ItemStack itemStack = player.getItemInHand(usedHand);
         BlockHitResult blockHitResult = getPlayerPOVHitResult(level, player, ClipContext.Fluid.NONE);
 
@@ -61,9 +62,11 @@ public class MobBottleItem extends Item {
 
     private void spawn(ServerLevel serverLevel, ItemStack bucketedMobStack, BlockPos pos) {
         Entity entity = this.entityTypeSupplier.get().spawn(serverLevel, bucketedMobStack, null, pos, MobSpawnType.BUCKET, true, false);
-        if (entity instanceof Bottable bottable) {
-            bottable.loadFromBottleTag(bucketedMobStack.getOrCreateTag());
-            bottable.setFromBottle(true);
+        if (entity instanceof Bottable bucketable) {
+            CustomData customData = bucketedMobStack.getOrDefault(PalladiumDataComponents.BOTTLE_ENTITY_DATA.get(), CustomData.EMPTY);
+            bucketable.loadFromBottleTag(customData.copyTag());
+            bucketable.setFromBottle(true);
         }
+
     }
 }

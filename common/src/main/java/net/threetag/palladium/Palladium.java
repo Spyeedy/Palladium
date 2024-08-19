@@ -15,6 +15,7 @@ import net.threetag.palladium.command.PalladiumEntitySelectorOptions;
 import net.threetag.palladium.command.SuperpowerCommand;
 import net.threetag.palladium.compat.geckolib.GeckoLibCompat;
 import net.threetag.palladium.compat.pehkui.PehkuiCompat;
+import net.threetag.palladium.component.PalladiumDataComponents;
 import net.threetag.palladium.condition.ConditionSerializer;
 import net.threetag.palladium.condition.ConditionSerializers;
 import net.threetag.palladium.documentation.HTMLBuilder;
@@ -23,14 +24,15 @@ import net.threetag.palladium.entity.PalladiumEntityTypes;
 import net.threetag.palladium.entity.effect.EntityEffects;
 import net.threetag.palladium.entity.value.EntityDependentNumberTypes;
 import net.threetag.palladium.event.PalladiumEvents;
+import net.threetag.palladium.item.PalladiumArmorMaterials;
 import net.threetag.palladium.item.PalladiumCreativeModeTabs;
 import net.threetag.palladium.item.PalladiumItems;
 import net.threetag.palladium.network.PalladiumNetwork;
 import net.threetag.palladium.power.ItemPowerManager;
 import net.threetag.palladium.power.PowerEventHandler;
 import net.threetag.palladium.power.SuitSetPowerManager;
-import net.threetag.palladium.power.ability.Abilities;
-import net.threetag.palladium.power.ability.Ability;
+import net.threetag.palladium.power.ability.AbilitySerializers;
+import net.threetag.palladium.power.ability.AbilitySerializer;
 import net.threetag.palladium.power.ability.AbilityEventHandler;
 import net.threetag.palladium.power.provider.PowerProviders;
 import net.threetag.palladium.registry.PalladiumRegistries;
@@ -62,8 +64,10 @@ public class Palladium {
         PalladiumBlocks.BLOCKS.register();
         PalladiumBlockEntityTypes.BLOCK_ENTITIES.register();
         PalladiumCreativeModeTabs.TABS.register();
+        PalladiumArmorMaterials.ARMOR_MATERIALS.register();
+        PalladiumDataComponents.DATA_COMPONENTS.register();
         PalladiumItems.ITEMS.register();
-        Abilities.ABILITIES.register();
+        AbilitySerializers.ABILITIES.register();
         ConditionSerializers.CONDITION_SERIALIZERS.register();
         PowerProviders.PROVIDERS.register();
         IconSerializers.ICON_SERIALIZERS.register();
@@ -87,7 +91,7 @@ public class Palladium {
         ItemPowerManager.init();
         SuitSetPowerManager.init();
         AbilityEventHandler.init();
-        Abilities.init();
+        AbilitySerializers.init();
         PalladiumProperties.init();
         PalladiumAttributes.init();
         EntityEffects.init();
@@ -138,7 +142,7 @@ public class Palladium {
     public static void generateDocumentation() {
         if (Platform.isClient()) {
             Consumer<HTMLBuilder> consumer = HTMLBuilder::save;
-            consumer.accept(Ability.documentationBuilder());
+            consumer.accept(AbilitySerializer.documentationBuilder());
             consumer.accept(ConditionSerializer.documentationBuilder());
             consumer.accept(CreativeModeTabParser.documentationBuilder());
             consumer.accept(ArmorMaterialParser.documentationBuilder());

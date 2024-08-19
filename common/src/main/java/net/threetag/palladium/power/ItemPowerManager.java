@@ -1,6 +1,7 @@
 package net.threetag.palladium.power;
 
 import com.google.gson.*;
+import net.minecraft.core.Holder;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.packs.PackType;
@@ -11,6 +12,7 @@ import net.minecraft.util.profiling.ProfilerFiller;
 import net.minecraft.world.item.Item;
 import net.threetag.palladium.Palladium;
 import net.threetag.palladium.addonpack.log.AddonPackLog;
+import net.threetag.palladium.util.json.GsonUtil;
 import net.threetag.palladiumcore.registry.ReloadListenerRegistry;
 import org.jetbrains.annotations.Nullable;
 
@@ -24,7 +26,7 @@ public class ItemPowerManager extends SimpleJsonResourceReloadListener {
     private static final Gson GSON = (new GsonBuilder()).setPrettyPrinting().disableHtmlEscaping().create();
     private static ItemPowerManager INSTANCE;
 
-    private final Map<String, Map<Item, List<Power>>> itemPowers = new HashMap<>();
+    private final Map<String, Map<Item, List<ResourceLocation>>> itemPowers = new HashMap<>();
 
     public static void init() {
         ReloadListenerRegistry.register(PackType.SERVER_DATA, Palladium.id("item_powers"), INSTANCE = new ItemPowerManager());
@@ -42,51 +44,19 @@ public class ItemPowerManager extends SimpleJsonResourceReloadListener {
                 JsonObject jsonObject = GsonHelper.convertToJsonObject(json, "$");
                 String slot = GsonHelper.getAsString(jsonObject, "slot");
 
-                List<Power> powers = new ArrayList<>();
-                if (jsonObject.get("power").isJsonPrimitive()) {
-                    var power = PowerEventHandler.getInstance(null).getPower(new ResourceLocation(jsonObject.get("power").getAsString()));
+                List<ResourceLocation> powers = new ArrayList<>();
+                GsonUtil.forEachInListOrPrimitive(jsonObject.get("power"), js -> powers.add(GsonUtil.convertToResourceLocation(js, "power[]")));
 
-                    if (power == null) {
-                        AddonPackLog.warning("Unknown power used for item '" + jsonObject.get("power").getAsString() + "'");
-                    } else {
-                        powers.add(power);
-                    }
-                } else if (jsonObject.get("power").isJsonArray()) {
-                    for (JsonElement jsonElement : GsonHelper.getAsJsonArray(jsonObject, "power")) {
-                        var power = PowerEventHandler.getInstance(null).getPower(new ResourceLocation(jsonElement.getAsString()));
-
-                        if (power == null) {
-                            AddonPackLog.warning("Unknown power used for item '" + jsonElement.getAsString() + "'");
-                        } else {
-                            powers.add(power);
-                        }
-                    }
-                } else {
-                    throw new JsonSyntaxException("Expected power to be string or array of strings");
-                }
-
-                List<Item> items = new ArrayList<>();
-                if (jsonObject.get("item").isJsonPrimitive()) {
-                    ResourceLocation itemId = new ResourceLocation(jsonObject.get("item").getAsString());
+                final List<Item> items = new ArrayList<>();
+                GsonUtil.forEachInListOrPrimitive(jsonObject.get("power"), js -> {
+                    ResourceLocation itemId = GsonUtil.convertToResourceLocation(js, "item[]");
 
                     if (!BuiltInRegistries.ITEM.containsKey(itemId)) {
                         throw new JsonParseException("Unknown item '" + itemId + "'");
                     }
 
-                    items = List.of(BuiltInRegistries.ITEM.get(itemId));
-                } else if (jsonObject.get("item").isJsonArray()) {
-                    for (JsonElement jsonElement : GsonHelper.getAsJsonArray(jsonObject, "item")) {
-                        ResourceLocation itemId = new ResourceLocation(jsonElement.getAsString());
-
-                        if (!BuiltInRegistries.ITEM.containsKey(itemId)) {
-                            throw new JsonParseException("Unknown item '" + itemId + "'");
-                        }
-
-                        items.add(BuiltInRegistries.ITEM.get(itemId));
-                    }
-                } else {
-                    throw new JsonSyntaxException("Expected item to be string or array of strings");
-                }
+                    items.add(BuiltInRegistries.ITEM.get(itemId));
+                });
 
                 for (Item item : items) {
                     this.itemPowers.computeIfAbsent(slot, s -> new HashMap<>()).computeIfAbsent(item, item1 -> new ArrayList<>()).addAll(powers);
@@ -99,7 +69,7 @@ public class ItemPowerManager extends SimpleJsonResourceReloadListener {
     }
 
     @Nullable
-    public List<Power> getPowerForItem(String slot, Item item) {
+    public List<ResourceLocation> getPowerForItem(String slot, Item item) {
         return this.itemPowers.containsKey(slot) ? this.itemPowers.get(slot).get(item) : null;
     }
 

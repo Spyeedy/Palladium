@@ -6,19 +6,24 @@ import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
 import net.threetag.palladium.command.EntitySelectorParserExtension;
 import net.threetag.palladium.power.ability.AbilityUtil;
+import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
+import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
+import java.util.List;
 import java.util.function.Predicate;
 
 @Mixin(EntitySelectorParser.class)
 public class EntitySelectorParserMixin implements EntitySelectorParserExtension {
 
     @Shadow
-    private Predicate<Entity> predicate;
+    @Final
+    private List<Predicate<Entity>> predicates;
+    @Unique
     ResourceLocation palladium$powerId = null;
 
     @Override
@@ -34,7 +39,7 @@ public class EntitySelectorParserMixin implements EntitySelectorParserExtension 
     @Inject(method = "finalizePredicates", at = @At("HEAD"))
     private void finalizePredicates(CallbackInfo info) {
         if (this.palladium$powerId != null) {
-            this.predicate = this.predicate.and(e -> e instanceof LivingEntity livingEntity && AbilityUtil.hasPower(livingEntity, this.palladium$powerId));
+            this.predicates.add(e -> e instanceof LivingEntity livingEntity && AbilityUtil.hasPower(livingEntity, this.palladium$powerId));
         }
     }
 }

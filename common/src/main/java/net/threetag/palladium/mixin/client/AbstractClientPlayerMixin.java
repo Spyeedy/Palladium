@@ -1,9 +1,6 @@
 package net.threetag.palladium.mixin.client;
 
 import com.mojang.authlib.GameProfile;
-import dev.kosmx.playerAnim.api.layered.IAnimation;
-import dev.kosmx.playerAnim.api.layered.ModifierLayer;
-import dev.kosmx.playerAnim.minecraftApi.PlayerAnimationAccess;
 import net.minecraft.client.model.PlayerModel;
 import net.minecraft.client.model.geom.ModelPart;
 import net.minecraft.client.multiplayer.ClientLevel;
@@ -21,24 +18,24 @@ import java.util.Collections;
 @Mixin(AbstractClientPlayer.class)
 public class AbstractClientPlayerMixin implements AnimatablePlayer, PlayerModelCacheExtension {
 
-    @Unique
-    private ModifierLayer<IAnimation> palladium$modifierLayer;
+//    @Unique
+//    private ModifierLayer<IAnimation> palladium$modifierLayer;
 
     @Unique
     private final PlayerModel<AbstractClientPlayer> palladium$cachedModel = new PlayerModel<>(new ModelPart(Collections.emptyList(), Collections.emptyMap()), false);
 
     @Inject(method = "<init>", at = @At(value = "RETURN"))
     private void init(ClientLevel clientLevel, GameProfile gameProfile, CallbackInfo ci) {
-        PlayerAnimationAccess.getPlayerAnimLayer((AbstractClientPlayer) (Object) this).addAnimLayer(1000, this.palladium_getModifierLayer());
+//        PlayerAnimationAccess.getPlayerAnimLayer((AbstractClientPlayer) (Object) this).addAnimLayer(1000, this.palladium_getModifierLayer());
     }
 
-    @Override
-    public ModifierLayer<IAnimation> palladium_getModifierLayer() {
-        if (this.palladium$modifierLayer == null) {
-            this.palladium$modifierLayer = new ModifierLayer<>();
-        }
-        return this.palladium$modifierLayer;
-    }
+//    @Override
+//    public ModifierLayer<IAnimation> palladium_getModifierLayer() {
+//        if (this.palladium$modifierLayer == null) {
+//            this.palladium$modifierLayer = new ModifierLayer<>();
+//        }
+//        return this.palladium$modifierLayer;
+//    }
 
     @Override
     public PlayerModel<AbstractClientPlayer> palladium$getCachedModel() {

@@ -22,9 +22,8 @@ import net.threetag.palladium.Palladium;
 import net.threetag.palladium.client.screen.components.IconButton;
 import net.threetag.palladium.power.EntityPowerHandler;
 import net.threetag.palladium.power.Power;
-import net.threetag.palladium.power.PowerEventHandler;
 import net.threetag.palladium.power.PowerUtil;
-import net.threetag.palladium.power.ability.Ability;
+import net.threetag.palladium.power.ability.AbilitySerializer;
 import net.threetag.palladium.registry.PalladiumRegistryKeys;
 import net.threetag.palladium.util.icon.Icon;
 import net.threetag.palladium.util.icon.ItemIcon;
@@ -99,7 +98,7 @@ public class PowersScreen extends Screen {
                 .stream()
                 .sorted(Comparator.comparingInt(holder -> Objects.requireNonNull(this.minecraft.player).registryAccess().registryOrThrow(PalladiumRegistryKeys.POWER).stream().toList().indexOf(holder.getPower())))
                 .forEach(holder -> {
-                    if (!holder.getPower().isHidden() && holder.getAbilities().values().stream().anyMatch(en -> !en.getProperty(Ability.HIDDEN_IN_GUI))) {
+                    if (!holder.getPower().isHidden() && holder.getAbilities().values().stream().anyMatch(en -> !en.getProperty(AbilitySerializer.HIDDEN_IN_GUI))) {
                         var type = holder.getPower().getGuiDisplayType();
 
                         if (type == Power.GuiDisplayType.AUTO) {
@@ -302,7 +301,7 @@ public class PowersScreen extends Screen {
         public Icon getIcon() {
             List<Icon> icons = Lists.newArrayList();
             Minecraft mc = Minecraft.getInstance();
-            PowerUtil.getPowerHandler(mc.player).ifPresent(handler -> handler.getPowerHolders().values().stream().filter(holder -> !holder.getPower().isHidden() && holder.getAbilities().values().stream().anyMatch(en -> !en.getProperty(Ability.HIDDEN_IN_GUI))).forEach(holder -> icons.add(holder.getPower().getIcon())));
+            PowerUtil.getPowerHandler(mc.player).ifPresent(handler -> handler.getPowerHolders().values().stream().filter(holder -> !holder.getPower().isHidden() && holder.getAbilities().values().stream().anyMatch(en -> !en.getProperty(AbilitySerializer.HIDDEN_IN_GUI))).forEach(holder -> icons.add(holder.getPower().getIcon())));
             if (icons.isEmpty()) {
                 this.visible = false;
                 icons.add(new ItemIcon(Blocks.BARRIER));

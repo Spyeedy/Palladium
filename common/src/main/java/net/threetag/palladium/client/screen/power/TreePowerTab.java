@@ -9,7 +9,7 @@ import net.minecraft.util.Mth;
 import net.threetag.palladium.client.dynamictexture.TextureReference;
 import net.threetag.palladium.network.RequestAbilityBuyScreenPacket;
 import net.threetag.palladium.power.PowerHolder;
-import net.threetag.palladium.power.ability.Ability;
+import net.threetag.palladium.power.ability.AbilitySerializer;
 import net.threetag.palladium.power.ability.AbilityInstance;
 import net.threetag.palladium.power.ability.AbilityUtil;
 import net.threetag.palladium.util.context.DataContext;
@@ -48,11 +48,11 @@ public class TreePowerTab extends PowerTab {
 
         // Create entry for each ability
         for (AbilityInstance ability : this.powerHolder.getAbilities().values()) {
-            if (!ability.getProperty(Ability.HIDDEN_IN_GUI)) {
+            if (!ability.getProperty(AbilitySerializer.HIDDEN_IN_GUI)) {
                 var widget = new TreeAbilityWidget(this, this.minecraft, this.powerHolder, ability).setPosition(0, 0);
                 this.entries.add(widget);
 
-                var pos = ability.getProperty(Ability.GUI_POSITION);
+                var pos = ability.getProperty(AbilitySerializer.GUI_POSITION);
                 if (pos != null) {
                     widget.setPositionFixed(pos.x, pos.y);
                 }
@@ -273,7 +273,7 @@ public class TreePowerTab extends PowerTab {
     }
 
     public static boolean canBeTree(PowerHolder holder) {
-        return holder.getAbilities().values().stream().filter(entry -> !entry.getProperty(Ability.HIDDEN_IN_GUI)).anyMatch(entry -> {
+        return holder.getAbilities().values().stream().filter(entry -> !entry.getProperty(AbilitySerializer.HIDDEN_IN_GUI)).anyMatch(entry -> {
             List<AbilityInstance> parents = AbilityUtil.findParentsWithinHolder(entry.getConfiguration(), holder);
             List<AbilityInstance> children = AbilityUtil.findChildrenWithinHolder(entry.getConfiguration(), holder);
 

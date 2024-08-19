@@ -6,9 +6,13 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.LivingEntity;
 import net.threetag.palladium.network.SyncEntityPowersPacket;
+import net.threetag.palladium.power.energybar.EnergyBar;
+import net.threetag.palladium.power.energybar.EnergyBarReference;
 import net.threetag.palladium.power.provider.PowerProvider;
 import net.threetag.palladium.registry.PalladiumRegistries;
 import net.threetag.palladium.registry.PalladiumRegistryKeys;
+import net.threetag.palladiumcore.network.NetworkManager;
+import org.apache.commons.lang3.tuple.Triple;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -56,17 +60,22 @@ public class EntityPowerHandler {
             }
 
             // Add new ones
-            for (PowerHolder holder : collector.getAdded()) {
+            List<Triple<EnergyBarReference, Integer, Integer>> energyBars = new ArrayList<>();
+            for (PowerCollector.PowerHolderCache holderCache : collector.getAdded()) {
+                var holder = holderCache.make(this.entity, this.powerData);
                 this.setPowerHolder(holder);
+                for (EnergyBar energyBar : holder.getEnergyBars().values()) {
+                    energyBars.add(Triple.of(new EnergyBarReference(holder.getPowerId(), energyBar.getConfiguration().getKey()), energyBar.get(), energyBar.getMax()));
+                }
             }
 
             // Sync
             if (!toRemove.isEmpty() || !collector.getAdded().isEmpty()) {
-                var msg = new SyncEntityPowersPacket(this.entity, toRemove.stream().map(p -> p.getPower().getId()).toList(), collector.getAdded().stream().map(p -> p.getPower().getId()).toList());
+                var msg = new SyncEntityPowersPacket(this.entity.getId(), toRemove.stream().map(PowerHolder::getPowerId).toList(), collector.getAdded().stream().map(powerHolderCache -> powerHolderCache.power().unwrapKey().orElseThrow().location()).toList(), energyBars);
                 if (this.entity instanceof ServerPlayer serverPlayer) {
-                    msg.sendToTrackingAndSelf(serverPlayer);
+                    NetworkManager.get().sendToPlayersTrackingEntityAndSelf(serverPlayer, msg);
                 } else {
-                    msg.sendToTracking(this.entity);
+                    NetworkManager.get().sendToPlayersTrackingEntity(this.entity, msg);
                 }
             }
         }
@@ -83,7 +92,6 @@ public class EntityPowerHandler {
         } else {
             this.removePowerHolder(holder.getPowerId());
             this.powers.put(holder.getPowerId(), holder);
-            holder.fromNBT(this.powerData.getCompound(holder.getPowerId().toString()));
             holder.firstTick();
         }
     }
@@ -96,7 +104,7 @@ public class EntityPowerHandler {
             holder.lastTick();
 
             if (hasPersistentData) {
-                this.savePowerNbt(holder);
+                this.powerData.put(holder.getPowerId().toString(), holder.save());
             }
 
             this.powers.remove(powerId);
@@ -115,32 +123,16 @@ public class EntityPowerHandler {
         return this.powers.containsKey(powerId);
     }
 
-    public void removeAndAddPowers(List<ResourceLocation> toRemove, List<ResourceLocation> toAdd) {
-        if (this.entity.level().isClientSide) {
-            for (ResourceLocation powerId : toRemove) {
-                this.removePowerHolder(powerId);
-            }
-
-            for (ResourceLocation power : toAdd) {
-                this.setPowerHolder(new PowerHolder(this.entity, power, PowerValidator.ALWAYS_ACTIVE));
-            }
-        }
-    }
-
-    public void fromNBT(CompoundTag nbt) {
+    public void load(CompoundTag nbt) {
         this.powerData = nbt;
     }
 
-    public CompoundTag toNBT() {
+    public CompoundTag save() {
         for (PowerHolder holder : this.powers.values()) {
-            this.savePowerNbt(holder);
+            this.powerData.put(holder.getPowerId().toString(), holder.save());
         }
         this.cleanPowerData();
         return this.powerData;
-    }
-
-    public void savePowerNbt(PowerHolder holder) {
-        this.powerData.put(holder.getPowerId().toString(), holder.toNBT(true));
     }
 
     public void cleanPowerData() {

@@ -9,14 +9,14 @@ import net.threetag.palladium.entity.effect.EntityEffect;
 import net.threetag.palladium.entity.value.EntityDependentNumberType;
 import net.threetag.palladium.item.SuitSet;
 import net.threetag.palladium.power.Power;
-import net.threetag.palladium.power.ability.Ability;
+import net.threetag.palladium.power.ability.AbilitySerializer;
 import net.threetag.palladium.power.provider.PowerProvider;
 import net.threetag.palladium.util.icon.IconSerializer;
 
 public class PalladiumRegistryKeys {
 
     public static final ResourceKey<Registry<Accessory>> ACCESSORY = createRegistryKey("accessory");
-    public static final ResourceKey<Registry<Ability>> ABILITY = createRegistryKey("ability");
+    public static final ResourceKey<Registry<AbilitySerializer<?>>> ABILITY_SERIALIZER = createRegistryKey("ability_serializer");
     public static final ResourceKey<Registry<ConditionSerializer<?>>> CONDITION_SERIALIZER = createRegistryKey("condition_serializer");
     public static final ResourceKey<Registry<Power>> POWER = createRegistryKey("power");
     public static final ResourceKey<Registry<PowerProvider>> POWER_PROVIDER = createRegistryKey("power_provider");

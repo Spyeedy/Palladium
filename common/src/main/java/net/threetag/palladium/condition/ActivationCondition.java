@@ -7,7 +7,6 @@ import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.world.entity.LivingEntity;
-import net.threetag.palladium.power.Power;
 import net.threetag.palladium.power.PowerHolder;
 import net.threetag.palladium.power.ability.AbilityConditions;
 import net.threetag.palladium.power.ability.AbilityInstance;
@@ -56,16 +55,16 @@ public class ActivationCondition extends KeyCondition {
             return false;
         }
 
-        if (this.cooldown != 0 && Objects.requireNonNull(entry).activationTimer == 1) {
+        if (this.cooldown != 0 && Objects.requireNonNull(entry).getActivatedTime() == 1) {
             entry.startCooldown(context.getLivingEntity(), this.cooldown);
         }
-        return Objects.requireNonNull(entry).activationTimer > 0;
+        return Objects.requireNonNull(entry).getActivatedTime() > 0;
     }
 
     @Override
-    public void onKeyPressed(LivingEntity entity, AbilityInstance entry, Power power, PowerHolder holder) {
-        if (entry.cooldown <= 0 && entry.activationTimer == 0) {
-            entry.startActivationTimer(entity, this.ticks);
+    public void onKeyPressed(LivingEntity entity, AbilityInstance<?> abilityInstance, PowerHolder holder) {
+        if (abilityInstance.getCooldown() <= 0 && abilityInstance.getActivatedTime() == 0) {
+            abilityInstance.startActivationTimer(entity, this.ticks);
         }
     }
 

@@ -7,7 +7,7 @@ import net.minecraft.client.renderer.PostChain;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
-import net.threetag.palladium.power.ability.Abilities;
+import net.threetag.palladium.power.ability.AbilitySerializers;
 import net.threetag.palladium.power.ability.AbilityUtil;
 import net.threetag.palladium.power.ability.ShaderEffectAbility;
 import org.jetbrains.annotations.Nullable;
@@ -37,7 +37,7 @@ public abstract class GameRendererMixin {
 
     @Inject(method = "bobView", at = @At("HEAD"), cancellable = true)
     private void bobView(PoseStack matrixStack, float partialTicks, CallbackInfo ci) {
-        if (this.minecraft.getCameraEntity() instanceof LivingEntity livingEntity && !AbilityUtil.getEnabledEntries(livingEntity, Abilities.ENERGY_BLAST.get()).isEmpty()) {
+        if (this.minecraft.getCameraEntity() instanceof LivingEntity livingEntity && !AbilityUtil.getEnabledEntries(livingEntity, AbilitySerializers.ENERGY_BLAST.get()).isEmpty()) {
             ci.cancel();
         }
     }

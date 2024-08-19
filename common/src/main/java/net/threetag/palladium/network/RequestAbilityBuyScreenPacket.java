@@ -5,7 +5,7 @@ import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
 import net.minecraft.server.level.ServerPlayer;
 import net.threetag.palladium.Palladium;
-import net.threetag.palladium.condition.BuyableCondition;
+import net.threetag.palladium.component.PalladiumDataComponents;
 import net.threetag.palladium.power.ability.AbilityInstance;
 import net.threetag.palladium.power.ability.AbilityReference;
 import net.threetag.palladium.power.ability.AbilityUtil;
@@ -21,13 +21,13 @@ public record RequestAbilityBuyScreenPacket(AbilityReference reference) implemen
     );
 
     public static void handle(RequestAbilityBuyScreenPacket packet, NetworkManager.Context context) {
-        AbilityInstance entry = packet.reference.getInstance(context.getPlayer());
+        AbilityInstance<?> instance = packet.reference.getInstance(context.getPlayer());
 
-        if (entry != null) {
-            var buyableCondition = entry.getConfiguration().getConditions().findBuyCondition();
+        if (instance != null) {
+            var buyableCondition = instance.getAbility().getConditions().findBuyCondition();
 
-            if (buyableCondition != null && !entry.getProperty(BuyableCondition.BOUGHT)) {
-                for (AbilityInstance parentEntry : AbilityUtil.findParentsWithinHolder(entry.getConfiguration(), entry.getHolder())) {
+            if (buyableCondition != null && !instance.getOrDefault(PalladiumDataComponents.Abilities.BOUGHT.get(), false)) {
+                for (AbilityInstance<?> parentEntry : AbilityUtil.findParentsWithinHolder(instance.getAbility(), instance.getHolder())) {
                     if (!parentEntry.isUnlocked()) {
                         return;
                     }

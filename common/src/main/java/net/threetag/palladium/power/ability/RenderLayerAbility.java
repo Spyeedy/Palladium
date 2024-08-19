@@ -1,35 +1,48 @@
 package net.threetag.palladium.power.ability;
 
+import com.mojang.serialization.MapCodec;
+import com.mojang.serialization.codecs.RecordCodecBuilder;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.LivingEntity;
 import net.threetag.palladium.client.renderer.renderlayer.IPackRenderLayer;
 import net.threetag.palladium.client.renderer.renderlayer.PackRenderLayerManager;
-import net.threetag.palladium.util.property.PalladiumProperty;
-import net.threetag.palladium.util.property.ResourceLocationProperty;
+import net.threetag.palladium.power.energybar.EnergyBarUsage;
+
+import java.util.List;
 
 public class RenderLayerAbility extends Ability implements RenderLayerProviderAbility {
 
-    public static final PalladiumProperty<ResourceLocation> RENDER_LAYER = new ResourceLocationProperty("render_layer").configurable("ID of the render layer that will be rendered");
+    public static final MapCodec<RenderLayerAbility> CODEC = RecordCodecBuilder.mapCodec(instance ->
+            instance.group(
+                    ResourceLocation.CODEC.fieldOf("render_layer").forGetter(ab -> ab.renderLayerId),
+                    propertiesCodec(), conditionsCodec(), energyBarUsagesCodec()
+            ).apply(instance, RenderLayerAbility::new));
 
-    public RenderLayerAbility() {
-        this.withProperty(RENDER_LAYER, new ResourceLocation("namespace", "render_layer_id"));
-    }
+    public final ResourceLocation renderLayerId;
 
-    @Override
-    public boolean isEffect() {
-        return true;
-    }
-
-    @Override
-    public String getDocumentationDescription() {
-        return "Allows you to add a render layer to the entity.";
+    public RenderLayerAbility(ResourceLocation renderLayerId, AbilityProperties properties, AbilityConditions conditions, List<EnergyBarUsage> energyBarUsages) {
+        super(properties, conditions, energyBarUsages);
+        this.renderLayerId = renderLayerId;
     }
 
     @Override
     @Environment(EnvType.CLIENT)
-    public IPackRenderLayer getRenderLayer(AbilityInstance entry, LivingEntity entity, PackRenderLayerManager manager) {
-        return manager.getLayer(entry.getProperty(RENDER_LAYER));
+    public IPackRenderLayer getRenderLayer(AbilityInstance instance, LivingEntity entity, PackRenderLayerManager manager) {
+        return manager.getLayer(this.renderLayerId);
+    }
+
+    @Override
+    public AbilitySerializer<RenderLayerAbility> getSerializer() {
+        return AbilitySerializers.RENDER_LAYER.get();
+    }
+
+    public static class Serializer extends AbilitySerializer<RenderLayerAbility> {
+
+        @Override
+        public MapCodec<RenderLayerAbility> codec() {
+            return CODEC;
+        }
     }
 }

@@ -72,8 +72,6 @@ public class PalladiumAnimationRegistry extends SimpleJsonResourceReloadListener
     }
 
     public static void forEach(AbstractClientPlayer player, HumanoidModel<?> model, PalladiumAnimation.FirstPersonContext firstPersonContext, float partialTicks, BiConsumer<PalladiumAnimation.PlayerModelPart, PalladiumAnimation.PartAnimationData> consumer, float limbSwing, float limbSwingAmount, float ageInTicks, float netHeadYaw, float headPitch) {
-        Map<PalladiumAnimation.PlayerModelPart, PalladiumAnimation.PartAnimationData> gathered = new HashMap<>();
-
         for (PalladiumAnimation animation : INSTANCE.animationsSorted) {
             PalladiumAnimation.Builder builder = new PalladiumAnimation.Builder(limbSwing, limbSwingAmount, ageInTicks, netHeadYaw, headPitch);
             animation.animate(builder, player, model, firstPersonContext, partialTicks);
@@ -85,7 +83,7 @@ public class PalladiumAnimationRegistry extends SimpleJsonResourceReloadListener
 
     public static void applyAnimations(HumanoidModel<?> model, LivingEntity entity, float limbSwing, float limbSwingAmount, float ageInTicks, float netHeadYaw, float headPitch) {
         if (entity instanceof AbstractClientPlayer player) {
-            forEach(player, model, PalladiumAnimation.FirstPersonContext.NONE, Minecraft.getInstance().getFrameTime(), (part, data) -> {
+            forEach(player, model, PalladiumAnimation.FirstPersonContext.NONE, Minecraft.getInstance().getTimer().getGameTimeDeltaTicks(), (part, data) -> {
                 part.applyToModelPart(model, data);
             }, limbSwing, limbSwingAmount, ageInTicks, netHeadYaw, headPitch);
         }
@@ -93,7 +91,7 @@ public class PalladiumAnimationRegistry extends SimpleJsonResourceReloadListener
 
     public static void applyFirstPersonAnimations(PoseStack poseStack, AbstractClientPlayer player, HumanoidModel<?> model, boolean rightArm) {
         PalladiumAnimation.PoseStackResult result = new PalladiumAnimation.PoseStackResult();
-        forEach(player, model, rightArm ? PalladiumAnimation.FirstPersonContext.RIGHT_ARM : PalladiumAnimation.FirstPersonContext.LEFT_ARM, Minecraft.getInstance().getFrameTime(), (part, data) -> {
+        forEach(player, model, rightArm ? PalladiumAnimation.FirstPersonContext.RIGHT_ARM : PalladiumAnimation.FirstPersonContext.LEFT_ARM, Minecraft.getInstance().getTimer().getGameTimeDeltaTicks(), (part, data) -> {
             if (rightArm && part == PalladiumAnimation.PlayerModelPart.RIGHT_ARM) {
                 data.apply(result);
             }

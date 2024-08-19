@@ -25,7 +25,7 @@ public class AbilityClientEventHandler implements ViewportEvents.RenderFog, View
     @Override
     public EventResult renderFog(GameRenderer gameRenderer, Camera camera, double partialTick, FogRenderer.FogMode fogMode, FogType fogType, AtomicReference<Float> farPlaneDistance, AtomicReference<Float> nearPlaneDistance, AtomicReference<FogShape> fogShape) {
         if (camera.getEntity() instanceof LivingEntity living) {
-            if (AbilityUtil.isTypeEnabled(living, Abilities.INTANGIBILITY.get())) {
+            if (AbilityUtil.isTypeEnabled(living, AbilitySerializers.INTANGIBILITY.get())) {
                 if (getInWallBlockState(living) != null) {
                     fogShape.set(FogShape.SPHERE);
                     farPlaneDistance.set(5F);
@@ -57,7 +57,7 @@ public class AbilityClientEventHandler implements ViewportEvents.RenderFog, View
     @Override
     public void computeFogColor(GameRenderer gameRenderer, Camera camera, double partialTick, AtomicReference<Float> red, AtomicReference<Float> green, AtomicReference<Float> blue) {
         if (camera.getEntity() instanceof LivingEntity living) {
-            if (AbilityUtil.isTypeEnabled(living, Abilities.INTANGIBILITY.get())) {
+            if (AbilityUtil.isTypeEnabled(living, AbilitySerializers.INTANGIBILITY.get())) {
                 if (getInWallBlockState(living) != null) {
                     red.set(0F);
                     green.set(0F);

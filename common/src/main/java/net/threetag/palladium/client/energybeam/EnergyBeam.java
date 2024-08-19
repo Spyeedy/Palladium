@@ -3,8 +3,7 @@ package net.threetag.palladium.client.energybeam;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParseException;
 import com.mojang.blaze3d.vertex.PoseStack;
-import com.mojang.brigadier.StringReader;
-import com.mojang.brigadier.exceptions.CommandSyntaxException;
+import com.mojang.serialization.JsonOps;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.minecraft.client.player.AbstractClientPlayer;
@@ -12,6 +11,8 @@ import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.core.particles.ParticleOptions;
 import net.minecraft.core.particles.ParticleType;
 import net.minecraft.core.registries.BuiltInRegistries;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.NbtOps;
 import net.minecraft.util.GsonHelper;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.Vec3;
@@ -74,7 +75,7 @@ public class EnergyBeam {
         );
     }
 
-    public record Particle(ParticleType<?> particleType, String options, ParticleEmitter emitter) {
+    public record Particle(ParticleType<?> particleType, CompoundTag options, ParticleEmitter emitter) {
 
         public static Particle fromJson(JsonObject json) {
             var particleTypeId = GsonUtil.getAsResourceLocation(json, "particle_type");
@@ -84,20 +85,14 @@ public class EnergyBeam {
             }
 
             var particleType = BuiltInRegistries.PARTICLE_TYPE.get(particleTypeId);
-            var options = GsonHelper.getAsString(json, "options", "");
+            var options = json.has("options") ? CompoundTag.CODEC.parse(JsonOps.INSTANCE, json.get("options")).getOrThrow() : new CompoundTag();
             var emitter = ParticleEmitter.fromJson(json);
             return new Particle(particleType, options, emitter);
         }
 
-        @SuppressWarnings({"unchecked", "rawtypes"})
         public void spawn(Level level, Vec3 pos) {
-            try {
-                ParticleType type = this.particleType;
-                ParticleOptions options = type.getDeserializer().fromCommand(type, new StringReader(" " + this.options.trim() + " "));
-                this.emitter.spawnAtPosition(level, pos, options);
-            } catch (CommandSyntaxException ignored) {
-
-            }
+            ParticleOptions options = this.particleType.codec().codec().parse(level.registryAccess().createSerializationContext(NbtOps.INSTANCE), this.options).getOrThrow();
+            this.emitter.spawnAtPosition(level, pos, options);
         }
     }
 

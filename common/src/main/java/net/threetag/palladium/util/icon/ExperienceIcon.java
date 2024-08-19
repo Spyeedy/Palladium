@@ -6,6 +6,7 @@ import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.util.ExtraCodecs;
 import net.threetag.palladium.Palladium;
 import net.threetag.palladium.documentation.JsonDocumentationBuilder;
 import net.threetag.palladium.util.context.DataContext;
@@ -14,7 +15,7 @@ public record ExperienceIcon(int amount, boolean level) implements Icon {
 
     public static final MapCodec<ExperienceIcon> CODEC = RecordCodecBuilder.mapCodec((instance) -> instance
             .group(
-                    Codec.intRange(0, Integer.MAX_VALUE).fieldOf("amount").forGetter(ExperienceIcon::amount),
+                    ExtraCodecs.NON_NEGATIVE_INT.fieldOf("amount").forGetter(ExperienceIcon::amount),
                     Codec.BOOL.optionalFieldOf("level", true).forGetter(ExperienceIcon::level)
             )
             .apply(instance, ExperienceIcon::new));

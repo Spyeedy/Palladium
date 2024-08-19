@@ -10,7 +10,8 @@ import net.minecraft.world.level.block.entity.BannerPattern;
 import net.neoforged.neoforge.common.data.LanguageProvider;
 import net.threetag.palladium.accessory.Accessory;
 import net.threetag.palladium.accessory.AccessorySlot;
-import net.threetag.palladium.power.ability.Ability;
+import net.threetag.palladium.power.ability.AbilitySerializer;
+import net.threetag.palladium.registry.PalladiumRegistries;
 
 import java.util.Objects;
 import java.util.function.Supplier;
@@ -21,12 +22,12 @@ public abstract class ExtendedLangProvider extends LanguageProvider {
         super(packOutput, modid, locale);
     }
 
-    public void addAbility(Holder<Ability> key, String name) {
+    public void addAbility(Holder<AbilitySerializer<?>> key, String name) {
         add(key.value(), name);
     }
 
-    public void add(Ability key, String name) {
-        ResourceLocation id = Ability.REGISTRY.getKey(key);
+    public void add(AbilitySerializer<?> key, String name) {
+        ResourceLocation id = PalladiumRegistries.ABILITY_SERIALIZER.getKey(key);
         add("ability." + Objects.requireNonNull(id).getNamespace() + "." + id.getPath(), name);
     }
 
@@ -35,7 +36,7 @@ public abstract class ExtendedLangProvider extends LanguageProvider {
     }
 
     public void add(Accessory key, String name) {
-        ResourceLocation id = Accessory.REGISTRY.getKey(key);
+        ResourceLocation id = PalladiumRegistries.ACCESSORY.getKey(key);
         add("accessory." + Objects.requireNonNull(id).getNamespace() + "." + id.getPath(), name);
     }
 
@@ -43,21 +44,12 @@ public abstract class ExtendedLangProvider extends LanguageProvider {
         add(slot.getTranslationKey(), name);
     }
 
-    public void addBannerPatternDesc(Supplier<BannerPattern> bannerPattern, DyeColor color, String name) {
-        this.addBannerPatternDesc(bannerPattern.get(), color, name);
-    }
-
-    public void addBannerPatternDesc(BannerPattern bannerPattern, DyeColor color, String name) {
-        ResourceLocation id = BuiltInRegistries.BANNER_PATTERN.getKey(bannerPattern);
-        this.add("block.minecraft.banner." + Objects.requireNonNull(id).getNamespace() + "." + id.getPath() + "." + color.getName(), name);
-    }
-
     public void add(Attribute key, String name) {
         add(key.getDescriptionId(), name);
     }
 
-    public void addAttribute(Supplier<? extends Attribute> key, String name) {
-        this.add(key.get(), name);
+    public void addAttribute(Holder<? extends Attribute> key, String name) {
+        this.add(key.value(), name);
     }
 
 }

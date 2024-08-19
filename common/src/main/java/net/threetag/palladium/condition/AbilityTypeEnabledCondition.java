@@ -5,20 +5,20 @@ import com.mojang.serialization.codecs.RecordCodecBuilder;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
-import net.threetag.palladium.power.ability.Ability;
+import net.threetag.palladium.power.ability.AbilitySerializer;
 import net.threetag.palladium.power.ability.AbilityUtil;
 import net.threetag.palladium.registry.PalladiumRegistries;
 import net.threetag.palladium.registry.PalladiumRegistryKeys;
 import net.threetag.palladium.util.context.DataContext;
 
-public record AbilityTypeEnabledCondition(Ability ability) implements Condition {
+public record AbilityTypeEnabledCondition(AbilitySerializer ability) implements Condition {
 
     public static final MapCodec<AbilityTypeEnabledCondition> CODEC = RecordCodecBuilder.mapCodec(instance -> instance
-            .group(PalladiumRegistries.ABILITY.byNameCodec().fieldOf("ability_type").forGetter(AbilityTypeEnabledCondition::ability)
+            .group(PalladiumRegistries.ABILITY_SERIALIZER.byNameCodec().fieldOf("ability_type").forGetter(AbilityTypeEnabledCondition::ability)
             ).apply(instance, AbilityTypeEnabledCondition::new)
     );
     public static final StreamCodec<RegistryFriendlyByteBuf, AbilityTypeEnabledCondition> STREAM_CODEC = StreamCodec.composite(
-            ByteBufCodecs.registry(PalladiumRegistryKeys.ABILITY), AbilityTypeEnabledCondition::ability, AbilityTypeEnabledCondition::new
+            ByteBufCodecs.registry(PalladiumRegistryKeys.ABILITY_SERIALIZER), AbilityTypeEnabledCondition::ability, AbilityTypeEnabledCondition::new
     );
 
     @Override

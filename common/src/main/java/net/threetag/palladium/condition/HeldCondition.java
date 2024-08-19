@@ -7,7 +7,7 @@ import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.world.entity.LivingEntity;
-import net.threetag.palladium.power.Power;
+import net.threetag.palladium.component.PalladiumDataComponents;
 import net.threetag.palladium.power.PowerHolder;
 import net.threetag.palladium.power.ability.AbilityConditions;
 import net.threetag.palladium.power.ability.AbilityInstance;
@@ -36,33 +36,33 @@ public class HeldCondition extends KeyCondition {
     }
 
     @Override
-    public void init(LivingEntity entity, AbilityInstance entry, PropertyManager manager) {
-        entry.startCooldown(entity, this.cooldown);
+    public void init(LivingEntity entity, AbilityInstance<?> abilityInstance) {
+        abilityInstance.startCooldown(entity, this.cooldown);
     }
 
     @Override
     public boolean active(DataContext context) {
         var entity = context.get(DataContextType.ENTITY);
-        var entry = context.get(DataContextType.ABILITY);
+        var abilityInstance = context.get(DataContextType.ABILITY_INSTANCE);
 
-        if (entity == null || entry == null) {
+        if (entity == null || abilityInstance == null) {
             return false;
         }
 
-        if (this.cooldown != 0 && entry.cooldown == 0 && entry.keyPressed) {
-            entry.keyPressed = false;
+        if (this.cooldown != 0 && abilityInstance.getCooldown() == 0 && abilityInstance.isKeyPressed()) {
+            abilityInstance.set(PalladiumDataComponents.Abilities.KEY_PRESSED.get(), false);
         }
-        return entry.keyPressed;
+        return abilityInstance.isKeyPressed();
     }
 
     @Override
-    public void onKeyPressed(LivingEntity entity, AbilityInstance entry, Power power, PowerHolder holder) {
-        entry.keyPressed = true;
+    public void onKeyPressed(LivingEntity entity, AbilityInstance<?> abilityInstance, PowerHolder holder) {
+        abilityInstance.set(PalladiumDataComponents.Abilities.KEY_PRESSED.get(), true);
     }
 
     @Override
-    public void onKeyReleased(LivingEntity entity, AbilityInstance entry, Power power, PowerHolder holder) {
-        entry.keyPressed = false;
+    public void onKeyReleased(LivingEntity entity, AbilityInstance<?> abilityInstance, PowerHolder holder) {
+        abilityInstance.set(PalladiumDataComponents.Abilities.KEY_PRESSED.get(), false);
     }
 
     @Override

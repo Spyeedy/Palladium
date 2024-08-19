@@ -6,18 +6,19 @@ import com.mojang.serialization.codecs.RecordCodecBuilder;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
+import net.minecraft.util.ExtraCodecs;
 import net.minecraft.world.entity.LivingEntity;
+import net.threetag.palladium.component.PalladiumDataComponents;
 import net.threetag.palladium.power.ability.AbilityInstance;
 import net.threetag.palladium.util.context.DataContext;
 import net.threetag.palladium.util.context.DataContextType;
-import net.threetag.palladium.util.property.PropertyManager;
 
 public class ChatToggleCondition extends ChatMessageCondition {
 
     public static final MapCodec<ChatToggleCondition> CODEC = RecordCodecBuilder.mapCodec(instance -> instance
             .group(
                     Codec.STRING.fieldOf("chat_message").forGetter(ChatToggleCondition::getChatMessage),
-                    Codec.intRange(0, Integer.MAX_VALUE).optionalFieldOf("cooldown", 0).forGetter(ChatToggleCondition::getCooldown)
+                    ExtraCodecs.NON_NEGATIVE_INT.optionalFieldOf("cooldown", 0).forGetter(ChatToggleCondition::getCooldown)
             ).apply(instance, ChatToggleCondition::new)
     );
     public static final StreamCodec<RegistryFriendlyByteBuf, ChatToggleCondition> STREAM_CODEC = StreamCodec.composite(
@@ -31,28 +32,28 @@ public class ChatToggleCondition extends ChatMessageCondition {
     }
 
     @Override
-    public void init(LivingEntity entity, AbilityInstance entry, PropertyManager manager) {
-        entry.startCooldown(entity, this.cooldown);
+    public void init(LivingEntity entity, AbilityInstance<?> abilityInstance) {
+        abilityInstance.startCooldown(entity, this.cooldown);
     }
 
     @Override
     public boolean active(DataContext context) {
         var entity = context.get(DataContextType.ENTITY);
-        var entry = context.get(DataContextType.ABILITY);
+        var abilityInstance = context.get(DataContextType.ABILITY_INSTANCE);
 
-        if (entity == null || entry == null) {
+        if (entity == null || abilityInstance == null) {
             return false;
         }
 
-        if (this.cooldown != 0 && entry.cooldown == 0) {
-            entry.keyPressed = false;
+        if (this.cooldown != 0 && abilityInstance.getCooldown() == 0) {
+            abilityInstance.set(PalladiumDataComponents.Abilities.KEY_PRESSED.get(), false);
         }
-        return entry.keyPressed;
+        return abilityInstance.getComponents().getOrDefault(PalladiumDataComponents.Abilities.KEY_PRESSED.get(), false);
     }
 
     @Override
-    public void onChat(LivingEntity entity, AbilityInstance entry) {
-        entry.keyPressed = !entry.keyPressed;
+    public void onChat(LivingEntity entity, AbilityInstance<?> abilityInstance) {
+        abilityInstance.set(PalladiumDataComponents.Abilities.KEY_PRESSED.get(), !abilityInstance.getComponents().getOrDefault(PalladiumDataComponents.Abilities.KEY_PRESSED.get(), false));
     }
 
     @Override

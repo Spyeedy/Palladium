@@ -7,15 +7,17 @@ import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
+import net.minecraft.util.ExtraCodecs;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
+import net.threetag.palladium.power.ability.Ability;
 import net.threetag.palladium.power.ability.AbilityConfiguration;
 import net.threetag.palladium.util.icon.ExperienceIcon;
 
 public class ExperienceLevelBuyableCondition extends BuyableCondition {
 
     public static final MapCodec<ExperienceLevelBuyableCondition> CODEC = RecordCodecBuilder.mapCodec(instance -> instance
-            .group(Codec.intRange(1, 512).fieldOf("xp_level").forGetter(ExperienceLevelBuyableCondition::getXpLevel)
+            .group(ExtraCodecs.POSITIVE_INT.fieldOf("xp_level").forGetter(ExperienceLevelBuyableCondition::getXpLevel)
             ).apply(instance, ExperienceLevelBuyableCondition::new)
     );
     public static final StreamCodec<RegistryFriendlyByteBuf, ExperienceLevelBuyableCondition> STREAM_CODEC = StreamCodec.composite(
@@ -33,8 +35,8 @@ public class ExperienceLevelBuyableCondition extends BuyableCondition {
     }
 
     @Override
-    public AbilityConfiguration.UnlockData createData() {
-        return new AbilityConfiguration.UnlockData(new ExperienceIcon(1, true), this.xpLevel, Component.translatable("gui.palladium.powers.buy_ability.experience_level" + (this.xpLevel > 1 ? "_plural" : "")));
+    public Ability.UnlockData createData() {
+        return new Ability.UnlockData(new ExperienceIcon(1, true), this.xpLevel, Component.translatable("gui.palladium.powers.buy_ability.experience_level" + (this.xpLevel > 1 ? "_plural" : "")));
     }
 
     @Override

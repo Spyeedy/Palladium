@@ -1,36 +1,41 @@
 package net.threetag.palladium.power.ability;
 
-import net.minecraft.core.registries.Registries;
+import com.mojang.serialization.MapCodec;
+import com.mojang.serialization.codecs.RecordCodecBuilder;
+import net.minecraft.core.Holder;
 import net.minecraft.tags.DamageTypeTags;
 import net.minecraft.tags.TagKey;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.damagesource.DamageType;
-import net.minecraft.world.item.Items;
-import net.threetag.palladium.util.icon.ItemIcon;
-import net.threetag.palladium.util.property.PalladiumProperty;
-import net.threetag.palladium.util.property.TagKeyListProperty;
+import net.threetag.palladium.power.energybar.EnergyBarUsage;
+import net.threetag.palladium.util.CodecUtils;
 
 import java.lang.reflect.Field;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
 public class DamageImmunityAbility extends Ability {
 
-    public static final PalladiumProperty<List<TagKey<DamageType>>> DAMAGE_SOURCES = new TagKeyListProperty<>("damage_sources", Registries.DAMAGE_TYPE).configurable("Determines which damage sources have no effect on the entity based on a tag. Minecraft's builtin damage source tags: " + Arrays.toString(getExampleTags().stream().map(t -> t.location().toString()).toArray()));
+    public static final MapCodec<DamageImmunityAbility> CODEC = RecordCodecBuilder.mapCodec(instance ->
+            instance.group(
+                    CodecUtils.listOrPrimitive(DamageType.CODEC).fieldOf("damage_types").forGetter(ab -> ab.damageTypes),
+                    propertiesCodec(), conditionsCodec(), energyBarUsagesCodec()
+            ).apply(instance, DamageImmunityAbility::new));
 
-    public DamageImmunityAbility() {
-        this.withProperty(ICON, new ItemIcon(Items.POTION));
-        this.withProperty(DAMAGE_SOURCES, Arrays.asList(DamageTypeTags.IS_LIGHTNING, DamageTypeTags.IS_FALL));
+    public final List<Holder<DamageType>> damageTypes;
+
+    public DamageImmunityAbility(List<Holder<DamageType>> damageTypes, AbilityProperties properties, AbilityConditions conditions, List<EnergyBarUsage> energyBarUsages) {
+        super(properties, conditions, energyBarUsages);
+        this.damageTypes = damageTypes;
     }
 
-    public static boolean isImmuneAgainst(AbilityInstance entry, DamageSource source) {
+    public static boolean isImmuneAgainst(AbilityInstance<DamageImmunityAbility> entry, DamageSource source) {
         if (!entry.isEnabled()) {
             return false;
         }
 
-        for (TagKey<DamageType> tag : entry.getProperty(DAMAGE_SOURCES)) {
-            if (source.is(tag)) {
+        for (Holder<DamageType> tag : entry.getAbility().damageTypes) {
+            if (tag.is(source.typeHolder())) {
                 return true;
             }
         }
@@ -38,24 +43,15 @@ public class DamageImmunityAbility extends Ability {
     }
 
     @Override
-    public String getDocumentationDescription() {
-        return "Makes the entity immune against certain damage source tags.";
+    public AbilitySerializer<DamageImmunityAbility> getSerializer() {
+        return AbilitySerializers.DAMAGE_IMMUNITY.get();
     }
 
-    public static List<TagKey<?>> getExampleTags() {
-        List<TagKey<?>> list = new ArrayList<>();
-        Field[] allFields = DamageTypeTags.class.getDeclaredFields();
+    public static class Serializer extends AbilitySerializer<DamageImmunityAbility> {
 
-        for (Field field : allFields) {
-            try {
-                if(field.get(null) instanceof TagKey<?> tag) {
-                    list.add(tag);
-                }
-            } catch (IllegalAccessException e) {
-                throw new RuntimeException(e);
-            }
+        @Override
+        public MapCodec<DamageImmunityAbility> codec() {
+            return CODEC;
         }
-
-        return list;
     }
 }

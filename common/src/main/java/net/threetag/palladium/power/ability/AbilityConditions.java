@@ -14,13 +14,12 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.*;
-import java.util.stream.Collectors;
 
 public final class AbilityConditions {
 
     public static final AbilityConditions EMPTY = new AbilityConditions(Collections.emptyList(), Collections.emptyList());
 
-    public static final Codec<AbilityConditions> DIRECT_CODEC = RecordCodecBuilder.create(instance ->
+    public static final Codec<AbilityConditions> CODEC = RecordCodecBuilder.create(instance ->
             instance.group(
                     CodecUtils.listOrPrimitive(Condition.CODEC).optionalFieldOf("unlocking", Collections.emptyList()).forGetter(AbilityConditions::getUnlockingConditions),
                     CodecUtils.listOrPrimitive(Condition.CODEC).optionalFieldOf("enabling", Collections.emptyList()).forGetter(AbilityConditions::getEnablingConditions)

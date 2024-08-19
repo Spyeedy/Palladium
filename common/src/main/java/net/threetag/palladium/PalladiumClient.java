@@ -9,15 +9,16 @@ import net.minecraft.client.model.PlayerModel;
 import net.minecraft.client.player.AbstractClientPlayer;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.entity.RenderLayerParent;
+import net.minecraft.core.component.DataComponents;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.packs.PackType;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.item.CrossbowItem;
-import net.minecraft.world.item.DyeableLeatherItem;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.Items;
+import net.minecraft.world.item.component.ChargedProjectiles;
 import net.minecraft.world.level.block.Block;
 import net.threetag.palladium.accessory.Accessory;
 import net.threetag.palladium.addonpack.log.AddonPackLog;
@@ -48,7 +49,11 @@ import net.threetag.palladium.compat.geckolib.GeckoLibCompat;
 import net.threetag.palladium.energy.EnergyHelper;
 import net.threetag.palladium.entity.PalladiumEntityTypes;
 import net.threetag.palladium.event.PalladiumClientEvents;
-import net.threetag.palladium.item.*;
+import net.threetag.palladium.item.BaseEnergyItem;
+import net.threetag.palladium.item.Openable;
+import net.threetag.palladium.item.types.BowItemType;
+import net.threetag.palladium.item.types.CrossbowItemType;
+import net.threetag.palladium.item.types.ShieldItemType;
 import net.threetag.palladium.power.ability.AbilityClientEventHandler;
 import net.threetag.palladium.power.ability.GuiOverlayAbility;
 import net.threetag.palladium.util.SupporterHandler;
@@ -57,7 +62,10 @@ import net.threetag.palladium.util.icon.TexturedIcon;
 import net.threetag.palladiumcore.event.LifecycleEvents;
 import net.threetag.palladiumcore.event.ScreenEvents;
 import net.threetag.palladiumcore.registry.ReloadListenerRegistry;
-import net.threetag.palladiumcore.registry.client.*;
+import net.threetag.palladiumcore.registry.client.EntityRendererRegistry;
+import net.threetag.palladiumcore.registry.client.GuiLayerRegistry;
+import net.threetag.palladiumcore.registry.client.ItemPropertyRegistry;
+import net.threetag.palladiumcore.registry.client.RenderTypeRegistry;
 import net.threetag.palladiumcore.util.Platform;
 
 public class PalladiumClient {
@@ -66,7 +74,6 @@ public class PalladiumClient {
 
     @SuppressWarnings("unchecked")
     public static void init() {
-        colorHandlers();
         PalladiumKeyMappings.init();
         PowersScreen.register();
         AccessoryScreen.addButton();
@@ -101,8 +108,8 @@ public class PalladiumClient {
         });
 
         // Overlay Renderer
-        OverlayRegistry.registerOverlay("palladium/ability_bar", new AbilityBarRenderer());
-        OverlayRegistry.registerOverlay("palladium/gui_overlay_abilities", new GuiOverlayAbility.Renderer());
+        GuiLayerRegistry.register(Palladium.id("ability_bar"), new AbilityBarRenderer());
+        GuiLayerRegistry.register(Palladium.id("palladium/gui_overlay_abilities"), new GuiOverlayAbility.Renderer());
 
         // Reload Listeners
         ReloadListenerRegistry.register(PackType.CLIENT_RESOURCES, Palladium.id("dynamic_textures"), new DynamicTextureManager());
@@ -123,11 +130,11 @@ public class PalladiumClient {
     public static void blockRenderTypes() {
         RenderTypeRegistry.registerBlock(RenderType.cutout(),
                 PalladiumBlocks.HEART_SHAPED_HERB.get(),
-                PalladiumBlocks.POTTED_HEART_SHAPED_HERB.get(),
-                PalladiumBlocks.SMALL_REDSTONE_FLUX_CRYSTAL_BUD.get(),
-                PalladiumBlocks.MEDIUM_REDSTONE_FLUX_CRYSTAL_BUD.get(),
-                PalladiumBlocks.LARGE_REDSTONE_FLUX_CRYSTAL_BUD.get(),
-                PalladiumBlocks.REDSTONE_FLUX_CRYSTAL_CLUSTER.get());
+                PalladiumBlocks.POTTED_HEART_SHAPED_HERB.value(),
+                PalladiumBlocks.SMALL_REDSTONE_FLUX_CRYSTAL_BUD.value(),
+                PalladiumBlocks.MEDIUM_REDSTONE_FLUX_CRYSTAL_BUD.value(),
+                PalladiumBlocks.LARGE_REDSTONE_FLUX_CRYSTAL_BUD.value(),
+                PalladiumBlocks.REDSTONE_FLUX_CRYSTAL_CLUSTER.value());
 
         for (Block block : BuiltInRegistries.BLOCK) {
             if (block instanceof IAddonBlock addonBlock) {
@@ -150,13 +157,14 @@ public class PalladiumClient {
 
     public static void itemModelPredicates() {
         for (Item item : BuiltInRegistries.ITEM) {
-            if (item instanceof EnergyItem) {
+            if (item instanceof BaseEnergyItem) {
                 ItemPropertyRegistry.register(item, Palladium.id("energy"), (itemStack, clientLevel, livingEntity, i) -> {
-                    var storage = EnergyHelper.getFromItemStack(itemStack);
-                    return storage.map(energyStorage -> Math.round(13F * energyStorage.getEnergyAmount() / (float) energyStorage.getEnergyCapacity())).orElse(0);
+                    var storage = EnergyHelper.getFromItem(itemStack);
+                    return storage != null ? Math.round(13F * storage.getEnergyAmount() / (float) storage.getEnergyCapacity()) : 0;
                 });
                 ItemPropertyRegistry.register(item, Palladium.id("charged"), (itemStack, clientLevel, livingEntity, i) -> {
-                    return itemStack.getOrCreateTag().getInt("energy") > 0 ? 1F : 0F;
+                    var stored = EnergyHelper.getEnergyStoredInItem(itemStack);
+                    return stored > 0 ? 1F : 0F;
                 });
             }
 
@@ -172,70 +180,58 @@ public class PalladiumClient {
                 });
             }
 
-            if (item instanceof AddonShieldItem) {
-                ItemPropertyRegistry.register(item, new ResourceLocation("blocking"), (itemStack, clientLevel, livingEntity, i) -> livingEntity != null && livingEntity.isUsingItem() && livingEntity.getUseItem() == itemStack ? 1.0F : 0.0F);
+            if (item instanceof ShieldItemType.ExtShieldItem) {
+                ItemPropertyRegistry.register(item, ResourceLocation.withDefaultNamespace("blocking"), (itemStack, clientLevel, livingEntity, i) -> livingEntity != null && livingEntity.isUsingItem() && livingEntity.getUseItem() == itemStack ? 1.0F : 0.0F);
             }
 
-            if (item instanceof AddonBowItem) {
-                ItemPropertyRegistry.register(item, new ResourceLocation("pull"), (itemStack, clientLevel, livingEntity, i) -> {
+            if (item instanceof BowItemType.ExtBowItem) {
+                ItemPropertyRegistry.register(item, ResourceLocation.withDefaultNamespace("pull"), (itemStack, clientLevel, livingEntity, i) -> {
                     if (livingEntity == null) {
                         return 0.0F;
                     } else {
-                        return livingEntity.getUseItem() != itemStack ? 0.0F : (float) (itemStack.getUseDuration() - livingEntity.getUseItemRemainingTicks()) / 20.0F;
+                        return livingEntity.getUseItem() != itemStack ? 0.0F : (float) (itemStack.getUseDuration(livingEntity) - livingEntity.getUseItemRemainingTicks()) / 20.0F;
                     }
                 });
 
                 ItemPropertyRegistry.register(
                         item,
-                        new ResourceLocation("pulling"),
+                        ResourceLocation.withDefaultNamespace("pulling"),
                         (itemStack, clientLevel, livingEntity, i) -> livingEntity != null && livingEntity.isUsingItem() && livingEntity.getUseItem() == itemStack ? 1.0F : 0.0F
                 );
             }
 
-            if (item instanceof AddonCrossbowItem) {
+            if (item instanceof CrossbowItemType.ExtCrossbowItem) {
                 ItemPropertyRegistry.register(
                         item,
-                        new ResourceLocation("pull"),
+                        ResourceLocation.withDefaultNamespace("pull"),
                         (itemStack, clientLevel, livingEntity, i) -> {
                             if (livingEntity == null) {
                                 return 0.0F;
                             } else {
-                                return CrossbowItem.isCharged(itemStack)
-                                        ? 0.0F
-                                        : (float) (itemStack.getUseDuration() - livingEntity.getUseItemRemainingTicks()) / (float) CrossbowItem.getChargeDuration(itemStack);
+                                return CrossbowItem.isCharged(itemStack) ? 0.0F : (float) (itemStack.getUseDuration(livingEntity) - livingEntity.getUseItemRemainingTicks()) / (float) CrossbowItem.getChargeDuration(itemStack, livingEntity);
                             }
                         }
                 );
                 ItemPropertyRegistry.register(
                         item,
-                        new ResourceLocation("pulling"),
-                        (itemStack, clientLevel, livingEntity, i) -> livingEntity != null
-                                && livingEntity.isUsingItem()
-                                && livingEntity.getUseItem() == itemStack
-                                && !CrossbowItem.isCharged(itemStack)
-                                ? 1.0F
-                                : 0.0F
+                        ResourceLocation.withDefaultNamespace("pulling"),
+                        (itemStack, clientLevel, livingEntity, i) -> livingEntity != null && livingEntity.isUsingItem() && livingEntity.getUseItem() == itemStack && !CrossbowItem.isCharged(itemStack) ? 1.0F : 0.0F
                 );
                 ItemPropertyRegistry.register(
                         item,
-                        new ResourceLocation("charged"),
-                        (itemStack, clientLevel, livingEntity, i) -> livingEntity != null && CrossbowItem.isCharged(itemStack) ? 1.0F : 0.0F
+                        ResourceLocation.withDefaultNamespace("charged"),
+                        (itemStack, clientLevel, livingEntity, i) -> CrossbowItem.isCharged(itemStack) ? 1.0F : 0.0F
                 );
                 ItemPropertyRegistry.register(
                         item,
-                        new ResourceLocation("firework"),
-                        (itemStack, clientLevel, livingEntity, i) -> livingEntity != null
-                                && CrossbowItem.isCharged(itemStack)
-                                && CrossbowItem.containsChargedProjectile(itemStack, Items.FIREWORK_ROCKET)
-                                ? 1.0F
-                                : 0.0F
+                        ResourceLocation.withDefaultNamespace("firework"),
+                        (itemStack, clientLevel, livingEntity, i) -> {
+                            ChargedProjectiles chargedProjectiles = (ChargedProjectiles) itemStack.get(DataComponents.CHARGED_PROJECTILES);
+                            return chargedProjectiles != null && chargedProjectiles.contains(Items.FIREWORK_ROCKET) ? 1.0F : 0.0F;
+                        }
                 );
             }
         }
-    }
-
-    public static void colorHandlers() {
-        ColorHandlerRegistry.registerItemColors((itemStack, i) -> i > 0 ? -1 : ((DyeableLeatherItem) itemStack.getItem()).getColor(itemStack), PalladiumItems.VIBRANIUM_WEAVE_BOOTS);
     }
 
     public static void setupDevLogButton() {

@@ -6,7 +6,7 @@ import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.level.gameevent.GameEvent;
 import net.minecraft.world.level.gameevent.vibrations.VibrationSystem;
 import net.minecraft.world.phys.Vec3;
-import net.threetag.palladium.power.ability.Abilities;
+import net.threetag.palladium.power.ability.AbilitySerializers;
 import net.threetag.palladium.power.ability.AbilityUtil;
 import net.threetag.palladium.tags.PalladiumItemTags;
 import org.spongepowered.asm.mixin.Mixin;
@@ -20,7 +20,7 @@ public class VibrationListenerMixin {
     @Inject(at = @At("HEAD"), method = "handleGameEvent", cancellable = true)
     public void handleGameEvent(ServerLevel level, GameEvent gameEvent, GameEvent.Context context, Vec3 pos, CallbackInfoReturnable<Boolean> info) {
         if (context.sourceEntity() instanceof LivingEntity livingEntity &&
-                (livingEntity.getItemBySlot(EquipmentSlot.FEET).is(PalladiumItemTags.VIBRATION_ABSORPTION_BOOTS) || AbilityUtil.isTypeEnabled(livingEntity, Abilities.SCULK_IMMUNITY.get()))
+                (livingEntity.getItemBySlot(EquipmentSlot.FEET).is(PalladiumItemTags.VIBRATION_ABSORPTION_BOOTS) || AbilityUtil.isTypeEnabled(livingEntity, AbilitySerializers.SCULK_IMMUNITY.get()))
         ) {
             if (gameEvent == GameEvent.HIT_GROUND || gameEvent == GameEvent.STEP) {
                 info.setReturnValue(false);

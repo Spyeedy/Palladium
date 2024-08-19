@@ -5,7 +5,7 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.ScreenEffectRenderer;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.world.entity.LivingEntity;
-import net.threetag.palladium.power.ability.Abilities;
+import net.threetag.palladium.power.ability.AbilitySerializers;
 import net.threetag.palladium.power.ability.AbilityUtil;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
@@ -19,7 +19,7 @@ public class ScreenEffectRendererMixin {
     private static void preventInWallOverlayRendering(TextureAtlasSprite texture, PoseStack poseStack, CallbackInfo ci) {
         Minecraft minecraft = Minecraft.getInstance();
         if (minecraft.cameraEntity instanceof LivingEntity living) {
-            if (AbilityUtil.isTypeEnabled(living, Abilities.INTANGIBILITY.get())) {
+            if (AbilityUtil.isTypeEnabled(living, AbilitySerializers.INTANGIBILITY.get())) {
                 ci.cancel();
             }
         }

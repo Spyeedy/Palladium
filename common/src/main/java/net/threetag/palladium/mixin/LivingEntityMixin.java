@@ -63,14 +63,14 @@ public abstract class LivingEntityMixin implements PalladiumLivingEntityExtensio
     public void readAdditionalSaveData(CompoundTag compound, CallbackInfo ci) {
         CompoundTag palladiumTag = compound.contains("Palladium") ? compound.getCompound("Palladium") : new CompoundTag();
         if (palladiumTag.contains("Powers", Tag.TAG_COMPOUND)) {
-            this.palladium$powerHandler.fromNBT(palladiumTag.getCompound("Powers"));
+            this.palladium$powerHandler.load(palladiumTag.getCompound("Powers"));
         }
     }
 
     @Inject(method = "addAdditionalSaveData", at = @At("RETURN"))
     public void addAdditionalSaveData(CompoundTag compound, CallbackInfo ci) {
         CompoundTag palladiumTag = compound.contains("Palladium") ? compound.getCompound("Palladium") : new CompoundTag();
-        palladiumTag.put("Powers", this.palladium$powerHandler.toNBT());
+        palladiumTag.put("Powers", this.palladium$powerHandler.save());
         compound.put("Palladium", palladiumTag);
     }
 

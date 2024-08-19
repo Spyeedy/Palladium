@@ -9,7 +9,7 @@ import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.level.Level;
 import net.threetag.palladium.entity.PalladiumEntityExtension;
 import net.threetag.palladium.entity.TrailHandler;
-import net.threetag.palladium.power.ability.Abilities;
+import net.threetag.palladium.power.ability.AbilitySerializers;
 import net.threetag.palladium.power.ability.AbilityInstance;
 import net.threetag.palladium.power.ability.AbilityUtil;
 import net.threetag.palladium.power.ability.IntangibilityAbility;
@@ -59,7 +59,7 @@ public class EntityMixin implements PalladiumEntityExtension {
     @Inject(at = @At(value = "INVOKE", target = "Lnet/minecraft/core/BlockPos;containing(DDD)Lnet/minecraft/core/BlockPos;"), method = "moveTowardsClosestSpace", cancellable = true)
     protected void pushOutOfBlocks(double x, double y, double z, CallbackInfo ci) {
         if ((Object) this instanceof LivingEntity living) {
-            for (AbilityInstance entry : AbilityUtil.getEnabledEntries(living, Abilities.INTANGIBILITY.get())) {
+            for (AbilityInstance entry : AbilityUtil.getEnabledEntries(living, AbilitySerializers.INTANGIBILITY.get())) {
                 if (IntangibilityAbility.canGoThrough(entry, this.level.getBlockState(BlockPos.containing(x, y, z)))) {
                     ci.cancel();
                     return;

@@ -1,53 +1,64 @@
 package net.threetag.palladium.power.ability;
 
+import com.mojang.serialization.MapCodec;
+import com.mojang.serialization.codecs.RecordCodecBuilder;
 import net.minecraft.commands.CommandSource;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.entity.LivingEntity;
-import net.minecraft.world.level.block.Blocks;
-import net.threetag.palladium.util.icon.ItemIcon;
-import net.threetag.palladium.util.property.CommandFunctionProperty;
-import net.threetag.palladium.util.property.PalladiumProperty;
-import net.threetag.palladium.util.property.SyncOption;
+import net.threetag.palladium.power.PowerHolder;
+import net.threetag.palladium.power.energybar.EnergyBarUsage;
+import net.threetag.palladium.util.ParsedCommands;
 
-import java.util.Collections;
+import java.util.List;
 import java.util.Objects;
 
 public class CommandAbility extends Ability implements CommandSource {
 
-    public static final PalladiumProperty<CommandFunctionProperty.CommandFunctionParsing> FIRST_TICK_COMMANDS = new CommandFunctionProperty("first_tick_commands").sync(SyncOption.NONE).disablePersistence().configurable("Sets the commands which get executed when gaining/activating the ability");
-    public static final PalladiumProperty<CommandFunctionProperty.CommandFunctionParsing> LAST_TICK_COMMANDS = new CommandFunctionProperty("last_tick_commands").sync(SyncOption.NONE).disablePersistence().configurable("Sets the commands which get executed when losing/deactivating the ability");
-    public static final PalladiumProperty<CommandFunctionProperty.CommandFunctionParsing> COMMANDS = new CommandFunctionProperty("commands").sync(SyncOption.NONE).disablePersistence().configurable("Sets the commands which get executed when using the ability");
+    public static final MapCodec<CommandAbility> CODEC = RecordCodecBuilder.mapCodec(instance ->
+            instance.group(
+                    ParsedCommands.CODEC.optionalFieldOf("commands", ParsedCommands.EMPTY).forGetter(ab -> ab.commands),
+                    ParsedCommands.CODEC.optionalFieldOf("first_tick_commands", ParsedCommands.EMPTY).forGetter(ab -> ab.firstTick),
+                    ParsedCommands.CODEC.optionalFieldOf("last_tick_commands", ParsedCommands.EMPTY).forGetter(ab -> ab.lastTick),
+                    propertiesCodec(), conditionsCodec(), energyBarUsagesCodec()
+            ).apply(instance, CommandAbility::new));
 
-    public CommandAbility() {
-        this.withProperty(ICON, new ItemIcon(Blocks.COMMAND_BLOCK));
-        this.withProperty(FIRST_TICK_COMMANDS, new CommandFunctionProperty.CommandFunctionParsing(Collections.emptyList()));
-        this.withProperty(LAST_TICK_COMMANDS, new CommandFunctionProperty.CommandFunctionParsing(Collections.emptyList()));
-        this.withProperty(COMMANDS, new CommandFunctionProperty.CommandFunctionParsing("say Hello World"));
+    public final ParsedCommands commands, firstTick, lastTick;
+
+    public CommandAbility(ParsedCommands commands, ParsedCommands firstTick, ParsedCommands lastTick, AbilityProperties properties, AbilityConditions conditions, List<EnergyBarUsage> energyBarUsages) {
+        super(properties, conditions, energyBarUsages);
+        this.commands = commands;
+        this.firstTick = firstTick;
+        this.lastTick = lastTick;
     }
 
     @Override
-    public void firstTick(LivingEntity entity, AbilityInstance entry, IPowerHolder holder, boolean enabled) {
-        if (enabled && entity.level().getServer() != null && entry.getProperty(FIRST_TICK_COMMANDS) != null && entity.level() instanceof ServerLevel serverLevel) {
+    public AbilitySerializer<CommandAbility> getSerializer() {
+        return AbilitySerializers.COMMAND.get();
+    }
+
+    @Override
+    public void firstTick(LivingEntity entity, AbilityInstance<?> entry, PowerHolder holder, boolean enabled) {
+        if (enabled && entity.level().getServer() != null && entity.level() instanceof ServerLevel serverLevel) {
             var source = this.createCommandSourceStack(entity, serverLevel);
-            Objects.requireNonNull(entity.level().getServer()).getFunctions().execute(entry.getProperty(FIRST_TICK_COMMANDS).getCommandFunction(entity.level().getServer()), source.withSuppressedOutput().withMaximumPermission(2));
+            Objects.requireNonNull(entity.level().getServer()).getFunctions().execute(this.firstTick.getCommandFunction(entity.level().getServer()), source.withSuppressedOutput().withMaximumPermission(2));
         }
     }
 
     @Override
-    public void tick(LivingEntity entity, AbilityInstance entry, IPowerHolder holder, boolean enabled) {
-        if (enabled && entity.level().getServer() != null && entry.getProperty(COMMANDS) != null && entity.level() instanceof ServerLevel serverLevel) {
+    public void tick(LivingEntity entity, AbilityInstance<?> entry, PowerHolder holder, boolean enabled) {
+        if (enabled && entity.level().getServer() != null && entity.level() instanceof ServerLevel serverLevel) {
             var source = this.createCommandSourceStack(entity, serverLevel);
-            Objects.requireNonNull(entity.level().getServer()).getFunctions().execute(entry.getProperty(COMMANDS).getCommandFunction(entity.level().getServer()), source.withSuppressedOutput().withMaximumPermission(2));
+            Objects.requireNonNull(entity.level().getServer()).getFunctions().execute(this.commands.getCommandFunction(entity.level().getServer()), source.withSuppressedOutput().withMaximumPermission(2));
         }
     }
 
     @Override
-    public void lastTick(LivingEntity entity, AbilityInstance entry, IPowerHolder holder, boolean enabled) {
-        if (enabled && entity.level().getServer() != null && entry.getProperty(LAST_TICK_COMMANDS) != null && entity.level() instanceof ServerLevel serverLevel) {
+    public void lastTick(LivingEntity entity, AbilityInstance<?> entry, PowerHolder holder, boolean enabled) {
+        if (enabled && entity.level().getServer() != null && entity.level() instanceof ServerLevel serverLevel) {
             var source = this.createCommandSourceStack(entity, serverLevel);
-            Objects.requireNonNull(entity.level().getServer()).getFunctions().execute(entry.getProperty(LAST_TICK_COMMANDS).getCommandFunction(entity.level().getServer()), source.withSuppressedOutput().withMaximumPermission(2));
+            Objects.requireNonNull(entity.level().getServer()).getFunctions().execute(this.lastTick.getCommandFunction(entity.level().getServer()), source.withSuppressedOutput().withMaximumPermission(2));
         }
     }
 
@@ -77,8 +88,11 @@ public class CommandAbility extends Ability implements CommandSource {
         return false;
     }
 
-    @Override
-    public String getDocumentationDescription() {
-        return "Executes commands.";
+    public static class Serializer extends AbilitySerializer<CommandAbility> {
+
+        @Override
+        public MapCodec<CommandAbility> codec() {
+            return CODEC;
+        }
     }
 }

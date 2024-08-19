@@ -9,7 +9,6 @@ import net.threetag.palladium.Palladium;
 import net.threetag.palladium.documentation.JsonDocumentationBuilder;
 import net.threetag.palladium.power.ability.AbilityInstance;
 import net.threetag.palladium.power.ability.AbilityReference;
-import net.threetag.palladium.power.ability.AnimationTimer;
 import net.threetag.palladium.util.context.DataContext;
 import net.threetag.palladium.util.json.GsonUtil;
 
@@ -28,13 +27,13 @@ public class AnimationTimerAbilityVariable extends AbstractIntegerTextureVariabl
     public int getNumber(DataContext context) {
         var livingEntity = context.getLivingEntity();
         if (livingEntity != null) {
-            AbilityInstance entry = this.reference.getInstance(livingEntity);
+            AbilityInstance<?> abilityInstance = this.reference.getInstance(livingEntity);
 
-            if (entry == null || !(entry.getConfiguration().getAbility() instanceof AnimationTimer animationTimer)) {
+            if (abilityInstance == null || abilityInstance.getAnimationTimer() == null) {
                 return 0;
             }
 
-            return (int) animationTimer.getAnimationTimer(entry, 1F);
+            return abilityInstance.getAnimationTimer().value();
         }
 
         return 0;
@@ -58,7 +57,7 @@ public class AnimationTimerAbilityVariable extends AbstractIntegerTextureVariabl
         @Override
         public void addDocumentationFields(JsonDocumentationBuilder builder) {
             builder.setTitle("Animation Timer Ability");
-            
+
             builder.addProperty("power", ResourceLocation.class)
                     .description("ID of the power the ability is in.")
                     .required().exampleJson(new JsonPrimitive("example:power_id"));

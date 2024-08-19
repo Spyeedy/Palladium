@@ -5,6 +5,6 @@ import org.jetbrains.annotations.Nullable;
 
 public interface IBlockEntityEnergyContainer {
 
-    IEnergyStorage getEnergyStorage(@Nullable Direction side);
+    PalladiumEnergyStorage getEnergyStorage(@Nullable Direction side);
 
 }

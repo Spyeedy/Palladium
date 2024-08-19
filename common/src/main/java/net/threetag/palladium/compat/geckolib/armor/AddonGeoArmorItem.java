@@ -4,23 +4,30 @@ import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParseException;
 import com.google.gson.JsonPrimitive;
+import com.mojang.serialization.JsonOps;
+import net.minecraft.client.model.HumanoidModel;
+import net.minecraft.core.Holder;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.GsonHelper;
+import net.minecraft.world.entity.EquipmentSlot;
+import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.item.ArmorItem;
 import net.minecraft.world.item.ArmorMaterial;
 import net.minecraft.world.item.Item;
+import net.minecraft.world.item.ItemStack;
 import net.threetag.palladium.addonpack.parser.ItemParser;
 import net.threetag.palladium.client.dynamictexture.TextureReference;
 import net.threetag.palladium.compat.geckolib.GeckoLibCompat;
 import net.threetag.palladium.compat.geckolib.playeranimator.ParsedAnimationController;
 import net.threetag.palladium.documentation.JsonDocumentationBuilder;
-import net.threetag.palladium.item.AddonArmorItem;
-import net.threetag.palladium.item.IAddonItem;
+import net.threetag.palladium.item.types.ArmorItemType;
 import net.threetag.palladium.util.json.GsonUtil;
+import org.jetbrains.annotations.Nullable;
 import software.bernie.geckolib.GeckoLibConstants;
 import software.bernie.geckolib.animatable.GeoItem;
 import software.bernie.geckolib.animatable.SingletonGeoAnimatable;
+import software.bernie.geckolib.animatable.client.GeoRenderProvider;
 import software.bernie.geckolib.animatable.instance.AnimatableInstanceCache;
 import software.bernie.geckolib.animation.AnimatableManager;
 import software.bernie.geckolib.util.GeckoLibUtil;
@@ -28,8 +35,9 @@ import software.bernie.geckolib.util.GeckoLibUtil;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import java.util.function.Consumer;
 
-public class AddonGeoArmorItem extends AddonArmorItem implements GeoItem {
+public class AddonGeoArmorItem extends ArmorItemType.ExtArmorItem implements GeoItem {
 
     public List<ParsedAnimationController<GeoItem>> animationControllers;
     private final AnimatableInstanceCache cache = GeckoLibUtil.createInstanceCache(this);
@@ -37,7 +45,7 @@ public class AddonGeoArmorItem extends AddonArmorItem implements GeoItem {
     public TextureReference texturePath;
     public ResourceLocation animationsPath;
 
-    public AddonGeoArmorItem(ArmorMaterial materialIn, ArmorItem.Type type, Properties builder) {
+    public AddonGeoArmorItem(Holder<ArmorMaterial> materialIn, ArmorItem.Type type, Properties builder) {
         super(materialIn, type, builder);
         SingletonGeoAnimatable.registerSyncedAnimatable(this);
     }
@@ -47,6 +55,28 @@ public class AddonGeoArmorItem extends AddonArmorItem implements GeoItem {
         for (ParsedAnimationController<GeoItem> controller : this.animationControllers) {
             controllers.add(controller.createController(this));
         }
+    }
+
+    @Override
+    public void createGeoRenderer(Consumer<GeoRenderProvider> consumer) {
+        consumer.accept(new GeoRenderProvider() {
+            private GeckoArmorRenderer<?> renderer;
+
+            @Override
+            public <T extends LivingEntity> HumanoidModel<?> getGeoArmorRenderer(@Nullable T livingEntity, ItemStack itemStack, @Nullable EquipmentSlot equipmentSlot, @Nullable HumanoidModel<T> original) {
+                if (this.renderer == null)
+                    this.renderer = new GeckoArmorRenderer((AddonGeoArmorItem) itemStack.getItem());
+
+                this.renderer.prepForRender(livingEntity, itemStack, equipmentSlot, original);
+
+                return this.renderer;
+            }
+        });
+    }
+
+    @Override
+    public AnimatableInstanceCache getRenderProvider() {
+        return this.cache;
     }
 
     @Override
@@ -62,18 +92,9 @@ public class AddonGeoArmorItem extends AddonArmorItem implements GeoItem {
     public static class Parser implements ItemParser.ItemTypeSerializer {
 
         @Override
-        public IAddonItem parse(JsonObject json, Item.Properties properties) {
-            ArmorMaterial armorMaterial = BuiltInRegistries.ARMOR_MATERIAL.get(GsonUtil.getAsResourceLocation(json, "armor_material"));
-
-            if (armorMaterial == null) {
-                throw new JsonParseException("Unknown armor material '" + GsonUtil.getAsResourceLocation(json, "armor_material") + "'");
-            }
-
-            ArmorItem.Type type = AddonArmorItem.Parser.getArmorType(GsonHelper.getAsString(json, "slot"));
-
-            if (type == null) {
-                throw new JsonParseException("Armor slot must be one of the following: " + Arrays.toString(Arrays.stream(ArmorItem.Type.values()).map(ArmorItem.Type::getName).toArray()));
-            }
+        public AddonGeoArmorItem parse(JsonObject json, Item.Properties properties) {
+            Holder<ArmorMaterial> armorMaterial = BuiltInRegistries.ARMOR_MATERIAL.holderByNameCodec().parse(JsonOps.INSTANCE, json.get("armor_material")).getOrThrow();
+            ArmorItem.Type type = ArmorItem.Type.CODEC.parse(JsonOps.INSTANCE, json.get("slot")).getOrThrow();
 
             var item = GeckoLibCompat.createArmorItem(armorMaterial, type, properties);
             item.modelPath = GsonUtil.getAsResourceLocation(json, "armor_model", null);

@@ -8,8 +8,10 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.ComponentSerialization;
 import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
+import net.minecraft.util.ExtraCodecs;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
+import net.threetag.palladium.power.ability.Ability;
 import net.threetag.palladium.power.ability.AbilityConfiguration;
 import net.threetag.palladium.util.ScoreboardUtil;
 import net.threetag.palladium.util.icon.Icon;
@@ -19,7 +21,7 @@ public class ScoreboardScoreBuyableCondition extends BuyableCondition {
     public static final MapCodec<ScoreboardScoreBuyableCondition> CODEC = RecordCodecBuilder.mapCodec(instance -> instance
             .group(
                     Codec.STRING.fieldOf("objective").forGetter(ScoreboardScoreBuyableCondition::getObjective),
-                    Codec.intRange(1, Integer.MAX_VALUE).fieldOf("score").forGetter(ScoreboardScoreBuyableCondition::getAmount),
+                    ExtraCodecs.POSITIVE_INT.fieldOf("score").forGetter(ScoreboardScoreBuyableCondition::getAmount),
                     Icon.CODEC.fieldOf("icon").forGetter(ScoreboardScoreBuyableCondition::getIcon),
                     ComponentSerialization.CODEC.fieldOf("description").forGetter(ScoreboardScoreBuyableCondition::getDescription)
             ).apply(instance, ScoreboardScoreBuyableCondition::new)
@@ -61,8 +63,8 @@ public class ScoreboardScoreBuyableCondition extends BuyableCondition {
     }
 
     @Override
-    public AbilityConfiguration.UnlockData createData() {
-        return new AbilityConfiguration.UnlockData(this.icon, this.amount, this.description);
+    public Ability.UnlockData createData() {
+        return new Ability.UnlockData(this.icon, this.amount, this.description);
     }
 
     @Override

@@ -4,7 +4,7 @@ import net.minecraft.nbt.IntTag;
 import net.minecraft.nbt.Tag;
 import net.minecraft.util.Mth;
 
-public class EnergyStorage implements IEnergyStorage {
+public class EnergyStorage implements PalladiumEnergyStorage {
 
     protected int energy;
     protected int capacity;

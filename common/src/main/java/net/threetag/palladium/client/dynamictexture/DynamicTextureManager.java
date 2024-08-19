@@ -44,8 +44,6 @@ public class DynamicTextureManager extends SimpleJsonResourceReloadListener {
         registerVariable(new SmallArmsTextureVariable.Serializer());
         registerVariable(new AbilityTicksTextureVariable.Serializer());
         registerVariable(new EntityTicksTextureVariable.Serializer());
-        registerVariable(new AbilityIntegerPropertyVariable.Serializer());
-        registerVariable(new AbilityFloatPropertyVariable.Serializer());
         registerVariable(new EntityHealthTextureVariable.Serializer());
         registerVariable(new MoonPhaseTextureVariable.Serializer());
         registerVariable(new IntegerPropertyVariable.Serializer());
@@ -95,19 +93,19 @@ public class DynamicTextureManager extends SimpleJsonResourceReloadListener {
             if (input.equalsIgnoreCase("#entity")) {
                 return new EntityDynamicTexture(false);
             } else if (input.startsWith("#")) {
-                var dyn = DynamicTextureManager.INSTANCE.get(new ResourceLocation(input.substring(1)));
+                var dyn = DynamicTextureManager.INSTANCE.get(ResourceLocation.parse(input.substring(1)));
 
                 if (dyn == null) {
-                    throw new JsonParseException("Dynamic texture '" + new ResourceLocation(input.substring(1)) + "' can not be found");
+                    throw new JsonParseException("Dynamic texture '" + ResourceLocation.parse(input.substring(1)) + "' can not be found");
                 }
 
                 return dyn;
             } else {
-                return new SimpleDynamicTexture(new ResourceLocation(input));
+                return new SimpleDynamicTexture(ResourceLocation.parse(input));
             }
         } else if (jsonElement.isJsonObject()) {
             JsonObject json = jsonElement.getAsJsonObject();
-            ResourceLocation typeId = GsonUtil.getAsResourceLocation(json, "type", new ResourceLocation(Palladium.MOD_ID, "default"));
+            ResourceLocation typeId = GsonUtil.getAsResourceLocation(json, "type", Palladium.id("default"));
 
             if (!TYPE_PARSERS.containsKey(typeId)) {
                 throw new JsonParseException("Unknown dynamic texture type '" + typeId + "'");
@@ -118,7 +116,7 @@ public class DynamicTextureManager extends SimpleJsonResourceReloadListener {
             if (GsonHelper.isValidNode(json, "transformers")) {
                 GsonUtil.forEachInListOrPrimitive(json.get("transformers"), j -> {
                     JsonObject transformerJson = GsonHelper.convertToJsonObject(j, "transformers[].$");
-                    ResourceLocation transformerId = GsonUtil.getAsResourceLocation(transformerJson, "type", new ResourceLocation(Palladium.MOD_ID, "default"));
+                    ResourceLocation transformerId = GsonUtil.getAsResourceLocation(transformerJson, "type", Palladium.id("default"));
                     if (TRANSFORMER_PARSERS.containsKey(transformerId)) {
                         ITextureTransformer transformer = TRANSFORMER_PARSERS.get(transformerId).apply(transformerJson);
                         texture.transform(transformer);
@@ -167,7 +165,7 @@ public class DynamicTextureManager extends SimpleJsonResourceReloadListener {
     }
 
     public static HTMLBuilder variableDocumentationBuilder() {
-        return new HTMLBuilder(new ResourceLocation(Palladium.MOD_ID, "dynamic_textures/variables"), "Dynamic Texture Variables")
+        return new HTMLBuilder(Palladium.id("dynamic_textures/variables"), "Dynamic Texture Variables")
                 .add(HTMLBuilder.heading("Dynamic Texture Variables"))
                 .addDocumentationSettings(VARIABLE_PARSERS.values().stream().sorted(Comparator.comparing(o -> o.getId().toString())).collect(Collectors.toList()));
     }

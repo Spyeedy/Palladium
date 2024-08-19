@@ -1,31 +1,50 @@
 package net.threetag.palladium.power.ability;
 
+import com.mojang.serialization.MapCodec;
+import com.mojang.serialization.codecs.RecordCodecBuilder;
+import net.minecraft.core.registries.Registries;
 import net.minecraft.tags.FluidTags;
 import net.minecraft.tags.TagKey;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.level.material.Fluid;
 import net.minecraft.world.level.material.FluidState;
-import net.threetag.palladium.util.property.FluidTagProperty;
-import net.threetag.palladium.util.property.PalladiumProperty;
+import net.threetag.palladium.power.energybar.EnergyBarUsage;
+
+import java.util.List;
 
 public class FluidWalkingAbility extends Ability {
 
-    public static final PalladiumProperty<TagKey<Fluid>> FLUID_TAG = new FluidTagProperty("fluid_tag").configurable("Determines the tag for the fluid(s) you can walk on. You need tags because of each fluid there are 2 fluids actually: A still and a flowing one. Minecraft's two fluid tags are: minecraft:water & minecraft:lava");
+    public static final MapCodec<FluidWalkingAbility> CODEC = RecordCodecBuilder.mapCodec(instance ->
+            instance.group(
+                    TagKey.codec(Registries.FLUID).fieldOf("fluid_tag").forGetter(ab -> ab.fluidTag),
+                    propertiesCodec(), conditionsCodec(), energyBarUsagesCodec()
+            ).apply(instance, FluidWalkingAbility::new));
 
-    public FluidWalkingAbility() {
-        this.withProperty(FLUID_TAG, FluidTags.LAVA);
-    }
+    public final TagKey<Fluid> fluidTag;
 
-    @Override
-    public String getDocumentationDescription() {
-        return "Let's you define a fluid you can walk on.";
+    public FluidWalkingAbility(TagKey<Fluid> fluidTag, AbilityProperties properties, AbilityConditions conditions, List<EnergyBarUsage> energyBarUsages) {
+        super(properties, conditions, energyBarUsages);
+        this.fluidTag = fluidTag;
     }
 
     public static boolean canWalkOn(LivingEntity entity, FluidState fluid) {
-        if (fluid.is(FluidTags.WATER) && AbilityUtil.isTypeEnabled(entity, Abilities.WATER_WALK.get())) {
+        if (fluid.is(FluidTags.WATER) && AbilityUtil.isTypeEnabled(entity, AbilitySerializers.WATER_WALK.get())) {
             return true;
         } else {
-            return AbilityUtil.getEnabledEntries(entity, Abilities.FLUID_WALKING.get()).stream().anyMatch(e -> fluid.is(e.getProperty(FLUID_TAG)));
+            return AbilityUtil.getEnabledInstances(entity, AbilitySerializers.FLUID_WALKING.get()).stream().anyMatch(e -> fluid.is(e.getAbility().fluidTag));
+        }
+    }
+
+    @Override
+    public AbilitySerializer<FluidWalkingAbility> getSerializer() {
+        return AbilitySerializers.FLUID_WALKING.get();
+    }
+
+    public static class Serializer extends AbilitySerializer<FluidWalkingAbility> {
+
+        @Override
+        public MapCodec<FluidWalkingAbility> codec() {
+            return CODEC;
         }
     }
 }

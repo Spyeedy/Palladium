@@ -1,31 +1,28 @@
 package net.threetag.palladium.addonpack.parser;
 
-import com.google.gson.*;
+import com.google.gson.JsonArray;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
+import com.google.gson.JsonPrimitive;
 import com.mojang.serialization.JsonOps;
+import net.minecraft.core.component.DataComponentMap;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.core.registries.Registries;
-import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.GsonHelper;
-import net.minecraft.world.entity.EquipmentSlot;
-import net.minecraft.world.entity.ai.attributes.AttributeModifier;
-import net.minecraft.world.food.FoodProperties;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.Items;
-import net.minecraft.world.item.Rarity;
 import net.threetag.palladium.Palladium;
 import net.threetag.palladium.addonpack.builder.AddonBuilder;
 import net.threetag.palladium.addonpack.builder.ItemBuilder;
 import net.threetag.palladium.addonpack.log.AddonPackLog;
-import net.threetag.palladium.documentation.HTMLBuilder;
 import net.threetag.palladium.documentation.DocumentedConfigurable;
+import net.threetag.palladium.documentation.HTMLBuilder;
 import net.threetag.palladium.documentation.JsonDocumentationBuilder;
 import net.threetag.palladium.item.*;
-import net.threetag.palladium.power.ability.AttributeModifierAbility;
-import net.threetag.palladium.util.PlayerSlot;
+import net.threetag.palladium.item.types.*;
 import net.threetag.palladium.util.json.GsonUtil;
 import net.threetag.palladiumcore.registry.CreativeModeTabRegistry;
-import net.threetag.palladiumcore.util.Platform;
 
 import java.util.*;
 
@@ -59,38 +56,16 @@ public class ItemParser extends AddonParser<Item> {
     @Override
     public AddonBuilder<Item> parse(ResourceLocation id, JsonElement jsonElement) {
         JsonObject json = GsonHelper.convertToJsonObject(jsonElement, "$");
-        ItemBuilder builder = new ItemBuilder(id, json);
+        var dataComponents = json.has("components") ? DataComponentMap.CODEC.parse(JsonOps.INSTANCE, json.get("components")).getOrThrow() : DataComponentMap.EMPTY;
 
-        builder.type(GsonUtil.getAsResourceLocation(json, "type", null))
-                .maxStackSize(GsonUtil.getAsIntRanged(json, "max_stack_size", 1, 64, 64))
-                .maxDamage(GsonUtil.getAsIntMin(json, "max_damage", 1, 0))
-                .rarity(getRarity(GsonHelper.getAsString(json, "rarity", null)))
-                .fireResistant(GsonHelper.getAsBoolean(json, "is_fire_resistant", false))
-                .tooltipLines(GsonUtil.getAsComponentList(json, "tooltip", null));
+        ItemBuilder builder = new ItemBuilder(id, dataComponents, json);
+
+        builder.type(GsonUtil.getAsResourceLocation(json, "type", null));
 
         GsonUtil.ifHasKey(json, "creative_mode_tab", je -> {
             for (PlacedTabPlacement placedTabPlacement : GsonUtil.fromListOrPrimitive(je, PlacedTabPlacement::fromJson)) {
                 builder.creativeModeTab(placedTabPlacement);
             }
-        });
-
-        GsonUtil.ifHasKey(json, "attribute_modifiers", je -> parseAttributeModifiers(builder, je));
-
-        if (Platform.isClient()) {
-            GsonUtil.ifHasObject(json, "render_layers", jsonObject -> {
-                IAddonItem.RenderLayerContainer container = new IAddonItem.RenderLayerContainer();
-                for (Map.Entry<String, JsonElement> entry : jsonObject.entrySet()) {
-                    String key = entry.getKey();
-                    GsonUtil.forEachInListOrPrimitive(entry.getValue(), idElement -> {
-                        container.addLayer(key, ResourceLocation.parse(idElement.getAsString()));
-                    });
-                }
-                builder.setRenderLayerContainer(container);
-            });
-        }
-
-        GsonUtil.ifHasObject(json, "food", foodJson -> {
-            builder.food(FoodProperties.DIRECT_CODEC.parse(JsonOps.INSTANCE, foodJson).getOrThrow());
         });
 
         return builder;
@@ -105,43 +80,18 @@ public class ItemParser extends AddonParser<Item> {
     }
 
     static {
-        registerTypeSerializer(new AddonItem.Parser());
-        registerTypeSerializer(new AddonBlockItem.Parser());
-        registerTypeSerializer(new AddonArmorItem.Parser());
-        registerTypeSerializer(new AddonSwordItem.Parser());
-        registerTypeSerializer(new AddonPickaxeItem.Parser());
-        registerTypeSerializer(new AddonAxeItem.Parser());
-        registerTypeSerializer(new AddonShovelItem.Parser());
-        registerTypeSerializer(new AddonHoeItem.Parser());
-        registerTypeSerializer(new AddonShieldItem.Parser());
-        registerTypeSerializer(new AddonBowItem.Parser());
-        registerTypeSerializer(new AddonCrossbowItem.Parser());
-        registerTypeSerializer(new FluxCapacitorItem.Parser());
-    }
-
-    public static Rarity getRarity(String name) {
-        for (Rarity rarity : Rarity.values()) {
-            if (rarity.name().equalsIgnoreCase(name)) {
-                return rarity;
-            }
-        }
-        return null;
-    }
-
-    public static void parseAttributeModifiers(ItemBuilder builder, JsonElement jsonElement) {
-        if (jsonElement.isJsonObject()) {
-            JsonObject object = jsonElement.getAsJsonObject();
-            for (String key : object.keySet()) {
-                PlayerSlot slot = PlayerSlot.get(key);
-                JsonElement mods = object.get(key);
-
-                GsonUtil.forEachInListOrPrimitive(mods, attrMod -> {
-                    builder.addAttributeModifier(slot, GsonUtil.getAsResourceLocation(attrMod.getAsJsonObject(), "attribute"), AttributeModifier.CODEC.parse(JsonOps.INSTANCE, attrMod.getAsJsonObject()).getOrThrow());
-                });
-            }
-        } else {
-            throw new JsonSyntaxException("The attribute modifier definition needs to be an object");
-        }
+        registerTypeSerializer(new NormalItemType());
+        registerTypeSerializer(new BlockItemType());
+        registerTypeSerializer(new ArmorItemType());
+        registerTypeSerializer(new SwordItemType());
+        registerTypeSerializer(new PickaxeItemType());
+        registerTypeSerializer(new AxeItemType());
+        registerTypeSerializer(new ShovelItemType());
+        registerTypeSerializer(new HoeItemType());
+        registerTypeSerializer(new ShieldItemType());
+        registerTypeSerializer(new BowItemType());
+        registerTypeSerializer(new CrossbowItemType());
+        registerTypeSerializer(new EnergyItemType());
     }
 
     public static void registerTypeSerializer(ItemTypeSerializer serializer) {
@@ -160,81 +110,20 @@ public class ItemParser extends AddonParser<Item> {
         builder.addProperty("type", ResourceLocation.class)
                 .description("Item Type, each come with new different settings. Listed below on this page.")
                 .fallback(Palladium.id("default"));
-        builder.addProperty("max_stack_size", Integer.class)
-                .description("Max stack size for an itemstack. Range: 1-64")
-                .fallback(64)
-                .exampleJson(new JsonPrimitive(64));
-        builder.addProperty("max_damage", Integer.class)
-                .description("Max damage for an item. Must be greater then or equal 0.")
-                .fallback(0);
         builder.addProperty("creative_mode_tab", ResourceLocation.class)
                 .description("ID of the creative mode tab the item is supposed to appear in. Fore more precise placements, check the \"Custom Items\" page on the wiki. Possible values: " + Arrays.toString(BuiltInRegistries.CREATIVE_MODE_TAB.keySet().stream().sorted(Comparator.comparing(ResourceLocation::toString)).toArray()))
                 .fallback(null)
                 .exampleJson(new JsonPrimitive("minecraft:decorations"));
-        builder.addProperty("rarity", String.class)
-                .description("Rarity of the item, influences the item name's color. Possible values: " + Arrays.toString(Arrays.stream(Rarity.values()).map(r -> r.toString().toLowerCase(Locale.ROOT)).toArray()))
-                .fallback(null)
-                .exampleJson(new JsonPrimitive("epic"));
-        builder.addProperty("is_fire_resistant", Boolean.class)
-                .description("Whether or not the item will survive being thrown into fire/lava.")
-                .fallback(false)
-                .exampleJson(new JsonPrimitive(false));
-
-        JsonArray tooltipExample = new JsonArray();
-        tooltipExample.add("Line 1");
-        JsonObject line2 = new JsonObject();
-        line2.addProperty("translate", "example.line2.translation_key");
-        line2.addProperty("color", "#BCD42A");
-        line2.addProperty("underlined", true);
-        tooltipExample.add(line2);
-
-        builder.addProperty("tooltip", Component[].class)
-                .description("Tooltip lines. Can be array of primitive strings or more complex text component")
-                .fallback(null)
-                .exampleJson(tooltipExample);
-
-        JsonObject attributeModifiers = GsonHelper.fromJson(GSON, "{ \"all\": [ { \"attribute\": \"minecraft:generic.max_health\", \"amount\": 2, \"operation\": 0, \"uuid\": \"f98db25e-91cb-45ca-ba40-5526ff2cd180\" } ]," +
-                "\"chest\": [ { \"attribute\": \"minecraft:generic.movement_speed\", \"amount\": 4, \"operation\": 1, \"uuid\": \"3a4df804-2be2-4002-a829-eaf29a629cac\" } ] }", JsonObject.class);
-
-        builder.addProperty("attribute_modifiers", AttributeModifier[].class)
-                .description("Attribute modifiers when having the item equipped. You first specify the slot (\"all\" for every slot, other options: " + Arrays.toString(Arrays.stream(EquipmentSlot.values()).map(EquipmentSlot::getName).toArray()) + "), then an array for different modifiers. Possible attributes: " + AttributeModifierAbility.getAttributeList())
-                .fallback(null)
-                .exampleJson(attributeModifiers);
-
-        JsonObject foodExample = new JsonObject();
-        foodExample.addProperty("nutrition", 5);
-        foodExample.addProperty("saturation", 0.6F);
-        foodExample.addProperty("can_always_eat", false);
-        foodExample.addProperty("eat_seconds", 1.6F);
-        foodExample.addProperty("using_converts_to", "{ \"id\": \"minecraft:bread\" }");
-        JsonArray effectsExample = new JsonArray();
-        JsonObject effectExample = new JsonObject();
-
-        JsonObject effectInstanceExample = new JsonObject();
-        effectInstanceExample.addProperty("id", "minecraft:damage_boost");
-        effectInstanceExample.addProperty("duration", 40);
-        effectInstanceExample.addProperty("amplifier", 1);
-        effectInstanceExample.addProperty("ambient", false);
-        effectInstanceExample.addProperty("show_particles", true);
-        effectInstanceExample.addProperty("show_icon", true);
-        effectInstanceExample.addProperty("hidden_effect", false);
-        effectInstanceExample.addProperty("probability", 1F);
-        effectExample.add("effect", effectInstanceExample);
-
-        effectsExample.add(effectExample);
-        foodExample.add("effects", effectsExample);
-
-        builder.addProperty("food", FoodProperties.class)
-                .description("Settings to make this item edible. The only required field in this json part is the mob_effect IF you add any effect")
-                .fallback(null)
-                .exampleJson(foodExample);
+        builder.addProperty("components", DataComponentMap.class)
+                .description("Map of data components for this item. Check Minecraft Wiki")
+                .fallback(null);
 
         return builder;
     }
 
     public interface ItemTypeSerializer extends DocumentedConfigurable {
 
-        IAddonItem parse(JsonObject json, Item.Properties properties);
+        Item parse(JsonObject json, Item.Properties properties);
     }
 
     public static class PlacedTabPlacement {

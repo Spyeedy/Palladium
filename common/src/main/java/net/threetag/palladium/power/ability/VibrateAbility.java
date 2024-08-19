@@ -1,56 +1,31 @@
 package net.threetag.palladium.power.ability;
 
-import net.minecraft.util.Mth;
-import net.minecraft.world.entity.LivingEntity;
-import net.threetag.palladium.util.property.IntegerProperty;
-import net.threetag.palladium.util.property.PalladiumProperty;
-import net.threetag.palladium.util.property.PropertyManager;
-import net.threetag.palladium.util.property.SyncOption;
+import com.mojang.serialization.MapCodec;
+import com.mojang.serialization.codecs.RecordCodecBuilder;
+import net.threetag.palladium.power.energybar.EnergyBarUsage;
 
-public class VibrateAbility extends Ability implements AnimationTimer {
+import java.util.List;
 
-    public static final PalladiumProperty<Integer> VALUE = new IntegerProperty("value").sync(SyncOption.NONE).disablePersistence();
-    public static final PalladiumProperty<Integer> PREV_VALUE = new IntegerProperty("prev_value").sync(SyncOption.NONE).disablePersistence();
+public class VibrateAbility extends Ability {
 
-    @Override
-    public void registerUniqueProperties(PropertyManager manager) {
-        manager.register(VALUE, 0);
-        manager.register(PREV_VALUE, 0);
+    public static final MapCodec<VibrateAbility> CODEC = RecordCodecBuilder.mapCodec(instance ->
+            instance.group(propertiesCodec(), conditionsCodec(), energyBarUsagesCodec()
+            ).apply(instance, VibrateAbility::new));
+
+    public VibrateAbility(AbilityProperties properties, AbilityConditions conditions, List<EnergyBarUsage> energyBarUsages) {
+        super(properties, conditions, energyBarUsages);
     }
 
     @Override
-    public void tick(LivingEntity entity, AbilityInstance entry, IPowerHolder holder, boolean enabled) {
-        int value = entry.getProperty(VALUE);
-        entry.setUniqueProperty(PREV_VALUE, value);
+    public AbilitySerializer<VibrateAbility> getSerializer() {
+        return AbilitySerializers.VIBRATE.get();
+    }
 
-        if (enabled && value < 10) {
-            entry.setUniqueProperty(VALUE, value + 1);
-        } else if (!enabled && value > 0) {
-            entry.setUniqueProperty(VALUE, value - 1);
+    public static class Serializer extends AbilitySerializer<VibrateAbility> {
+
+        @Override
+        public MapCodec<VibrateAbility> codec() {
+            return CODEC;
         }
     }
-
-    @Override
-    public float getAnimationValue(AbilityInstance entry, float partialTick) {
-        return Mth.lerp(partialTick, entry.getProperty(PREV_VALUE), entry.getProperty(VALUE)) / 10;
-    }
-
-    @Override
-    public float getAnimationTimer(AbilityInstance entry, float partialTick, boolean maxedOut) {
-        if (maxedOut) {
-            return 10;
-        }
-        return Mth.lerp(partialTick, entry.getProperty(PREV_VALUE), entry.getProperty(VALUE));
-    }
-
-    @Override
-    public boolean isEffect() {
-        return true;
-    }
-
-    @Override
-    public String getDocumentationDescription() {
-        return "Adds a vibration effect to the player.";
-    }
-
 }

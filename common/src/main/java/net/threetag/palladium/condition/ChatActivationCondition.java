@@ -6,6 +6,7 @@ import com.mojang.serialization.codecs.RecordCodecBuilder;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
+import net.minecraft.util.ExtraCodecs;
 import net.minecraft.world.entity.LivingEntity;
 import net.threetag.palladium.power.ability.AbilityInstance;
 import net.threetag.palladium.util.context.DataContext;
@@ -17,8 +18,8 @@ public class ChatActivationCondition extends ChatMessageCondition {
     public static final MapCodec<ChatActivationCondition> CODEC = RecordCodecBuilder.mapCodec(instance -> instance
             .group(
                     Codec.STRING.fieldOf("chat_message").forGetter(ChatActivationCondition::getChatMessage),
-                    Codec.intRange(0, Integer.MAX_VALUE).fieldOf("ticks").forGetter(ChatActivationCondition::getTicks),
-                    Codec.intRange(0, Integer.MAX_VALUE).optionalFieldOf("cooldown", 0).forGetter(ChatActivationCondition::getCooldown)
+                    ExtraCodecs.NON_NEGATIVE_INT.fieldOf("ticks").forGetter(ChatActivationCondition::getTicks),
+                    ExtraCodecs.NON_NEGATIVE_INT.optionalFieldOf("cooldown", 0).forGetter(ChatActivationCondition::getCooldown)
             ).apply(instance, ChatActivationCondition::new)
     );
     public static final StreamCodec<RegistryFriendlyByteBuf, ChatActivationCondition> STREAM_CODEC = StreamCodec.composite(
@@ -48,17 +49,17 @@ public class ChatActivationCondition extends ChatMessageCondition {
             return false;
         }
 
-        if (this.cooldown != 0 && Objects.requireNonNull(entry).activationTimer == 1) {
+        if (this.cooldown != 0 && Objects.requireNonNull(entry).getActivatedTime() == 1) {
             entry.startCooldown(context.getLivingEntity(), this.cooldown);
         }
 
-        return Objects.requireNonNull(entry).activationTimer > 0;
+        return Objects.requireNonNull(entry).getActivatedTime() > 0;
     }
 
     @Override
-    public void onChat(LivingEntity entity, AbilityInstance entry) {
-        if (entry.cooldown <= 0 && entry.activationTimer == 0) {
-            entry.startActivationTimer(entity, this.ticks);
+    public void onChat(LivingEntity entity, AbilityInstance<?> abilityInstance) {
+        if (abilityInstance.getCooldown() <= 0 && abilityInstance.getActivatedTime() == 0) {
+            abilityInstance.startActivationTimer(entity, this.ticks);
         }
     }
 

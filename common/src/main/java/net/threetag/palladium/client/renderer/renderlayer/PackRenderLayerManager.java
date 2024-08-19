@@ -20,19 +20,17 @@ import net.threetag.palladium.addonpack.log.AddonPackLog;
 import net.threetag.palladium.addonpack.parser.AddonParser;
 import net.threetag.palladium.client.renderer.PalladiumRenderTypes;
 import net.threetag.palladium.client.renderer.item.armor.ArmorRendererData;
+import net.threetag.palladium.component.PalladiumDataComponents;
 import net.threetag.palladium.entity.BodyPart;
 import net.threetag.palladium.item.ArmorWithRenderer;
-import net.threetag.palladium.item.IAddonItem;
 import net.threetag.palladium.power.ability.AbilityInstance;
 import net.threetag.palladium.power.ability.AbilityUtil;
 import net.threetag.palladium.power.ability.RenderLayerProviderAbility;
+import net.threetag.palladium.util.PlayerSlot;
 import net.threetag.palladium.util.context.DataContext;
 import net.threetag.palladium.util.json.GsonUtil;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.function.BiConsumer;
 import java.util.function.Function;
 
@@ -67,10 +65,10 @@ public class PackRenderLayerManager extends SimpleJsonResourceReloadListener {
                     if (!stack.isEmpty()) {
                         var context = DataContext.forArmorInSlot(livingEntity, slot);
 
-                        if (stack.getItem() instanceof IAddonItem addonItem && addonItem.getRenderLayerContainer() != null) {
-                            var container = addonItem.getRenderLayerContainer();
+                        if (stack.has(PalladiumDataComponents.RENDER_LAYERS.get())) {
+                            var component = stack.get(PalladiumDataComponents.RENDER_LAYERS.get());
 
-                            for (ResourceLocation id : container.get(slot.getName())) {
+                            for (ResourceLocation id : Objects.requireNonNull(component).forSlot(PlayerSlot.get(slot))) {
                                 IPackRenderLayer layer = PackRenderLayerManager.getInstance().getLayer(id);
 
                                 if (layer != null) {

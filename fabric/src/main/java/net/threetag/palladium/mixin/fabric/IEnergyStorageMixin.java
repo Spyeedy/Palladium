@@ -1,15 +1,15 @@
 package net.threetag.palladium.mixin.fabric;
 
 import net.fabricmc.fabric.api.transfer.v1.transaction.TransactionContext;
-import net.threetag.palladium.energy.IEnergyStorage;
+import net.threetag.palladium.energy.PalladiumEnergyStorage;
 import org.spongepowered.asm.mixin.Mixin;
 import team.reborn.energy.api.EnergyStorage;
 
-@Mixin(IEnergyStorage.class)
+@Mixin(PalladiumEnergyStorage.class)
 public interface IEnergyStorageMixin extends EnergyStorage {
 
-    default IEnergyStorage cast() {
-        return (IEnergyStorage) this;
+    default PalladiumEnergyStorage cast() {
+        return (PalladiumEnergyStorage) this;
     }
 
     @Override

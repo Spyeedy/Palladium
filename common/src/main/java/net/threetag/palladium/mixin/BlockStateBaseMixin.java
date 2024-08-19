@@ -11,7 +11,7 @@ import net.minecraft.world.phys.shapes.CollisionContext;
 import net.minecraft.world.phys.shapes.EntityCollisionContext;
 import net.minecraft.world.phys.shapes.Shapes;
 import net.minecraft.world.phys.shapes.VoxelShape;
-import net.threetag.palladium.power.ability.Abilities;
+import net.threetag.palladium.power.ability.AbilitySerializers;
 import net.threetag.palladium.power.ability.AbilityInstance;
 import net.threetag.palladium.power.ability.AbilityUtil;
 import net.threetag.palladium.power.ability.IntangibilityAbility;
@@ -32,7 +32,7 @@ public class BlockStateBaseMixin {
         if (!blockShape.isEmpty() && context instanceof EntityCollisionContext ctx) {
             if (ctx.getEntity() instanceof LivingEntity entity) {
                 boolean isAbove = isAbove(entity, blockShape, pos, false);
-                for (AbilityInstance entry : AbilityUtil.getEnabledEntries(entity, Abilities.INTANGIBILITY.get())) {
+                for (AbilityInstance entry : AbilityUtil.getEnabledEntries(entity, AbilitySerializers.INTANGIBILITY.get())) {
                     if (!isAbove || entry.getProperty(IntangibilityAbility.VERTICAL)) {
                         if (IntangibilityAbility.canGoThrough(entry, level.getBlockState(pos))) {
                             cir.setReturnValue(Shapes.empty());
@@ -52,7 +52,7 @@ public class BlockStateBaseMixin {
     @Inject(method = "entityInside", at = @At("HEAD"), cancellable = true)
     private void preventCollisionWhenPhasing(Level level, BlockPos pos, Entity entity, CallbackInfo ci) {
         if (entity instanceof LivingEntity living) {
-            for (AbilityInstance entry : AbilityUtil.getEnabledEntries(living, Abilities.INTANGIBILITY.get())) {
+            for (AbilityInstance entry : AbilityUtil.getEnabledEntries(living, AbilitySerializers.INTANGIBILITY.get())) {
                 if (IntangibilityAbility.canGoThrough(entry, level.getBlockState(pos))) {
                     ci.cancel();
                     return;

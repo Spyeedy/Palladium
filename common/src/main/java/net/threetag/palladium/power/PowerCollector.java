@@ -1,5 +1,7 @@
 package net.threetag.palladium.power;
 
+import net.minecraft.core.Holder;
+import net.minecraft.nbt.CompoundTag;
 import net.minecraft.world.entity.LivingEntity;
 import net.threetag.palladium.registry.PalladiumRegistryKeys;
 
@@ -12,7 +14,7 @@ public class PowerCollector {
     private final LivingEntity entity;
     private final EntityPowerHandler handler;
     private final List<PowerHolder> toRemove;
-    private final List<PowerHolder> powerHolders = new ArrayList<>();
+    private final List<PowerHolderCache> powerHolders = new ArrayList<>();
 
     public PowerCollector(LivingEntity entity, EntityPowerHandler handler, List<PowerHolder> toRemove) {
         this.entity = entity;
@@ -20,14 +22,14 @@ public class PowerCollector {
         this.toRemove = toRemove;
     }
 
-    public void addPower(Power power, Supplier<PowerValidator> validatorSupplier) {
+    public void addPower(Holder<Power> power, Supplier<PowerValidator> validatorSupplier) {
         if (power == null) {
             return;
         }
 
         PowerHolder found = null;
         for (PowerHolder holder : this.toRemove) {
-            if (holder.getPower() == power) {
+            if (holder.getPower() == power.value()) {
                 found = holder;
                 break;
             }
@@ -39,12 +41,20 @@ public class PowerCollector {
             return;
         }
 
-        if (!this.handler.hasPower(this.entity.registryAccess().registryOrThrow(PalladiumRegistryKeys.POWER).getKey(power))) {
-            this.powerHolders.add(new PowerHolder(this.entity, power, validatorSupplier.get()));
+        if (!this.handler.hasPower(power.unwrapKey().orElseThrow().location())) {
+            this.powerHolders.add(new PowerHolderCache(power, validatorSupplier.get()));
         }
     }
 
-    public List<PowerHolder> getAdded() {
+    public List<PowerHolderCache> getAdded() {
         return this.powerHolders;
+    }
+
+    public record PowerHolderCache(Holder<Power> power, PowerValidator validator) {
+
+        public PowerHolder make(LivingEntity entity, CompoundTag compoundTag) {
+            return new PowerHolder(entity, this.power, this.validator, compoundTag.getCompound(power.unwrapKey().orElseThrow().location().toString()));
+        }
+
     }
 }

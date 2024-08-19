@@ -1,31 +1,52 @@
 package net.threetag.palladium.power.ability;
 
+import com.mojang.serialization.MapCodec;
+import com.mojang.serialization.codecs.RecordCodecBuilder;
+import net.minecraft.util.ExtraCodecs;
 import net.minecraft.world.entity.LivingEntity;
-import net.threetag.palladium.util.property.PalladiumProperty;
-import net.threetag.palladium.util.property.PalladiumPropertyBuilder;
-import net.threetag.palladium.util.property.PalladiumPropertyType;
+import net.threetag.palladium.power.PowerHolder;
+import net.threetag.palladium.power.energybar.EnergyBarUsage;
+
+import java.util.List;
 
 public class HealingAbility extends Ability {
 
-    public static final PalladiumProperty<Integer> FREQUENCY = PalladiumPropertyBuilder.create("frequency", PalladiumPropertyType.INTEGER).configurable("Sets the frequency of healing (in ticks)", false, 20).build();
-    public static final PalladiumProperty<Float> AMOUNT = PalladiumPropertyBuilder.create("amount", PalladiumPropertyType.FLOAT).configurable("Sets the amount of hearts for each healing", false, 3F).build();
+    public static final MapCodec<HealingAbility> CODEC = RecordCodecBuilder.mapCodec(instance ->
+            instance.group(
+                    ExtraCodecs.POSITIVE_INT.fieldOf("frequency").forGetter(ab -> ab.frequency),
+                    ExtraCodecs.POSITIVE_FLOAT.fieldOf("amount").forGetter(ab -> ab.amount),
+                    propertiesCodec(), conditionsCodec(), energyBarUsagesCodec()
+            ).apply(instance, HealingAbility::new));
 
-    public HealingAbility() {
-        this.withProperty(FREQUENCY, AMOUNT);
+    public final int frequency;
+    public final float amount;
+
+    public HealingAbility(int frequency, float amount, AbilityProperties properties, AbilityConditions conditions, List<EnergyBarUsage> energyBarUsages) {
+        super(properties, conditions, energyBarUsages);
+        this.frequency = frequency;
+        this.amount = amount;
     }
 
     @Override
-    public void tick(LivingEntity entity, AbilityInstance entry, IPowerHolder holder, boolean enabled) {
+    public AbilitySerializer<HealingAbility> getSerializer() {
+        return AbilitySerializers.HEALING.get();
+    }
+
+    @Override
+    public void tick(LivingEntity entity, AbilityInstance entry, PowerHolder holder, boolean enabled) {
         if (enabled && !entity.level().isClientSide) {
-            int frequency = entry.getProperty(FREQUENCY);
-            if (frequency != 0 && entity.tickCount % frequency == 0) {
-                entity.heal(entry.getProperty(AMOUNT));
+            if (this.frequency != 0 && entity.tickCount % this.frequency == 0) {
+                entity.heal(this.amount);
             }
         }
     }
 
-    @Override
-    public String getDocumentationDescription() {
-        return "Heals the entity.";
+    public static class Serializer extends AbilitySerializer<HealingAbility> {
+
+        @Override
+        public MapCodec<HealingAbility> codec() {
+            return CODEC;
+        }
     }
+
 }

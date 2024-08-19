@@ -12,17 +12,17 @@ import net.threetag.palladium.client.energybeam.EnergyBeamManager;
 import net.threetag.palladium.entity.EffectEntity;
 import net.threetag.palladium.power.ability.AbilityInstance;
 import net.threetag.palladium.power.ability.AbilityReference;
-import net.threetag.palladium.power.ability.AnimationTimer;
 import net.threetag.palladium.power.ability.EnergyBeamAbility;
-import net.threetag.palladium.util.property.AbilityReferenceProperty;
 import net.threetag.palladium.util.property.PalladiumProperty;
+import net.threetag.palladium.util.property.PalladiumPropertyBuilder;
+import net.threetag.palladium.util.property.PalladiumPropertyType;
 import net.threetag.palladium.util.property.PropertyManager;
 
 import java.util.Objects;
 
 public class EnergyBeamEffect extends EntityEffect {
 
-    public static final PalladiumProperty<AbilityReference> ABILITY = new AbilityReferenceProperty("ability");
+    public static final PalladiumProperty<AbilityReference> ABILITY = PalladiumPropertyBuilder.create("ability", PalladiumPropertyType.ABILITY_REFERENCE).build();
 
     @Override
     public void registerProperties(PropertyManager manager) {
@@ -86,8 +86,8 @@ public class EnergyBeamEffect extends EntityEffect {
 
     @Environment(EnvType.CLIENT)
     public static void start(Player player, AbilityReference abilityReference) {
-        EffectEntity effectEntity = new EffectEntity(player.level(), player, EntityEffects.ENERGY_BEAM.get());
+        EffectEntity effectEntity = new EffectEntity(player.level(), player, EntityEffects.ENERGY_BEAM.value());
         ABILITY.set(effectEntity, abilityReference);
-        Objects.requireNonNull(Minecraft.getInstance().level).putNonPlayerEntity(0, effectEntity);
+        Objects.requireNonNull(Minecraft.getInstance().level).addEntity(effectEntity);
     }
 }

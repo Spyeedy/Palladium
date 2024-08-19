@@ -11,18 +11,17 @@ import net.threetag.palladium.client.renderer.renderlayer.PackRenderLayerManager
 import net.threetag.palladium.compat.geckolib.renderlayer.GeckoLayerState;
 import net.threetag.palladium.entity.PalladiumLivingEntityExtension;
 import net.threetag.palladium.power.PowerHolder;
-import net.threetag.palladium.power.ability.Ability;
+import net.threetag.palladium.power.ability.AbilitySerializer;
 import net.threetag.palladium.power.ability.AbilityInstance;
 import net.threetag.palladium.util.property.PalladiumProperty;
 import net.threetag.palladium.util.property.PalladiumPropertyBuilder;
 import net.threetag.palladium.util.property.PalladiumPropertyType;
-import net.threetag.palladium.util.property_old.ResourceLocationProperty;
 import software.bernie.geckolib.animation.AnimatableManager;
 
 import java.util.Collections;
 import java.util.List;
 
-public class RenderLayerAnimationAbility extends Ability {
+public class RenderLayerAnimationAbility extends AbilitySerializer {
 
     public static final PalladiumProperty<ResourceLocation> RENDER_LAYER = PalladiumPropertyBuilder.create("render_layer", PalladiumPropertyType.RESOURCE_LOCATION).configurable("Determines the ID of the render layer receiving the animation. Must be a gecko render layer!", true).build();
     public static final PalladiumProperty<String> CONTROLLER = PalladiumPropertyBuilder.create("controller", PalladiumPropertyType.STRING).configurable("Name of the animation controller the animation is played on. Leave it as 'main' if you didnt specify one.", false, "main").build();
@@ -38,9 +37,9 @@ public class RenderLayerAnimationAbility extends Ability {
     }
 
     @Override
-    public void tick(LivingEntity entity, AbilityInstance entry, PowerHolder holder, boolean enabled) {
+    public void tick(LivingEntity entity, AbilityInstance ability, PowerHolder holder, boolean enabled) {
         if (enabled && entity.level().isClientSide && entity instanceof PalladiumLivingEntityExtension extension) {
-            this.playAnimation(extension, entry);
+            this.playAnimation(extension, ability);
         }
     }
 

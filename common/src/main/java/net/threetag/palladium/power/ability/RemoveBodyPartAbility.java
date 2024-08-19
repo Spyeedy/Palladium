@@ -1,30 +1,42 @@
 package net.threetag.palladium.power.ability;
 
+import com.mojang.serialization.Codec;
+import com.mojang.serialization.MapCodec;
+import com.mojang.serialization.codecs.RecordCodecBuilder;
 import net.threetag.palladium.entity.BodyPart;
-import net.threetag.palladium.util.property.BodyPartListProperty;
-import net.threetag.palladium.util.property.BooleanProperty;
-import net.threetag.palladium.util.property.PalladiumProperty;
+import net.threetag.palladium.power.energybar.EnergyBarUsage;
+import net.threetag.palladium.util.CodecUtils;
 
-import java.util.Arrays;
 import java.util.List;
 
 public class RemoveBodyPartAbility extends Ability {
 
-    public static final PalladiumProperty<List<BodyPart>> BODY_PARTS = new BodyPartListProperty("body_parts").configurable("Determines which body parts should be completely removed. Available parts: " + Arrays.toString(Arrays.stream(BodyPart.values()).map(BodyPart::getName).toArray()));
-    public static final PalladiumProperty<Boolean> AFFECTS_FIRST_PERSON = new BooleanProperty("affects_first_person").configurable("Determines if your first person arm should disappear aswell (if it's disabled)");
+    public static final MapCodec<RemoveBodyPartAbility> CODEC = RecordCodecBuilder.mapCodec(instance ->
+            instance.group(
+                    CodecUtils.listOrPrimitive(BodyPart.CODEC).fieldOf("body_parts").forGetter(ab -> ab.bodyParts),
+                    Codec.BOOL.fieldOf("affects_first_person").forGetter(ab -> ab.affectsFirstPerson),
+                    propertiesCodec(), conditionsCodec(), energyBarUsagesCodec()
+            ).apply(instance, RemoveBodyPartAbility::new));
 
-    public RemoveBodyPartAbility() {
-        this.withProperty(BODY_PARTS, Arrays.asList(BodyPart.RIGHT_ARM, BodyPart.LEFT_ARM));
-        this.withProperty(AFFECTS_FIRST_PERSON, true);
+    public final List<BodyPart> bodyParts;
+    public final boolean affectsFirstPerson;
+
+    public RemoveBodyPartAbility(List<BodyPart> bodyParts, boolean affectsFirstPerson, AbilityProperties properties, AbilityConditions conditions, List<EnergyBarUsage> energyBarUsages) {
+        super(properties, conditions, energyBarUsages);
+        this.bodyParts = bodyParts;
+        this.affectsFirstPerson = affectsFirstPerson;
     }
 
     @Override
-    public boolean isEffect() {
-        return true;
+    public AbilitySerializer<RemoveBodyPartAbility> getSerializer() {
+        return AbilitySerializers.REMOVE_BODY_PART.get();
     }
 
-    @Override
-    public String getDocumentationDescription() {
-        return "Allows you to remove an entity's body parts.";
+    public static class Serializer extends AbilitySerializer<RemoveBodyPartAbility> {
+
+        @Override
+        public MapCodec<RemoveBodyPartAbility> codec() {
+            return CODEC;
+        }
     }
 }

@@ -7,7 +7,7 @@ import net.threetag.palladium.entity.effect.EntityEffect;
 import net.threetag.palladium.entity.value.EntityDependentNumberType;
 import net.threetag.palladium.item.SuitSet;
 import net.threetag.palladium.power.Power;
-import net.threetag.palladium.power.ability.Ability;
+import net.threetag.palladium.power.ability.AbilitySerializer;
 import net.threetag.palladium.power.provider.PowerProvider;
 import net.threetag.palladium.util.icon.IconSerializer;
 import net.threetag.palladiumcore.registry.DataPackRegistries;
@@ -16,7 +16,7 @@ import net.threetag.palladiumcore.registry.RegistryBuilder;
 public class PalladiumRegistries {
 
     public static final Registry<Accessory> ACCESSORY = RegistryBuilder.create(PalladiumRegistryKeys.ACCESSORY).build();
-    public static final Registry<Ability> ABILITY = RegistryBuilder.create(PalladiumRegistryKeys.ABILITY).build();
+    public static final Registry<AbilitySerializer<?>> ABILITY_SERIALIZER = RegistryBuilder.create(PalladiumRegistryKeys.ABILITY_SERIALIZER).build();
     public static final Registry<PowerProvider> POWER_PROVIDER = RegistryBuilder.create(PalladiumRegistryKeys.POWER_PROVIDER).build();
     public static final Registry<ConditionSerializer<?>> CONDITION_SERIALIZER = RegistryBuilder.create(PalladiumRegistryKeys.CONDITION_SERIALIZER).build();
     public static final Registry<IconSerializer<?>> ICON_SERIALIZER = RegistryBuilder.create(PalladiumRegistryKeys.ICON_SERIALIZER).build();

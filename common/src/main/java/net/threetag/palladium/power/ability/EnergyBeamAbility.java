@@ -1,15 +1,19 @@
 package net.threetag.palladium.power.ability;
 
+import com.mojang.serialization.Codec;
+import com.mojang.serialization.MapCodec;
+import com.mojang.serialization.codecs.RecordCodecBuilder;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.component.DataComponentMap;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraft.util.Mth;
-import net.minecraft.world.SimpleContainer;
+import net.minecraft.util.ExtraCodecs;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.crafting.RecipeType;
+import net.minecraft.world.item.crafting.SingleRecipeInput;
 import net.minecraft.world.level.ClipContext;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
@@ -20,96 +24,99 @@ import net.minecraft.world.phys.EntityHitResult;
 import net.minecraft.world.phys.HitResult;
 import net.minecraft.world.phys.Vec3;
 import net.threetag.palladium.client.energybeam.EnergyBeamManager;
+import net.threetag.palladium.component.PalladiumDataComponents;
 import net.threetag.palladium.entity.effect.EnergyBeamEffect;
+import net.threetag.palladium.power.PowerHolder;
+import net.threetag.palladium.power.energybar.EnergyBarUsage;
 import net.threetag.palladium.util.EntityUtil;
 import net.threetag.palladium.util.PalladiumBlockUtil;
-import net.threetag.palladium.util.property.*;
 import net.threetag.palladiumcore.util.Platform;
 
-public class EnergyBeamAbility extends Ability implements AnimationTimer {
+import java.util.List;
 
-    public static final PalladiumProperty<ResourceLocation> BEAM = new ResourceLocationProperty("energy_beam").configurable("Configuration for the look of the beam. Check wiki for information.");
-    public static final PalladiumProperty<Float> DAMAGE = new FloatProperty("damage").configurable("The damage dealt with aiming for entities (per tick)");
-    public static final PalladiumProperty<Float> MAX_DISTANCE = new FloatProperty("max_distance").configurable("The maximum distance you can reach with your heat vision");
-    public static final PalladiumProperty<Float> SPEED = new FloatProperty("speed").configurable("Speed at which the energy beam extends from the player. Use 0 for instant extension.");
-    public static final PalladiumProperty<Integer> SET_ON_FIRE_SECONDS = new IntegerProperty("set_on_fire_seconds").configurable("You can use this to set targeted entities on fire. If set to 0 it will not cause any.");
-    public static final PalladiumProperty<Boolean> CAUSE_FIRE = new BooleanProperty("cause_fire").configurable("If enabled, targeted blocks will start to burn (fire will be placed).");
-    public static final PalladiumProperty<Boolean> SMELT_BLOCKS = new BooleanProperty("smelt_blocks").configurable("If enabled, targeted blocks will turn into their smelting result (e.g. sand will turn into glass).");
+public class EnergyBeamAbility extends Ability {
 
-    public static final PalladiumProperty<Vec3> TARGET = new Vec3Property("distance").sync(SyncOption.NONE);
-    public static final PalladiumProperty<Float> VALUE = new FloatProperty("value").sync(SyncOption.NONE).disablePersistence();
-    public static final PalladiumProperty<Float> PREV_VALUE = new FloatProperty("prev_value").sync(SyncOption.NONE).disablePersistence();
+    public static final MapCodec<EnergyBeamAbility> CODEC = RecordCodecBuilder.mapCodec(instance ->
+            instance.group(
+                    ResourceLocation.CODEC.fieldOf("energy_beam").forGetter(ab -> ab.beamId),
+                    Codec.floatRange(0, Float.MAX_VALUE).optionalFieldOf("damage", 0F).forGetter(ab -> ab.damage),
+                    Codec.floatRange(0, Float.MAX_VALUE).optionalFieldOf("max_distance", 30F).forGetter(ab -> ab.maxDistance),
+                    ExtraCodecs.NON_NEGATIVE_INT.optionalFieldOf("set_on_fire_seconds", 0).forGetter(ab -> ab.setOnFireSeconds),
+                    Codec.BOOL.optionalFieldOf("cause_fire", false).forGetter(ab -> ab.causeFire),
+                    Codec.BOOL.optionalFieldOf("smelt_blocks", false).forGetter(ab -> ab.smeltBlocks),
+                    propertiesCodec(), conditionsCodec(), energyBarUsagesCodec()
+            ).apply(instance, EnergyBeamAbility::new));
 
-    public EnergyBeamAbility() {
-        this.withProperty(BEAM, new ResourceLocation("example:energy_beam"))
-                .withProperty(DAMAGE, 5F)
-                .withProperty(MAX_DISTANCE, 30F)
-                .withProperty(SPEED, 0.5F)
-                .withProperty(SET_ON_FIRE_SECONDS, 0)
-                .withProperty(CAUSE_FIRE, false)
-                .withProperty(SMELT_BLOCKS, false);
+    public final ResourceLocation beamId;
+    public final float damage, maxDistance;
+    public final int setOnFireSeconds;
+    public final boolean causeFire, smeltBlocks;
+
+    public EnergyBeamAbility(ResourceLocation beamId, float damage, float maxDistance, int setOnFireSeconds, boolean causeFire, boolean smeltBlocks, AbilityProperties properties, AbilityConditions conditions, List<EnergyBarUsage> energyBarUsages) {
+        super(properties, conditions, energyBarUsages);
+        this.beamId = beamId;
+        this.damage = damage;
+        this.maxDistance = maxDistance;
+        this.setOnFireSeconds = setOnFireSeconds;
+        this.causeFire = causeFire;
+        this.smeltBlocks = smeltBlocks;
     }
 
     @Override
-    public void registerUniqueProperties(PropertyManager manager) {
-        manager.register(TARGET, Vec3.ZERO);
-        manager.register(VALUE, 0F);
-        manager.register(PREV_VALUE, 0F);
+    public AbilitySerializer<EnergyBeamAbility> getSerializer() {
+        return AbilitySerializers.ENERGY_BEAM.get();
     }
 
     @Override
-    public void firstTick(LivingEntity entity, AbilityInstance entry, IPowerHolder holder, boolean enabled) {
-        if (enabled && entity instanceof Player player && entry.getProperty(VALUE) <= 0F && Platform.isClient()) {
-            EnergyBeamEffect.start(player, entry.getReference());
+    public void registerDataComponents(DataComponentMap.Builder components) {
+        components.set(PalladiumDataComponents.Abilities.ENERGY_BEAM_TARGET.get(), null);
+    }
+
+    @Override
+    public void firstTick(LivingEntity entity, AbilityInstance instance, PowerHolder holder, boolean enabled) {
+        var timer = instance.getAnimationTimer();
+        if (enabled && entity instanceof Player player && (timer == null || timer.value() <= 0F) && Platform.isClient()) {
+            EnergyBeamEffect.start(player, instance.getReference());
         }
     }
 
     @SuppressWarnings("ConstantValue")
     @Override
-    public void tick(LivingEntity entity, AbilityInstance entry, IPowerHolder holder, boolean enabled) {
-        float speed = entry.getProperty(SPEED);
-        float value = entry.getProperty(VALUE);
-        entry.setUniqueProperty(PREV_VALUE, value);
+    public void tick(LivingEntity entity, AbilityInstance instance, PowerHolder holder, boolean enabled) {
         HitResult hit = null;
-        boolean active = enabled;
+        boolean hitTarget = enabled;
+        var timer = instance.getAnimationTimer();
 
-        if (speed > 0F) {
-            hit = updateTargetPos(entity, entry, 1F);
-
-            if (entry.isEnabled() && value < 1F) {
-                entry.setUniqueProperty(VALUE, value = Math.min(value + speed, 1F));
-            } else if (!entry.isEnabled() && value > 0F) {
-                entry.setUniqueProperty(VALUE, value = Math.max(value - speed, 0F));
-            }
-
-            active = value >= 1F;
+        if (timer != null) {
+            hitTarget = timer.value() == timer.max();
         }
 
-        if (active) {
-            if (hit instanceof EntityHitResult entityHitResult) {
-                var fireSecs = entry.getProperty(SET_ON_FIRE_SECONDS);
+        if (enabled || hitTarget) {
+            hit = updateTargetPos(entity, instance, 1F);
+        }
 
-                if (fireSecs > 0) {
-                    entityHitResult.getEntity().setSecondsOnFire(fireSecs);
+        if (hitTarget) {
+            if (hit instanceof EntityHitResult entityHitResult) {
+                if (this.setOnFireSeconds > 0) {
+                    entityHitResult.getEntity().setRemainingFireTicks(this.setOnFireSeconds);
                 }
 
-                var dmg = entry.getProperty(DAMAGE);
-                if (dmg > 0) {
+                if (this.damage > 0) {
                     var damageSrc = entity instanceof Player player ? entity.level().damageSources().playerAttack(player) : entity.damageSources().mobAttack(entity);
-                    entityHitResult.getEntity().hurt(damageSrc, dmg);
+                    entityHitResult.getEntity().hurt(damageSrc, this.damage);
                 }
 
                 if (Platform.isClient()) {
-                    this.spawnParticles(entity.level(), hit.getLocation(), entry);
+                    this.spawnParticles(entity.level(), hit.getLocation());
                 }
             } else if (hit instanceof BlockHitResult blockHitResult) {
                 BlockState blockState = entity.level().getBlockState(blockHitResult.getBlockPos());
 
                 if (!blockState.isAir()) {
-                    if (entry.getProperty(SMELT_BLOCKS)) {
-                        SimpleContainer simpleContainer = new SimpleContainer(new ItemStack(blockState.getBlock()));
+                    if (this.smeltBlocks) {
+                        SingleRecipeInput simpleContainer = new SingleRecipeInput(new ItemStack(blockState.getBlock()));
                         entity.level().getRecipeManager().getRecipeFor(RecipeType.SMELTING, simpleContainer, entity.level()).ifPresent(recipe -> {
-                            ItemStack result = recipe.assemble(simpleContainer, entity.level().registryAccess());
+                            ItemStack result = recipe.value().assemble(simpleContainer, entity.level().registryAccess());
 
                             if (!result.isEmpty() && Block.byItem(result.getItem()) != Blocks.AIR) {
                                 entity.level().setBlockAndUpdate(blockHitResult.getBlockPos(), Block.byItem(result.getItem()).defaultBlockState());
@@ -119,7 +126,7 @@ public class EnergyBeamAbility extends Ability implements AnimationTimer {
                         blockState = entity.level().getBlockState(blockHitResult.getBlockPos());
                     }
 
-                    if (entry.getProperty(CAUSE_FIRE) && PalladiumBlockUtil.canBurn(blockState, entity.level(), blockHitResult.getBlockPos(), blockHitResult.getDirection())) {
+                    if (this.causeFire && PalladiumBlockUtil.canBurn(blockState, entity.level(), blockHitResult.getBlockPos(), blockHitResult.getDirection())) {
                         BlockPos pos = blockHitResult.getBlockPos().offset(blockHitResult.getDirection().getNormal());
                         if (entity.level().isEmptyBlock(pos)) {
                             entity.level().setBlockAndUpdate(pos, Blocks.FIRE.defaultBlockState());
@@ -127,7 +134,7 @@ public class EnergyBeamAbility extends Ability implements AnimationTimer {
                     }
 
                     if (Platform.isClient()) {
-                        this.spawnParticles(entity.level(), hit.getLocation(), entry);
+                        this.spawnParticles(entity.level(), hit.getLocation());
                     }
                 }
             }
@@ -135,32 +142,36 @@ public class EnergyBeamAbility extends Ability implements AnimationTimer {
     }
 
     @Environment(EnvType.CLIENT)
-    public void spawnParticles(Level level, Vec3 pos, AbilityInstance entry) {
-        var beam = EnergyBeamManager.INSTANCE.get(entry.getProperty(BEAM));
+    public void spawnParticles(Level level, Vec3 pos) {
+        var beam = EnergyBeamManager.INSTANCE.get(this.beamId);
 
         if (beam != null) {
             beam.spawnParticles(level, pos);
         }
     }
 
-    public static HitResult updateTargetPos(LivingEntity living, AbilityInstance entry, float partialTick) {
+    public HitResult updateTargetPos(LivingEntity living, AbilityInstance instance, float partialTick) {
         var start = living.getEyePosition(partialTick);
-        var end = start.add(EntityUtil.getLookVector(living, partialTick).scale(entry.getProperty(MAX_DISTANCE)));
+        var end = start.add(EntityUtil.getLookVector(living, partialTick).scale(this.maxDistance));
         HitResult endHit = EntityUtil.rayTraceWithEntities(living, start, end, start.distanceTo(end), ClipContext.Block.COLLIDER, ClipContext.Fluid.NONE, en -> true);
-        entry.setUniqueProperty(TARGET, endHit.getLocation());
+        instance.setSilently(PalladiumDataComponents.Abilities.ENERGY_BEAM_TARGET.get(), endHit.getLocation());
         return endHit;
     }
 
-    @Override
-    public float getAnimationValue(AbilityInstance entry, float partialTick) {
-        return Mth.lerp(partialTick, entry.getProperty(PREV_VALUE), entry.getProperty(VALUE));
-    }
-
-    @Override
-    public float getAnimationTimer(AbilityInstance entry, float partialTick, boolean maxedOut) {
-        if (maxedOut) {
+    public float beamLengthMultiplier(AbilityInstance instance, float partialTick) {
+        var timer = instance.getAnimationTimer();
+        if (timer != null) {
+            return timer.progress(partialTick);
+        } else {
             return 1F;
         }
-        return Mth.lerp(partialTick, entry.getProperty(PREV_VALUE), entry.getProperty(VALUE));
+    }
+
+    public static class Serializer extends AbilitySerializer<EnergyBeamAbility> {
+
+        @Override
+        public MapCodec<EnergyBeamAbility> codec() {
+            return CODEC;
+        }
     }
 }

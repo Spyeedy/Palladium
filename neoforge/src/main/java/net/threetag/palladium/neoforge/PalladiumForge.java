@@ -4,25 +4,22 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.server.packs.resources.PreparableReloadListener;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.FlowerPotBlock;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
-import net.minecraftforge.client.event.RegisterClientReloadListenersEvent;
-import net.minecraftforge.common.util.MavenVersionStringHelper;
-import net.minecraftforge.data.event.GatherDataEvent;
-import net.minecraftforge.event.AddPackFindersEvent;
-import net.minecraftforge.eventbus.api.EventPriority;
-import net.minecraftforge.eventbus.api.SubscribeEvent;
-import net.minecraftforge.fml.*;
-import net.minecraftforge.fml.common.Mod;
-import net.minecraftforge.fml.config.ModConfig;
-import net.minecraftforge.fml.event.lifecycle.FMLCommonSetupEvent;
-import net.minecraftforge.fml.event.lifecycle.FMLConstructModEvent;
-import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
-import net.minecraftforge.forgespi.language.IModInfo;
-import net.minecraftforge.forgespi.locating.IModFile;
-import net.minecraftforge.registries.NewRegistryEvent;
-import net.minecraftforge.resource.PathPackResources;
-import net.minecraftforge.resource.ResourcePackLoader;
+import net.neoforged.api.distmarker.Dist;
+import net.neoforged.api.distmarker.OnlyIn;
+import net.neoforged.bus.api.EventPriority;
+import net.neoforged.bus.api.IEventBus;
+import net.neoforged.bus.api.SubscribeEvent;
+import net.neoforged.fml.ModList;
+import net.neoforged.fml.ModLoadingContext;
+import net.neoforged.fml.common.EventBusSubscriber;
+import net.neoforged.fml.common.Mod;
+import net.neoforged.fml.config.ModConfig;
+import net.neoforged.fml.event.lifecycle.FMLCommonSetupEvent;
+import net.neoforged.fml.event.lifecycle.FMLConstructModEvent;
+import net.neoforged.neoforge.client.event.RegisterClientReloadListenersEvent;
+import net.neoforged.neoforge.data.event.GatherDataEvent;
+import net.neoforged.neoforge.event.AddPackFindersEvent;
+import net.neoforged.neoforge.registries.NewRegistryEvent;
 import net.threetag.palladium.Palladium;
 import net.threetag.palladium.PalladiumClient;
 import net.threetag.palladium.PalladiumConfig;
@@ -32,24 +29,19 @@ import net.threetag.palladium.client.model.ModelLayerManager;
 import net.threetag.palladium.compat.curios.neoforge.CuriosCompat;
 import net.threetag.palladium.compat.geckolib.neoforge.GeckoLibCompatImpl;
 import net.threetag.palladium.data.neoforge.*;
+import net.threetag.palladium.energy.neoforge.EnergyHelperImpl;
 import net.threetag.palladium.mixin.ReloadableResourceManagerMixin;
-import net.threetag.palladiumcore.forge.PalladiumCoreForge;
 import net.threetag.palladiumcore.util.Platform;
 
 import java.util.List;
 
 @Mod(Palladium.MOD_ID)
-@Mod.EventBusSubscriber(modid = Palladium.MOD_ID, bus = Mod.EventBusSubscriber.Bus.MOD)
+@EventBusSubscriber(modid = Palladium.MOD_ID, bus = EventBusSubscriber.Bus.MOD)
 public class PalladiumForge {
 
-    public PalladiumForge() {
-        PalladiumCoreForge.registerModEventBus(Palladium.MOD_ID, FMLJavaModLoadingContext.get().getModEventBus());
-
-        if (Platform.isModLoaded("curios")) {
-            PalladiumCoreForge.registerModEventBus("curios", FMLJavaModLoadingContext.get().getModEventBus());
-        }
-
+    public PalladiumForge(IEventBus modBus) {
         Palladium.init();
+        EnergyHelperImpl.COMPONENTS.register(modBus);
         ModLoadingContext.get().registerConfig(ModConfig.Type.CLIENT, PalladiumConfig.Client.generateConfig());
         ModLoadingContext.get().registerConfig(ModConfig.Type.SERVER, PalladiumConfig.Server.generateConfig());
 

@@ -2,11 +2,10 @@ package net.threetag.palladium.client.dynamictexture.variable;
 
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
+import com.mojang.serialization.JsonOps;
 import net.minecraft.resources.ResourceLocation;
 import net.threetag.palladium.Palladium;
 import net.threetag.palladium.condition.Condition;
-import net.threetag.palladium.condition.ConditionEnvironment;
-import net.threetag.palladium.condition.ConditionSerializer;
 import net.threetag.palladium.condition.ConditionSerializers;
 import net.threetag.palladium.documentation.JsonDocumentationBuilder;
 import net.threetag.palladium.util.context.DataContext;
@@ -39,13 +38,13 @@ public class ConditionTextureVariable extends AbstractBooleanTextureVariable {
             return new ConditionTextureVariable(
                     AbstractBooleanTextureVariable.parseTrueValue(json),
                     AbstractBooleanTextureVariable.parseFalseValue(json),
-                    ConditionSerializer.listFromJSON(json.get("conditions"), ConditionEnvironment.ASSETS));
+                    Condition.LIST_CODEC.parse(JsonOps.INSTANCE, json.get("conditions")).getOrThrow());
         }
 
         @Override
         public void addDocumentationFields(JsonDocumentationBuilder builder) {
             builder.setTitle("Condition");
-            
+
             var example = new JsonArray();
             var crouching = new JsonObject();
             crouching.addProperty("type", ConditionSerializers.CROUCHING.getId().toString());

@@ -1,66 +1,82 @@
 package net.threetag.palladium.power.ability;
 
+import com.mojang.serialization.Codec;
+import com.mojang.serialization.MapCodec;
+import com.mojang.serialization.codecs.RecordCodecBuilder;
+import net.minecraft.core.Holder;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.ai.attributes.Attribute;
 import net.minecraft.world.entity.ai.attributes.AttributeInstance;
 import net.minecraft.world.entity.ai.attributes.AttributeModifier;
-import net.minecraft.world.entity.ai.attributes.Attributes;
-import net.minecraft.world.item.Items;
-import net.threetag.palladium.util.icon.ItemIcon;
-import net.threetag.palladium.util.property.*;
+import net.threetag.palladium.power.PowerHolder;
+import net.threetag.palladium.power.energybar.EnergyBarUsage;
 
-import java.util.*;
+import java.util.Comparator;
+import java.util.List;
 import java.util.stream.Collectors;
 
 public class AttributeModifierAbility extends Ability {
 
-    public static final PalladiumProperty<Attribute> ATTRIBUTE = new AttributeProperty("attribute").configurable("Determines which attribute should be modified. Possible attributes: " + getAttributeList());
-    public static final PalladiumProperty<Double> AMOUNT = new DoubleProperty("amount").configurable("The amount for the giving attribute modifier");
-    public static final PalladiumProperty<Integer> OPERATION = new IntegerProperty("operation").configurable("The operation for the giving attribute modifier (More: https://minecraft.gamepedia.com/Attribute#Operations)");
-    public static final PalladiumProperty<UUID> UUID = new UUIDProperty("uuid").configurable("Sets the unique identifier for this attribute modifier. If not specified it will generate a random one");
+    public static final MapCodec<AttributeModifierAbility> CODEC = RecordCodecBuilder.mapCodec(instance ->
+            instance.group(
+                    Attribute.CODEC.fieldOf("attribute").forGetter(ab -> ab.attribute),
+                    Codec.DOUBLE.fieldOf("amount").forGetter(ab -> ab.amount),
+                    AttributeModifier.Operation.CODEC.fieldOf("operation").forGetter(ab -> ab.operation),
+                    ResourceLocation.CODEC.fieldOf("id").forGetter(ab -> ab.id),
+                    propertiesCodec(), conditionsCodec(), energyBarUsagesCodec()
+            ).apply(instance, AttributeModifierAbility::new));
 
-    public AttributeModifierAbility() {
-        this.withProperty(ICON, new ItemIcon(Items.IRON_CHESTPLATE));
-        this.withProperty(ATTRIBUTE, Attributes.ARMOR);
-        this.withProperty(AMOUNT, 1D);
-        this.withProperty(OPERATION, 0);
-        this.withProperty(UUID, java.util.UUID.fromString("498be4fb-af04-42f2-8948-e6ccdc0d99e1"));
+    public final Holder<Attribute> attribute;
+    public final double amount;
+    public final AttributeModifier.Operation operation;
+    public final ResourceLocation id;
+
+    public AttributeModifierAbility(Holder<Attribute> attribute, double amount, AttributeModifier.Operation operation, ResourceLocation id, AbilityProperties properties, AbilityConditions conditions, List<EnergyBarUsage> energyBarUsages) {
+        super(properties, conditions, energyBarUsages);
+        this.attribute = attribute;
+        this.amount = amount;
+        this.operation = operation;
+        this.id = id;
     }
 
     @Override
-    public void tick(LivingEntity entity, AbilityInstance entry, IPowerHolder holder, boolean enabled) {
-        if (enabled) {
-            Attribute attribute = entry.getProperty(ATTRIBUTE);
-            AttributeInstance instance = entity.getAttribute(attribute);
+    public AbilitySerializer<AttributeModifierAbility> getSerializer() {
+        return AbilitySerializers.ATTRIBUTE_MODIFIER.get();
+    }
 
-            if (instance == null || entity.level().isClientSide) {
+    @Override
+    public void tick(LivingEntity entity, AbilityInstance ability, PowerHolder holder, boolean enabled) {
+        if (enabled) {
+            AttributeInstance attributeInstance = entity.getAttribute(this.attribute);
+
+            if (attributeInstance == null || entity.level().isClientSide) {
                 return;
             }
 
-            UUID uuid = entry.getProperty(UUID);
-            AttributeModifier modifier = instance.getModifier(uuid);
+            AttributeModifier modifier = attributeInstance.getModifier(id);
 
             // Remove modifier if amount or operation dont match
-            if (modifier != null && (modifier.getAmount() != entry.getProperty(AMOUNT) || modifier.getOperation().toValue() != entry.getProperty(OPERATION))) {
-                instance.removeModifier(uuid);
+            if (modifier != null && (modifier.amount() != this.amount || modifier.operation() != this.operation)) {
+                attributeInstance.removeModifier(this.id);
                 modifier = null;
             }
 
             if (modifier == null) {
-                modifier = new AttributeModifier(uuid, entry.getConfiguration().getDisplayName().getString(), entry.getProperty(AMOUNT), AttributeModifier.Operation.fromValue(entry.getProperty(OPERATION)));
-                instance.addTransientModifier(modifier);
+                modifier = new AttributeModifier(this.id, this.amount, this.operation);
+                attributeInstance.addTransientModifier(modifier);
             }
         } else {
-            this.lastTick(entity, entry, holder, false);
+            this.lastTick(entity, ability, holder, false);
         }
     }
 
     @Override
-    public void lastTick(LivingEntity entity, AbilityInstance entry, IPowerHolder holder, boolean enabled) {
-        if (entity.getAttribute(entry.getProperty(ATTRIBUTE)) != null && entity.getAttribute(entry.getProperty(ATTRIBUTE)).getModifier(entry.getProperty(UUID)) != null) {
-            entity.getAttribute(entry.getProperty(ATTRIBUTE)).removeModifier(entry.getProperty(UUID));
+    public void lastTick(LivingEntity entity, AbilityInstance instance, PowerHolder holder, boolean enabled) {
+        var attributeInstance = entity.getAttribute(this.attribute);
+        if (attributeInstance != null && attributeInstance.getModifier(this.id) != null) {
+            attributeInstance.removeModifier(this.id);
         }
     }
 
@@ -68,8 +84,11 @@ public class AttributeModifierAbility extends Ability {
         return BuiltInRegistries.ATTRIBUTE.keySet().stream().map(ResourceLocation::toString).sorted(Comparator.naturalOrder()).collect(Collectors.joining(", "));
     }
 
-    @Override
-    public String getDocumentationDescription() {
-        return "Adds an attribute modifier to the entity while the ability is enabled.";
+    public static class Serializer extends AbilitySerializer<AttributeModifierAbility> {
+
+        @Override
+        public MapCodec<AttributeModifierAbility> codec() {
+            return CODEC;
+        }
     }
 }

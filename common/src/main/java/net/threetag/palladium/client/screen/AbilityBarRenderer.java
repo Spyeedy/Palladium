@@ -21,7 +21,7 @@ import net.threetag.palladium.power.EntityPowerHandler;
 import net.threetag.palladium.power.Power;
 import net.threetag.palladium.power.PowerHolder;
 import net.threetag.palladium.power.PowerUtil;
-import net.threetag.palladium.power.ability.Ability;
+import net.threetag.palladium.power.ability.AbilitySerializer;
 import net.threetag.palladium.power.ability.AbilityColor;
 import net.threetag.palladium.power.ability.AbilityConditions;
 import net.threetag.palladium.power.ability.AbilityInstance;
@@ -182,7 +182,7 @@ public class AbilityBarRenderer implements LayeredDraw.Layer {
                     if (!entry.isUnlocked()) {
                         guiGraphics.blit(texture, 3, i * 22 + 3, 42, 74, 18, 18);
                     } else {
-                        entry.getProperty(Ability.ICON).draw(minecraft, guiGraphics, DataContext.forAbility(minecraft.player, entry), 4, 4 + i * 22);
+                        entry.getProperty(AbilitySerializer.ICON).draw(minecraft, guiGraphics, DataContext.forAbility(minecraft.player, entry), 4, 4 + i * 22);
                     }
 
                     // Ability Name
@@ -222,7 +222,7 @@ public class AbilityBarRenderer implements LayeredDraw.Layer {
                     guiGraphics.blit(texture, 3, i * 22 + 3, 42, 74, 18, 18);
                 }
 
-                AbilityColor color = ability.getProperty(Ability.COLOR);
+                AbilityColor color = ability.getProperty(AbilitySerializer.COLOR);
                 guiGraphics.blit(texture, 0, i * 22, color.getX(), color.getY(), 24, 24);
 
                 if (ability.getConfiguration().getConditions().needsKey() && ability.isUnlocked()) {
@@ -331,9 +331,9 @@ public class AbilityBarRenderer implements LayeredDraw.Layer {
             List<AbilityList> remainingLists = new ArrayList<>();
             List<AbilityInstance> remaining = new ArrayList<>();
             for (AbilityInstance abilityInstance : holder.getAbilities().values()) {
-                int i = abilityInstance.getProperty(Ability.LIST_INDEX);
+                int i = abilityInstance.getProperty(AbilitySerializer.LIST_INDEX);
 
-                if (abilityInstance.getConfiguration().getConditions().needsKey() && !abilityInstance.getProperty(Ability.HIDDEN_IN_BAR)) {
+                if (abilityInstance.getConfiguration().getConditions().needsKey() && !abilityInstance.getProperty(AbilitySerializer.HIDDEN_IN_BAR)) {
                     if (i >= 0) {
                         int listIndex = Math.floorDiv(i, 5);
                         int index = i % 5;

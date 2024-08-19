@@ -16,12 +16,12 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
-import net.threetag.palladium.condition.BuyableCondition;
+import net.threetag.palladium.component.PalladiumDataComponents;
 import net.threetag.palladium.power.EntityPowerHandler;
 import net.threetag.palladium.power.Power;
 import net.threetag.palladium.power.PowerHolder;
 import net.threetag.palladium.power.PowerUtil;
-import net.threetag.palladium.power.ability.AbilityConfiguration;
+import net.threetag.palladium.power.ability.Ability;
 import net.threetag.palladium.power.ability.AbilityInstance;
 import net.threetag.palladium.registry.PalladiumRegistryKeys;
 
@@ -45,8 +45,8 @@ public class AbilityCommand {
                 var manager = PowerUtil.getPowerHandler(living).orElse(new EntityPowerHandler(living));
 
                 for (PowerHolder holder : manager.getPowerHolders().values()) {
-                    for (AbilityInstance entry : holder.getAbilities().values()) {
-                        if (entry.getConfiguration().getConditions().isBuyable()) {
+                    for (AbilityInstance<?> instance : holder.getAbilities().values()) {
+                        if (instance.getAbility().getConditions().isBuyable()) {
                             if (!powers.contains(holder.getPowerId())) {
                                 powers.add(holder.getPowerId());
                             }
@@ -66,11 +66,11 @@ public class AbilityCommand {
         try {
             context.getArgument("power", ResourceLocation.class);
             power = ResourceArgument.getResource(context, "power", PalladiumRegistryKeys.POWER);
-        } catch (Exception e) {
+        } catch (Exception ignored) {
         }
 
         if (power != null) {
-            for (AbilityConfiguration ability : power.value().getAbilities().values()) {
+            for (Ability ability : power.value().getAbilities().values()) {
                 if (ability.getConditions().isBuyable()) {
                     abilities.add(ability.getKey());
                 }
@@ -101,7 +101,7 @@ public class AbilityCommand {
     }
 
     public static int lockAbility(CommandSourceStack source, Collection<? extends Entity> entities, Holder<Power> power, String abilityKey, boolean locking) {
-        AbilityConfiguration configuration = power.value().getAbilities().values().stream().filter(c -> c.getKey().equals(abilityKey)).findFirst().orElse(null);
+        Ability configuration = power.value().getAbilities().values().stream().filter(c -> c.getKey().equals(abilityKey)).findFirst().orElse(null);
         var powerId = source.getServer().registryAccess().registryOrThrow(PalladiumRegistryKeys.POWER).getKey(power.value());
 
         if (configuration == null || !configuration.getConditions().isBuyable()) {
@@ -119,7 +119,7 @@ public class AbilityCommand {
                     var ability = holder.getAbilities().get(abilityKey);
 
                     if (ability != null) {
-                        ability.setUniqueProperty(BuyableCondition.BOUGHT, !locking);
+                        ability.set(PalladiumDataComponents.Abilities.BOUGHT.get(), !locking);
                         i++;
                     }
                 } else {

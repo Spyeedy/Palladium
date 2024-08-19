@@ -39,7 +39,7 @@ public abstract class PlayerMixin implements PalladiumPlayerExtension {
         this.palladium$flightHandler.tick();
     }
 
-    @ModifyVariable(method = "getDimensions", at = @At("HEAD"), ordinal = 0, argsOnly = true)
+    @ModifyVariable(method = "getDefaultDimensions", at = @At("HEAD"), ordinal = 0, argsOnly = true)
     private Pose getDimensions(Pose pose) {
         var hover = this.palladium$flightHandler.getHoveringAnimation(0);
         var levitation = this.palladium$flightHandler.getLevitationAnimation(0);
@@ -47,22 +47,6 @@ public abstract class PlayerMixin implements PalladiumPlayerExtension {
 
         if (hover > 0F || levitation > 0F || flight > 0F) {
             if (this.palladium$flightHandler.flightBoost > 1F) {
-                return Pose.FALL_FLYING;
-            } else {
-                return Pose.STANDING;
-            }
-        }
-        return pose;
-    }
-
-    @ModifyVariable(method = "getStandingEyeHeight", at = @At("HEAD"), ordinal = 0, argsOnly = true)
-    private Pose getStandingEyeHeight(Pose pose) {
-        var hover = this.palladium$getFlightHandler().getHoveringAnimation(0);
-        var levitation = this.palladium$getFlightHandler().getLevitationAnimation(0);
-        var flight = this.palladium$getFlightHandler().getFlightAnimation(0);
-
-        if (hover > 0F || levitation > 0F || flight > 0F) {
-            if (this.palladium$getFlightHandler().flightBoost > 1F) {
                 return Pose.FALL_FLYING;
             } else {
                 return Pose.STANDING;

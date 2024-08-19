@@ -6,7 +6,9 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.ComponentSerialization;
 import net.minecraft.util.StringRepresentable;
 import net.threetag.palladium.client.dynamictexture.TextureReference;
+import net.threetag.palladium.power.ability.Ability;
 import net.threetag.palladium.power.ability.AbilityConfiguration;
+import net.threetag.palladium.power.ability.AbilitySerializer;
 import net.threetag.palladium.power.energybar.EnergyBarConfiguration;
 import net.threetag.palladium.util.CodecUtils;
 import net.threetag.palladium.util.icon.Icon;
@@ -29,7 +31,7 @@ public class Power {
                     Codec.BOOL.optionalFieldOf("persistent_data", false).forGetter(Power::hasPersistentData),
                     Codec.BOOL.optionalFieldOf("hidden", false).forGetter(Power::isHidden),
                     GuiDisplayType.CODEC.optionalFieldOf("gui_display_type", GuiDisplayType.AUTO).forGetter(Power::getGuiDisplayType),
-                    Codec.unboundedMap(Codec.STRING, AbilityConfiguration.CODEC).optionalFieldOf("abilities", Collections.emptyMap()).forGetter(Power::getAbilities),
+                    Codec.unboundedMap(Codec.STRING, Ability.CODEC).optionalFieldOf("abilities", Collections.emptyMap()).forGetter(Power::getAbilities),
                     Codec.unboundedMap(Codec.STRING, EnergyBarConfiguration.CODEC).optionalFieldOf("energy_bars", Collections.emptyMap()).forGetter(Power::getEnergyBars)
             )
             .apply(instance, Power::new));
@@ -37,7 +39,7 @@ public class Power {
 
     private final Component name;
     private final Icon icon;
-    private final Map<String, AbilityConfiguration> abilities;
+    private final Map<String, Ability> abilities;
     private final Map<String, EnergyBarConfiguration> energyBars;
     private final TextureReference background;
     private final TextureReference abilityBar;
@@ -47,7 +49,7 @@ public class Power {
     private final GuiDisplayType guiDisplayType;
     private boolean invalid = false;
 
-    public Power(Component name, Icon icon, TextureReference background, TextureReference abilityBar, Color primaryColor, Color secondaryColor, boolean persistentData, boolean hidden, GuiDisplayType guiDisplayType, Map<String, AbilityConfiguration> abilities, Map<String, EnergyBarConfiguration> energyBars) {
+    public Power(Component name, Icon icon, TextureReference background, TextureReference abilityBar, Color primaryColor, Color secondaryColor, boolean persistentData, boolean hidden, GuiDisplayType guiDisplayType, Map<String, Ability> abilities, Map<String, EnergyBarConfiguration> energyBars) {
         this.name = name;
         this.icon = icon;
         this.background = background;
@@ -60,7 +62,7 @@ public class Power {
         this.abilities = abilities;
         this.energyBars = energyBars;
 
-        for (Map.Entry<String, AbilityConfiguration> e : this.abilities.entrySet()) {
+        for (Map.Entry<String, Ability> e : this.abilities.entrySet()) {
             e.getValue().setKey(e.getKey());
         }
 
@@ -85,7 +87,7 @@ public class Power {
         return this.icon;
     }
 
-    public Map<String, AbilityConfiguration> getAbilities() {
+    public Map<String, Ability> getAbilities() {
         return this.abilities;
     }
 

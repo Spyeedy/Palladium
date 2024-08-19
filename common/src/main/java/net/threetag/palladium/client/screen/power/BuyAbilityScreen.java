@@ -11,8 +11,10 @@ import net.minecraft.util.FormattedCharSequence;
 import net.threetag.palladium.client.screen.components.BackgroundlessButton;
 import net.threetag.palladium.client.screen.components.TextWithIconButton;
 import net.threetag.palladium.network.BuyAbilityUnlockPacket;
+import net.threetag.palladium.power.ability.Ability;
 import net.threetag.palladium.power.ability.AbilityConfiguration;
 import net.threetag.palladium.power.ability.AbilityReference;
+import net.threetag.palladiumcore.network.NetworkManager;
 
 import java.util.List;
 import java.util.Objects;
@@ -20,14 +22,14 @@ import java.util.Objects;
 public class BuyAbilityScreen extends Screen {
 
     public final AbilityReference reference;
-    public final AbilityConfiguration.UnlockData unlockData;
+    public final Ability.UnlockData unlockData;
     public final boolean available;
     public final PowersScreen parentScreen;
     private final Component text;
     private static final int GUI_WIDTH = 202;
     private static final int GUI_HEIGHT = 60;
 
-    public BuyAbilityScreen(AbilityReference reference, AbilityConfiguration.UnlockData unlockData, boolean available, PowersScreen parentScreen) {
+    public BuyAbilityScreen(AbilityReference reference, Ability.UnlockData unlockData, boolean available, PowersScreen parentScreen) {
         super(Component.empty());
         this.reference = reference;
         this.unlockData = unlockData;
@@ -43,12 +45,12 @@ public class BuyAbilityScreen extends Screen {
         int guiLeft = (this.width - GUI_WIDTH) / 2;
         int guiTop = (this.height - GUI_HEIGHT) / 2;
         this.addRenderableWidget(BackgroundlessButton.backgroundlessBuilder(Component.literal("x"), s -> parentScreen.closeOverlayScreen()).bounds(guiLeft + 193, guiTop + 3, 5, 5).build());
-        Button button = TextWithIconButton.textWithIconBuilder(Component.literal(this.unlockData.amount + "x "), this.unlockData.icon, s -> {
-            new BuyAbilityUnlockPacket(this.reference).send();
+        Button button = TextWithIconButton.textWithIconBuilder(Component.literal(this.unlockData.amount() + "x "), this.unlockData.icon(), s -> {
+            NetworkManager.get().sendToServer(new BuyAbilityUnlockPacket(this.reference));
             this.parentScreen.closeOverlayScreen();
             Objects.requireNonNull(Objects.requireNonNull(this.minecraft).player).playSound(SoundEvents.PLAYER_LEVELUP, 1F, 1F);
         }).bounds(guiLeft + 23, guiTop + 33, 54, 20).build();
-        button.setTooltip(Tooltip.create(Component.literal(this.unlockData.amount + "x ").append(this.unlockData.description)));
+        button.setTooltip(Tooltip.create(Component.literal(this.unlockData.amount() + "x ").append(this.unlockData.description())));
         button.active = this.available;
         this.addRenderableWidget(button);
         this.addRenderableWidget(Button.builder(Component.translatable("gui.no"), s -> parentScreen.overlayScreen = null).bounds(guiLeft + 125, guiTop + 33, 54, 20).build());

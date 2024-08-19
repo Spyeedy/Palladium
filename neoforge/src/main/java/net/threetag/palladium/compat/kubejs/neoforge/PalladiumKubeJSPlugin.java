@@ -19,7 +19,7 @@ import net.threetag.palladium.condition.ConditionSerializer;
 import net.threetag.palladium.entity.CustomProjectile;
 import net.threetag.palladium.event.PalladiumClientEvents;
 import net.threetag.palladium.event.PalladiumEvents;
-import net.threetag.palladium.power.ability.Ability;
+import net.threetag.palladium.power.ability.AbilitySerializer;
 import net.threetag.palladium.util.Easing;
 import net.threetag.palladium.util.PlayerSlot;
 import net.threetag.palladiumcore.registry.client.GuiLayerRegistry;
@@ -28,7 +28,7 @@ import net.threetag.palladiumcore.util.Platform;
 @SuppressWarnings("unchecked")
 public class PalladiumKubeJSPlugin implements KubeJSPlugin {
 
-    public static final RegistryInfo<Ability> ABILITY = RegistryInfo.of((ResourceKey<Registry<Ability>>) Ability.REGISTRY.getRegistryKey());
+    public static final RegistryInfo<AbilitySerializer> ABILITY = RegistryInfo.of((ResourceKey<Registry<AbilitySerializer>>) AbilitySerializer.REGISTRY.getRegistryKey());
     public static final RegistryInfo<ConditionSerializer> CONDITION_SERIALIZER = RegistryInfo.of((ResourceKey<Registry<ConditionSerializer>>) ConditionSerializer.REGISTRY.getRegistryKey());
 
     @Override
@@ -61,7 +61,7 @@ public class PalladiumKubeJSPlugin implements KubeJSPlugin {
     @SuppressWarnings({"unchecked", "rawtypes"})
     @Override
     public void registerBuilderTypes(BuilderTypeRegistry registry) {
-        ResourceKey key = Ability.REGISTRY.getRegistryKey();
+        ResourceKey key = AbilitySerializer.REGISTRY.getRegistryKey();
         registry.addDefault(key, AbilityBuilder.class, AbilityBuilder::new);
         key = ConditionSerializer.REGISTRY.getRegistryKey();
         registry.addDefault(key, ConditionBuilder.class, ConditionBuilder::new);

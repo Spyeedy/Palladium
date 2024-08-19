@@ -27,24 +27,24 @@ public class DefaultDynamicTexture extends DynamicTexture {
     @Override
     public ResourceLocation getTexture(DataContext context) {
         if (this.transformers.isEmpty()) {
-            return new ResourceLocation(replaceVariables(this.base, context, this.textureVariableMap));
+            return ResourceLocation.parse(replaceVariables(this.base, context, this.textureVariableMap));
         }
 
         if (this.output == null || this.output.isEmpty()) {
             this.output = this.base;
 
             for (String var : this.textureVariableMap.keySet()) {
-                if(!this.output.contains("#" + var)) {
+                if (!this.output.contains("#" + var)) {
                     this.output += "_#" + var;
                 }
             }
         }
 
-        ResourceLocation output = new ResourceLocation(replaceVariables(this.output, context, this.textureVariableMap));
+        ResourceLocation output = ResourceLocation.parse(replaceVariables(this.output, context, this.textureVariableMap));
 
         if (!Minecraft.getInstance().getTextureManager().byPath.containsKey(output)) {
             String s = replaceVariables(this.base, context, this.textureVariableMap);
-            ResourceLocation texture = new ResourceLocation(s);
+            ResourceLocation texture = ResourceLocation.parse(s);
             Minecraft.getInstance().getTextureManager().register(output, new TransformedTexture(texture, this.transformers, transformerPath -> replaceVariables(transformerPath, context, this.textureVariableMap)));
         }
 

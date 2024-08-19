@@ -1,31 +1,27 @@
 package net.threetag.palladium.condition;
 
+import net.minecraft.core.component.DataComponentMap;
 import net.minecraft.world.entity.LivingEntity;
+import net.threetag.palladium.component.PalladiumDataComponents;
+import net.threetag.palladium.power.ability.Ability;
+import net.threetag.palladium.power.ability.AbilityInstance;
 import net.threetag.palladium.util.context.DataContext;
 import net.threetag.palladium.util.context.DataContextType;
-import net.threetag.palladium.power.ability.AbilityConfiguration;
-import net.threetag.palladium.power.ability.AbilityInstance;
-import net.threetag.palladium.util.property.PalladiumProperty;
-import net.threetag.palladium.util.property.PalladiumPropertyBuilder;
-import net.threetag.palladium.util.property.PalladiumPropertyType;
-import net.threetag.palladium.util.property.PropertyManager;
 
 public abstract class BuyableCondition implements Condition {
 
-    public static final PalladiumProperty<Boolean> BOUGHT = PalladiumPropertyBuilder.create("bought", PalladiumPropertyType.BOOLEAN).build();
-
     @Override
-    public void registerAbilityProperties(AbilityInstance entry, PropertyManager manager) {
-        manager.register(BOUGHT, false);
+    public void registerDataComponents(DataComponentMap.Builder components) {
+        components.set(PalladiumDataComponents.Abilities.BOUGHT.get(), false);
     }
 
     @Override
     public boolean active(DataContext context) {
-        var entry = context.get(DataContextType.ABILITY);
-        return entry != null && entry.getProperty(BOUGHT);
+        var instance = context.get(DataContextType.ABILITY_INSTANCE);
+        return instance != null && instance.getOrDefault(PalladiumDataComponents.Abilities.BOUGHT.get(), false);
     }
 
-    public abstract AbilityConfiguration.UnlockData createData();
+    public abstract Ability.UnlockData createData();
 
     /**
      * @return Returns true if the object that is required to activate the condition is available in the player
@@ -39,9 +35,9 @@ public abstract class BuyableCondition implements Condition {
      */
     public abstract boolean takeFromEntity(LivingEntity entity);
 
-    public void buy(LivingEntity entity, AbilityInstance entry) {
+    public void buy(LivingEntity entity, AbilityInstance<?> instance) {
         if (isAvailable(entity) && takeFromEntity(entity)) {
-            entry.setUniqueProperty(BOUGHT, true);
+            instance.set(PalladiumDataComponents.Abilities.BOUGHT.get(), true);
         }
     }
 }

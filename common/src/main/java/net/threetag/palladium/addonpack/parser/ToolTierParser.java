@@ -13,11 +13,10 @@ import net.minecraft.core.registries.Registries;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.packs.resources.ResourceManager;
 import net.minecraft.server.packs.resources.SimpleJsonResourceReloadListener;
-import net.minecraft.tags.ItemTags;
 import net.minecraft.tags.TagKey;
+import net.minecraft.util.ExtraCodecs;
 import net.minecraft.util.GsonHelper;
 import net.minecraft.util.profiling.ProfilerFiller;
-import net.minecraft.world.entity.animal.Cod;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.item.Tier;
 import net.minecraft.world.item.Tiers;
@@ -28,7 +27,6 @@ import net.threetag.palladium.addonpack.log.AddonPackLog;
 import net.threetag.palladium.documentation.HTMLBuilder;
 import net.threetag.palladium.documentation.JsonDocumentationBuilder;
 import net.threetag.palladium.util.CodecUtils;
-import net.threetag.palladium.util.json.GsonUtil;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.HashMap;
@@ -41,10 +39,10 @@ public class ToolTierParser extends SimpleJsonResourceReloadListener {
     public static final Codec<SimpleToolTier> CODEC = RecordCodecBuilder.create(instance ->
             instance.group(
                     TagKey.codec(Registries.BLOCK).fieldOf("incorrect_block_for_drops").forGetter(Tier::getIncorrectBlocksForDrops),
-                    Codec.intRange(1, Integer.MAX_VALUE).fieldOf("uses").forGetter(Tier::getUses),
+                    ExtraCodecs.POSITIVE_INT.fieldOf("uses").forGetter(Tier::getUses),
                     Codec.floatRange(0, Float.MAX_VALUE).fieldOf("speed").forGetter(Tier::getSpeed),
                     Codec.floatRange(0, Float.MAX_VALUE).optionalFieldOf("attack_damage_bonus", 0F).forGetter(Tier::getAttackDamageBonus),
-                    Codec.intRange(0, Integer.MAX_VALUE).optionalFieldOf("enchantment_value", 0).forGetter(Tier::getEnchantmentValue),
+                    ExtraCodecs.NON_NEGATIVE_INT.optionalFieldOf("enchantment_value", 0).forGetter(Tier::getEnchantmentValue),
                     CodecUtils.SIMPLE_INGREDIENT_SUPPLIER.fieldOf("repair_ingredient").forGetter(SimpleToolTier::getSimpleRepairIngredient)
             ).apply(instance, SimpleToolTier::new)
     );

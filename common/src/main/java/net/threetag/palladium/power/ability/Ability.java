@@ -1,108 +1,113 @@
 package net.threetag.palladium.power.ability;
 
+import com.mojang.serialization.Codec;
+import com.mojang.serialization.codecs.RecordCodecBuilder;
+import net.minecraft.core.component.DataComponentMap;
+import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.ComponentSerialization;
+import net.minecraft.network.codec.ByteBufCodecs;
+import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.LivingEntity;
-import net.minecraft.world.item.Items;
-import net.minecraft.world.phys.Vec2;
-import net.threetag.palladium.Palladium;
-import net.threetag.palladium.documentation.HTMLBuilder;
-import net.threetag.palladium.documentation.DocumentedPropertyManager;
-import net.threetag.palladium.documentation.JsonDocumentationBuilder;
 import net.threetag.palladium.power.PowerHolder;
+import net.threetag.palladium.power.energybar.EnergyBarUsage;
 import net.threetag.palladium.registry.PalladiumRegistries;
+import net.threetag.palladium.util.CodecUtils;
 import net.threetag.palladium.util.icon.Icon;
-import net.threetag.palladium.util.icon.ItemIcon;
-import net.threetag.palladium.util.property.*;
 
-import java.util.Comparator;
-import java.util.stream.Collectors;
+import java.util.Collections;
+import java.util.List;
+import java.util.Objects;
 
-public class Ability implements DocumentedPropertyManager {
+public abstract class Ability {
 
-    public static final PalladiumProperty<Component> TITLE = PalladiumPropertyBuilder.create("title", PalladiumPropertyType.COMPONENT).configurable("Allows you to set a custom title for this ability", false).build();
-    public static final PalladiumProperty<Icon> ICON = PalladiumPropertyBuilder.create("icon", PalladiumPropertyType.ICON).configurable("Icon for the ability", false, new ItemIcon(Items.BLAZE_ROD)).build();
-    public static final PalladiumProperty<AbilityDescription> DESCRIPTION = PalladiumPropertyBuilder.create("description", PalladiumPropertyType.ABILITY_DESCRIPTION).configurable("Description of the ability. Visible in ability menu", false).build();
-    public static final PalladiumProperty<AbilityColor> COLOR = PalladiumPropertyBuilder.create("bar_color", PalladiumPropertyType.ABILITY_COLOR).configurable("Changes the color of the ability in the ability bar", false, AbilityColor.LIGHT_GRAY).build();
-    public static final PalladiumProperty<Boolean> HIDDEN_IN_GUI = PalladiumPropertyBuilder.create("hidden", PalladiumPropertyType.BOOLEAN).sync(SyncOption.SELF).configurable("Determines if the ability is visible in the powers screen", false, false).build();
-    public static final PalladiumProperty<Boolean> HIDDEN_IN_BAR = PalladiumPropertyBuilder.create("hidden_in_bar", PalladiumPropertyType.BOOLEAN).sync(SyncOption.SELF).configurable("Determines if the ability is visible in the ability bar on your screen", false, false).build();
-    public static final PalladiumProperty<Integer> LIST_INDEX = PalladiumPropertyBuilder.create("list_index", PalladiumPropertyType.INTEGER).configurable("Determines the list index for custom ability lists. Starts at 0. Going beyond 4 (which is the 5th place in the ability) will start a new list. Keeping it at -1 will automatically arrange the abilities.", false, -1).build();
-    public static final PalladiumProperty<Vec2> GUI_POSITION = PalladiumPropertyBuilder.create("gui_position", PalladiumPropertyType.VEC2).configurable("Position of the ability in the ability menu. Leave null for automatic positioning. 0/0 is center", false).build();
+    public static final Codec<Ability> CODEC = PalladiumRegistries.ABILITY_SERIALIZER.byNameCodec().dispatch(Ability::getSerializer, AbilitySerializer::codec);
 
-    final PropertyManager propertyManager = new PropertyManager();
-    private String documentationDescription;
+    private final AbilityProperties properties;
+    private final AbilityConditions conditions;
+    private final List<EnergyBarUsage> energyBarUsages;
+    private String key;
 
-    public Ability() {
-        this.withProperty(TITLE, ICON, DESCRIPTION, COLOR, HIDDEN_IN_GUI, HIDDEN_IN_BAR, LIST_INDEX, GUI_POSITION);
+    public Ability(AbilityProperties properties, AbilityConditions conditions, List<EnergyBarUsage> energyBarUsages) {
+        this.properties = properties;
+        this.conditions = conditions;
+        this.energyBarUsages = energyBarUsages;
     }
 
-    public void registerUniqueProperties(PropertyManager manager) {
-
+    /**
+     * Do NOT use!
+     */
+    @Deprecated
+    public void setKey(String key) {
+        this.key = key;
     }
 
-    public boolean isEffect() {
-        return false;
+    public String getKey() {
+        return this.key;
     }
 
-    public boolean isExperimental() {
-        return false;
-    }
+    public abstract AbilitySerializer<?> getSerializer();
 
-    public void tick(LivingEntity entity, AbilityInstance entry, PowerHolder holder, boolean enabled) {
-
-    }
-
-    public void firstTick(LivingEntity entity, AbilityInstance entry, PowerHolder holder, boolean enabled) {
+    public void registerDataComponents(DataComponentMap.Builder components) {
 
     }
 
-    public void lastTick(LivingEntity entity, AbilityInstance entry, PowerHolder holder, boolean enabled) {
+    public AbilityProperties getProperties() {
+        return this.properties;
+    }
+
+    public AbilityConditions getConditions() {
+        return this.conditions;
+    }
+
+    public List<EnergyBarUsage> getEnergyBarUsages() {
+        return this.energyBarUsages;
+    }
+
+    public Component getDisplayName() {
+        Component title = this.properties.getTitle();
+        ResourceLocation id = PalladiumRegistries.ABILITY_SERIALIZER.getKey(this.getSerializer());
+        return title != null ? title : Component.translatable("ability." + Objects.requireNonNull(id).getNamespace() + "." + id.getPath());
+    }
+
+    public void tick(LivingEntity entity, AbilityInstance<?> abilityInstance, PowerHolder holder, boolean enabled) {
 
     }
 
-    public final Ability withProperty(PalladiumProperty<?>... properties) {
-        for (PalladiumProperty<?> property : properties) {
-            this.propertyManager.register(property);
-        }
-        return this;
+    public void animationTimerTick(LivingEntity entity, AbilityInstance<?> abilityInstance, PowerHolder holder, boolean enabled, AnimationTimer animationTimer) {
+        animationTimer.tickAndUpdate(enabled);
     }
 
-    public static HTMLBuilder documentationBuilder() {
-        return new HTMLBuilder(Palladium.id("abilities"), "Abilities")
-                .add(HTMLBuilder.heading("Abilities"))
-                .addDocumentationSettings(PalladiumRegistries.ABILITY.stream().filter(ab -> !ab.isExperimental()).sorted(Comparator.comparing(o -> o.getId().toString())).collect(Collectors.toList()));
+    public void firstTick(LivingEntity entity, AbilityInstance<?> abilityInstance, PowerHolder holder, boolean enabled) {
+
     }
 
-    @Override
-    public PropertyManager getPropertyManager() {
-        return this.propertyManager;
+    public void lastTick(LivingEntity entity, AbilityInstance<?> abilityInstance, PowerHolder holder, boolean enabled) {
+
     }
 
-    @Override
-    public ResourceLocation getId() {
-        return PalladiumRegistries.ABILITY.getKey(this);
+    protected static <B extends Ability> RecordCodecBuilder<B, AbilityProperties> propertiesCodec() {
+        return AbilityProperties.CODEC.optionalFieldOf("properties", AbilityProperties.BASIC).forGetter(Ability::getProperties);
     }
 
-    public Ability setDocumentationDescription(String documentationDescription) {
-        this.documentationDescription = documentationDescription;
-        return this;
+    protected static <B extends Ability> RecordCodecBuilder<B, AbilityConditions> conditionsCodec() {
+        return AbilityConditions.CODEC.optionalFieldOf("conditions", AbilityConditions.EMPTY).forGetter(Ability::getConditions);
     }
 
-    public String getDocumentationDescription() {
-        return this.documentationDescription;
+    protected static <B extends Ability> RecordCodecBuilder<B, List<EnergyBarUsage>> energyBarUsagesCodec() {
+        return CodecUtils.listOrPrimitive(EnergyBarUsage.CODEC).optionalFieldOf("energy_bar_usage", Collections.emptyList()).forGetter(Ability::getEnergyBarUsages);
     }
 
-    @Override
-    public void generateDocumentation(JsonDocumentationBuilder builder) {
-        DocumentedPropertyManager.super.generateDocumentation(builder);
-        builder.setTitle(this.getId().getPath());
+    public record UnlockData(Icon icon, int amount, Component description) {
 
-        var desc = this.getDocumentationDescription();
-        if (desc != null && !desc.isEmpty()) {
-            builder.setDescription(desc);
-        }
+        public static final StreamCodec<RegistryFriendlyByteBuf, UnlockData> STREAM_CODEC = StreamCodec.composite(
+                Icon.STREAM_CODEC, UnlockData::icon,
+                ByteBufCodecs.VAR_INT, UnlockData::amount,
+                ComponentSerialization.STREAM_CODEC, UnlockData::description,
+                UnlockData::new
+        );
+
     }
 
-    public void postParsing(AbilityConfiguration configuration) {
-    }
 }

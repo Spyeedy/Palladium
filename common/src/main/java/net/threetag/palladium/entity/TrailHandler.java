@@ -7,9 +7,8 @@ import net.minecraft.world.entity.LivingEntity;
 import net.threetag.palladium.client.renderer.trail.CompoundTrailRenderer;
 import net.threetag.palladium.client.renderer.trail.TrailRenderer;
 import net.threetag.palladium.client.renderer.trail.TrailRendererManager;
-import net.threetag.palladium.power.ability.Abilities;
+import net.threetag.palladium.power.ability.AbilitySerializers;
 import net.threetag.palladium.power.ability.AbilityUtil;
-import net.threetag.palladium.power.ability.TrailAbility;
 
 import java.util.*;
 import java.util.stream.Collectors;
@@ -62,7 +61,7 @@ public class TrailHandler {
 
     private TrailSegmentEntity<?> spawnEntity(TrailRenderer<?> trailRenderer) {
         var entity = new TrailSegmentEntity<>(this.entity, trailRenderer);
-        Objects.requireNonNull(Minecraft.getInstance().level).putNonPlayerEntity(0, entity);
+        Objects.requireNonNull(Minecraft.getInstance().level).addEntity(entity);
         return entity;
     }
 
@@ -86,7 +85,7 @@ public class TrailHandler {
         }
 
         if (entity instanceof LivingEntity living) {
-            for (TrailRenderer<?> renderer : AbilityUtil.getEnabledEntries(living, Abilities.TRAIL.get()).stream().map(e -> TrailRendererManager.INSTANCE.getRenderer(e.getProperty(TrailAbility.TRAIL_RENDERER_ID))).filter(Objects::nonNull).distinct().toList()) {
+            for (TrailRenderer<?> renderer : AbilityUtil.getEnabledInstances(living, AbilitySerializers.TRAIL.get()).stream().map(e -> TrailRendererManager.INSTANCE.getRenderer(e.getAbility().trailRendererId)).filter(Objects::nonNull).distinct().toList()) {
                 addTrailToList(renderer, renderers);
             }
         }

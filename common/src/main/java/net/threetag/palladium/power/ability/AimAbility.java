@@ -1,51 +1,41 @@
 package net.threetag.palladium.power.ability;
 
-import net.minecraft.util.Mth;
+import com.mojang.serialization.MapCodec;
+import com.mojang.serialization.codecs.RecordCodecBuilder;
 import net.minecraft.world.entity.LivingEntity;
-import net.threetag.palladium.util.property.*;
+import net.threetag.palladium.power.energybar.EnergyBarUsage;
+import net.threetag.palladium.util.ArmSetting;
 
-public class AimAbility extends Ability implements AnimationTimer {
+import java.util.List;
 
-    public static final PalladiumProperty<Integer> TIME = new IntegerProperty("time").configurable("Determines how many ticks it takes until the arm is fully aimed");
-    public static final PalladiumProperty<ArmTypeProperty.ArmType> ARM = new ArmTypeProperty("arm").configurable("Determines which arm(s) should point");
-    public static final PalladiumProperty<Integer> TIMER = new IntegerProperty("timer").sync(SyncOption.NONE);
-    public static final PalladiumProperty<Integer> PREV_TIMER = new IntegerProperty("prev_timer").sync(SyncOption.NONE);
+public class AimAbility extends Ability {
 
-    public AimAbility() {
-        this.withProperty(TIME, 10);
-        this.withProperty(ARM, ArmTypeProperty.ArmType.MAIN_ARM);
-    }
+    public static final MapCodec<AimAbility> CODEC = RecordCodecBuilder.mapCodec(instance ->
+            instance.group(
+                    ArmSetting.CODEC.optionalFieldOf("arm", ArmSetting.MAIN_ARM).forGetter(ab -> ab.arm),
+                    propertiesCodec(), conditionsCodec(), energyBarUsagesCodec()
+            ).apply(instance, AimAbility::new));
 
-    @Override
-    public void registerUniqueProperties(PropertyManager manager) {
-        manager.register(TIMER, 0);
-        manager.register(PREV_TIMER, 0);
-    }
+    public final ArmSetting arm;
 
-    @Override
-    public void tick(LivingEntity entity, AbilityInstance entry, IPowerHolder holder, boolean enabled) {
-        if (entity.level().isClientSide) {
-            int timer = entry.getProperty(TIMER);
-            entry.setUniqueProperty(PREV_TIMER, timer);
-            if (enabled && timer < entry.getProperty(TIME)) {
-                entry.setUniqueProperty(TIMER, timer + 1);
-            } else if (!enabled && timer > 0) {
-                entry.setUniqueProperty(TIMER, timer - 1);
-            }
-        }
+    public AimAbility(ArmSetting arm, AbilityProperties properties, AbilityConditions conditions, List<EnergyBarUsage> energyBarUsages) {
+        super(properties, conditions, energyBarUsages);
+        this.arm = arm;
     }
 
     public static float getTimer(LivingEntity entity, float partialTicks, boolean right) {
         float f = 0;
 
-        for (AbilityInstance entry : AbilityUtil.getEntries(entity, Abilities.AIM.get())) {
-            var armType = entry.getProperty(ARM);
+        for (AbilityInstance instance : AbilityUtil.getInstances(entity, AbilitySerializers.AIM.value())) {
+            var armType = ((AimAbility) instance.getAbility()).arm;
+            var timer = instance.getAnimationTimer();
+            var progress = timer != null ? timer.progress(partialTicks) : 1F;
 
             if (!armType.isNone()) {
                 if (armType.isRight(entity) && right) {
-                    f = Math.max(f, Mth.lerp(partialTicks, entry.getProperty(PREV_TIMER), entry.getProperty(TIMER)) / entry.getProperty(TIME));
+                    f = Math.max(f, progress);
                 } else if (armType.isLeft(entity) && !right) {
-                    f = Math.max(f, Mth.lerp(partialTicks, entry.getProperty(PREV_TIMER), entry.getProperty(TIMER)) / entry.getProperty(TIME));
+                    f = Math.max(f, progress);
                 }
             }
         }
@@ -54,21 +44,15 @@ public class AimAbility extends Ability implements AnimationTimer {
     }
 
     @Override
-    public String getDocumentationDescription() {
-        return "Allows the player to aim their arms.";
+    public AbilitySerializer<AimAbility> getSerializer() {
+        return AbilitySerializers.AIM.get();
     }
 
-    @Override
-    public float getAnimationValue(AbilityInstance entry, float partialTick) {
-        return Mth.lerp(partialTick, entry.getProperty(PREV_TIMER), entry.getProperty(TIMER)) / entry.getProperty(TIME);
-    }
+    public static class Serializer extends AbilitySerializer<AimAbility> {
 
-    @Override
-    public float getAnimationTimer(AbilityInstance entry, float partialTick, boolean maxedOut) {
-        if (maxedOut) {
-            return entry.getProperty(TIME);
+        @Override
+        public MapCodec<AimAbility> codec() {
+            return CODEC;
         }
-
-        return Mth.lerp(partialTick, entry.getProperty(PREV_TIMER), entry.getProperty(TIMER));
     }
 }

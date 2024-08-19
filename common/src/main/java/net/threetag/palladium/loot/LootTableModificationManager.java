@@ -1,16 +1,13 @@
 package net.threetag.palladium.loot;
 
 import com.google.common.collect.ImmutableMap;
-import com.google.gson.Gson;
-import com.google.gson.JsonElement;
-import com.google.gson.JsonObject;
-import com.google.gson.JsonParseException;
+import com.google.gson.*;
+import com.mojang.serialization.JsonOps;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.packs.resources.ResourceManager;
 import net.minecraft.server.packs.resources.SimpleJsonResourceReloadListener;
 import net.minecraft.util.GsonHelper;
 import net.minecraft.util.profiling.ProfilerFiller;
-import net.minecraft.world.level.storage.loot.Deserializers;
 import net.minecraft.world.level.storage.loot.LootPool;
 import net.threetag.palladium.addonpack.log.AddonPackLog;
 import net.threetag.palladium.util.json.GsonUtil;
@@ -26,7 +23,7 @@ public class LootTableModificationManager extends SimpleJsonResourceReloadListen
     private static LootTableModificationManager INSTANCE;
     // Forge does very stupid shit with loot tables, this is used in Mixins to get around it
     public static boolean OVERRIDE_FORGE_NAME_LOGIC = false;
-    private static final Gson GSON = Deserializers.createLootTableSerializer().create();
+    private static final Gson GSON = (new GsonBuilder()).setPrettyPrinting().disableHtmlEscaping().create();
     private Map<ResourceLocation, Modification> modifications = ImmutableMap.of();
 
     public LootTableModificationManager() {
@@ -58,7 +55,7 @@ public class LootTableModificationManager extends SimpleJsonResourceReloadListen
                     }
 
                     OVERRIDE_FORGE_NAME_LOGIC = true;
-                    modification.addPool(GSON.fromJson(poolJson, LootPool.class));
+                    modification.addPool(LootPool.CODEC.parse(JsonOps.INSTANCE, poolJson).getOrThrow());
                     OVERRIDE_FORGE_NAME_LOGIC = false;
                 });
                 builder.put(id, modification);

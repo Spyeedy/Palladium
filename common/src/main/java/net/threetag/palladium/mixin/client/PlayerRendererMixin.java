@@ -19,8 +19,7 @@ import net.threetag.palladium.client.renderer.renderlayer.PackRenderLayerManager
 import net.threetag.palladium.entity.BodyPart;
 import net.threetag.palladium.entity.PalladiumPlayerExtension;
 import net.threetag.palladium.entity.PlayerModelCacheExtension;
-import net.threetag.palladium.power.ability.Abilities;
-import net.threetag.palladium.power.ability.AnimationTimer;
+import net.threetag.palladium.power.ability.AbilitySerializers;
 import net.threetag.palladium.util.Easing;
 import net.threetag.palladium.util.RenderUtil;
 import org.joml.Vector3f;
@@ -72,7 +71,7 @@ public class PlayerRendererMixin {
         }
 
         // Shrink Overlay
-        float scale = AnimationTimer.getValue(player, Abilities.SHRINK_BODY_OVERLAY.get(), Minecraft.getInstance().getFrameTime(), Easing.INOUTSINE);
+        float scale = AnimationTimer.getValue(player, AbilitySerializers.SHRINK_BODY_OVERLAY.get(), Minecraft.getInstance().getFrameTime(), Easing.INOUTSINE);
 
         if (scale != 0F) {
             float f = -0.11F * scale;
