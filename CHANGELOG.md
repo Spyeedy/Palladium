@@ -1,3 +1,2 @@
-- Fixed Apotheosis conflict
-- Fixed crashing when commands in command abilities are incorrect
-- Changed required pickaxe for vibranium blocks to diamond due to Fabric not having a mineable-tag for netherite
+- Fixed glowing render layers not working with Iris
+- Updated porting lib attributes to avoid Crash with Create
