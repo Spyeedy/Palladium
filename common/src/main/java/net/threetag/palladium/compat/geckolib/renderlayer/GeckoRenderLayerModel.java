@@ -115,7 +115,7 @@ public class GeckoRenderLayerModel extends HumanoidModel<AbstractClientPlayer> i
         this.modelProvider.handleAnimations(this.currentState, instanceId, animationState);
 
         defaultRender(poseStack, this.currentState, bufferSource, null, buffer,
-                0, partialTick, packedLight);
+                0, partialTick, this.currentState.layer.renderType.getPackedLight(packedLight));
         poseStack.popPose();
     }
 

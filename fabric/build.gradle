@@ -96,6 +96,9 @@ dependencies {
     // Sodium
     modImplementation "maven.modrinth:sodium:${rootProject.sodium_version}"
 
+    // Iris
+    modCompileOnly "maven.modrinth:iris:${rootProject.iris_version}"
+
     common(project(path: ":common", configuration: "namedElements")) { transitive false }
     shadowCommon(project(path: ":common", configuration: "transformProductionFabric")) { transitive false }
 }

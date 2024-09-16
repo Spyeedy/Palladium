@@ -5,6 +5,8 @@ import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParseException;
+import com.mojang.blaze3d.vertex.VertexConsumer;
+import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.entity.ItemRenderer;
 import net.minecraft.resources.ResourceLocation;
@@ -49,7 +51,7 @@ public class PackRenderLayerManager extends SimpleJsonResourceReloadListener {
         registerProvider((entity, layers) -> {
             if (entity instanceof LivingEntity livingEntity) {
                 var manager = PackRenderLayerManager.getInstance();
-                for (AbilityInstance entry : AbilityUtil.getEnabledRenderLayerEntries(livingEntity)) {
+                for (AbilityInstance entry : AbilityUtil.getEnabledRenderLayerInstances(livingEntity)) {
                     IPackRenderLayer layer = ((RenderLayerProviderAbility) entry.getConfiguration().getAbility()).getRenderLayer(entry, livingEntity, manager);
                     if (layer != null) {
                         layers.accept(DataContext.forAbility(livingEntity, entry), layer);
@@ -96,7 +98,17 @@ public class PackRenderLayerManager extends SimpleJsonResourceReloadListener {
         registerParser(new ResourceLocation(Palladium.MOD_ID, "thrusters"), ThrusterPackRenderLayer::parse);
 
         registerRenderType(new ResourceLocation("minecraft", "solid"), (source, texture, glint) -> ItemRenderer.getArmorFoilBuffer(source, RenderType.entityTranslucent(texture), false, glint));
-        registerRenderType(new ResourceLocation("minecraft", "glow"), (source, texture, glint) -> ItemRenderer.getArmorFoilBuffer(source, PalladiumRenderTypes.getGlowing(texture), false, glint));
+        registerRenderType(new ResourceLocation("minecraft", "glow"), new RenderTypeFunction() {
+            @Override
+            public VertexConsumer createVertexConsumer(MultiBufferSource buffer, ResourceLocation texture, boolean withGlint) {
+                return ItemRenderer.getArmorFoilBuffer(buffer, PalladiumRenderTypes.getGlowing(texture), false, withGlint);
+            }
+
+            @Override
+            public int getPackedLight(int packedLight) {
+                return 15728640;
+            }
+        });
     }
 
     public PackRenderLayerManager() {

@@ -79,7 +79,7 @@ public class GeckoRenderLayer extends AbstractPackRenderLayer {
             this.model.setAllVisible(true);
             this.cachedTexture = this.texture.get(living).getTexture(context);
             this.cachedModel = this.modelLocation.get(living).getTexture(context);
-            this.model.renderToBuffer(poseStack, this.renderType.createVertexConsumer(bufferSource, this.cachedTexture, false), packedLight, OverlayTexture.NO_OVERLAY, 1F, 1F, 1F, 1F);
+            this.model.renderToBuffer(poseStack, this.renderType.createVertexConsumer(bufferSource, this.cachedTexture, false), this.renderType.getPackedLight(packedLight), OverlayTexture.NO_OVERLAY, 1F, 1F, 1F, 1F);
         }
     }
 
@@ -106,7 +106,7 @@ public class GeckoRenderLayer extends AbstractPackRenderLayer {
                 poseStack.translate(0, 24 / 16F, 0);
                 poseStack.scale(-1, -1, 1);
 
-                Color renderColor = this.model.getRenderColor(state, partialTick, packedLight);
+                Color renderColor = this.model.getRenderColor(state, partialTick, this.renderType.getPackedLight(packedLight));
                 float red = renderColor.getRedFloat();
                 float green = renderColor.getGreenFloat();
                 float blue = renderColor.getBlueFloat();
@@ -121,7 +121,7 @@ public class GeckoRenderLayer extends AbstractPackRenderLayer {
                 animationState.setData(DataTickets.EQUIPMENT_SLOT, EquipmentSlot.CHEST);
                 this.model.getGeoModel().addAdditionalStateData(state, instanceId, animationState::setData);
                 this.model.getGeoModel().handleAnimations(state, instanceId, animationState);
-                this.model.renderRecursively(poseStack, state, bone, null, bufferSource, buffer, false, partialTick, packedLight, packedOverlay, red, green, blue, alpha);
+                this.model.renderRecursively(poseStack, state, bone, null, bufferSource, buffer, false, partialTick, this.renderType.getPackedLight(packedLight), packedOverlay, red, green, blue, alpha);
 
                 poseStack.popPose();
             }

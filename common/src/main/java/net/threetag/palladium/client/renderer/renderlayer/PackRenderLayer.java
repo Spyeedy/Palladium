@@ -59,7 +59,7 @@ public class PackRenderLayer extends AbstractPackRenderLayer {
 
             VertexConsumer vertexConsumer = this.renderType.createVertexConsumer(bufferSource, this.texture.get(entity).getTexture(context), context.getItem().hasFoil());
 
-            entityModel.renderToBuffer(poseStack, vertexConsumer, packedLight, OverlayTexture.NO_OVERLAY, 1F, 1F, 1F, 1F);
+            entityModel.renderToBuffer(poseStack, vertexConsumer, this.renderType.getPackedLight(packedLight), OverlayTexture.NO_OVERLAY, 1F, 1F, 1F, 1F);
         }
     }
 
@@ -79,10 +79,10 @@ public class PackRenderLayer extends AbstractPackRenderLayer {
 
                 if (arm == HumanoidArm.RIGHT) {
                     humanoidModel.rightArm.xRot = 0.0F;
-                    humanoidModel.rightArm.render(poseStack, vertexConsumer, packedLight, OverlayTexture.NO_OVERLAY);
+                    humanoidModel.rightArm.render(poseStack, vertexConsumer, this.renderType.getPackedLight(packedLight), OverlayTexture.NO_OVERLAY);
                 } else {
                     humanoidModel.leftArm.xRot = 0.0F;
-                    humanoidModel.leftArm.render(poseStack, vertexConsumer, packedLight, OverlayTexture.NO_OVERLAY);
+                    humanoidModel.leftArm.render(poseStack, vertexConsumer, this.renderType.getPackedLight(packedLight), OverlayTexture.NO_OVERLAY);
                 }
             }
         }

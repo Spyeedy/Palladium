@@ -3,6 +3,7 @@ package net.threetag.palladium.util;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
 import com.mojang.math.Axis;
+import dev.architectury.injectables.annotations.ExpectPlatform;
 import net.minecraft.util.Mth;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
@@ -64,6 +65,11 @@ public class RenderUtil {
         for (int i = 0; i < 3; i++) {
             renderFilledBox(poseStack, consumer, box.inflate(i * 0.5F * 0.0625F), red, green, blue, (1F / i / 2) * alpha, combinedLightIn);
         }
+    }
+
+    @ExpectPlatform
+    public static boolean isIrisShaderActive() {
+        throw new AssertionError();
     }
 
 }

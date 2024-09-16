@@ -34,7 +34,7 @@ public class SkinOverlayPackRenderLayer extends AbstractPackRenderLayer {
         var entity = context.getEntity();
         if (IPackRenderLayer.conditionsFulfilled(entity, this.conditions, this.thirdPersonConditions)) {
             VertexConsumer vertexConsumer = this.renderType.createVertexConsumer(bufferSource, this.texture.get(entity).getTexture(context), context.getItem().hasFoil());
-            parentModel.renderToBuffer(poseStack, vertexConsumer, packedLight, OverlayTexture.NO_OVERLAY, 1F, 1F, 1F, 1F);
+            parentModel.renderToBuffer(poseStack, vertexConsumer, this.renderType.getPackedLight(packedLight), OverlayTexture.NO_OVERLAY, 1F, 1F, 1F, 1F);
         }
     }
 
@@ -51,10 +51,10 @@ public class SkinOverlayPackRenderLayer extends AbstractPackRenderLayer {
 
             if (arm == HumanoidArm.RIGHT) {
                 entityModel.rightArm.xRot = 0.0F;
-                entityModel.rightArm.render(poseStack, vertexConsumer, packedLight, OverlayTexture.NO_OVERLAY);
+                entityModel.rightArm.render(poseStack, vertexConsumer, this.renderType.getPackedLight(packedLight), OverlayTexture.NO_OVERLAY);
             } else {
                 entityModel.leftArm.xRot = 0.0F;
-                entityModel.leftArm.render(poseStack, vertexConsumer, packedLight, OverlayTexture.NO_OVERLAY);
+                entityModel.leftArm.render(poseStack, vertexConsumer, this.renderType.getPackedLight(packedLight), OverlayTexture.NO_OVERLAY);
             }
         }
     }

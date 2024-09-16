@@ -7,6 +7,7 @@ import net.minecraft.client.renderer.RenderStateShard;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.resources.ResourceLocation;
 import net.threetag.palladium.Palladium;
+import net.threetag.palladium.util.RenderUtil;
 
 import java.util.function.Function;
 
@@ -17,8 +18,28 @@ public class PalladiumRenderTypes extends RenderType {
     }
 
     private static final Function<ResourceLocation, RenderType> GLOWING = Util.memoize((resourceLocation) -> {
-        RenderType.CompositeState compositeState = RenderType.CompositeState.builder().setShaderState(RENDERTYPE_ENERGY_SWIRL_SHADER).setTextureState(new TextureStateShard(resourceLocation, false, false)).setTransparencyState(TRANSLUCENT_TRANSPARENCY).setCullState(NO_CULL).setLightmapState(LIGHTMAP).setOverlayState(OVERLAY).setLayeringState(VIEW_OFFSET_Z_LAYERING).createCompositeState(true);
+        RenderType.CompositeState compositeState = RenderType.CompositeState.builder()
+                .setShaderState(RENDERTYPE_ENERGY_SWIRL_SHADER)
+                .setTextureState(new TextureStateShard(resourceLocation, false, false))
+                .setTransparencyState(TRANSLUCENT_TRANSPARENCY)
+                .setCullState(NO_CULL)
+                .setLightmapState(NO_LIGHTMAP)
+                .setOverlayState(OVERLAY)
+                .setLayeringState(VIEW_OFFSET_Z_LAYERING)
+                .createCompositeState(true);
         return create(Palladium.MOD_ID + ":glowing", DefaultVertexFormat.NEW_ENTITY, VertexFormat.Mode.QUADS, 256, true, true, compositeState);
+    });
+    private static final Function<ResourceLocation, RenderType> GLOWING_SHADER_USE = Util.memoize((resourceLocation) -> {
+        RenderType.CompositeState compositeState = RenderType.CompositeState.builder()
+                .setShaderState(RENDERTYPE_ENTITY_TRANSLUCENT_EMISSIVE_SHADER)
+                .setTextureState(new TextureStateShard(resourceLocation, false, false))
+                .setTransparencyState(TRANSLUCENT_TRANSPARENCY)
+                .setCullState(NO_CULL)
+                .setLightmapState(NO_LIGHTMAP)
+                .setOverlayState(OVERLAY)
+                .setLayeringState(VIEW_OFFSET_Z_LAYERING)
+                .createCompositeState(true);
+        return create(Palladium.MOD_ID + ":glowing_shader_use", DefaultVertexFormat.NEW_ENTITY, VertexFormat.Mode.QUADS, 256, true, true, compositeState);
     });
 
     public static final RenderType LASER = create(Palladium.MOD_ID + ":laser", DefaultVertexFormat.POSITION_COLOR_LIGHTMAP, VertexFormat.Mode.QUADS, 256, false, true, RenderType.CompositeState.builder()
@@ -57,7 +78,7 @@ public class PalladiumRenderTypes extends RenderType {
     );
 
     public static RenderType getGlowing(ResourceLocation texture) {
-        return GLOWING.apply(texture);
+        return RenderUtil.isIrisShaderActive() ? GLOWING_SHADER_USE.apply(texture) : GLOWING.apply(texture);
     }
 
     public static RenderType getArmorTranslucent(ResourceLocation texture) {
