@@ -4,11 +4,13 @@ import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.protocol.Packet;
 import net.minecraft.network.protocol.game.ClientGamePacketListener;
+import net.minecraft.network.syncher.SynchedEntityData;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.level.Level;
 import net.threetag.palladium.entity.effect.EntityEffect;
+import net.threetag.palladium.registry.PalladiumRegistries;
 import net.threetag.palladium.util.property.EntityPropertyHandler;
 import net.threetag.palladiumcore.network.ExtendedEntitySpawnData;
 import net.threetag.palladiumcore.network.NetworkManager;
@@ -24,6 +26,11 @@ public class EffectEntity extends Entity implements ExtendedEntitySpawnData {
     public EffectEntity(EntityType<?> entityType, Level world) {
         super(entityType, world);
         this.noCulling = true;
+    }
+
+    @Override
+    protected void defineSynchedData(SynchedEntityData.Builder builder) {
+
     }
 
     public EffectEntity(Level worldIn, Entity anchor, EntityEffect entityEffect) {
@@ -57,21 +64,14 @@ public class EffectEntity extends Entity implements ExtendedEntitySpawnData {
 
     @Override
     public void saveAdditionalSpawnData(FriendlyByteBuf buf) {
-        buf.writeResourceLocation(Objects.requireNonNull(EntityEffect.REGISTRY.getKey(this.entityEffect)));
+        buf.writeResourceLocation(Objects.requireNonNull(PalladiumRegistries.ENTITY_EFFECT.getKey(this.entityEffect)));
         buf.writeInt(this.anchorId);
-        EntityPropertyHandler.getHandler(this).ifPresent(handler -> handler.toBuffer(buf));
     }
 
     @Override
     public void loadAdditionalSpawnData(FriendlyByteBuf buf) {
-        this.entityEffect = EntityEffect.REGISTRY.get(buf.readResourceLocation());
+        this.entityEffect = PalladiumRegistries.ENTITY_EFFECT.get(buf.readResourceLocation());
         this.anchorId = buf.readInt();
-        EntityPropertyHandler.getHandler(this).ifPresent(handler -> handler.fromBuffer(buf));
-    }
-
-    @Override
-    protected void defineSynchedData() {
-
     }
 
     @Override
@@ -96,18 +96,13 @@ public class EffectEntity extends Entity implements ExtendedEntitySpawnData {
 
     @Override
     protected void readAdditionalSaveData(CompoundTag compound) {
-        this.entityEffect = EntityEffect.REGISTRY.get(new ResourceLocation(compound.getString("EntityEffect")));
+        this.entityEffect = PalladiumRegistries.ENTITY_EFFECT.get(ResourceLocation.parse(compound.getString("EntityEffect")));
         this.anchorId = compound.getInt("AnchorId");
     }
 
     @Override
     protected void addAdditionalSaveData(CompoundTag compound) {
-        compound.putString("EntityEffect", Objects.requireNonNull(EntityEffect.REGISTRY.getKey(this.entityEffect)).toString());
+        compound.putString("EntityEffect", Objects.requireNonNull(PalladiumRegistries.ENTITY_EFFECT.getKey(this.entityEffect)).toString());
         compound.putInt("AnchorId", this.anchorId);
-    }
-
-    @Override
-    public Packet<ClientGamePacketListener> getAddEntityPacket() {
-        return NetworkManager.createAddEntityPacket(this);
     }
 }

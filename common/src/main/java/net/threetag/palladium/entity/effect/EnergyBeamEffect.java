@@ -9,6 +9,7 @@ import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.player.Player;
 import net.threetag.palladium.client.energybeam.EnergyBeamManager;
+import net.threetag.palladium.component.PalladiumDataComponents;
 import net.threetag.palladium.entity.EffectEntity;
 import net.threetag.palladium.power.ability.AbilityInstance;
 import net.threetag.palladium.power.ability.AbilityReference;
@@ -30,49 +31,42 @@ public class EnergyBeamEffect extends EntityEffect {
         manager.register(ABILITY, null);
     }
 
+    @SuppressWarnings("unchecked")
     @Override
     @Environment(EnvType.CLIENT)
     public void render(EffectEntity entity, Entity anchor, PoseStack poseStack, MultiBufferSource bufferSource, int packedLightIn, boolean isFirstPerson, float partialTicks) {
         if (anchor instanceof AbstractClientPlayer player) {
-            AbilityInstance instance = this.get(entity, ABILITY).getInstance(player);
+            AbilityInstance<EnergyBeamAbility> instance = (AbilityInstance<EnergyBeamAbility>) this.get(entity, ABILITY).getInstance(player);
 
             if (instance != null) {
-                EnergyBeamAbility.updateTargetPos(player, instance, partialTicks);
-                var beam = EnergyBeamManager.INSTANCE.get(instance.getProperty(EnergyBeamAbility.BEAM));
+                instance.getAbility().updateTargetPos(player, instance, partialTicks);
+                var beam = EnergyBeamManager.INSTANCE.get(instance.getAbility().beamId);
 
                 if (beam != null) {
                     var entityPos = entity.getPosition(partialTicks);
-                    var target = instance.getProperty(EnergyBeamAbility.TARGET);
-                    beam.render(player, entityPos, target, getLengthMultiplier(instance, partialTicks), poseStack, bufferSource, packedLightIn, isFirstPerson, partialTicks);
+                    var target = instance.get(PalladiumDataComponents.Abilities.ENERGY_BEAM_TARGET.get());
+                    beam.render(player, entityPos, target, instance.getAbility().beamLengthMultiplier(instance, partialTicks), poseStack, bufferSource, packedLightIn, isFirstPerson, partialTicks);
                 }
             }
         }
     }
 
-    @Environment(EnvType.CLIENT)
-    public float getLengthMultiplier(AbilityInstance instance, float partialTick) {
-        if (instance.getConfiguration().getAbility() instanceof AnimationTimer animationTimer) {
-            return animationTimer.getAnimationTimer(instance, partialTick, instance.getProperty(EnergyBeamAbility.SPEED) <= 0F);
-        }
-
-        return 1F;
-    }
-
+    @SuppressWarnings("unchecked")
     @Override
     @Environment(EnvType.CLIENT)
     public void tick(EffectEntity entity, Entity anchor) {
         if (anchor instanceof AbstractClientPlayer player) {
-            AbilityInstance instance = this.get(entity, ABILITY).getInstance(player);
+            AbilityInstance<EnergyBeamAbility> instance = (AbilityInstance<EnergyBeamAbility>) this.get(entity, ABILITY).getInstance(player);
 
             if (instance != null) {
-                var beam = EnergyBeamManager.INSTANCE.get(instance.getProperty(EnergyBeamAbility.BEAM));
+                var beam = EnergyBeamManager.INSTANCE.get(instance.getAbility().beamId);
 
                 if (beam == null) {
                     this.stopPlaying(entity);
                     return;
                 }
 
-                boolean isDonePlaying = instance.getProperty(EnergyBeamAbility.SPEED) <= 0 ? !instance.isEnabled() : getLengthMultiplier(instance, 0F) <= 0F && !instance.isEnabled();
+                boolean isDonePlaying = instance.getAnimationTimer() == null ? !instance.isEnabled() : instance.getAbility().beamLengthMultiplier(instance, 0F) <= 0F && !instance.isEnabled();
                 if (isDonePlaying != this.get(entity, IS_DONE_PLAYING)) {
                     this.stopPlaying(entity);
                 }

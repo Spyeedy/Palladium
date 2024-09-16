@@ -11,7 +11,6 @@ import net.minecraft.util.Mth;
 import net.threetag.palladium.client.dynamictexture.TextureReference;
 import net.threetag.palladium.network.RequestAbilityBuyScreenPacket;
 import net.threetag.palladium.power.PowerHolder;
-import net.threetag.palladium.power.ability.AbilitySerializer;
 import net.threetag.palladium.power.ability.AbilityInstance;
 import net.threetag.palladium.util.context.DataContext;
 import net.threetag.palladiumcore.network.NetworkManager;
@@ -20,7 +19,7 @@ import org.jetbrains.annotations.Nullable;
 public class ListPowerTab extends PowerTab {
 
     private AbilityList list;
-    private AbilityInstance hovered;
+    private AbilityInstance<?> hovered;
 
     protected ListPowerTab(Minecraft minecraft, PowersScreen screen, PowerTabType type, int tabIndex, PowerHolder powerHolder) {
         super(minecraft, screen, type, tabIndex, powerHolder);
@@ -57,7 +56,7 @@ public class ListPowerTab extends PowerTab {
 
     @Override
     public void drawContents(GuiGraphics guiGraphics, int x, int y, int mouseX, int mouseY, float partialTick) {
-        TextureReference backgroundTexture = this.powerHolder.getPower().getBackground();
+        TextureReference backgroundTexture = this.powerHolder.getPower().value().getBackground();
         var texture = backgroundTexture != null ? backgroundTexture.getTexture(DataContext.forPower(minecraft.player, this.powerHolder)) : ResourceLocation.withDefaultNamespace("textures/block/red_wool.png");
 
         for (int m = -1; m <= 13; ++m) {
@@ -80,7 +79,7 @@ public class ListPowerTab extends PowerTab {
         guiGraphics.pose().popPose();
 
         if (this.hovered != null && !overlayActive) {
-            var description = this.hovered.getProperty(AbilitySerializer.DESCRIPTION);
+            var description = this.hovered.getAbility().getProperties().getDescription();
 
             if (description != null) {
                 guiGraphics.renderTooltip(this.minecraft.font, this.minecraft.font.split(description.get(this.hovered.isUnlocked()), 150), mouseX, mouseY);
@@ -130,8 +129,8 @@ public class ListPowerTab extends PowerTab {
         public void populate(PowerHolder powerHolder) {
             this.clearEntries();
 
-            for (AbilityInstance ability : powerHolder.getAbilities().values()) {
-                if (!ability.getProperty(AbilitySerializer.HIDDEN_IN_GUI)) {
+            for (AbilityInstance<?> ability : powerHolder.getAbilities().values()) {
+                if (!ability.getAbility().getProperties().isHiddenInGUI()) {
                     this.addEntry(new ListEntry(ability, this, minecraft));
                 }
             }
@@ -172,16 +171,16 @@ public class ListPowerTab extends PowerTab {
             guiGraphics.blit(PowersScreen.WIDGETS, left, top, 0, 130 + (this.abilityInstance.isUnlocked() ? (hovering ? 2 : 0) : 1) * 26, width, height);
 
             if (this.abilityInstance.isUnlocked()) {
-                this.abilityInstance.getProperty(AbilitySerializer.ICON).draw(this.minecraft, guiGraphics, DataContext.forAbility(this.minecraft.player, this.abilityInstance), left + 5, top + 5);
+                this.abilityInstance.getAbility().getProperties().getIcon().draw(this.minecraft, guiGraphics, DataContext.forAbility(this.minecraft.player, this.abilityInstance), left + 5, top + 5);
             } else {
                 RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
                 guiGraphics.blit(PowersScreen.WIDGETS, left + 5, top + 5, 90, 83, 16, 16);
-                if (this.abilityInstance.getConfiguration().getConditions().isBuyable()) {
+                if (this.abilityInstance.getAbility().getConditions().isBuyable()) {
                     guiGraphics.blit(PowersScreen.WIDGETS, left + 14, top + 16, 106, 83, 7, 7);
                 }
             }
 
-            guiGraphics.drawString(this.minecraft.font, Language.getInstance().getVisualOrder(this.minecraft.font.substrByWidth(abilityInstance.getConfiguration().getDisplayName(), 180)), left + 30, top + 9, this.abilityInstance.isUnlocked() ? (hovering ? 0xfcfc7e : 0x675d49) : 0x332e25, false);
+            guiGraphics.drawString(this.minecraft.font, Language.getInstance().getVisualOrder(this.minecraft.font.substrByWidth(abilityInstance.getAbility().getDisplayName(), 180)), left + 30, top + 9, this.abilityInstance.isUnlocked() ? (hovering ? 0xfcfc7e : 0x675d49) : 0x332e25, false);
             guiGraphics.pose().popPose();
 
             if (hovering) {
@@ -191,7 +190,7 @@ public class ListPowerTab extends PowerTab {
 
         @Override
         public boolean mouseClicked(double mouseX, double mouseY, int button) {
-            if (this.abilityInstance.getConfiguration().getConditions().isBuyable()) {
+            if (this.abilityInstance.getAbility().getConditions().isBuyable()) {
                 NetworkManager.get().sendToServer(new RequestAbilityBuyScreenPacket(this.abilityInstance.getReference()));
             }
             return true;

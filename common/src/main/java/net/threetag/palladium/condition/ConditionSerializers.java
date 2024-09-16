@@ -28,7 +28,6 @@ public class ConditionSerializers {
     public static final RegistryHolder<ConditionSerializer<?>, HealthCondition.Serializer> HEALTH = CONDITION_SERIALIZERS.register("health", HealthCondition.Serializer::new);
     public static final RegistryHolder<ConditionSerializer<?>, ObjectiveScoreCondition.Serializer> OBJECTIVE_SCORE = CONDITION_SERIALIZERS.register("objective_score", ObjectiveScoreCondition.Serializer::new);
     public static final RegistryHolder<ConditionSerializer<?>, HasTagCondition.Serializer> HAS_TAG = CONDITION_SERIALIZERS.register("has_tag", HasTagCondition.Serializer::new);
-    public static final RegistryHolder<ConditionSerializer<?>, AbilityIntegerPropertyCondition.Serializer> ABILITY_INTEGER_PROPERTY = CONDITION_SERIALIZERS.register("ability_integer_property", AbilityIntegerPropertyCondition.Serializer::new);
     public static final RegistryHolder<ConditionSerializer<?>, AnimationTimerAbilityCondition.Serializer> ANIMATION_TIMER_ABILITY = CONDITION_SERIALIZERS.register("animation_timer_ability", AnimationTimerAbilityCondition.Serializer::new);
     public static final RegistryHolder<ConditionSerializer<?>, AbilityTicksCondition.Serializer> ABILITY_TICKS = CONDITION_SERIALIZERS.register("ability_ticks", AbilityTicksCondition.Serializer::new);
     public static final RegistryHolder<ConditionSerializer<?>, AbilityFirstTickCondition.Serializer> ABILITY_FIRST_TICK = CONDITION_SERIALIZERS.register("ability_first_tick", AbilityFirstTickCondition.Serializer::new);

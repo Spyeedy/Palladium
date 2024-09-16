@@ -11,6 +11,5 @@ public class EntityDependentNumberTypes {
 
     public static final RegistryHolder<EntityDependentNumberType<?>, StaticNumber.Type> STATIC = TYPES.register("static", StaticNumber.Type::new);
     public static final RegistryHolder<EntityDependentNumberType<?>, ScoreNumber.Type> SCORE = TYPES.register("score", ScoreNumber.Type::new);
-    public static final RegistryHolder<EntityDependentNumberType<?>, PalladiumPropertyNumber.Type> PALLADIUM_PROPERTY = TYPES.register("palladium_property", PalladiumPropertyNumber.Type::new);
 
 }

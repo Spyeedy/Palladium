@@ -73,7 +73,7 @@ public class EnergyBeamAbility extends Ability {
     }
 
     @Override
-    public void firstTick(LivingEntity entity, AbilityInstance instance, PowerHolder holder, boolean enabled) {
+    public void firstTick(LivingEntity entity, AbilityInstance<?> instance, PowerHolder holder, boolean enabled) {
         var timer = instance.getAnimationTimer();
         if (enabled && entity instanceof Player player && (timer == null || timer.value() <= 0F) && Platform.isClient()) {
             EnergyBeamEffect.start(player, instance.getReference());
@@ -82,7 +82,7 @@ public class EnergyBeamAbility extends Ability {
 
     @SuppressWarnings("ConstantValue")
     @Override
-    public void tick(LivingEntity entity, AbilityInstance instance, PowerHolder holder, boolean enabled) {
+    public void tick(LivingEntity entity, AbilityInstance<?> instance, PowerHolder holder, boolean enabled) {
         HitResult hit = null;
         boolean hitTarget = enabled;
         var timer = instance.getAnimationTimer();
@@ -150,7 +150,7 @@ public class EnergyBeamAbility extends Ability {
         }
     }
 
-    public HitResult updateTargetPos(LivingEntity living, AbilityInstance instance, float partialTick) {
+    public HitResult updateTargetPos(LivingEntity living, AbilityInstance<?> instance, float partialTick) {
         var start = living.getEyePosition(partialTick);
         var end = start.add(EntityUtil.getLookVector(living, partialTick).scale(this.maxDistance));
         HitResult endHit = EntityUtil.rayTraceWithEntities(living, start, end, start.distanceTo(end), ClipContext.Block.COLLIDER, ClipContext.Fluid.NONE, en -> true);
@@ -158,7 +158,7 @@ public class EnergyBeamAbility extends Ability {
         return endHit;
     }
 
-    public float beamLengthMultiplier(AbilityInstance instance, float partialTick) {
+    public float beamLengthMultiplier(AbilityInstance<?> instance, float partialTick) {
         var timer = instance.getAnimationTimer();
         if (timer != null) {
             return timer.progress(partialTick);

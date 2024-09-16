@@ -4,9 +4,12 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
 import net.threetag.palladium.Palladium;
-import net.threetag.palladium.power.ability.*;
+import net.threetag.palladium.power.ability.AbilityInstance;
+import net.threetag.palladium.power.ability.AbilitySerializers;
+import net.threetag.palladium.power.ability.AbilityUtil;
+import net.threetag.palladium.power.ability.SizeAbility;
 import net.threetag.palladium.util.SizeUtil;
-import net.threetag.palladiumcore.event.LivingEntityEvents;
+import net.threetag.palladiumcore.event.EntityEvents;
 import virtuoel.pehkui.api.*;
 
 import java.util.Collection;
@@ -19,11 +22,13 @@ public class PehkuiCompat extends SizeUtil {
     public static void init() {
         SizeUtil.setInstance(new PehkuiCompat());
         ScaleTypes.BASE.getDefaultBaseValueModifiers().add(ABILITY_MODIFIER);
-        LivingEntityEvents.TICK.register(entity -> {
-            float scale = getAbilityMultiplier(entity);
+        EntityEvents.TICK_PRE.register(entity -> {
+            if (entity instanceof LivingEntity living) {
+                float scale = getAbilityMultiplier(living);
 
-            if (scale != ABILITY_SCALE.getScaleData(entity).getTargetScale()) {
-                ABILITY_SCALE.getScaleData(entity).setTargetScale(scale);
+                if (scale != ABILITY_SCALE.getScaleData(entity).getTargetScale()) {
+                    ABILITY_SCALE.getScaleData(entity).setTargetScale(scale);
+                }
             }
         });
     }
@@ -32,8 +37,8 @@ public class PehkuiCompat extends SizeUtil {
         float f = 1F;
 
         try {
-            for (AbilityInstance enabledEntry : AbilityUtil.getEnabledEntries(entity, AbilitySerializers.SIZE.get())) {
-                f *= enabledEntry.getProperty(SizeAbility.SCALE);
+            for (AbilityInstance<SizeAbility> enabledEntry : AbilityUtil.getEnabledInstances(entity, AbilitySerializers.SIZE.get())) {
+                f *= enabledEntry.getAbility().size;
             }
         } catch (Exception ignored) {
 

@@ -17,7 +17,7 @@ import net.threetag.palladium.power.energybar.EnergyBarUsage;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicReference;
 
-public class RenderLayerByAccessorySlotAbility extends Ability implements RenderLayerProviderAbility {
+public class RenderLayerByAccessorySlotAbility extends Ability implements RenderLayerProviderAbility<RenderLayerByAccessorySlotAbility> {
 
     public static final MapCodec<RenderLayerByAccessorySlotAbility> CODEC = RecordCodecBuilder.mapCodec(instance ->
             instance.group(
@@ -37,7 +37,7 @@ public class RenderLayerByAccessorySlotAbility extends Ability implements Render
 
     @Override
     @Environment(EnvType.CLIENT)
-    public IPackRenderLayer getRenderLayer(AbilityInstance instance, LivingEntity entity, PackRenderLayerManager manager) {
+    public IPackRenderLayer getRenderLayer(AbilityInstance<RenderLayerByAccessorySlotAbility> instance, LivingEntity entity, PackRenderLayerManager manager) {
         AtomicReference<ResourceLocation> layerId = new AtomicReference<>(this.fallbackLayer);
 
         if (entity instanceof Player player) {

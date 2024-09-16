@@ -11,6 +11,7 @@ import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.LayeredDraw;
 import net.minecraft.client.gui.screens.ChatScreen;
 import net.minecraft.client.renderer.GameRenderer;
+import net.minecraft.core.Holder;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.FormattedText;
 import net.minecraft.resources.ResourceLocation;
@@ -21,7 +22,6 @@ import net.threetag.palladium.power.EntityPowerHandler;
 import net.threetag.palladium.power.Power;
 import net.threetag.palladium.power.PowerHolder;
 import net.threetag.palladium.power.PowerUtil;
-import net.threetag.palladium.power.ability.AbilitySerializer;
 import net.threetag.palladium.power.ability.AbilityColor;
 import net.threetag.palladium.power.ability.AbilityConditions;
 import net.threetag.palladium.power.ability.AbilityInstance;
@@ -122,7 +122,7 @@ public class AbilityBarRenderer implements LayeredDraw.Layer {
         guiGraphics.blit(texture, 0, 0, position.left ? 52 : 0, position.top ? 28 : 0, 52, 28);
 
         // Icon
-        list.power.getIcon().draw(minecraft, guiGraphics, DataContext.forPower(minecraft.player, list.getPowerHolder()), showKey ? (position.left ? 30 : 6) : (position.left ? 17 : 19), position.top ? 5 : 7);
+        list.power.value().getIcon().draw(minecraft, guiGraphics, DataContext.forPower(minecraft.player, list.getPowerHolder()), showKey ? (position.left ? 30 : 6) : (position.left ? 17 : 19), position.top ? 5 : 7);
 
         // Button
         if (showKey) {
@@ -163,32 +163,32 @@ public class AbilityBarRenderer implements LayeredDraw.Layer {
             guiGraphics.blit(texture, 3, i * 22 + 3, 60, 56, 18, 18);
 
             if (list != null) {
-                AbilityInstance entry = list.getDisplayedAbilities()[i];
+                AbilityInstance<?> entry = list.getDisplayedAbilities()[i];
 
                 if (entry != null) {
-                    if (entry.isEnabled() && entry.activationTimer != 0 && entry.maxActivationTimer != 0) {
-                        int height = (int) ((float) entry.activationTimer / (float) entry.maxActivationTimer * 18);
+                    if (entry.isEnabled() && entry.getActivatedTime() != 0 && entry.getMaxActivatedTime() != 0) {
+                        int height = (int) ((float) entry.getActivatedTime() / (float) entry.getMaxActivatedTime() * 18);
                         guiGraphics.blit(texture, 3, i * 22 + 3, 24, 56, 18, 18);
                         guiGraphics.blit(texture, 3, i * 22 + 3 + (18 - height), 42, 74 - height, 18, height);
                     } else {
                         guiGraphics.blit(texture, 3, i * 22 + 3, entry.isEnabled() ? 42 : 24, entry.isUnlocked() ? 56 : 74, 18, 18);
                     }
 
-                    if (entry.cooldown > 0) {
-                        int width = (int) ((float) entry.cooldown / (float) entry.maxCooldown * 18);
+                    if (entry.getCooldown() > 0) {
+                        int width = (int) ((float) entry.getCooldown() / (float) entry.getMaxCooldown() * 18);
                         guiGraphics.blit(texture, 3, i * 22 + 3, 60, 74, width, 18);
                     }
 
                     if (!entry.isUnlocked()) {
                         guiGraphics.blit(texture, 3, i * 22 + 3, 42, 74, 18, 18);
                     } else {
-                        entry.getProperty(AbilitySerializer.ICON).draw(minecraft, guiGraphics, DataContext.forAbility(minecraft.player, entry), 4, 4 + i * 22);
+                        entry.getAbility().getProperties().getIcon().draw(minecraft, guiGraphics, DataContext.forAbility(minecraft.player, entry), 4, 4 + i * 22);
                     }
 
                     // Ability Name
                     if (showName) {
                         Tesselator tes = Tesselator.getInstance();
-                        Component name = entry.getConfiguration().getDisplayName();
+                        Component name = entry.getAbility().getDisplayName();
                         int width = minecraft.font.width(name);
                         renderBlackBox(tes, poseStack, position.left ? 24 : -width - 10, i * 22 + 5, 10 + width, 14, 0.5F);
                         guiGraphics.drawString(minecraft.font, name, position.left ? 29 : -width - 5, i * 22 + 8, 0xffffffff, false);
@@ -211,7 +211,7 @@ public class AbilityBarRenderer implements LayeredDraw.Layer {
 
         // Colored Frames + Keys
         for (int i = 0; i < AbilityList.SIZE; i++) {
-            AbilityInstance ability = list.getDisplayedAbilities()[i];
+            AbilityInstance<?> ability = list.getDisplayedAbilities()[i];
 
             if (ability != null) {
                 RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
@@ -222,11 +222,11 @@ public class AbilityBarRenderer implements LayeredDraw.Layer {
                     guiGraphics.blit(texture, 3, i * 22 + 3, 42, 74, 18, 18);
                 }
 
-                AbilityColor color = ability.getProperty(AbilitySerializer.COLOR);
+                AbilityColor color = ability.getAbility().getProperties().getColor();
                 guiGraphics.blit(texture, 0, i * 22, color.getX(), color.getY(), 24, 24);
 
-                if (ability.getConfiguration().getConditions().needsKey() && ability.isUnlocked()) {
-                    AbilityConditions.KeyType keyType = ability.getConfiguration().getConditions().getKeyType();
+                if (ability.getAbility().getConditions().needsKey() && ability.isUnlocked()) {
+                    AbilityConditions.KeyType keyType = ability.getAbility().getConditions().getKeyType();
                     poseStack.pushPose();
                     poseStack.translate(0, 0, 200);
                     if (keyType == AbilityConditions.KeyType.KEY_BIND) {
@@ -298,7 +298,7 @@ public class AbilityBarRenderer implements LayeredDraw.Layer {
     }
 
     public static void updateCurrentLists() {
-        if (Minecraft.getInstance() != null && Minecraft.getInstance().player != null) {
+        if (Minecraft.getInstance().player != null) {
             ABILITY_LISTS = getAbilityLists();
 
             if (SELECTED >= ABILITY_LISTS.size()) {
@@ -329,11 +329,11 @@ public class AbilityBarRenderer implements LayeredDraw.Layer {
         for (PowerHolder holder : handler.getPowerHolders().values()) {
             List<AbilityList> containerList = new ArrayList<>();
             List<AbilityList> remainingLists = new ArrayList<>();
-            List<AbilityInstance> remaining = new ArrayList<>();
-            for (AbilityInstance abilityInstance : holder.getAbilities().values()) {
-                int i = abilityInstance.getProperty(AbilitySerializer.LIST_INDEX);
+            List<AbilityInstance<?>> remaining = new ArrayList<>();
+            for (AbilityInstance<?> abilityInstance : holder.getAbilities().values()) {
+                int i = abilityInstance.getAbility().getProperties().getListIndex();
 
-                if (abilityInstance.getConfiguration().getConditions().needsKey() && !abilityInstance.getProperty(AbilitySerializer.HIDDEN_IN_BAR)) {
+                if (abilityInstance.getAbility().getConditions().needsKey() && !abilityInstance.getAbility().getProperties().isHiddenInBar()) {
                     if (i >= 0) {
                         int listIndex = Math.floorDiv(i, 5);
                         int index = i % 5;
@@ -351,7 +351,7 @@ public class AbilityBarRenderer implements LayeredDraw.Layer {
             }
 
             for (int i = 0; i < remaining.size(); i++) {
-                AbilityInstance abilityInstance = remaining.get(i);
+                AbilityInstance<?> abilityInstance = remaining.get(i);
                 int listIndex = Math.floorDiv(i, 5);
                 int index = i % 5;
 
@@ -364,13 +364,13 @@ public class AbilityBarRenderer implements LayeredDraw.Layer {
             }
 
             for (AbilityList list : containerList) {
-                if (!list.isEmpty() && !list.isFullyLocked()) {
+                if (!list.isEmpty() && list.hasUnlocked()) {
                     lists.add(list);
                 }
             }
 
             for (AbilityList list : remainingLists) {
-                if (!list.isEmpty() && !list.isFullyLocked()) {
+                if (!list.isEmpty() && list.hasUnlocked()) {
                     lists.add(list);
                 }
             }
@@ -387,8 +387,8 @@ public class AbilityBarRenderer implements LayeredDraw.Layer {
 
         private static final int SIZE = 5;
         private final PowerHolder powerHolder;
-        private final Power power;
-        private final IntObjectHashMap<List<AbilityInstance>> abilities = new IntObjectHashMap<>();
+        private final Holder<Power> power;
+        private final IntObjectHashMap<List<AbilityInstance<?>>> abilities = new IntObjectHashMap<>();
         private final ResourceLocation texture;
         public boolean simple = false;
         private final Collection<EnergyBar> energyBars;
@@ -396,7 +396,7 @@ public class AbilityBarRenderer implements LayeredDraw.Layer {
         public AbilityList(PowerHolder powerHolder) {
             this.powerHolder = powerHolder;
             this.power = powerHolder.getPower();
-            var powerTex = this.power.getAbilityBarTexture();
+            var powerTex = this.power.value().getAbilityBarTexture();
             this.texture = powerTex != null ? powerTex.getTexture(DataContext.forPower(Minecraft.getInstance().player, this.powerHolder)) : null;
             this.energyBars = powerHolder.getEnergyBars().values();
         }
@@ -405,7 +405,7 @@ public class AbilityBarRenderer implements LayeredDraw.Layer {
             return this.powerHolder;
         }
 
-        public Power getPower() {
+        public Holder<Power> getPower() {
             return this.power;
         }
 
@@ -413,12 +413,12 @@ public class AbilityBarRenderer implements LayeredDraw.Layer {
             return this.energyBars;
         }
 
-        public AbilityList addAbility(int index, AbilityInstance ability) {
+        public AbilityList addAbility(int index, AbilityInstance<?> ability) {
             this.abilities.computeIfAbsent(index, integer -> new ArrayList<>()).add(ability);
             return this;
         }
 
-        public boolean addAbility(AbilityInstance ability) {
+        public boolean addAbility(AbilityInstance<?> ability) {
             for (int i = 0; i < SIZE; i++) {
                 if (this.abilities.get(i) == null || this.abilities.get(i).isEmpty()) {
                     this.abilities.computeIfAbsent(i, integer -> new ArrayList<>()).add(ability);
@@ -437,22 +437,22 @@ public class AbilityBarRenderer implements LayeredDraw.Layer {
             return true;
         }
 
-        public boolean isFullyLocked() {
-            for (AbilityInstance entry : this.getDisplayedAbilities()) {
+        public boolean hasUnlocked() {
+            for (AbilityInstance<?> entry : this.getDisplayedAbilities()) {
                 if (entry != null && entry.isUnlocked()) {
-                    return false;
+                    return true;
                 }
             }
 
-            return true;
+            return false;
         }
 
-        public AbilityInstance[] getDisplayedAbilities() {
-            AbilityInstance[] entries = new AbilityInstance[SIZE];
+        public AbilityInstance<?>[] getDisplayedAbilities() {
+            AbilityInstance<?>[] entries = new AbilityInstance[SIZE];
 
             for (int i = 0; i < SIZE; i++) {
                 if (this.abilities.get(i) != null) {
-                    for (AbilityInstance entry : this.abilities.get(i)) {
+                    for (AbilityInstance<?> entry : this.abilities.get(i)) {
                         var current = entries[i];
 
                         if (current == null) {
@@ -473,9 +473,9 @@ public class AbilityBarRenderer implements LayeredDraw.Layer {
             }
 
             int abilities = 0;
-            AbilityInstance entry = null;
+            AbilityInstance<?> entry = null;
 
-            for (AbilityInstance ability : this.getDisplayedAbilities()) {
+            for (AbilityInstance<?> ability : this.getDisplayedAbilities()) {
                 if (ability != null && ability.isUnlocked()) {
                     abilities++;
                     entry = ability;

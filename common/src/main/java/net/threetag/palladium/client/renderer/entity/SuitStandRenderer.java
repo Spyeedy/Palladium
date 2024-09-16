@@ -43,11 +43,11 @@ public class SuitStandRenderer extends LivingEntityRenderer<SuitStand, SuitStand
     }
 
     @Override
-    protected void setupRotations(SuitStand entityLiving, PoseStack matrixStack, float ageInTicks, float rotationYaw, float partialTicks) {
-        matrixStack.mulPose(Axis.YP.rotationDegrees(180.0F - rotationYaw));
-        float f = (float) (entityLiving.level().getGameTime() - entityLiving.lastHit) + partialTicks;
+    protected void setupRotations(SuitStand entity, PoseStack poseStack, float bob, float yBodyRot, float partialTick, float scale) {
+        poseStack.mulPose(Axis.YP.rotationDegrees(180.0F - yBodyRot));
+        float f = (float) (entity.level().getGameTime() - entity.lastHit) + partialTick;
         if (f < 5.0F) {
-            matrixStack.mulPose(Axis.YP.rotationDegrees(Mth.sin(f / 1.5F * (float) Math.PI) * 3.0F));
+            poseStack.mulPose(Axis.YP.rotationDegrees(Mth.sin(f / 1.5F * (float) Math.PI) * 3.0F));
         }
     }
 

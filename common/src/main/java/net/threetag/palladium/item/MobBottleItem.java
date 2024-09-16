@@ -63,7 +63,7 @@ public class MobBottleItem extends Item {
     private void spawn(ServerLevel serverLevel, ItemStack bucketedMobStack, BlockPos pos) {
         Entity entity = this.entityTypeSupplier.get().spawn(serverLevel, bucketedMobStack, null, pos, MobSpawnType.BUCKET, true, false);
         if (entity instanceof Bottable bucketable) {
-            CustomData customData = bucketedMobStack.getOrDefault(PalladiumDataComponents.BOTTLE_ENTITY_DATA.get(), CustomData.EMPTY);
+            CustomData customData = bucketedMobStack.getOrDefault(PalladiumDataComponents.Items.BOTTLE_ENTITY_DATA.get(), CustomData.EMPTY);
             bucketable.loadFromBottleTag(customData.copyTag());
             bucketable.setFromBottle(true);
         }

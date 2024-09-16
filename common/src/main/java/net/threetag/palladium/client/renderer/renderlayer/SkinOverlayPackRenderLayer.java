@@ -18,6 +18,7 @@ import net.threetag.palladium.client.dynamictexture.DynamicTexture;
 import net.threetag.palladium.client.dynamictexture.DynamicTextureManager;
 import net.threetag.palladium.util.SkinTypedValue;
 import net.threetag.palladium.util.context.DataContext;
+import net.threetag.palladium.util.json.GsonUtil;
 
 public class SkinOverlayPackRenderLayer extends AbstractPackRenderLayer {
 
@@ -34,7 +35,7 @@ public class SkinOverlayPackRenderLayer extends AbstractPackRenderLayer {
         var entity = context.getEntity();
         if (IPackRenderLayer.conditionsFulfilled(entity, this.conditions, this.thirdPersonConditions)) {
             VertexConsumer vertexConsumer = this.renderType.createVertexConsumer(bufferSource, this.texture.get(entity).getTexture(context), context.getItem().hasFoil());
-            parentModel.renderToBuffer(poseStack, vertexConsumer, packedLight, OverlayTexture.NO_OVERLAY, 1F, 1F, 1F, 1F);
+            parentModel.renderToBuffer(poseStack, vertexConsumer, packedLight, OverlayTexture.NO_OVERLAY, -1);
         }
     }
 
@@ -60,10 +61,10 @@ public class SkinOverlayPackRenderLayer extends AbstractPackRenderLayer {
     }
 
     public static SkinOverlayPackRenderLayer parse(JsonObject json) {
-        var renderType = PackRenderLayerManager.getRenderType(new ResourceLocation(GsonHelper.getAsString(json, "render_type", "solid")));
+        var renderType = PackRenderLayerManager.getRenderType(GsonUtil.getAsResourceLocation(json, "render_type", ResourceLocation.withDefaultNamespace("solid")));
 
         if (renderType == null) {
-            throw new JsonParseException("Unknown render type '" + new ResourceLocation(GsonHelper.getAsString(json, "render_type", "solid")) + "'");
+            throw new JsonParseException("Unknown render type '" + GsonUtil.getAsResourceLocation(json, "render_type", ResourceLocation.withDefaultNamespace("solid")) + "'");
         }
 
         return new SkinOverlayPackRenderLayer(SkinTypedValue.fromJSON(json.get("texture"), DynamicTextureManager::fromJson), renderType);

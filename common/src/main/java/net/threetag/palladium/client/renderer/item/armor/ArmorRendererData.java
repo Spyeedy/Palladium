@@ -2,6 +2,7 @@ package net.threetag.palladium.client.renderer.item.armor;
 
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
+import com.mojang.serialization.JsonOps;
 import net.minecraft.client.model.HumanoidModel;
 import net.minecraft.client.model.geom.EntityModelSet;
 import net.minecraft.client.renderer.texture.TextureManager;
@@ -54,11 +55,11 @@ public class ArmorRendererData {
     }
 
     public static ArmorRendererData fromJson(JsonObject json) {
-        var modelType = ModelTypes.get(GsonUtil.getAsResourceLocation(json, "model_type", new ResourceLocation("humanoid")));
+        var modelType = ModelTypes.get(GsonUtil.getAsResourceLocation(json, "model_type", ResourceLocation.withDefaultNamespace("humanoid")));
         var textures = ArmorTextureData.fromJson(json.get("textures"));
         var modelLayers = ArmorModelData.fromJson(json.get("model_layers"));
         var conditions = ArmorRendererConditions.fromJson(json.has("conditions") ? GsonHelper.getAsJsonArray(json, "conditions") : null);
-        List<Condition> hideSecondLayer = json.has("hide_second_layer") ? ConditionSerializer.listFromJSON(json.get("hide_second_layer"), ConditionEnvironment.ASSETS) : List.of(new FalseCondition());
+        List<Condition> hideSecondLayer = json.has("hide_second_layer") ? Condition.LIST_CODEC.parse(JsonOps.INSTANCE, json.get("hide_second_layer")).getOrThrow() : List.of(new FalseCondition());
         List<IPackRenderLayer> renderLayers = json.has("render_layers") ? parseRenderLayers(json.get("render_layers")) : Collections.emptyList();
         return new ArmorRendererData(modelType, textures, modelLayers, conditions, hideSecondLayer, renderLayers);
     }

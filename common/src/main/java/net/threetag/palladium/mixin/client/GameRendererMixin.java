@@ -37,7 +37,7 @@ public abstract class GameRendererMixin {
 
     @Inject(method = "bobView", at = @At("HEAD"), cancellable = true)
     private void bobView(PoseStack matrixStack, float partialTicks, CallbackInfo ci) {
-        if (this.minecraft.getCameraEntity() instanceof LivingEntity livingEntity && !AbilityUtil.getEnabledEntries(livingEntity, AbilitySerializers.ENERGY_BLAST.get()).isEmpty()) {
+        if (this.minecraft.getCameraEntity() instanceof LivingEntity livingEntity && !AbilityUtil.getEnabledInstances(livingEntity, AbilitySerializers.ENERGY_BEAM.get()).isEmpty()) {
             ci.cancel();
         }
     }

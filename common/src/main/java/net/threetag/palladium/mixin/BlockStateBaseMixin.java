@@ -32,8 +32,8 @@ public class BlockStateBaseMixin {
         if (!blockShape.isEmpty() && context instanceof EntityCollisionContext ctx) {
             if (ctx.getEntity() instanceof LivingEntity entity) {
                 boolean isAbove = isAbove(entity, blockShape, pos, false);
-                for (AbilityInstance entry : AbilityUtil.getEnabledEntries(entity, AbilitySerializers.INTANGIBILITY.get())) {
-                    if (!isAbove || entry.getProperty(IntangibilityAbility.VERTICAL)) {
+                for (AbilityInstance<IntangibilityAbility> entry : AbilityUtil.getEnabledInstances(entity, AbilitySerializers.INTANGIBILITY.get())) {
+                    if (!isAbove || entry.getAbility().vertical) {
                         if (IntangibilityAbility.canGoThrough(entry, level.getBlockState(pos))) {
                             cir.setReturnValue(Shapes.empty());
                             return;
@@ -52,7 +52,7 @@ public class BlockStateBaseMixin {
     @Inject(method = "entityInside", at = @At("HEAD"), cancellable = true)
     private void preventCollisionWhenPhasing(Level level, BlockPos pos, Entity entity, CallbackInfo ci) {
         if (entity instanceof LivingEntity living) {
-            for (AbilityInstance entry : AbilityUtil.getEnabledEntries(living, AbilitySerializers.INTANGIBILITY.get())) {
+            for (AbilityInstance<IntangibilityAbility> entry : AbilityUtil.getEnabledInstances(living, AbilitySerializers.INTANGIBILITY.get())) {
                 if (IntangibilityAbility.canGoThrough(entry, level.getBlockState(pos))) {
                     ci.cancel();
                     return;

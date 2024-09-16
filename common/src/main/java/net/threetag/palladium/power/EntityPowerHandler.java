@@ -99,8 +99,8 @@ public class EntityPowerHandler {
     public void removePowerHolder(ResourceLocation powerId) {
         if (this.powers.containsKey(powerId)) {
             var holder = this.powers.get(powerId);
-            boolean isStillValid = !holder.getPower().isInvalid();
-            boolean hasPersistentData = holder.getPower().hasPersistentData();
+            boolean isStillValid = !holder.getPower().value().isInvalid();
+            boolean hasPersistentData = holder.getPower().value().hasPersistentData();
             holder.lastTick();
 
             if (hasPersistentData) {

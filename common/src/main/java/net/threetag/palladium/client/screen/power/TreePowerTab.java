@@ -47,12 +47,12 @@ public class TreePowerTab extends PowerTab {
         List<TreeAbilityWidget> root = new LinkedList<>();
 
         // Create entry for each ability
-        for (AbilityInstance ability : this.powerHolder.getAbilities().values()) {
-            if (!ability.getProperty(AbilitySerializer.HIDDEN_IN_GUI)) {
+        for (AbilityInstance<?> ability : this.powerHolder.getAbilities().values()) {
+            if (!ability.getAbility().getProperties().isHiddenInGUI()) {
                 var widget = new TreeAbilityWidget(this, this.minecraft, this.powerHolder, ability).setPosition(0, 0);
                 this.entries.add(widget);
 
-                var pos = ability.getProperty(AbilitySerializer.GUI_POSITION);
+                var pos = ability.getAbility().getProperties().getGuiPosition();
                 if (pos != null) {
                     widget.setPositionFixed(pos.x, pos.y);
                 }
@@ -116,7 +116,7 @@ public class TreePowerTab extends PowerTab {
                 int endY = toCoord(child.gridY, 1D / (child.parents.size() + 1) * (child.parents.indexOf(entry) + 1));
                 connection.addLine(new ConnectionLine(startX, startY, endX, startY));
                 connection.addLine(new ConnectionLine(endX, startY, endX, endY));
-                connection.color = child.abilityInstance.isUnlocked() ? this.powerHolder.getPower().getPrimaryColor() : this.powerHolder.getPower().getSecondaryColor();
+                connection.color = child.abilityInstance.isUnlocked() ? this.powerHolder.getPower().value().getPrimaryColor() : this.powerHolder.getPower().value().getSecondaryColor();
                 this.connections.add(connection);
             }
         }
@@ -181,7 +181,7 @@ public class TreePowerTab extends PowerTab {
         guiGraphics.enableScissor(x, y, x + PowersScreen.WINDOW_INSIDE_WIDTH, y + PowersScreen.WINDOW_INSIDE_HEIGHT);
         guiGraphics.pose().pushPose();
         guiGraphics.pose().translate((float) x, (float) y, 0.0F);
-        TextureReference backgroundTexture = this.powerHolder.getPower().getBackground();
+        TextureReference backgroundTexture = this.powerHolder.getPower().value().getBackground();
         var texture = backgroundTexture != null ? backgroundTexture.getTexture(DataContext.forPower(minecraft.player, this.powerHolder)) : ResourceLocation.withDefaultNamespace("textures/block/red_wool.png");
 
         int i = Mth.floor(this.scrollX);
@@ -273,9 +273,9 @@ public class TreePowerTab extends PowerTab {
     }
 
     public static boolean canBeTree(PowerHolder holder) {
-        return holder.getAbilities().values().stream().filter(entry -> !entry.getProperty(AbilitySerializer.HIDDEN_IN_GUI)).anyMatch(entry -> {
-            List<AbilityInstance> parents = AbilityUtil.findParentsWithinHolder(entry.getConfiguration(), holder);
-            List<AbilityInstance> children = AbilityUtil.findChildrenWithinHolder(entry.getConfiguration(), holder);
+        return holder.getAbilities().values().stream().filter(entry -> !entry.getAbility().getProperties().isHiddenInGUI()).anyMatch(entry -> {
+            List<AbilityInstance<?>> parents = AbilityUtil.findParentsWithinHolder(entry.getAbility(), holder);
+            List<AbilityInstance<?>> children = AbilityUtil.findChildrenWithinHolder(entry.getAbility(), holder);
 
             return !parents.isEmpty() || !children.isEmpty();
         });
@@ -296,7 +296,7 @@ public class TreePowerTab extends PowerTab {
         int i = (this.screen.width - PowersScreen.WINDOW_WIDTH) / 2;
         int j = (this.screen.height - PowersScreen.WINDOW_HEIGHT) / 2;
         TreeAbilityWidget entry = this.getAbilityHoveredOver((int) (mouseX - i - 9), (int) (mouseY - j - 18), i, j);
-        if (entry != null && entry.abilityInstance.getConfiguration().getConditions().isBuyable()) {
+        if (entry != null && entry.abilityInstance.getAbility().getConditions().isBuyable()) {
             NetworkManager.get().sendToServer(new RequestAbilityBuyScreenPacket(entry.abilityInstance.getReference()));
         }
     }

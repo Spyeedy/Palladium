@@ -96,7 +96,7 @@ public class AddonGeoArmorItem extends ArmorItemType.ExtArmorItem implements Geo
             Holder<ArmorMaterial> armorMaterial = BuiltInRegistries.ARMOR_MATERIAL.holderByNameCodec().parse(JsonOps.INSTANCE, json.get("armor_material")).getOrThrow();
             ArmorItem.Type type = ArmorItem.Type.CODEC.parse(JsonOps.INSTANCE, json.get("slot")).getOrThrow();
 
-            var item = GeckoLibCompat.createArmorItem(armorMaterial, type, properties);
+            var item = new AddonGeoArmorItem(armorMaterial, type, properties);
             item.modelPath = GsonUtil.getAsResourceLocation(json, "armor_model", null);
             item.texturePath = GsonUtil.getAsTextureReference(json, "armor_texture", null);
             item.animationsPath = GsonUtil.getAsResourceLocation(json, "armor_animations", null);

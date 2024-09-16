@@ -98,8 +98,8 @@ public class PowersScreen extends Screen {
                 .stream()
                 .sorted(Comparator.comparingInt(holder -> Objects.requireNonNull(this.minecraft.player).registryAccess().registryOrThrow(PalladiumRegistryKeys.POWER).stream().toList().indexOf(holder.getPower())))
                 .forEach(holder -> {
-                    if (!holder.getPower().isHidden() && holder.getAbilities().values().stream().anyMatch(en -> !en.getProperty(AbilitySerializer.HIDDEN_IN_GUI))) {
-                        var type = holder.getPower().getGuiDisplayType();
+                    if (!holder.getPower().value().isHidden() && holder.getAbilities().values().stream().anyMatch(en -> !en.getAbility().getProperties().isHiddenInGUI())) {
+                        var type = holder.getPower().value().getGuiDisplayType();
 
                         if (type == Power.GuiDisplayType.AUTO) {
                             type = TreePowerTab.canBeTree(holder) ? Power.GuiDisplayType.TREE : Power.GuiDisplayType.LIST;
@@ -301,7 +301,7 @@ public class PowersScreen extends Screen {
         public Icon getIcon() {
             List<Icon> icons = Lists.newArrayList();
             Minecraft mc = Minecraft.getInstance();
-            PowerUtil.getPowerHandler(mc.player).ifPresent(handler -> handler.getPowerHolders().values().stream().filter(holder -> !holder.getPower().isHidden() && holder.getAbilities().values().stream().anyMatch(en -> !en.getProperty(AbilitySerializer.HIDDEN_IN_GUI))).forEach(holder -> icons.add(holder.getPower().getIcon())));
+            PowerUtil.getPowerHandler(mc.player).ifPresent(handler -> handler.getPowerHolders().values().stream().filter(holder -> !holder.getPower().value().isHidden() && holder.getAbilities().values().stream().anyMatch(en -> !en.getAbility().getProperties().isHiddenInGUI())).forEach(holder -> icons.add(holder.getPower().value().getIcon())));
             if (icons.isEmpty()) {
                 this.visible = false;
                 icons.add(new ItemIcon(Blocks.BARRIER));

@@ -80,7 +80,7 @@ public class GeckoRenderLayer extends AbstractPackRenderLayer {
             this.model.setAllVisible(true);
             this.cachedTexture = this.texture.get(living).getTexture(context);
             this.cachedModel = this.modelLocation.get(living).getTexture(context);
-            this.model.renderToBuffer(poseStack, this.renderType.createVertexConsumer(bufferSource, this.cachedTexture, false), packedLight, OverlayTexture.NO_OVERLAY, 1F, 1F, 1F, 1F);
+            this.model.renderToBuffer(poseStack, this.renderType.createVertexConsumer(bufferSource, this.cachedTexture, false), packedLight, OverlayTexture.NO_OVERLAY, -1);
         }
     }
 

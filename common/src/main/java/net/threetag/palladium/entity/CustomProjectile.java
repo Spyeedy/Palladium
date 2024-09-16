@@ -1,21 +1,17 @@
 package net.threetag.palladium.entity;
 
-import com.mojang.brigadier.StringReader;
-import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import net.minecraft.core.particles.ItemParticleOption;
+import net.minecraft.core.particles.ParticleOptions;
 import net.minecraft.core.particles.ParticleType;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.core.registries.BuiltInRegistries;
-import net.minecraft.nbt.CompoundTag;
-import net.minecraft.nbt.ListTag;
-import net.minecraft.nbt.StringTag;
-import net.minecraft.nbt.Tag;
+import net.minecraft.nbt.*;
 import net.minecraft.network.FriendlyByteBuf;
-import net.minecraft.network.protocol.Packet;
-import net.minecraft.network.protocol.game.ClientGamePacketListener;
 import net.minecraft.network.protocol.game.ClientboundExplodePacket;
+import net.minecraft.network.syncher.SynchedEntityData;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.sounds.SoundEvents;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.entity.*;
 import net.minecraft.world.entity.player.Player;
@@ -27,7 +23,6 @@ import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.EntityHitResult;
 import net.threetag.palladium.util.SizeUtil;
 import net.threetag.palladiumcore.network.ExtendedEntitySpawnData;
-import net.threetag.palladiumcore.network.NetworkManager;
 import org.jetbrains.annotations.Nullable;
 
 import java.awt.*;
@@ -53,7 +48,7 @@ public class CustomProjectile extends ThrowableProjectile implements ExtendedEnt
     public float knockbackStrength = 0F;
     public String commandOnEntityHit = null;
     public String commandOnBlockHit = null;
-    public EntityDimensions dimensions = new EntityDimensions(0.1F, 0.1F, false);
+    public EntityDimensions dimensions = EntityDimensions.scalable(0.1F, 0.1F);
     public List<Appearance> appearances = new ArrayList<>();
 
     static {
@@ -69,11 +64,6 @@ public class CustomProjectile extends ThrowableProjectile implements ExtendedEnt
     }
 
     @Override
-    public Packet<ClientGamePacketListener> getAddEntityPacket() {
-        return NetworkManager.createAddEntityPacket(this);
-    }
-
-    @Override
     public boolean shouldRenderAtSqrDistance(double distance) {
         return true;
     }
@@ -84,12 +74,12 @@ public class CustomProjectile extends ThrowableProjectile implements ExtendedEnt
     }
 
     @Override
-    protected void defineSynchedData() {
+    protected void defineSynchedData(SynchedEntityData.Builder builder) {
 
     }
 
     @Override
-    protected float getGravity() {
+    protected double getDefaultGravity() {
         return this.gravity;
     }
 
@@ -116,7 +106,7 @@ public class CustomProjectile extends ThrowableProjectile implements ExtendedEnt
                 }
 
                 if (this.setEntityOnFireSeconds > 0) {
-                    entity.setSecondsOnFire(this.setEntityOnFireSeconds);
+                    entity.setRemainingFireTicks(this.setEntityOnFireSeconds);
                 }
 
                 if (this.explosionRadius > 0F) {
@@ -159,7 +149,7 @@ public class CustomProjectile extends ThrowableProjectile implements ExtendedEnt
     }
 
     public Explosion explode(Entity source, @Nullable DamageSource damageSource, double x, double y, double z, float radius, boolean fire, Explosion.BlockInteraction blockInteraction) {
-        Explosion explosion = new Explosion(source.level(), source, damageSource, null, x, y, z, radius, fire, blockInteraction);
+        Explosion explosion = new Explosion(source.level(), source, damageSource, null, x, y, z, radius, fire, blockInteraction, ParticleTypes.EXPLOSION, ParticleTypes.EXPLOSION_EMITTER, SoundEvents.GENERIC_EXPLODE);
         explosion.explode();
         explosion.finalizeExplosion(true);
 
@@ -169,7 +159,20 @@ public class CustomProjectile extends ThrowableProjectile implements ExtendedEnt
 
         for (Player player : source.level().players()) {
             if (player.distanceToSqr(x, y, z) < 4096.0 && player instanceof ServerPlayer serverPlayer) {
-                serverPlayer.connection.send(new ClientboundExplodePacket(x, y, z, radius, explosion.getToBlow(), explosion.getHitPlayers().get(serverPlayer)));
+                serverPlayer.connection.send(
+                        new ClientboundExplodePacket(
+                                x,
+                                y,
+                                z,
+                                radius,
+                                explosion.getToBlow(),
+                                explosion.getHitPlayers().get(serverPlayer),
+                                explosion.getBlockInteraction(),
+                                explosion.getSmallExplosionParticles(),
+                                explosion.getLargeExplosionParticles(),
+                                explosion.getExplosionSound()
+                        )
+                );
             }
         }
 
@@ -210,7 +213,7 @@ public class CustomProjectile extends ThrowableProjectile implements ExtendedEnt
         compound.putBoolean("DieOnEntityHit", this.dieOnEntityHit);
         compound.putBoolean("DieOnBlockHit", this.dieOnBlockHit);
         compound.putBoolean("PreventShooterInteraction", this.preventShooterInteraction);
-        compound.putFloat("Size", this.dimensions.width);
+        compound.putFloat("Size", this.dimensions.width());
         compound.putFloat("Lifetime", this.lifetime);
         compound.putFloat("SetEntityOnFireSeconds", this.setEntityOnFireSeconds);
         compound.putFloat("ExplosionRadius", this.explosionRadius);
@@ -227,7 +230,7 @@ public class CustomProjectile extends ThrowableProjectile implements ExtendedEnt
         for (Appearance appearance : this.appearances) {
             CompoundTag aTag = new CompoundTag();
             aTag.putString("Type", appearance.getId());
-            appearance.toNBT(aTag);
+            appearance.toNBT(aTag, this);
             appearanceList.add(aTag);
         }
         compound.put("Appearances", appearanceList);
@@ -251,7 +254,7 @@ public class CustomProjectile extends ThrowableProjectile implements ExtendedEnt
         if (compound.contains("PreventShooterInteraction"))
             this.preventShooterInteraction = compound.getBoolean("PreventShooterInteraction");
         if (compound.contains("Size", Tag.TAG_ANY_NUMERIC))
-            this.dimensions = new EntityDimensions(compound.getFloat("Size"), compound.getFloat("Size"), false);
+            this.dimensions = EntityDimensions.scalable(compound.getFloat("Size"), compound.getFloat("Size"));
         if (compound.contains("ExplosionRadius", Tag.TAG_ANY_NUMERIC))
             this.explosionRadius = compound.getFloat("ExplosionRadius");
         if (compound.contains("ExplosionCausesFire"))
@@ -315,24 +318,23 @@ public class CustomProjectile extends ThrowableProjectile implements ExtendedEnt
 
         }
 
-        public abstract void toNBT(CompoundTag nbt);
+        public abstract void toNBT(CompoundTag nbt, CustomProjectile projectile);
 
     }
 
-    @SuppressWarnings("unchecked")
     public static class ParticleAppearance extends Appearance {
 
-        public final ParticleType type;
+        public final ParticleType<?> type;
         public final int amount;
         public final float spread;
-        public final String options;
+        public final Tag options;
 
         public ParticleAppearance(CompoundTag tag) {
             super(tag);
-            this.type = tag.contains("ParticleType") ? BuiltInRegistries.PARTICLE_TYPE.get(new ResourceLocation(tag.getString("ParticleType"))) : ParticleTypes.FLAME;
+            this.type = tag.contains("ParticleType") ? BuiltInRegistries.PARTICLE_TYPE.get(ResourceLocation.parse(tag.getString("ParticleType"))) : ParticleTypes.FLAME;
             this.amount = tag.contains("Amount") ? tag.getInt("Amount") : 1;
             this.spread = tag.contains("Spread") ? tag.getFloat("Spread") : 1;
-            this.options = tag.contains("Options") ? tag.getString("Options") : "";
+            this.options = tag.contains("Options") ? tag.get("Options") : null;
         }
 
         @Override
@@ -341,13 +343,13 @@ public class CustomProjectile extends ThrowableProjectile implements ExtendedEnt
         }
 
         @Override
-        public void toNBT(CompoundTag nbt) {
+        public void toNBT(CompoundTag nbt, CustomProjectile projectile) {
             if (this.type != null) {
                 nbt.putString("ParticleType", BuiltInRegistries.PARTICLE_TYPE.getKey(this.type).toString());
             }
             nbt.putInt("Amount", this.amount);
             nbt.putFloat("Spread", this.spread);
-            nbt.putString("Options", this.options);
+            nbt.put("Options", this.options);
         }
 
         @Override
@@ -361,11 +363,8 @@ public class CustomProjectile extends ThrowableProjectile implements ExtendedEnt
                 float sX = (random.nextFloat() - 0.5F) * this.spread * SizeUtil.getInstance().getWidthScale(projectile);
                 float sY = (random.nextFloat() - 0.5F) * this.spread * SizeUtil.getInstance().getHeightScale(projectile);
                 float sZ = (random.nextFloat() - 0.5F) * this.spread * SizeUtil.getInstance().getWidthScale(projectile);
-
-                try {
-                    projectile.level().addParticle(this.type.getDeserializer().fromCommand(this.type, new StringReader(this.options)), projectile.getX(), projectile.getY(), projectile.getZ(), sX, sY, sZ);
-                } catch (CommandSyntaxException ignored) {
-                }
+                ParticleOptions options = type.codec().codec().parse(projectile.registryAccess().createSerializationContext(NbtOps.INSTANCE), this.options).getOrThrow();
+                projectile.level().addParticle(options, projectile.getX(), projectile.getY(), projectile.getZ(), sX, sY, sZ);
             }
         }
 
@@ -380,11 +379,8 @@ public class CustomProjectile extends ThrowableProjectile implements ExtendedEnt
                 float sX = (random.nextFloat() - 0.5F) * this.spread * 2F;
                 float sY = (random.nextFloat() - 0.5F) * this.spread * 2F;
                 float sZ = (random.nextFloat() - 0.5F) * this.spread * 2F;
-
-                try {
-                    projectile.level().addParticle(this.type.getDeserializer().fromCommand(this.type, new StringReader(this.options)), projectile.getX(), projectile.getY(), projectile.getZ(), sX, sY, sZ);
-                } catch (CommandSyntaxException ignored) {
-                }
+                ParticleOptions options = type.codec().codec().parse(projectile.registryAccess().createSerializationContext(NbtOps.INSTANCE), this.options).getOrThrow();
+                projectile.level().addParticle(options, projectile.getX(), projectile.getY(), projectile.getZ(), sX, sY, sZ);
             }
         }
     }
@@ -398,9 +394,9 @@ public class CustomProjectile extends ThrowableProjectile implements ExtendedEnt
             var itemTag = tag.get("Item");
 
             if (itemTag instanceof CompoundTag compoundTag) {
-                this.item = ItemStack.of(compoundTag);
+                this.item = ItemStack.CODEC.parse(NbtOps.INSTANCE, compoundTag).getOrThrow();
             } else if (itemTag instanceof StringTag stringTag) {
-                this.item = new ItemStack(BuiltInRegistries.ITEM.get(new ResourceLocation(stringTag.getAsString())));
+                this.item = new ItemStack(BuiltInRegistries.ITEM.get(ResourceLocation.parse(stringTag.getAsString())));
             } else {
                 this.item = ItemStack.EMPTY;
             }
@@ -412,8 +408,8 @@ public class CustomProjectile extends ThrowableProjectile implements ExtendedEnt
         }
 
         @Override
-        public void toNBT(CompoundTag nbt) {
-            nbt.put("Item", this.item.save(new CompoundTag()));
+        public void toNBT(CompoundTag nbt, CustomProjectile projectile) {
+            nbt.put("Item", this.item.save(projectile.registryAccess()));
         }
 
         @Override
@@ -451,7 +447,7 @@ public class CustomProjectile extends ThrowableProjectile implements ExtendedEnt
         }
 
         @Override
-        public void toNBT(CompoundTag nbt) {
+        public void toNBT(CompoundTag nbt, CustomProjectile projectile) {
             nbt.putFloat("Thickness", this.thickness);
             CompoundTag colorTag = new CompoundTag();
             colorTag.putInt("Red", this.color.getRed());
@@ -472,11 +468,11 @@ public class CustomProjectile extends ThrowableProjectile implements ExtendedEnt
             var layerTag = tag.get("RenderLayer");
 
             if (layerTag instanceof StringTag stringTag) {
-                this.renderLayers.add(new ResourceLocation(stringTag.getAsString()));
+                this.renderLayers.add(ResourceLocation.parse(stringTag.getAsString()));
             } else if (layerTag instanceof ListTag list) {
                 for (Tag t : list) {
                     if (t instanceof StringTag stringTag) {
-                        this.renderLayers.add(new ResourceLocation(stringTag.getAsString()));
+                        this.renderLayers.add(ResourceLocation.parse(stringTag.getAsString()));
                     }
                 }
             }
@@ -488,9 +484,9 @@ public class CustomProjectile extends ThrowableProjectile implements ExtendedEnt
         }
 
         @Override
-        public void toNBT(CompoundTag nbt) {
+        public void toNBT(CompoundTag nbt, CustomProjectile projectile) {
             if (this.renderLayers.size() == 1) {
-                nbt.putString("RenderLayer", this.renderLayers.get(0).toString());
+                nbt.putString("RenderLayer", this.renderLayers.getFirst().toString());
             } else {
                 ListTag listTag = new ListTag();
                 for (ResourceLocation layer : this.renderLayers) {
@@ -512,11 +508,11 @@ public class CustomProjectile extends ThrowableProjectile implements ExtendedEnt
             var trailTag = tag.get("Trail");
 
             if (trailTag instanceof StringTag stringTag) {
-                this.trails.add(new ResourceLocation(stringTag.getAsString()));
+                this.trails.add(ResourceLocation.parse(stringTag.getAsString()));
             } else if (trailTag instanceof ListTag list) {
                 for (Tag t : list) {
                     if (t instanceof StringTag stringTag) {
-                        this.trails.add(new ResourceLocation(stringTag.getAsString()));
+                        this.trails.add(ResourceLocation.parse(stringTag.getAsString()));
                     }
                 }
             }
@@ -528,9 +524,9 @@ public class CustomProjectile extends ThrowableProjectile implements ExtendedEnt
         }
 
         @Override
-        public void toNBT(CompoundTag nbt) {
+        public void toNBT(CompoundTag nbt, CustomProjectile projectile) {
             if (this.trails.size() == 1) {
-                nbt.putString("Trail", this.trails.get(0).toString());
+                nbt.putString("Trail", this.trails.getFirst().toString());
             } else {
                 ListTag listTag = new ListTag();
                 for (ResourceLocation layer : this.trails) {

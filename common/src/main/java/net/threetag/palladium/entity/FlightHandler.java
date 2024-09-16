@@ -4,6 +4,7 @@ import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.resources.sounds.SoundInstance;
+import net.minecraft.core.Holder;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.util.Mth;
 import net.minecraft.world.entity.LivingEntity;
@@ -112,7 +113,7 @@ public class FlightHandler {
             }
 
             var diff = look.subtract(this.flightVector);
-            double flexibility = (10D - player.getAttributeValue(PalladiumAttributes.FLIGHT_FLEXIBILITY.get())) / 100D;
+            double flexibility = (10D - player.getAttributeValue(PalladiumAttributes.FLIGHT_FLEXIBILITY)) / 100D;
             diff = diff.length() > flexibility ? diff.scale(flexibility / diff.length()) : diff;
             this.flightVector = this.flightVector.add(diff);
             player.setDeltaMovement(this.flightVector);
@@ -215,11 +216,11 @@ public class FlightHandler {
     }
 
     public static FlightType getAvailableFlightType(LivingEntity entity) {
-        if (entity.getAttributes().hasAttribute(PalladiumAttributes.FLIGHT_SPEED.get()) && entity.getAttributeValue(PalladiumAttributes.FLIGHT_SPEED.get()) > 0D) {
+        if (entity.getAttributes().hasAttribute(PalladiumAttributes.FLIGHT_SPEED) && entity.getAttributeValue(PalladiumAttributes.FLIGHT_SPEED) > 0D) {
             return FlightType.NORMAL;
         }
 
-        if (entity.getAttributes().hasAttribute(PalladiumAttributes.LEVITATION_SPEED.get()) && entity.getAttributeValue(PalladiumAttributes.LEVITATION_SPEED.get()) > 0D) {
+        if (entity.getAttributes().hasAttribute(PalladiumAttributes.LEVITATION_SPEED) && entity.getAttributeValue(PalladiumAttributes.LEVITATION_SPEED) > 0D) {
             return FlightType.LEVITATION;
         }
 
@@ -227,7 +228,7 @@ public class FlightHandler {
     }
 
     public static FlightAnimationType getAnimationType(LivingEntity entity) {
-        if (entity.getAttributes().hasAttribute(PalladiumAttributes.HEROIC_FLIGHT_TYPE.get()) && entity.getAttributeValue(PalladiumAttributes.HEROIC_FLIGHT_TYPE.get()) > 0D) {
+        if (entity.getAttributes().hasAttribute(PalladiumAttributes.HEROIC_FLIGHT_TYPE) && entity.getAttributeValue(PalladiumAttributes.HEROIC_FLIGHT_TYPE) > 0D) {
             return FlightAnimationType.HEROIC;
         }
 
@@ -247,16 +248,16 @@ public class FlightHandler {
 
     public enum FlightType {
 
-        NONE(() -> null), NORMAL(PalladiumAttributes.FLIGHT_SPEED), LEVITATION(PalladiumAttributes.LEVITATION_SPEED);
+        NONE(null), NORMAL(PalladiumAttributes.FLIGHT_SPEED), LEVITATION(PalladiumAttributes.LEVITATION_SPEED);
 
-        FlightType(Supplier<Attribute> attributeSupplier) {
+        FlightType(Holder<Attribute> attributeSupplier) {
             this.attributeSupplier = attributeSupplier;
         }
 
-        private final Supplier<Attribute> attributeSupplier;
+        private final Holder<Attribute> attributeSupplier;
 
-        public Attribute getAttribute() {
-            return this.attributeSupplier.get();
+        public Holder<Attribute> getAttribute() {
+            return attributeSupplier;
         }
 
         public boolean isNotNull() {

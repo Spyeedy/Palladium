@@ -107,9 +107,9 @@ public class Palladium {
             }
         });
 
-        CommandEvents.REGISTER.register((dispatcher, selection) -> {
-            SuperpowerCommand.register(dispatcher);
-            AbilityCommand.register(dispatcher);
+        CommandEvents.REGISTER.register((dispatcher, context, selection) -> {
+            SuperpowerCommand.register(dispatcher, context);
+            AbilityCommand.register(dispatcher, context);
             EnergyBarCommand.register(dispatcher);
         });
 

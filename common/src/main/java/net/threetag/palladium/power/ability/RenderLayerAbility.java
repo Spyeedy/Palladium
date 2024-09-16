@@ -12,7 +12,7 @@ import net.threetag.palladium.power.energybar.EnergyBarUsage;
 
 import java.util.List;
 
-public class RenderLayerAbility extends Ability implements RenderLayerProviderAbility {
+public class RenderLayerAbility extends Ability implements RenderLayerProviderAbility<RenderLayerAbility> {
 
     public static final MapCodec<RenderLayerAbility> CODEC = RecordCodecBuilder.mapCodec(instance ->
             instance.group(
@@ -29,7 +29,7 @@ public class RenderLayerAbility extends Ability implements RenderLayerProviderAb
 
     @Override
     @Environment(EnvType.CLIENT)
-    public IPackRenderLayer getRenderLayer(AbilityInstance instance, LivingEntity entity, PackRenderLayerManager manager) {
+    public IPackRenderLayer getRenderLayer(AbilityInstance<RenderLayerAbility> instance, LivingEntity entity, PackRenderLayerManager manager) {
         return manager.getLayer(this.renderLayerId);
     }
 

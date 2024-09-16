@@ -34,6 +34,7 @@ import java.util.*;
 import java.util.function.BiConsumer;
 import java.util.function.Function;
 
+@SuppressWarnings({"rawtypes", "unchecked"})
 public class PackRenderLayerManager extends SimpleJsonResourceReloadListener {
 
     private static PackRenderLayerManager INSTANCE;
@@ -47,8 +48,8 @@ public class PackRenderLayerManager extends SimpleJsonResourceReloadListener {
         registerProvider((entity, layers) -> {
             if (entity instanceof LivingEntity livingEntity) {
                 var manager = PackRenderLayerManager.getInstance();
-                for (AbilityInstance entry : AbilityUtil.getEnabledRenderLayerInstances(livingEntity)) {
-                    IPackRenderLayer layer = ((RenderLayerProviderAbility) entry.getConfiguration().getAbility()).getRenderLayer(entry, livingEntity, manager);
+                for (AbilityInstance<?> entry : AbilityUtil.getEnabledRenderLayerInstances(livingEntity)) {
+                    IPackRenderLayer layer = ((RenderLayerProviderAbility) entry.getAbility()).getRenderLayer(entry, livingEntity, manager);
                     if (layer != null) {
                         layers.accept(DataContext.forAbility(livingEntity, entry), layer);
                     }
@@ -65,8 +66,8 @@ public class PackRenderLayerManager extends SimpleJsonResourceReloadListener {
                     if (!stack.isEmpty()) {
                         var context = DataContext.forArmorInSlot(livingEntity, slot);
 
-                        if (stack.has(PalladiumDataComponents.RENDER_LAYERS.get())) {
-                            var component = stack.get(PalladiumDataComponents.RENDER_LAYERS.get());
+                        if (stack.has(PalladiumDataComponents.Items.RENDER_LAYERS.get())) {
+                            var component = stack.get(PalladiumDataComponents.Items.RENDER_LAYERS.get());
 
                             for (ResourceLocation id : Objects.requireNonNull(component).forSlot(PlayerSlot.get(slot))) {
                                 IPackRenderLayer layer = PackRenderLayerManager.getInstance().getLayer(id);

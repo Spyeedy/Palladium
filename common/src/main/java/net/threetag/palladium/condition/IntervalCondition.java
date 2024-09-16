@@ -30,34 +30,34 @@ public record IntervalCondition(int activeTicks, int disabledTicks) implements C
             IntervalCondition::new
     );
 
-    @Override
-    public void registerAbilityProperties(AbilityInstance entry, PropertyManager manager) {
-        manager.register(TICKS, 0);
-        manager.register(ACTIVE, false);
-    }
+//    @Override
+//    public void registerAbilityProperties(AbilityInstance entry, PropertyManager manager) {
+//        manager.register(TICKS, 0);
+//        manager.register(ACTIVE, false);
+//    }
 
     @Override
     public boolean active(DataContext context) {
-        var entity = context.get(DataContextType.ENTITY);
-        var entry = context.get(DataContextType.ABILITY_INSTANCE);
-
-        if (entity == null || entry == null) {
+//        var entity = context.get(DataContextType.ENTITY);
+//        var entry = context.get(DataContextType.ABILITY_INSTANCE);
+//
+//        if (entity == null || entry == null) {
             return false;
-        }
-
-        var active = Objects.requireNonNull(entry).getProperty(ACTIVE);
-        var ticks = entry.getProperty(TICKS);
-
-        var maxTicks = active ? this.activeTicks : this.disabledTicks;
-        if (ticks < maxTicks) {
-            entry.setUniqueProperty(TICKS, ticks + 1);
-        } else {
-            entry.setUniqueProperty(TICKS, 0);
-            entry.setUniqueProperty(ACTIVE, !active);
-            active = !active;
-        }
-
-        return active;
+//        }
+//
+//        var active = Objects.requireNonNull(entry).getProperty(ACTIVE);
+//        var ticks = entry.getProperty(TICKS);
+//
+//        var maxTicks = active ? this.activeTicks : this.disabledTicks;
+//        if (ticks < maxTicks) {
+//            entry.setUniqueProperty(TICKS, ticks + 1);
+//        } else {
+//            entry.setUniqueProperty(TICKS, 0);
+//            entry.setUniqueProperty(ACTIVE, !active);
+//            active = !active;
+//        }
+//
+//        return active;
     }
 
     @Override

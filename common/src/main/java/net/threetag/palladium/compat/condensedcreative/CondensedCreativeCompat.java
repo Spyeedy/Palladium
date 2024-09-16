@@ -8,6 +8,7 @@ import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.threetag.palladium.Palladium;
 import net.threetag.palladium.item.SuitSet;
+import net.threetag.palladium.registry.PalladiumRegistries;
 
 import java.util.LinkedList;
 import java.util.List;
@@ -17,8 +18,8 @@ public class CondensedCreativeCompat implements CondensedCreativeInitializer {
 
     @Override
     public void onInitializeCondensedEntries(boolean refreshed) {
-        for (SuitSet suitSet : SuitSet.REGISTRY) {
-            var id = SuitSet.REGISTRY.getKey(suitSet);
+        for (SuitSet suitSet : PalladiumRegistries.SUIT_SET) {
+            var id = PalladiumRegistries.SUIT_SET.getKey(suitSet);
             var icon = getIcon(suitSet);
 
             if (id != null && icon != null) {

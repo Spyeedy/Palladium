@@ -1,6 +1,7 @@
 package net.threetag.palladium.entity;
 
 import net.minecraft.core.Rotations;
+import net.minecraft.core.component.DataComponents;
 import net.minecraft.core.particles.BlockParticleOption;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.nbt.CompoundTag;
@@ -21,6 +22,7 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.DyeColor;
 import net.minecraft.world.item.DyeItem;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.Items;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
@@ -53,10 +55,9 @@ public class SuitStand extends ArmorStand implements ExtendedEntitySpawnData {
     }
 
     @Override
-    protected void defineSynchedData() {
-        super.defineSynchedData();
-        this.entityData.define(DYE_COLOR, (byte) 0);
-        this.entityData.set(DATA_CLIENT_FLAGS, this.setBit(this.entityData.get(DATA_CLIENT_FLAGS), 4, true));
+    protected void defineSynchedData(SynchedEntityData.Builder builder) {
+        super.defineSynchedData(builder);
+        builder.define(DYE_COLOR, (byte) 0);
     }
 
     private byte setBit(byte oldBit, int offset, boolean value) {
@@ -115,9 +116,11 @@ public class SuitStand extends ArmorStand implements ExtendedEntitySpawnData {
         return new ItemStack(PalladiumItems.SUIT_STAND.get());
     }
 
-    public void suitStandBrokenByPlayer(DamageSource damageSource) {
-        Block.popResource(this.level(), this.blockPosition(), new ItemStack(PalladiumItems.SUIT_STAND.get()));
-        this.brokenByAnything(damageSource);
+    public void suitStandBrokenByPlayer(ServerLevel level, DamageSource damageSource) {
+        ItemStack itemStack = new ItemStack(PalladiumItems.SUIT_STAND.get());
+        itemStack.set(DataComponents.CUSTOM_NAME, this.getCustomName());
+        Block.popResource(this.level(), this.blockPosition(), itemStack);
+        this.brokenByAnything(level, damageSource);
     }
 
     public void suitStandShowBreakingParticles() {
@@ -133,11 +136,6 @@ public class SuitStand extends ArmorStand implements ExtendedEntitySpawnData {
     public void setDyeColor(DyeColor color) {
         byte b0 = this.entityData.get(DYE_COLOR);
         this.entityData.set(DYE_COLOR, (byte) (b0 & 240 | color.getId() & 15));
-    }
-
-    @Override
-    public @NotNull Packet<ClientGamePacketListener> getAddEntityPacket() {
-        return NetworkManager.createAddEntityPacket(this);
     }
 
     @Override

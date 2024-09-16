@@ -2,6 +2,7 @@ package net.threetag.palladium.mixin.client;
 
 import com.mojang.blaze3d.vertex.PoseStack;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.model.AnimationUtils;
 import net.minecraft.client.model.PlayerModel;
 import net.minecraft.client.model.geom.ModelPart;
 import net.minecraft.client.player.AbstractClientPlayer;
@@ -20,6 +21,8 @@ import net.threetag.palladium.entity.BodyPart;
 import net.threetag.palladium.entity.PalladiumPlayerExtension;
 import net.threetag.palladium.entity.PlayerModelCacheExtension;
 import net.threetag.palladium.power.ability.AbilitySerializers;
+import net.threetag.palladium.power.ability.AbilityUtil;
+import net.threetag.palladium.power.ability.ShrinkBodyOverlayAbility;
 import net.threetag.palladium.util.Easing;
 import net.threetag.palladium.util.RenderUtil;
 import org.joml.Vector3f;
@@ -28,6 +31,8 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
+
+import java.util.Comparator;
 
 @SuppressWarnings("ConstantConditions")
 @Mixin(PlayerRenderer.class)
@@ -71,7 +76,8 @@ public class PlayerRendererMixin {
         }
 
         // Shrink Overlay
-        float scale = AnimationTimer.getValue(player, AbilitySerializers.SHRINK_BODY_OVERLAY.get(), Minecraft.getInstance().getFrameTime(), Easing.INOUTSINE);
+        float scale = AbilityUtil.getHighestAnimationTimerProgress(player, AbilitySerializers.SHRINK_BODY_OVERLAY.get(), Minecraft.getInstance().getTimer().getGameTimeDeltaTicks(), Easing.INOUTSINE);
+
 
         if (scale != 0F) {
             float f = -0.11F * scale;
@@ -120,7 +126,7 @@ public class PlayerRendererMixin {
 
         // Apply model animations in first person
         if (player instanceof PlayerModelCacheExtension ext) {
-            float partialTick = Minecraft.getInstance().getFrameTime();
+            float partialTick = Minecraft.getInstance().getTimer().getGameTimeDeltaTicks();
             float f = Mth.rotLerp(partialTick, player.yBodyRotO, player.yBodyRot);
             float g = Mth.rotLerp(partialTick, player.yHeadRotO, player.yHeadRot);
             float h = g - f;

@@ -24,8 +24,8 @@ public abstract class PowerTab {
         this.type = type;
         this.index = tabIndex;
         this.powerHolder = powerHolder;
-        this.icon = powerHolder.getPower().getIcon();
-        this.title = powerHolder.getPower().getName();
+        this.icon = powerHolder.getPower().value().getIcon();
+        this.title = powerHolder.getPower().value().getName();
     }
 
     public void drawTab(GuiGraphics guiGraphics, int offsetX, int offsetY, boolean isSelected) {

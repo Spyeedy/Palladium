@@ -17,6 +17,7 @@ import net.minecraft.world.entity.HumanoidArm;
 import net.threetag.palladium.Palladium;
 import net.threetag.palladium.client.model.ThrusterHumanoidModel;
 import net.threetag.palladium.client.renderer.PalladiumRenderTypes;
+import net.threetag.palladium.util.RenderUtil;
 import net.threetag.palladium.util.SkinTypedValue;
 import net.threetag.palladium.util.context.DataContext;
 import net.threetag.palladium.util.json.GsonUtil;
@@ -69,7 +70,7 @@ public class ThrusterPackRenderLayer extends AbstractPackRenderLayer {
             model.leftLegThruster.visible = this.leftLeg;
 
             VertexConsumer vertexConsumer = bufferSource.getBuffer(PalladiumRenderTypes.getGlowing(TEXTURES[(entity.tickCount / 2) % TEXTURES.length]));
-            model.renderToBuffer(poseStack, vertexConsumer, 15728640, OverlayTexture.NO_OVERLAY, this.color.getRed() / 255F, this.color.getGreen() / 255F, this.color.getBlue() / 255F, this.color.getAlpha() / 255F);
+            model.renderToBuffer(poseStack, vertexConsumer, 15728640, OverlayTexture.NO_OVERLAY, RenderUtil.rgbaToInt(this.color.getRed() / 255F, this.color.getGreen() / 255F, this.color.getBlue() / 255F, this.color.getAlpha() / 255F));
         }
     }
 

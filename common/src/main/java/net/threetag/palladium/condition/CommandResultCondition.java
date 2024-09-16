@@ -11,24 +11,25 @@ import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.server.level.ServerLevel;
 import net.threetag.palladium.addonpack.log.AddonPackLog;
+import net.threetag.palladium.util.ParsedCommands;
 import net.threetag.palladium.util.context.DataContext;
 import net.threetag.palladium.util.context.DataContextType;
 
 import java.util.Objects;
 
-public record CommandResultCondition(String command, String comparison, int compareTo,
+public record CommandResultCondition(ParsedCommands command, String comparison, int compareTo,
                                      boolean log) implements Condition, CommandSource {
 
     public static final MapCodec<CommandResultCondition> CODEC = RecordCodecBuilder.mapCodec(instance -> instance
             .group(
-                    Codec.STRING.fieldOf("command").forGetter(CommandResultCondition::command),
+                    ParsedCommands.CODEC.optionalFieldOf("command", ParsedCommands.EMPTY).forGetter(CommandResultCondition::command),
                     Codec.STRING.fieldOf("comparison").forGetter(CommandResultCondition::comparison),
                     Codec.INT.fieldOf("compare_to").forGetter(CommandResultCondition::compareTo),
                     Codec.BOOL.optionalFieldOf("log", false).forGetter(CommandResultCondition::log)
             ).apply(instance, CommandResultCondition::new)
     );
     public static final StreamCodec<RegistryFriendlyByteBuf, CommandResultCondition> STREAM_CODEC = StreamCodec.composite(
-            ByteBufCodecs.STRING_UTF8, CommandResultCondition::command,
+            ParsedCommands.STREAM_CODEC, CommandResultCondition::command,
             ByteBufCodecs.STRING_UTF8, CommandResultCondition::comparison,
             ByteBufCodecs.VAR_INT, CommandResultCondition::compareTo,
             ByteBufCodecs.BOOL, CommandResultCondition::log,
@@ -53,17 +54,19 @@ public record CommandResultCondition(String command, String comparison, int comp
                 stack = stack.withSuppressedOutput();
             }
 
-            int result = serverLevel.getServer().getCommands().performPrefixedCommand(stack, command);
+            serverLevel.getServer().getFunctions().execute(this.command.getCommandFunction(entity.level().getServer()), stack.withSuppressedOutput().withMaximumPermission(2));
 
-            return switch (comparison) {
-                case ">=" -> (result >= compareTo);
-                case "<=" -> (result <= compareTo);
-                case ">" -> (result > compareTo);
-                case "<" -> (result < compareTo);
-                case "!=" -> (result != compareTo);
-                case "==" -> (result == compareTo);
-                default -> false;
-            };
+            // TODO
+//            return switch (comparison) {
+//                case ">=" -> (result >= compareTo);
+//                case "<=" -> (result <= compareTo);
+//                case ">" -> (result > compareTo);
+//                case "<" -> (result < compareTo);
+//                case "!=" -> (result != compareTo);
+//                case "==" -> (result == compareTo);
+//                default -> false;
+//            };
+            return false;
         } else {
             return false;
         }

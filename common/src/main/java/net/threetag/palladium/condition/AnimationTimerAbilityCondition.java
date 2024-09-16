@@ -8,6 +8,7 @@ import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
 import net.threetag.palladium.power.ability.AbilityInstance;
 import net.threetag.palladium.power.ability.AbilityReference;
+import net.threetag.palladium.power.ability.AnimationTimer;
 import net.threetag.palladium.util.context.DataContext;
 
 public record AnimationTimerAbilityCondition(AbilityReference ability, int min, int max) implements Condition {
@@ -35,13 +36,13 @@ public record AnimationTimerAbilityCondition(AbilityReference ability, int min, 
             return false;
         }
 
-        AbilityInstance dependency = this.ability.getInstance(entity, holder);
+        AbilityInstance<?> dependency = this.ability.getInstance(entity, holder);
 
-        if (dependency == null || !(dependency.getConfiguration().getAbility() instanceof AnimationTimer animationTimer)) {
+        if (dependency == null || !(dependency.getAnimationTimer() == null)) {
             return false;
         }
 
-        var timer = (int) animationTimer.getAnimationTimer(dependency, 1F);
+        var timer = (int) dependency.getAnimationTimer().interpolated(1F);
         return timer >= this.min && timer <= this.max;
     }
 
@@ -64,7 +65,7 @@ public record AnimationTimerAbilityCondition(AbilityReference ability, int min, 
 
         @Override
         public String getDocumentationDescription() {
-            return "Checks if the given animation timer ability has a certain value. This condition is a simplified version of the ability_integer_property condition designed to be used for animation timer abilities.";
+            return "Checks if the given animation timer in an ability has a certain value.";
         }
     }
 }

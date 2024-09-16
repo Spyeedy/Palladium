@@ -9,13 +9,8 @@ import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.world.item.ItemStack;
 import net.threetag.palladium.addonpack.parser.ItemParser;
 import net.threetag.palladium.client.renderer.renderlayer.PackRenderLayerManager;
-import net.threetag.palladium.compat.geckolib.ability.ArmorAnimationAbility;
-import net.threetag.palladium.compat.geckolib.ability.RenderLayerAnimationAbility;
 import net.threetag.palladium.compat.geckolib.armor.AddonGeoArmorItem;
 import net.threetag.palladium.compat.geckolib.renderlayer.GeckoRenderLayer;
-import net.threetag.palladium.power.ability.AbilitySerializer;
-import net.threetag.palladium.registry.PalladiumRegistryKeys;
-import net.threetag.palladiumcore.registry.DeferredRegister;
 import software.bernie.geckolib.GeckoLibConstants;
 
 public class GeckoLibCompat {
@@ -23,10 +18,10 @@ public class GeckoLibCompat {
     public static void init() {
         ItemParser.registerTypeSerializer(new AddonGeoArmorItem.Parser());
 
-        DeferredRegister<AbilitySerializer> deferredRegister = DeferredRegister.create(GeckoLibConstants.MODID, PalladiumRegistryKeys.ABILITY_SERIALIZER);
-        deferredRegister.register();
-        deferredRegister.register("render_layer_animation", RenderLayerAnimationAbility::new);
-        deferredRegister.register("armor_animation", ArmorAnimationAbility::new);
+//        DeferredRegister<AbilitySerializer> deferredRegister = DeferredRegister.create(GeckoLibConstants.MODID, PalladiumRegistryKeys.ABILITY_SERIALIZER);
+//        deferredRegister.register();
+//        deferredRegister.register("render_layer_animation", RenderLayerAnimationAbility::new);
+//        deferredRegister.register("armor_animation", ArmorAnimationAbility::new);
     }
 
     @Environment(EnvType.CLIENT)

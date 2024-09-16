@@ -40,8 +40,4 @@ public abstract class EntityDependentNumber {
         return new ScoreNumber(objectiveName, fallbackValue);
     }
 
-    public static EntityDependentNumber palladiumProperty(String propertyName, double fallbackValue) {
-        return new PalladiumPropertyNumber(propertyName, fallbackValue);
-    }
-
 }

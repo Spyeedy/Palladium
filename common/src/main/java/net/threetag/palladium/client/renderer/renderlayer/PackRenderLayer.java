@@ -22,6 +22,7 @@ import net.threetag.palladium.client.dynamictexture.DynamicTextureManager;
 import net.threetag.palladium.client.model.ExtraAnimatedModel;
 import net.threetag.palladium.util.SkinTypedValue;
 import net.threetag.palladium.util.context.DataContext;
+import net.threetag.palladium.util.json.GsonUtil;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -59,7 +60,7 @@ public class PackRenderLayer extends AbstractPackRenderLayer {
 
             VertexConsumer vertexConsumer = this.renderType.createVertexConsumer(bufferSource, this.texture.get(entity).getTexture(context), context.getItem().hasFoil());
 
-            entityModel.renderToBuffer(poseStack, vertexConsumer, packedLight, OverlayTexture.NO_OVERLAY, 1F, 1F, 1F, 1F);
+            entityModel.renderToBuffer(poseStack, vertexConsumer, packedLight, OverlayTexture.NO_OVERLAY, -1);
         }
     }
 
@@ -100,7 +101,7 @@ public class PackRenderLayer extends AbstractPackRenderLayer {
     }
 
     public static PackRenderLayer parse(JsonObject json) {
-        var renderType = PackRenderLayerManager.getRenderType(new ResourceLocation(GsonHelper.getAsString(json, "render_type", "solid")));
+        var renderType = PackRenderLayerManager.getRenderType(GsonUtil.getAsResourceLocation(json, "render_type", ResourceLocation.withDefaultNamespace("solid")));
 
         SkinTypedValue<ModelTypes.Model> model;
         String modelTypeKey = "model_type";
@@ -112,7 +113,7 @@ public class PackRenderLayer extends AbstractPackRenderLayer {
 
         if (GsonHelper.isValidNode(json, modelTypeKey)) {
             model = SkinTypedValue.fromJSON(json.get(modelTypeKey), jsonElement -> {
-                ResourceLocation modelId = new ResourceLocation(jsonElement.getAsString());
+                ResourceLocation modelId = ResourceLocation.parse(jsonElement.getAsString());
                 ModelTypes.Model m = ModelTypes.get(modelId);
 
                 if (m == null) {
@@ -126,7 +127,7 @@ public class PackRenderLayer extends AbstractPackRenderLayer {
         }
 
         if (renderType == null) {
-            throw new JsonParseException("Unknown render type '" + new ResourceLocation(GsonHelper.getAsString(json, "render_type", "solid")) + "'");
+            throw new JsonParseException("Unknown render type '" +GsonUtil.getAsResourceLocation(json, "render_type", ResourceLocation.withDefaultNamespace("solid")) + "'");
         }
 
         return new PackRenderLayer(model, SkinTypedValue.fromJSON(json.get("model_layer"), DynamicModelLayerLocation::fromJson), SkinTypedValue.fromJSON(json.get("texture"), DynamicTextureManager::fromJson), renderType);

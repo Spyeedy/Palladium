@@ -78,12 +78,20 @@ public class AbilityInstance<T extends Ability> implements DataComponentHolder {
         return this.components.getOrDefault(PalladiumDataComponents.Abilities.COOLDOWN.get(), 0);
     }
 
+    public int getMaxCooldown() {
+        return this.components.getOrDefault(PalladiumDataComponents.Abilities.MAX_COOLDOWN.get(), 0);
+    }
+
     public boolean isOnCooldown() {
         return this.ability.getConditions().getCooldownType() == CooldownType.STATIC ? this.getOrDefault(PalladiumDataComponents.Abilities.COOLDOWN.get(), 0) > 0 : this.getOrDefault(PalladiumDataComponents.Abilities.COOLDOWN.get(), 0) < this.getOrDefault(PalladiumDataComponents.Abilities.MAX_COOLDOWN.get(), 0);
     }
 
     public int getActivatedTime() {
         return this.components.getOrDefault(PalladiumDataComponents.Abilities.ACTIVATED_TIME.get(), 0);
+    }
+
+    public int getMaxActivatedTime() {
+        return this.components.getOrDefault(PalladiumDataComponents.Abilities.MAX_ACTIVATED_TIME.get(), 0);
     }
 
     public boolean isKeyPressed() {

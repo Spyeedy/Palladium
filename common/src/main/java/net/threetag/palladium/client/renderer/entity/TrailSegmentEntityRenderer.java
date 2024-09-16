@@ -26,6 +26,7 @@ import net.threetag.palladium.client.renderer.renderlayer.IPackRenderLayer;
 import net.threetag.palladium.client.renderer.trail.AfterImageTrailRenderer;
 import net.threetag.palladium.client.renderer.trail.TrailRenderer;
 import net.threetag.palladium.entity.TrailSegmentEntity;
+import net.threetag.palladium.util.RenderUtil;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -93,38 +94,41 @@ public class TrailSegmentEntityRenderer extends LivingEntityRenderer<TrailSegmen
             h *= -1.0F;
         }
 
+        h = Mth.wrapDegrees(h);
         float k;
         if (entity.hasPose(Pose.SLEEPING)) {
             Direction direction = entity.getBedOrientation();
             if (direction != null) {
                 k = entity.getEyeHeight(Pose.STANDING) - 0.1F;
-                poseStack.translate((float) (-direction.getStepX()) * k, 0.0F, (float) (-direction.getStepZ()) * k);
+                poseStack.translate((float)(-direction.getStepX()) * k, 0.0F, (float)(-direction.getStepZ()) * k);
             }
         }
 
-        i = this.getBob(entity, partialTicks);
-        this.setupRotations(entity, poseStack, i, f, partialTicks);
+        i = entity.getScale();
+        poseStack.scale(i, i, i);
+        k = this.getBob(entity, partialTicks);
+        this.setupRotations(entity, poseStack, k, f, partialTicks, i);
         poseStack.scale(-1.0F, -1.0F, 1.0F);
         this.scale(entity, poseStack, partialTicks);
         poseStack.translate(0.0F, -1.501F, 0.0F);
-        k = 0.0F;
         float l = 0.0F;
+        float m = 0.0F;
         if (!entity.isPassenger() && entity.isAlive()) {
-            k = entity.walkAnimation.speed(partialTicks);
-            l = entity.walkAnimation.position(partialTicks);
+            l = entity.walkAnimation.speed(partialTicks);
+            m = entity.walkAnimation.position(partialTicks);
             if (entity.isBaby()) {
-                l *= 3.0F;
+                m *= 3.0F;
             }
 
-            if (k > 1.0F) {
-                k = 1.0F;
+            if (l > 1.0F) {
+                l = 1.0F;
             }
         }
 
         if (!entity.fetchedAnimationValues) {
-            entity.limbSwing = l;
-            entity.limbSwingAmount = k;
-            entity.ageInTicks = i;
+            entity.limbSwing = m;
+            entity.limbSwingAmount = l;
+            entity.ageInTicks = k;
             entity.netHeadYaw = h;
             entity.headPitch = j;
             entity.fetchedAnimationValues = true;
@@ -142,14 +146,14 @@ public class TrailSegmentEntityRenderer extends LivingEntityRenderer<TrailSegmen
 
         if (renderType != null) {
             VertexConsumer vertexConsumer = buffer.getBuffer(renderType);
-            int m = getOverlayCoords(entity, this.getWhiteOverlayProgress(entity, partialTicks));
+            int n = getOverlayCoords(entity, this.getWhiteOverlayProgress(entity, partialTicks));
 
             if (!entity.mimicPlayer && this.model instanceof PlayerModel playerModel) {
                 playerModel.hat.visible = playerModel.jacket.visible = playerModel.rightSleeve.visible =
                         playerModel.leftSleeve.visible = playerModel.rightPants.visible = playerModel.leftPants.visible = false;
             }
 
-            this.model.renderToBuffer(poseStack, vertexConsumer, packedLight, m, color.getRed() / 255F, color.getGreen() / 255F, color.getBlue() / 255F, 1.0F);
+            this.model.renderToBuffer(poseStack, vertexConsumer, packedLight, n, RenderUtil.rgbaToInt(color.getRed() / 255F, color.getGreen() / 255F, color.getBlue() / 255F, 1.0F));
         }
 
         if (!entity.isSpectator() && entity.mimicPlayer) {
@@ -162,7 +166,7 @@ public class TrailSegmentEntityRenderer extends LivingEntityRenderer<TrailSegmen
                 IPackRenderLayer.Snapshot snapshot = (IPackRenderLayer.Snapshot) s;
                 snapshot.applyPoses();
                 poseStack.pushPose();
-                snapshot.getModel().renderToBuffer(poseStack, buffer.getBuffer(RenderType.entityTranslucent(snapshot.getTexture())), packedLight, OverlayTexture.NO_OVERLAY, color.getRed() / 255F, color.getGreen() / 255F, color.getBlue() / 255F, 1.0F);
+                snapshot.getModel().renderToBuffer(poseStack, buffer.getBuffer(RenderType.entityTranslucent(snapshot.getTexture())), packedLight, OverlayTexture.NO_OVERLAY, RenderUtil.rgbaToInt(color.getRed() / 255F, color.getGreen() / 255F, color.getBlue() / 255F, 1.0F));
                 poseStack.popPose();
             }
         }

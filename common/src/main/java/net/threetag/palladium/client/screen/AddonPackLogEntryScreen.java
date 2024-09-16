@@ -17,6 +17,7 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.util.FormattedCharSequence;
 import net.minecraft.util.GsonHelper;
 import net.threetag.palladium.addonpack.log.AddonPackLogEntry;
+import org.jetbrains.annotations.NotNull;
 
 import java.io.BufferedReader;
 import java.io.DataOutputStream;
@@ -72,7 +73,7 @@ public class AddonPackLogEntryScreen extends Screen {
 
     @Override
     public void render(GuiGraphics guiGraphics, int mouseX, int mouseY, float partialTicks) {
-        this.renderBackground(guiGraphics);
+        this.renderBackground(guiGraphics, mouseX, mouseY, partialTicks);
 
         if (this.panel != null)
             this.panel.render(guiGraphics, mouseX, mouseY, partialTicks);
@@ -168,7 +169,7 @@ public class AddonPackLogEntryScreen extends Screen {
         }
 
         @Override
-        public NarrationPriority narrationPriority() {
+        public @NotNull NarrationPriority narrationPriority() {
             return NarrationPriority.NONE;
         }
 

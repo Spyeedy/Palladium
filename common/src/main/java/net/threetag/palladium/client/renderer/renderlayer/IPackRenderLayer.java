@@ -2,6 +2,7 @@ package net.threetag.palladium.client.renderer.renderlayer;
 
 import com.google.gson.JsonObject;
 import com.mojang.blaze3d.vertex.PoseStack;
+import com.mojang.serialization.JsonOps;
 import net.minecraft.client.model.EntityModel;
 import net.minecraft.client.model.HierarchicalModel;
 import net.minecraft.client.model.HumanoidModel;
@@ -67,7 +68,7 @@ public interface IPackRenderLayer {
                     var result = el.getAsBoolean();
                     layer.addCondition(result ? new TrueCondition() : new FalseCondition(), context);
                 } else {
-                    ConditionSerializer.listFromJSON(el, ConditionEnvironment.ASSETS).forEach(cond -> layer.addCondition(cond, context));
+                    Condition.LIST_CODEC.parse(JsonOps.INSTANCE, el).getOrThrow().forEach(cond -> layer.addCondition(cond, context));
                 }
             }
         }

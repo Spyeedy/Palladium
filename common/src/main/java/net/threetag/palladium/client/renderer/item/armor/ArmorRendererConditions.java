@@ -3,10 +3,9 @@ package net.threetag.palladium.client.renderer.item.armor;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
+import com.mojang.serialization.JsonOps;
 import net.minecraft.util.GsonHelper;
 import net.threetag.palladium.condition.Condition;
-import net.threetag.palladium.condition.ConditionEnvironment;
-import net.threetag.palladium.condition.ConditionSerializer;
 import net.threetag.palladium.item.Openable;
 import net.threetag.palladium.util.context.DataContext;
 import net.threetag.palladium.util.context.DataContextType;
@@ -91,7 +90,7 @@ public class ArmorRendererConditions {
             JsonObject json = GsonHelper.convertToJsonObject(jsonElement, "conditions.$");
             String textureKey = GsonHelper.getAsString(json, "texture", null);
             String modelKey = GsonHelper.getAsString(json, "model_layer", null);
-            cond.conditions.add(0, new ConditionedTextureKey(textureKey, modelKey, ConditionSerializer.listFromJSON(json.get("if"), ConditionEnvironment.ASSETS)));
+            cond.conditions.addFirst(new ConditionedTextureKey(textureKey, modelKey, Condition.LIST_CODEC.parse(JsonOps.INSTANCE, json.get("if")).getOrThrow()));
         }
         return cond;
     }

@@ -1,29 +1,30 @@
 package net.threetag.palladium.energy;
 
 import net.minecraft.nbt.IntTag;
+import net.minecraft.nbt.LongTag;
 import net.minecraft.nbt.Tag;
 import net.minecraft.util.Mth;
 
 public class EnergyStorage implements PalladiumEnergyStorage {
 
-    protected int energy;
-    protected int capacity;
-    protected int maxReceive;
-    protected int maxExtract;
+    protected long energy;
+    protected long capacity;
+    protected long maxReceive;
+    protected long maxExtract;
 
-    public EnergyStorage(int capacity) {
+    public EnergyStorage(long capacity) {
         this(capacity, capacity, capacity, 0);
     }
 
-    public EnergyStorage(int capacity, int maxTransfer) {
+    public EnergyStorage(long capacity, long maxTransfer) {
         this(capacity, maxTransfer, maxTransfer, 0);
     }
 
-    public EnergyStorage(int capacity, int maxReceive, int maxExtract) {
+    public EnergyStorage(long capacity, long maxReceive, long maxExtract) {
         this(capacity, maxReceive, maxExtract, 0);
     }
 
-    public EnergyStorage(int capacity, int maxReceive, int maxExtract, int energy) {
+    public EnergyStorage(long capacity, long maxReceive, long maxExtract, long energy) {
         this.capacity = capacity;
         this.maxReceive = maxReceive;
         this.maxExtract = maxExtract;
@@ -36,11 +37,11 @@ public class EnergyStorage implements PalladiumEnergyStorage {
     }
 
     @Override
-    public int insertEnergy(int maxAmount, boolean simulate) {
+    public long insertEnergy(long maxAmount, boolean simulate) {
         if (!canInsert())
             return 0;
 
-        int energyReceived = Math.min(capacity - energy, Math.min(this.maxReceive, maxReceive));
+        long energyReceived = Math.min(capacity - energy, Math.min(this.maxReceive, maxReceive));
         if (!simulate)
             energy += energyReceived;
         return energyReceived;
@@ -52,32 +53,32 @@ public class EnergyStorage implements PalladiumEnergyStorage {
     }
 
     @Override
-    public int withdrawEnergy(int maxAmount, boolean simulate) {
+    public long withdrawEnergy(long maxAmount, boolean simulate) {
         if (!canWithdraw())
             return 0;
 
-        int energyExtracted = Math.min(energy, Math.min(this.maxExtract, maxExtract));
+        long energyExtracted = Math.min(energy, Math.min(this.maxExtract, maxExtract));
         if (!simulate)
             energy -= energyExtracted;
         return energyExtracted;
     }
 
     @Override
-    public int getEnergyAmount() {
+    public long getEnergyAmount() {
         return this.energy;
     }
 
     @Override
-    public int getEnergyCapacity() {
+    public long getEnergyCapacity() {
         return this.capacity;
     }
 
-    public void modifyEnergy(int energy) {
+    public void modifyEnergy(long energy) {
         this.energy = Mth.clamp(this.energy + energy, 0, this.getEnergyCapacity());
     }
 
     public Tag serializeNBT() {
-        return IntTag.valueOf(this.getEnergyAmount());
+        return LongTag.valueOf(this.getEnergyAmount());
     }
 
     public void deserializeNBT(Tag nbt) {

@@ -52,14 +52,14 @@ public class TreeAbilityWidget {
     public double gridX, gridY;
     public boolean fixedPosition = false;
 
-    public TreeAbilityWidget(TreePowerTab tab, Minecraft mc, PowerHolder holder, AbilityInstance abilityInstance) {
+    public TreeAbilityWidget(TreePowerTab tab, Minecraft mc, PowerHolder holder, AbilityInstance<?> abilityInstance) {
         this.tab = tab;
         this.holder = holder;
         this.abilityInstance = abilityInstance;
         this.minecraft = mc;
-        this.title = Language.getInstance().getVisualOrder(mc.font.substrByWidth(abilityInstance.getConfiguration().getDisplayName(), 163));
+        this.title = Language.getInstance().getVisualOrder(mc.font.substrByWidth(abilityInstance.getAbility().getDisplayName(), 163));
         int l = 29 + mc.font.width(this.title);
-        var description = abilityInstance.getProperty(AbilitySerializer.DESCRIPTION);
+        var description = abilityInstance.getAbility().getProperties().getDescription();
         this.description = Language.getInstance()
                 .getVisualOrder(
                         this.findOptimalLines(ComponentUtils.mergeStyles(description != null ? description.get(this.abilityInstance.isUnlocked()).copy() : Component.empty(), Style.EMPTY.withColor(ChatFormatting.WHITE)), l)
@@ -101,8 +101,8 @@ public class TreeAbilityWidget {
     public TreeAbilityWidget updateRelatives(Collection<TreeAbilityWidget> list) {
         this.parents.clear();
         this.children.clear();
-        List<AbilityInstance> parents = AbilityUtil.findParentsWithinHolder(this.abilityInstance.getConfiguration(), this.holder);
-        List<AbilityInstance> children = AbilityUtil.findChildrenWithinHolder(this.abilityInstance.getConfiguration(), this.holder);
+        List<AbilityInstance<?>> parents = AbilityUtil.findParentsWithinHolder(this.abilityInstance.getAbility(), this.holder);
+        List<AbilityInstance<?>> children = AbilityUtil.findChildrenWithinHolder(this.abilityInstance.getAbility(), this.holder);
 
         for (TreeAbilityWidget widget : list) {
             if (!parents.isEmpty()) {
@@ -148,7 +148,7 @@ public class TreeAbilityWidget {
 
     public void drawDisplayIcon(Minecraft mc, GuiGraphics guiGraphics, int x, int y) {
         if (this.abilityInstance.isUnlocked()) {
-            this.abilityInstance.getProperty(AbilitySerializer.ICON).draw(mc, guiGraphics, DataContext.forAbility(mc.player, this.abilityInstance), x, y);
+            this.abilityInstance.getAbility().getProperties().getIcon().draw(mc, guiGraphics, DataContext.forAbility(mc.player, this.abilityInstance), x, y);
         } else {
             RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
             guiGraphics.blit(PowersScreen.WIDGETS, x, y, 90, 83, 16, 16);
