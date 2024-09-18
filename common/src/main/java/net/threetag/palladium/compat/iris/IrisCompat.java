@@ -1,4 +1,4 @@
-package net.threetag.palladium.compat.iris.fabric;
+package net.threetag.palladium.compat.iris;
 
 import net.irisshaders.iris.api.v0.IrisApi;
 

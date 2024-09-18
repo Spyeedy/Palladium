@@ -59,7 +59,7 @@ public class PalladiumMixinPlugin implements IMixinConfigPlugin {
                 return HAS_QUILT;
             }
 
-            if (mixinClassName.equalsIgnoreCase("net.threetag.palladium.mixin.fabric.SodiumFixMixin")) {
+            if (mixinClassName.equalsIgnoreCase("net.threetag.palladium.mixin.client.SodiumFixMixin")) {
                 return HAS_SODIUM;
             }
         } catch (Exception ignored) {

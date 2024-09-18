@@ -1,4 +1,4 @@
-package net.threetag.palladium.mixin.fabric;
+package net.threetag.palladium.mixin.client;
 
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
@@ -7,7 +7,6 @@ import net.caffeinemc.mods.sodium.api.util.ColorABGR;
 import net.caffeinemc.mods.sodium.api.vertex.buffer.VertexBufferWriter;
 import net.minecraft.client.model.geom.ModelPart;
 import net.threetag.palladium.client.model.ExtendedCubeListBuilder;
-import net.threetag.palladium.mixin.client.ModelPartInvoker;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;

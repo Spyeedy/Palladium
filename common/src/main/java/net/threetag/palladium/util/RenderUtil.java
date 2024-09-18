@@ -3,10 +3,11 @@ package net.threetag.palladium.util;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
 import com.mojang.math.Axis;
-import dev.architectury.injectables.annotations.ExpectPlatform;
 import net.minecraft.util.Mth;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
+import net.threetag.palladium.compat.iris.IrisCompat;
+import net.threetag.palladiumcore.util.Platform;
 import org.joml.Matrix4f;
 
 public class RenderUtil {
@@ -67,9 +68,8 @@ public class RenderUtil {
         }
     }
 
-    @ExpectPlatform
     public static boolean isIrisShaderActive() {
-        throw new AssertionError();
+        return Platform.isModLoaded("iris") || Platform.isModLoaded("oculus") && IrisCompat.isShaderPackActive();
     }
 
 }

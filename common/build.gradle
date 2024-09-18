@@ -41,6 +41,12 @@ dependencies {
 
     // Condensed Creative
     modCompileOnly "io.wispforest:condensed_creative:${rootProject.condensed_creative_version}"
+
+    // Sodium
+    modImplementation "maven.modrinth:sodium:${rootProject.sodium_version}"
+
+    // Iris
+    modCompileOnly "maven.modrinth:iris:${rootProject.iris_version}"
 }
 
 publishing {
