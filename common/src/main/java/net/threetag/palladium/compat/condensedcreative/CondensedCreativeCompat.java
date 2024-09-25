@@ -2,6 +2,7 @@ package net.threetag.palladium.compat.condensedcreative;
 
 import io.wispforest.condensed_creative.registry.CondensedCreativeInitializer;
 import io.wispforest.condensed_creative.registry.CondensedEntryRegistry;
+import net.minecraft.core.RegistryAccess;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.item.CreativeModeTabs;
 import net.minecraft.world.item.Item;
@@ -17,7 +18,7 @@ import java.util.List;
 public class CondensedCreativeCompat implements CondensedCreativeInitializer {
 
     @Override
-    public void onInitializeCondensedEntries(boolean refreshed) {
+    public void registerCondensedEntries(boolean refreshed, RegistryAccess access) {
         for (SuitSet suitSet : PalladiumRegistries.SUIT_SET) {
             var id = PalladiumRegistries.SUIT_SET.getKey(suitSet);
             var icon = getIcon(suitSet);

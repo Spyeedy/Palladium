@@ -5,7 +5,6 @@ import net.minecraft.client.player.LocalPlayer;
 import net.threetag.palladium.client.PalladiumKeyMappings;
 import net.threetag.palladium.network.AbilityKeyPressedPacket;
 import net.threetag.palladium.power.ability.AbilityConditions;
-import net.threetag.palladium.power.ability.AbilityConfiguration;
 import net.threetag.palladiumcore.network.NetworkManager;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;

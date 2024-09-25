@@ -15,7 +15,7 @@ public class OreFeatureMixin {
 
     @ModifyArg(method = "doPlace", at = @At(value = "INVOKE", target = "Lnet/minecraft/world/level/chunk/LevelChunkSection;setBlockState(IIILnet/minecraft/world/level/block/state/BlockState;Z)Lnet/minecraft/world/level/block/state/BlockState;"), index = 3)
     private BlockState injected(BlockState state) {
-        if (!PalladiumConfig.Server.REDSTONE_FLUX_CRYSTAL_GEODE_GENERATION.get()) {
+        if (false && !PalladiumConfig.Server.REDSTONE_FLUX_CRYSTAL_GEODE_GENERATION.get()) {
             return state;
         } else if (state.is(Blocks.REDSTONE_ORE)) {
             RandomSource random = RandomSource.create();

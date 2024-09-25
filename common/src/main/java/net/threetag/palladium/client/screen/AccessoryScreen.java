@@ -2,10 +2,6 @@ package net.threetag.palladium.client.screen;
 
 import com.google.common.collect.Lists;
 import com.mojang.blaze3d.systems.RenderSystem;
-import com.mojang.blaze3d.vertex.BufferBuilder;
-import com.mojang.blaze3d.vertex.DefaultVertexFormat;
-import com.mojang.blaze3d.vertex.Tesselator;
-import com.mojang.blaze3d.vertex.VertexFormat;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
@@ -20,7 +16,6 @@ import net.minecraft.client.gui.screens.inventory.CreativeModeInventoryScreen;
 import net.minecraft.client.gui.screens.inventory.InventoryScreen;
 import net.minecraft.client.gui.screens.options.OptionsSubScreen;
 import net.minecraft.client.gui.screens.options.SkinCustomizationScreen;
-import net.minecraft.client.renderer.GameRenderer;
 import net.minecraft.client.resources.sounds.SimpleSoundInstance;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.network.chat.Component;
@@ -59,7 +54,7 @@ public class AccessoryScreen extends OptionsSubScreen {
 
     public static void addButton() {
         ScreenEvents.INIT_POST.register((screen) -> {
-            if (PalladiumConfig.Client.ACCESSORY_BUTTON.get()) {
+            if (true || PalladiumConfig.Client.ACCESSORY_BUTTON.get()) {
                 Button button = null;
                 Component text = Component.translatable("gui.palladium.accessories");
 

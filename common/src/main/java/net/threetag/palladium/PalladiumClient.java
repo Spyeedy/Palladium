@@ -13,7 +13,6 @@ import net.minecraft.core.component.DataComponents;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraft.server.packs.PackType;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.item.CrossbowItem;
 import net.minecraft.world.item.Item;
@@ -112,14 +111,14 @@ public class PalladiumClient {
         GuiLayerRegistry.register(Palladium.id("palladium/gui_overlay_abilities"), new GuiOverlayAbility.Renderer());
 
         // Reload Listeners
-        ReloadListenerRegistry.register(PackType.CLIENT_RESOURCES, Palladium.id("dynamic_textures"), new DynamicTextureManager());
-        ReloadListenerRegistry.register(PackType.CLIENT_RESOURCES, Palladium.id("pack_render_layers"), new PackRenderLayerManager());
-        ReloadListenerRegistry.register(PackType.CLIENT_RESOURCES, Palladium.id("armor_renderers"), new ArmorRendererManager());
-        ReloadListenerRegistry.register(PackType.CLIENT_RESOURCES, Palladium.id("accessory_renderers"), new Accessory.ReloadManager());
-        ReloadListenerRegistry.register(PackType.CLIENT_RESOURCES, Palladium.id("humanoid_animations"), PalladiumAnimationRegistry.INSTANCE);
-        ReloadListenerRegistry.register(PackType.CLIENT_RESOURCES, Palladium.id("trail_renderers"), TrailRendererManager.INSTANCE);
-        ReloadListenerRegistry.register(PackType.CLIENT_RESOURCES, Palladium.id("particle_emitters"), ParticleEmitterManager.INSTANCE);
-        ReloadListenerRegistry.register(PackType.CLIENT_RESOURCES, Palladium.id("energy_beams"), EnergyBeamManager.INSTANCE);
+        ReloadListenerRegistry.registerClientListener(Palladium.id("dynamic_textures"), new DynamicTextureManager());
+        ReloadListenerRegistry.registerClientListener(Palladium.id("pack_render_layers"), new PackRenderLayerManager());
+        ReloadListenerRegistry.registerClientListener(Palladium.id("armor_renderers"), new ArmorRendererManager());
+        ReloadListenerRegistry.registerClientListener(Palladium.id("accessory_renderers"), new Accessory.ReloadManager());
+        ReloadListenerRegistry.registerClientListener(Palladium.id("humanoid_animations"), PalladiumAnimationRegistry.INSTANCE);
+        ReloadListenerRegistry.registerClientListener(Palladium.id("trail_renderers"), TrailRendererManager.INSTANCE);
+        ReloadListenerRegistry.registerClientListener(Palladium.id("particle_emitters"), ParticleEmitterManager.INSTANCE);
+        ReloadListenerRegistry.registerClientListener(Palladium.id("energy_beams"), EnergyBeamManager.INSTANCE);
 
         // Gecko
         if (Platform.isModLoaded("geckolib")) {
@@ -236,7 +235,7 @@ public class PalladiumClient {
 
     public static void setupDevLogButton() {
         ScreenEvents.INIT_POST.register((screen) -> {
-            if (PalladiumConfig.Client.ADDON_PACK_DEV_MODE.get() && (screen instanceof TitleScreen || screen instanceof PauseScreen)) {
+            if ((true || PalladiumConfig.Client.ADDON_PACK_DEV_MODE.get()) && (screen instanceof TitleScreen || screen instanceof PauseScreen)) {
                 screen.addRenderableWidget(IconButton.builder(ICON, button ->
                                 Minecraft.getInstance().setScreen(new AddonPackLogScreen(AddonPackLog.getEntries(), screen)))
                         .pos(screen.width - 30, 10)

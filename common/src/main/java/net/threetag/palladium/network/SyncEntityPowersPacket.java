@@ -4,6 +4,7 @@ import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.minecraft.client.Minecraft;
 import net.minecraft.core.Registry;
+import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.codec.StreamCodec;
@@ -68,7 +69,8 @@ public record SyncEntityPowersPacket(int entityId, List<ResourceLocation> toRemo
                 }
 
                 for (ResourceLocation powerId : packet.toAdd) {
-                    handler.setPowerHolder(new PowerHolder(livingEntity, registry.get(powerId), PowerValidator.ALWAYS_ACTIVE));
+                    // TODO component tag
+                    handler.setPowerHolder(new PowerHolder(livingEntity, registry.getHolder(powerId).orElseThrow(), PowerValidator.ALWAYS_ACTIVE, new CompoundTag()));
                 }
             });
 

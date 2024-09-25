@@ -21,7 +21,7 @@ import net.minecraft.world.level.storage.LevelStorageSource;
 import net.threetag.palladium.Palladium;
 import net.threetag.palladium.addonpack.log.AddonPackLog;
 import net.threetag.palladium.addonpack.log.AddonPackLogEntry;
-import net.threetag.palladium.addonpack.parser.*;
+import net.threetag.palladium.addonpack.parser.ItemParser;
 import net.threetag.palladium.client.screen.AddonPackLogScreen;
 import net.threetag.palladiumcore.event.EventResult;
 import net.threetag.palladiumcore.event.ScreenEvents;
@@ -77,18 +77,19 @@ public class AddonPackManager {
         this.packList = new PackRepository(sources);
         IGNORE_INJECT = false;
 
-        this.resourceManager.registerReloadListener(new CreativeModeTabParser());
-        this.resourceManager.registerReloadListener(new ArmorMaterialParser());
-        this.resourceManager.registerReloadListener(new ToolTierParser());
-        this.resourceManager.registerReloadListener(new BlockParser());
-        this.resourceManager.registerReloadListener(ITEM_PARSER = new ItemParser());
-        this.resourceManager.registerReloadListener(new SuitSetParser());
-        this.resourceManager.registerReloadListener(new ParticleTypeParser());
-        this.resourceManager.registerReloadListener(new PoiTypeParser());
-        this.resourceManager.registerReloadListener(new VillagerProfessionParser());
-        this.resourceManager.registerReloadListener(new VillagerTradeParser());
-        this.resourceManager.registerReloadListener(new AccessorySlotParser());
-        this.resourceManager.registerReloadListener(new AccessoryParser());
+//        this.resourceManager.registerReloadListener(new CreativeModeTabParser());
+//        this.resourceManager.registerReloadListener(new ArmorMaterialParser());
+//        this.resourceManager.registerReloadListener(new ToolTierParser());
+//        this.resourceManager.registerReloadListener(new BlockParser());
+//        this.resourceManager.registerReloadListener(ITEM_PARSER = new ItemParser());
+//        this.resourceManager.registerReloadListener(new SuitSetParser());
+//        this.resourceManager.registerReloadListener(new ParticleTypeParser());
+//        this.resourceManager.registerReloadListener(new PoiTypeParser());
+//        this.resourceManager.registerReloadListener(new VillagerProfessionParser());
+//        this.resourceManager.registerReloadListener(new VillagerTradeParser());
+//        this.resourceManager.registerReloadListener(new AccessorySlotParser());
+//        this.resourceManager.registerReloadListener(new AccessoryParser());
+        this.resourceManager.registerReloadListener(new RecipeManagerWrapper());
     }
 
     public Path getLocation() {

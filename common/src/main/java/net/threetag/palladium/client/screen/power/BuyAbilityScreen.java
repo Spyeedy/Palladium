@@ -12,7 +12,6 @@ import net.threetag.palladium.client.screen.components.BackgroundlessButton;
 import net.threetag.palladium.client.screen.components.TextWithIconButton;
 import net.threetag.palladium.network.BuyAbilityUnlockPacket;
 import net.threetag.palladium.power.ability.Ability;
-import net.threetag.palladium.power.ability.AbilityConfiguration;
 import net.threetag.palladium.power.ability.AbilityReference;
 import net.threetag.palladiumcore.network.NetworkManager;
 

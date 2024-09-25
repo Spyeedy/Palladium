@@ -16,7 +16,7 @@ public class LivingEntityMixin {
 
     @Inject(at = @At("HEAD"), method = "getVisibilityPercent", cancellable = true)
     private void getVisibilityPercent(@Nullable Entity pLookingEntity, CallbackInfoReturnable<Double> ci) {
-        if (!AbilityUtil.getEnabledEntries((LivingEntity) (Object) this, AbilitySerializers.INVISIBILITY.get()).isEmpty()) {
+        if (AbilityUtil.isTypeEnabled((LivingEntity) (Object) this, AbilitySerializers.INVISIBILITY.get())) {
             ci.setReturnValue(0D);
         }
     }

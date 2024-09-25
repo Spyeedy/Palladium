@@ -4,6 +4,7 @@ import net.minecraft.network.protocol.Packet;
 import net.minecraft.network.protocol.game.ClientboundSetDisplayObjectivePacket;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.ServerScoreboard;
+import net.minecraft.world.scores.DisplaySlot;
 import net.minecraft.world.scores.Objective;
 import net.minecraft.world.scores.Scoreboard;
 import net.threetag.palladium.world.TrackedScoresManager;
@@ -32,7 +33,7 @@ public abstract class ServerScoreboardMixin {
     @Shadow public abstract void startTrackingObjective(Objective objective);
 
     @Inject(method = "setDisplayObjective", at = @At("HEAD"))
-    public void setDisplayObjective(int objectiveSlot, @Nullable Objective objective, CallbackInfo ci) {
+    public void setDisplayObjective(DisplaySlot objectiveSlot, @Nullable Objective objective, CallbackInfo ci) {
         var scoreboard = (Scoreboard) (Object) this;
         Objective previousObj = scoreboard.getDisplayObjective(objectiveSlot);
         if (previousObj != null && previousObj != objective && TrackedScoresManager.INSTANCE.isTracked(previousObj.getName())) {
@@ -57,9 +58,9 @@ public abstract class ServerScoreboardMixin {
             List<Packet<?>> packets = new ArrayList<>();
             var scoreboard = (Scoreboard) (Object) this;
 
-            for (int i = 0; i < 19; ++i) {
-                if (scoreboard.getDisplayObjective(i) == objective) {
-                    packets.add(new ClientboundSetDisplayObjectivePacket(i, null));
+            for (DisplaySlot slot : DisplaySlot.values()) {
+                if (scoreboard.getDisplayObjective(slot) == objective) {
+                    packets.add(new ClientboundSetDisplayObjectivePacket(slot, null));
                 }
             }
 

@@ -3,7 +3,7 @@ package net.threetag.palladium.util;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.minecraft.client.player.AbstractClientPlayer;
-import net.minecraft.core.BlockPos;
+import net.minecraft.client.resources.PlayerSkin;
 import net.minecraft.core.Holder;
 import net.minecraft.core.particles.ParticleOptions;
 import net.minecraft.core.registries.BuiltInRegistries;
@@ -17,6 +17,7 @@ import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.AABB;
+import net.minecraft.world.phys.Vec3;
 
 public class PlayerUtil {
 
@@ -31,7 +32,7 @@ public class PlayerUtil {
     @Environment(EnvType.CLIENT)
     public static boolean hasSmallArms(Player player) {
         if (player instanceof AbstractClientPlayer)
-            return ((AbstractClientPlayer) player).getModelName().equalsIgnoreCase("slim");
+            return ((AbstractClientPlayer) player).getSkin().model() == PlayerSkin.Model.SLIM;
         return false;
     }
 
@@ -60,7 +61,7 @@ public class PlayerUtil {
     }
 
     public static void playSoundToAll(Level world, double x, double y, double z, double range, SoundEvent sound, SoundSource category, float volume, float pitch) {
-        AABB a = new AABB(BlockPos.containing(x - range, y - range, z - range), BlockPos.containing(x + range, y + range, z + range));
+        AABB a = new AABB(new Vec3(x - range, y - range, z - range), new Vec3(x + range, y + range, z + range));
         for (Player players : world.getEntitiesOfClass(Player.class, a)) {
             playSound(players, x, y, z, sound, category, volume, pitch);
         }
@@ -71,7 +72,7 @@ public class PlayerUtil {
     }
 
     public static void playSoundToAll(Level world, double x, double y, double z, double range, ResourceLocation sound, SoundSource category, float volume, float pitch) {
-        AABB a = new AABB(BlockPos.containing(x - range, y - range, z - range), BlockPos.containing(x + range, y + range, z + range));
+        AABB a = new AABB(new Vec3(x - range, y - range, z - range), new Vec3(x + range, y + range, z + range));
         for (Player players : world.getEntitiesOfClass(Player.class, a)) {
             playSound(players, x, y, z, sound, category, volume, pitch);
         }
@@ -84,7 +85,7 @@ public class PlayerUtil {
     }
 
     public static <T extends ParticleOptions> void spawnParticleForAll(Level world, double range, T particleIn, boolean longDistanceIn, double xIn, double yIn, double zIn, float xOffsetIn, float yOffsetIn, float zOffsetIn, float speedIn, int countIn) {
-        AABB a = new AABB(BlockPos.containing(xIn - range, yIn - range, zIn - range), BlockPos.containing(xIn + range, yIn + range, zIn + range));
+        AABB a = new AABB(new Vec3(xIn - range, yIn - range, zIn - range), new Vec3(xIn + range, yIn + range, zIn + range));
         for (Player players : world.getEntitiesOfClass(Player.class, a)) {
             spawnParticle(players, particleIn, longDistanceIn, xIn, yIn, zIn, xOffsetIn, yOffsetIn, zOffsetIn, speedIn, countIn);
         }

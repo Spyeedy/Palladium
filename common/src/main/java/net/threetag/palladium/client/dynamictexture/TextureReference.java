@@ -2,9 +2,12 @@ package net.threetag.palladium.client.dynamictexture;
 
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.DataResult;
+import io.netty.buffer.ByteBuf;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.minecraft.ResourceLocationException;
+import net.minecraft.network.codec.ByteBufCodecs;
+import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.resources.ResourceLocation;
 import net.threetag.palladium.util.context.DataContext;
 import org.jetbrains.annotations.Nullable;
@@ -14,6 +17,11 @@ import java.util.Objects;
 public class TextureReference {
 
     public static final Codec<TextureReference> CODEC = Codec.STRING.comapFlatMap(TextureReference::read, TextureReference::toString).stable();
+    public static final StreamCodec<ByteBuf, TextureReference> STREAM_CODEC = StreamCodec.composite(
+            ByteBufCodecs.BOOL, tr -> tr.dynamic,
+            ResourceLocation.STREAM_CODEC, tr -> tr.path,
+            TextureReference::new
+    );
 
     private final boolean dynamic;
     private final ResourceLocation path;

@@ -34,13 +34,8 @@ dependencies {
     // JEI
     modCompileOnly "mezz.jei:jei-${rootProject.minecraft_version}-common-api:${rootProject.jei_version}"
 
-    // REI
-    modCompileOnly ("me.shedaniel:RoughlyEnoughItems-api:${rootProject.rei_version}", {
-        exclude group: "dev.architectury"
-    })
-
     // Condensed Creative
-    modCompileOnly "io.wispforest:condensed_creative:${rootProject.condensed_creative_version}"
+    modCompileOnly "io.wispforest:condensed_creative-common:${rootProject.condensed_creative_version}"
 }
 
 publishing {

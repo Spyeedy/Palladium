@@ -12,10 +12,7 @@ import net.minecraft.world.entity.ai.attributes.Attribute;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.phys.Vec3;
 import net.threetag.palladium.sound.FlightSound;
-import net.threetag.palladium.util.property.PalladiumProperties;
 import net.threetag.palladiumcore.util.Platform;
-
-import java.util.function.Supplier;
 
 public class FlightHandler {
 
@@ -65,19 +62,19 @@ public class FlightHandler {
         // Get/manage current flight boost
         if (this.flightType.isNotNull()) {
             if (player.isSprinting() && this.flightType == FlightHandler.FlightType.NORMAL) {
-                if (PalladiumProperties.FORWARD_KEY_DOWN.get(player) && this.flightBoost < 3F) {
-                    this.flightBoost = Math.min(3F, this.flightBoost + 0.2F);
-                } else if (!PalladiumProperties.FORWARD_KEY_DOWN.get(player) && this.flightBoost > 0F) {
-                    this.flightBoost = Math.max(0F, this.flightBoost - 0.4F);
-                }
+//                if (PalladiumProperties.FORWARD_KEY_DOWN.get(player) && this.flightBoost < 3F) {
+//                    this.flightBoost = Math.min(3F, this.flightBoost + 0.2F);
+//                } else if (!PalladiumProperties.FORWARD_KEY_DOWN.get(player) && this.flightBoost > 0F) {
+//                    this.flightBoost = Math.max(0F, this.flightBoost - 0.4F);
+//                }
                 this.didFlew = true;
             } else {
-                if (PalladiumProperties.FORWARD_KEY_DOWN.get(player) && this.flightBoost < 1F) {
-                    this.flightBoost = Math.min(1F, this.flightBoost + 0.05F);
-                    this.didFlew = false;
-                } else if (!PalladiumProperties.FORWARD_KEY_DOWN.get(player) && this.flightBoost > 0F) {
-                    this.flightBoost = Math.max(0F, this.flightBoost - 0.1F);
-                }
+//                if (PalladiumProperties.FORWARD_KEY_DOWN.get(player) && this.flightBoost < 1F) {
+//                    this.flightBoost = Math.min(1F, this.flightBoost + 0.05F);
+//                    this.didFlew = false;
+//                } else if (!PalladiumProperties.FORWARD_KEY_DOWN.get(player) && this.flightBoost > 0F) {
+//                    this.flightBoost = Math.max(0F, this.flightBoost - 0.1F);
+//                }
             }
 
             if (this.didFlew) {
@@ -102,15 +99,15 @@ public class FlightHandler {
 
             var look = player.getLookAngle().scale(this.flightBoost / 2F * this.flightSpeed);
 
-            if (PalladiumProperties.LEFT_KEY_DOWN.get(player)) {
-                var sideVec = player.getLookAngle().yRot((float) Math.toRadians(90F)).normalize();
-                look = look.add(sideVec.x, 0, sideVec.z);
-            }
-
-            if (PalladiumProperties.RIGHT_KEY_DOWN.get(player)) {
-                var sideVec = player.getLookAngle().yRot((float) Math.toRadians(-90F)).normalize();
-                look = look.add(sideVec.x, 0, sideVec.z);
-            }
+//            if (PalladiumProperties.LEFT_KEY_DOWN.get(player)) {
+//                var sideVec = player.getLookAngle().yRot((float) Math.toRadians(90F)).normalize();
+//                look = look.add(sideVec.x, 0, sideVec.z);
+//            }
+//
+//            if (PalladiumProperties.RIGHT_KEY_DOWN.get(player)) {
+//                var sideVec = player.getLookAngle().yRot((float) Math.toRadians(-90F)).normalize();
+//                look = look.add(sideVec.x, 0, sideVec.z);
+//            }
 
             var diff = look.subtract(this.flightVector);
             double flexibility = (10D - player.getAttributeValue(PalladiumAttributes.FLIGHT_FLEXIBILITY)) / 100D;
@@ -123,19 +120,19 @@ public class FlightHandler {
             // Hovering mid-air
             this.didFlew = false;
 
-            if (PalladiumProperties.JUMP_KEY_DOWN.get(player)) {
-                if (this.verticalHover < 20) {
-                    this.verticalHover = Mth.clamp(this.verticalHover + 1, -20, 20);
-                }
-            } else {
-                if (player.isCrouching()) {
-                    if (this.verticalHover > -20) {
-                        this.verticalHover = Mth.clamp(this.verticalHover - 1, -20, 20);
-                    }
-                } else if (this.verticalHover != 0) {
-                    this.verticalHover = Mth.clamp(this.verticalHover + (this.verticalHover > 0 ? -1 : 1), -20, 20);
-                }
-            }
+//            if (PalladiumProperties.JUMP_KEY_DOWN.get(player)) {
+//                if (this.verticalHover < 20) {
+//                    this.verticalHover = Mth.clamp(this.verticalHover + 1, -20, 20);
+//                }
+//            } else {
+//                if (player.isCrouching()) {
+//                    if (this.verticalHover > -20) {
+//                        this.verticalHover = Mth.clamp(this.verticalHover - 1, -20, 20);
+//                    }
+//                } else if (this.verticalHover != 0) {
+//                    this.verticalHover = Mth.clamp(this.verticalHover + (this.verticalHover > 0 ? -1 : 1), -20, 20);
+//                }
+//            }
 
             player.setDeltaMovement(new Vec3(player.getDeltaMovement().x, this.verticalHover == 0D ? Math.sin(player.tickCount / 10F) / 100F : verticalHover / 60D, player.getDeltaMovement().z));
             player.fallDistance = 0F;

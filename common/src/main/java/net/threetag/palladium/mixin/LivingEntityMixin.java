@@ -44,8 +44,8 @@ public abstract class LivingEntityMixin implements PalladiumLivingEntityExtensio
 
     @Inject(method = "getJumpPower", at = @At("RETURN"), cancellable = true)
     protected void getJumpPower(CallbackInfoReturnable<Float> cir) {
-        if (this.getAttributes().hasAttribute(PalladiumAttributes.JUMP_POWER.get())) {
-            var instance = this.getAttributes().getInstance(PalladiumAttributes.JUMP_POWER.get());
+        if (this.getAttributes().hasAttribute(PalladiumAttributes.JUMP_POWER)) {
+            var instance = this.getAttributes().getInstance(PalladiumAttributes.JUMP_POWER);
             cir.setReturnValue((float) Objects.requireNonNull(instance).getValue() * cir.getReturnValue());
         }
     }

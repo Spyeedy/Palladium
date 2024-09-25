@@ -6,13 +6,15 @@ import net.threetag.palladium.power.EntityPowerHandler;
 import net.threetag.palladium.power.Power;
 import net.threetag.palladium.power.PowerHolder;
 import net.threetag.palladium.power.PowerUtil;
-import net.threetag.palladium.registry.PalladiumRegistries;
 import net.threetag.palladium.registry.PalladiumRegistryKeys;
 import net.threetag.palladium.util.Easing;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 @SuppressWarnings("unchecked")
@@ -29,22 +31,6 @@ public class AbilityUtil {
         List<AbilityInstance<T>> instances = new ArrayList<>();
         PowerUtil.getPowerHandler(entity).ifPresent(handler -> handler.getPowerHolders().values().stream().map(holder -> holder.getAbilities().values()).forEach(abilityInstances -> abilityInstances.forEach(i -> instances.add((AbilityInstance<T>) i))));
         return instances;
-    }
-
-    /**
-     * Returns all ability instances of the given ability type from the entity
-     *
-     * @param entity    Entity having abilities
-     * @param abilityId ID of the ability that is being looked for
-     * @return List of all ability instances of the given ability type
-     */
-    @NotNull
-    public static <T extends Ability> Collection<AbilityInstance<T>> getInstances(LivingEntity entity, ResourceLocation abilityId) {
-        if (!PalladiumRegistries.ABILITY_SERIALIZER.containsKey(abilityId)) {
-            return Collections.emptyList();
-        }
-
-        return getInstances(entity, PalladiumRegistries.ABILITY_SERIALIZER.get(abilityId));
     }
 
     /**
@@ -103,22 +89,6 @@ public class AbilityUtil {
             }
         });
         return instances;
-    }
-
-    /**
-     * Returns all enabled ability instances of the given ability type from the entity
-     *
-     * @param entity    Entity having abilities
-     * @param abilityId ID of the ability that is being looked for
-     * @return List of all enabled ability instances of the given ability type
-     */
-    @NotNull
-    public static <T extends Ability> Collection<AbilityInstance<T>> getEnabledInstances(LivingEntity entity, ResourceLocation abilityId) {
-        if (!PalladiumRegistries.ABILITY_SERIALIZER.containsKey(abilityId)) {
-            return Collections.emptyList();
-        }
-
-        return getEnabledInstances(entity, (AbilitySerializer<T>) PalladiumRegistries.ABILITY_SERIALIZER.get(abilityId));
     }
 
     /**
@@ -204,20 +174,6 @@ public class AbilityUtil {
     }
 
     /**
-     * Checks if a specific ability instance of a certain type is unlocked
-     *
-     * @param entity    Entity having abilities
-     * @param abilityId ID of the ability type that must be unlocked
-     * @return True if any ability of the type is unlocked
-     */
-    public static boolean isTypeUnlocked(LivingEntity entity, ResourceLocation abilityId) {
-        if (!PalladiumRegistries.ABILITY_SERIALIZER.containsKey(abilityId)) {
-            return false;
-        }
-        return isTypeUnlocked(entity, PalladiumRegistries.ABILITY_SERIALIZER.get(abilityId));
-    }
-
-    /**
      * Checks if a specific ability instance of a certain type is enabled
      *
      * @param entity  Entity having abilities
@@ -226,43 +182,6 @@ public class AbilityUtil {
      */
     public static boolean isTypeEnabled(LivingEntity entity, AbilitySerializer<?> ability) {
         return getInstances(entity, ability).stream().anyMatch(AbilityInstance::isEnabled);
-    }
-
-    /**
-     * Checks if a specific ability instance of a certain type is enabled
-     *
-     * @param entity    Entity having abilities
-     * @param abilityId ID of the ability type that must be enabled
-     * @return True if any ability of the type is enabled
-     */
-    public static boolean isTypeEnabled(LivingEntity entity, ResourceLocation abilityId) {
-        if (!PalladiumRegistries.ABILITY_SERIALIZER.containsKey(abilityId)) {
-            return false;
-        }
-        return isTypeEnabled(entity, PalladiumRegistries.ABILITY_SERIALIZER.get(abilityId));
-    }
-
-    /**
-     * Checks if the entity has the given power
-     *
-     * @param entity  Entity having abilities
-     * @param powerId ID of the power that is being checked for
-     * @return True if the entity has the power
-     */
-    public static boolean hasPower(LivingEntity entity, ResourceLocation powerId) {
-        Power power = entity.registryAccess().registry(PalladiumRegistryKeys.POWER).orElseThrow().get(powerId);
-
-        if (power == null) {
-            return false;
-        }
-
-        EntityPowerHandler handler = PowerUtil.getPowerHandler(entity).orElse(null);
-
-        if (handler == null) {
-            return false;
-        }
-
-        return handler.getPowerHolder(powerId) != null;
     }
 
     public static float getHighestAnimationTimerValue(LivingEntity entity, AbilitySerializer<?> ability, float partialTick) {

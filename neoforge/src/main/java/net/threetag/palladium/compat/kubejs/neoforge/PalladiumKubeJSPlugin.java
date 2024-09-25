@@ -3,23 +3,15 @@ package net.threetag.palladium.compat.kubejs.neoforge;
 import dev.latvian.mods.kubejs.event.EventGroupRegistry;
 import dev.latvian.mods.kubejs.plugin.KubeJSPlugin;
 import dev.latvian.mods.kubejs.registry.BuilderTypeRegistry;
-import dev.latvian.mods.kubejs.registry.RegistryInfo;
 import dev.latvian.mods.kubejs.script.BindingRegistry;
 import dev.latvian.mods.kubejs.script.ScriptType;
 import dev.latvian.mods.kubejs.script.TypeWrapperRegistry;
-import net.minecraft.core.Registry;
-import net.minecraft.resources.ResourceKey;
 import net.neoforged.api.distmarker.Dist;
 import net.neoforged.api.distmarker.OnlyIn;
 import net.threetag.palladium.Palladium;
 import net.threetag.palladium.client.model.animation.PalladiumAnimation;
-import net.threetag.palladium.compat.kubejs.neoforge.ability.AbilityBuilder;
-import net.threetag.palladium.compat.kubejs.neoforge.condition.ConditionBuilder;
-import net.threetag.palladium.condition.ConditionSerializer;
 import net.threetag.palladium.entity.CustomProjectile;
 import net.threetag.palladium.event.PalladiumClientEvents;
-import net.threetag.palladium.event.PalladiumEvents;
-import net.threetag.palladium.power.ability.AbilitySerializer;
 import net.threetag.palladium.util.Easing;
 import net.threetag.palladium.util.PlayerSlot;
 import net.threetag.palladiumcore.registry.client.GuiLayerRegistry;
@@ -28,20 +20,12 @@ import net.threetag.palladiumcore.util.Platform;
 @SuppressWarnings("unchecked")
 public class PalladiumKubeJSPlugin implements KubeJSPlugin {
 
-    public static final RegistryInfo<AbilitySerializer> ABILITY = RegistryInfo.of((ResourceKey<Registry<AbilitySerializer>>) AbilitySerializer.REGISTRY.getRegistryKey());
-    public static final RegistryInfo<ConditionSerializer> CONDITION_SERIALIZER = RegistryInfo.of((ResourceKey<Registry<ConditionSerializer>>) ConditionSerializer.REGISTRY.getRegistryKey());
+//    public static final RegistryInfo<AbilitySerializer> ABILITY = RegistryInfo.of((ResourceKey<Registry<AbilitySerializer>>) AbilitySerializer.REGISTRY.getRegistryKey());
+//    public static final RegistryInfo<ConditionSerializer> CONDITION_SERIALIZER = RegistryInfo.of((ResourceKey<Registry<ConditionSerializer>>) ConditionSerializer.REGISTRY.getRegistryKey());
 
     @Override
     public void init() {
         CustomProjectile.KUBEJS_EVENT_HANDLER = customProjectile -> PalladiumJSEvents.CUSTOM_PROJECTILE_TICK.post(new ProjectileTickEventJS(customProjectile));
-
-        PalladiumEvents.REGISTER_PROPERTY.register(handler -> {
-            if (handler.getEntity().level().isClientSide) {
-                PalladiumJSEvents.CLIENT_REGISTER_PROPERTIES.post(new RegisterPalladiumPropertyEventJS(handler.getEntity(), handler));
-            } else {
-                PalladiumJSEvents.REGISTER_PROPERTIES.post(new RegisterPalladiumPropertyEventJS(handler.getEntity(), handler));
-            }
-        });
 
         if (Platform.isClient()) {
             this.clientInit();
@@ -61,10 +45,10 @@ public class PalladiumKubeJSPlugin implements KubeJSPlugin {
     @SuppressWarnings({"unchecked", "rawtypes"})
     @Override
     public void registerBuilderTypes(BuilderTypeRegistry registry) {
-        ResourceKey key = AbilitySerializer.REGISTRY.getRegistryKey();
-        registry.addDefault(key, AbilityBuilder.class, AbilityBuilder::new);
-        key = ConditionSerializer.REGISTRY.getRegistryKey();
-        registry.addDefault(key, ConditionBuilder.class, ConditionBuilder::new);
+//        ResourceKey key = AbilitySerializer.REGISTRY.getRegistryKey();
+//        registry.addDefault(key, AbilityBuilder.class, AbilityBuilder::new);
+//        key = ConditionSerializer.REGISTRY.getRegistryKey();
+//        registry.addDefault(key, ConditionBuilder.class, ConditionBuilder::new);
     }
 
     @Override

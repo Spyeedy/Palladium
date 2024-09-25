@@ -5,10 +5,13 @@ import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.renderer.texture.OverlayTexture;
+import net.minecraft.network.RegistryFriendlyByteBuf;
+import net.minecraft.network.codec.StreamCodec;
+import net.minecraft.world.item.ItemDisplayContext;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.threetag.palladium.documentation.JsonDocumentationBuilder;
-import net.threetag.palladium.util.GuiUtil;
 import net.threetag.palladium.util.PlayerSlot;
 import net.threetag.palladium.util.context.DataContext;
 
@@ -17,6 +20,9 @@ public record ItemInSlotIcon(PlayerSlot slot) implements Icon {
     public static final MapCodec<ItemInSlotIcon> CODEC = RecordCodecBuilder.mapCodec((instance) -> instance
             .group(PlayerSlot.CODEC.fieldOf("slot").forGetter(ItemInSlotIcon::slot))
             .apply(instance, ItemInSlotIcon::new));
+    public static final StreamCodec<RegistryFriendlyByteBuf, ItemInSlotIcon> STREAM_CODEC = StreamCodec.composite(
+            PlayerSlot.STREAM_CODEC, ItemInSlotIcon::slot, ItemInSlotIcon::new
+    );
 
     @Override
     public void draw(Minecraft mc, GuiGraphics guiGraphics, DataContext context, int x, int y, int width, int height) {
@@ -40,7 +46,7 @@ public record ItemInSlotIcon(PlayerSlot slot) implements Icon {
             }
         }
 
-        GuiUtil.drawItem(guiGraphics, item, 0, true, null);
+        mc.getItemRenderer().renderStatic(item, ItemDisplayContext.FIXED, 240, OverlayTexture.NO_OVERLAY, guiGraphics.pose(), mc.renderBuffers().bufferSource(), mc.level, 0);
         stack.popPose();
     }
 
@@ -59,6 +65,11 @@ public record ItemInSlotIcon(PlayerSlot slot) implements Icon {
         @Override
         public MapCodec<ItemInSlotIcon> codec() {
             return CODEC;
+        }
+
+        @Override
+        public StreamCodec<RegistryFriendlyByteBuf, ItemInSlotIcon> streamCodec() {
+            return STREAM_CODEC;
         }
 
         @Override

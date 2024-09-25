@@ -85,7 +85,7 @@ Fallback Value</th>
 <td>
 icons</td>
 <td>
-IIcon[]</td>
+Entry</td>
 <td>
 Array of the icons you want to merge</td>
 <td style="background-color: lightgreen">
@@ -98,7 +98,7 @@ true</td>
 <h3>
 Example:</h3>
 <pre class="json-snippet">
-{"type":"palladium:compound","icons":["minecraft:apple","example:textures/icons/my_icon.png"]}</pre>
+{"type":"palladium:compound","icons":["[\"palladium:item\",[[\"minecraft:apple\",1,null]]]","[\"palladium:texture\",[\"example:textures/icons/my_icon.png\"]]"]}</pre>
 </div>
 <hr>
 
@@ -129,7 +129,7 @@ Fallback Value</th>
 <td>
 amount</td>
 <td>
-Integer</td>
+Entry</td>
 <td>
 Amount of experience points/level</td>
 <td style="background-color: lightgreen">
@@ -141,7 +141,7 @@ true</td>
 <td>
 level</td>
 <td>
-Boolean</td>
+Entry</td>
 <td>
 Determines if icon should display level or not</td>
 <td style="background-color: lightcoral">
@@ -185,7 +185,7 @@ Fallback Value</th>
 <td>
 ingredient</td>
 <td>
-Ingredient</td>
+Entry</td>
 <td>
 Ingredient for the item</td>
 <td style="background-color: lightgreen">
@@ -198,7 +198,7 @@ true</td>
 <h3>
 Example:</h3>
 <pre class="json-snippet">
-{"type":"palladium:ingredient","ingredient":{"tag":"minecraft:arrows"}}</pre>
+{"type":"palladium:ingredient","ingredient":["minecraft:arrows"]}</pre>
 </div>
 <hr>
 
@@ -229,7 +229,7 @@ Fallback Value</th>
 <td>
 item</td>
 <td>
-ResourceLocation</td>
+Entry</td>
 <td>
 ID of the item that's supposed to be displayed. If you leave it out, it will display the item from the current context (if given).</td>
 <td style="background-color: lightcoral">
@@ -273,7 +273,7 @@ Fallback Value</th>
 <td>
 slot</td>
 <td>
-String</td>
+Entry</td>
 <td>
 Name of the slot.</td>
 <td style="background-color: lightgreen">
@@ -317,7 +317,7 @@ Fallback Value</th>
 <td>
 texture</td>
 <td>
-TextureReference</td>
+Entry</td>
 <td>
 Path to the texture file or dynamic texture json file.</td>
 <td style="background-color: lightgreen">
@@ -329,7 +329,7 @@ true</td>
 <td>
 tint</td>
 <td>
-Integer[]</td>
+Entry</td>
 <td>
 Adds an additional tint to the texture.</td>
 <td style="background-color: lightcoral">

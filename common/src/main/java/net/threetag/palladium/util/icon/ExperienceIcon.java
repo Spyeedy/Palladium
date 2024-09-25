@@ -6,6 +6,9 @@ import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.network.RegistryFriendlyByteBuf;
+import net.minecraft.network.codec.ByteBufCodecs;
+import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.util.ExtraCodecs;
 import net.threetag.palladium.Palladium;
 import net.threetag.palladium.documentation.JsonDocumentationBuilder;
@@ -19,6 +22,11 @@ public record ExperienceIcon(int amount, boolean level) implements Icon {
                     Codec.BOOL.optionalFieldOf("level", true).forGetter(ExperienceIcon::level)
             )
             .apply(instance, ExperienceIcon::new));
+    public static final StreamCodec<RegistryFriendlyByteBuf, ExperienceIcon> STREAM_CODEC = StreamCodec.composite(
+            ByteBufCodecs.VAR_INT, ExperienceIcon::amount,
+            ByteBufCodecs.BOOL, ExperienceIcon::level,
+            ExperienceIcon::new
+    );
 
     private static final TexturedIcon BACKGROUND_ICON = new TexturedIcon(Palladium.id("textures/icon/experience.png"));
 
@@ -62,6 +70,11 @@ public record ExperienceIcon(int amount, boolean level) implements Icon {
         @Override
         public MapCodec<ExperienceIcon> codec() {
             return CODEC;
+        }
+
+        @Override
+        public StreamCodec<RegistryFriendlyByteBuf, ExperienceIcon> streamCodec() {
+            return STREAM_CODEC;
         }
 
         @Override

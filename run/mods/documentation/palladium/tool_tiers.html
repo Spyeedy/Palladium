@@ -45,7 +45,7 @@ Fallback Value</th>
 <td>
 level</td>
 <td>
-Integer</td>
+Entry</td>
 <td>
 Determines the mining level and what blocks can be harvested. For reference: iron has 2, diamond has 3. So obsidian can only be mined with tools with the level 3 or above, thats why you need a diamond pickaxe for it</td>
 <td style="background-color: lightgreen">
@@ -57,7 +57,7 @@ true</td>
 <td>
 uses</td>
 <td>
-Integer</td>
+Entry</td>
 <td>
 Determines the durability for tool. For reference: iron has 250, diamond has 1561</td>
 <td style="background-color: lightgreen">
@@ -69,7 +69,7 @@ true</td>
 <td>
 speed</td>
 <td>
-Float</td>
+Entry</td>
 <td>
 Determines the mining speed. For reference: iron has 6.0, diamond has 8.0</td>
 <td style="background-color: lightgreen">
@@ -81,7 +81,7 @@ true</td>
 <td>
 attack_damage_bonus</td>
 <td>
-Float</td>
+Entry</td>
 <td>
 Determines the additional attack damage. For reference: iron has 2.0, diamond has 3.0</td>
 <td style="background-color: lightgreen">
@@ -93,7 +93,7 @@ true</td>
 <td>
 enchantment_value</td>
 <td>
-Integer</td>
+Entry</td>
 <td>
 Determines the enchantibility of the item. For reference: iron has 9, diamond 10, gold 25.</td>
 <td style="background-color: lightgreen">
@@ -105,7 +105,7 @@ true</td>
 <td>
 repair_ingredient</td>
 <td>
-Ingredient</td>
+Entry</td>
 <td>
 Ingredient definition for repairing the item in an anvil. Can be defined like in recipes.</td>
 <td style="background-color: lightcoral">
@@ -118,7 +118,7 @@ empty ingredient</td>
 <h3>
 Example:</h3>
 <pre class="json-snippet">
-{"level":2,"uses":420,"speed":6.9,"attack_damage_bonus":2.5,"enchantment_value":12,"repair_ingredient":{"tag":"minecraft:dirt"}}</pre>
+{"level":2,"uses":420,"speed":6.9,"attack_damage_bonus":2.5,"enchantment_value":12,"repair_ingredient":{"item":"minecraft:dirt"}}</pre>
 </div>
 <script>
 function syntaxHighlight(json) {

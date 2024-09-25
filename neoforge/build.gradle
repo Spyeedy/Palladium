@@ -47,9 +47,6 @@ dependencies {
     // JEI
     modCompileOnly "mezz.jei:jei-${rootProject.minecraft_version}-forge-api:${rootProject.jei_version}"
 
-    // REI
-    modImplementation "me.shedaniel:RoughlyEnoughItems-neoforge:${rootProject.rei_version}"
-
     // Accessories
     implementation("io.wispforest:accessories-neoforge:${rootProject.accessories_version}", { exclude group: "org.sinytra.forgified-fabric-api" })
 
@@ -60,7 +57,7 @@ dependencies {
     modCompileOnly "com.github.Virtuoel:Pehkui:${rootProject.pehkui_neoforge_version}"
 
     // Condensed Creative
-    modCompileOnly "io.wispforest:condensed_creative-forge:${rootProject.condensed_creative_version}"
+    modCompileOnly "io.wispforest:condensed_creative-neoforge:${rootProject.condensed_creative_version}"
 
     common(project(path: ":common", configuration: "namedElements")) { transitive false }
     shadowCommon(project(path: ":common", configuration: "transformProductionNeoForge")) { transitive = false }

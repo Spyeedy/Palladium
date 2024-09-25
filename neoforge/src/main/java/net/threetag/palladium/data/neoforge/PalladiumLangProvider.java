@@ -88,7 +88,6 @@ public abstract class PalladiumLangProvider extends ExtendedLangProvider {
             this.addAbility(AbilitySerializers.COMMAND, "Command");
             this.addAbility(AbilitySerializers.RENDER_LAYER, "Render Layer");
             this.addAbility(AbilitySerializers.RENDER_LAYER_BY_ACCESSORY_SLOT, "Render Layer");
-            this.addAbility(AbilitySerializers.REPEATING_ANIMATION_TIMER, "Animation Timer");
             this.addAbility(AbilitySerializers.SHRINK_BODY_OVERLAY, "Shrink Body Overlay");
             this.addAbility(AbilitySerializers.ATTRIBUTE_MODIFIER, "Attribute Modifier");
             this.addAbility(AbilitySerializers.HEALING, "Healing");
@@ -276,7 +275,6 @@ public abstract class PalladiumLangProvider extends ExtendedLangProvider {
             this.addAbility(AbilitySerializers.COMMAND, "Befehl");
             this.addAbility(AbilitySerializers.RENDER_LAYER, "Render Layer");
             this.addAbility(AbilitySerializers.RENDER_LAYER_BY_ACCESSORY_SLOT, "Render Layer");
-            this.addAbility(AbilitySerializers.REPEATING_ANIMATION_TIMER, "Animations-Timer");
             this.addAbility(AbilitySerializers.SHRINK_BODY_OVERLAY, "Körperoverlay schrumpfen");
             this.addAbility(AbilitySerializers.ATTRIBUTE_MODIFIER, "Attributmodifikator");
             this.addAbility(AbilitySerializers.HEALING, "Heilung");
@@ -464,7 +462,6 @@ public abstract class PalladiumLangProvider extends ExtendedLangProvider {
             this.addAbility(AbilitySerializers.COMMAND, "Befehl");
             this.addAbility(AbilitySerializers.RENDER_LAYER, "Render Layer");
             this.addAbility(AbilitySerializers.RENDER_LAYER_BY_ACCESSORY_SLOT, "Render Layer");
-            this.addAbility(AbilitySerializers.REPEATING_ANIMATION_TIMER, "Animations-Timer");
             this.addAbility(AbilitySerializers.SHRINK_BODY_OVERLAY, "Körperoverlay schrumpfen");
             this.addAbility(AbilitySerializers.ATTRIBUTE_MODIFIER, "Ättribütmodifikator");
             this.addAbility(AbilitySerializers.HEALING, "Helung");

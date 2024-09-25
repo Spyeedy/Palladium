@@ -53,20 +53,6 @@ public class PalladiumBinding {
         return result.get();
     }
 
-    public boolean setProperty(Entity entity, CharSequence key, Object value) {
-        AtomicBoolean result = new AtomicBoolean(false);
-        EntityPropertyHandler.getHandler(entity).ifPresent(handler -> {
-            PalladiumProperty property = handler.getPropertyByName(key.toString());
-
-            if (property != null) {
-                handler.set(property, PalladiumProperty.fixValues(property, value));
-                result.set(true);
-            }
-        });
-
-        return result.get();
-    }
-
     public boolean hasProperty(Entity entity, String key) {
         AtomicBoolean result = new AtomicBoolean(false);
         EntityPropertyHandler.getHandler(entity).ifPresent(handler -> {

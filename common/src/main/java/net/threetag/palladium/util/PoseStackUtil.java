@@ -2,7 +2,6 @@ package net.threetag.palladium.util;
 
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.math.Axis;
-import org.joml.Matrix4f;
 import org.joml.Quaternionf;
 
 public class PoseStackUtil extends PoseStack {
@@ -58,10 +57,6 @@ public class PoseStackUtil extends PoseStack {
 
     public void setIdentity() {
         this.poseStack.setIdentity();
-    }
-
-    public void mulPoseMatrix(Matrix4f matrix) {
-        this.poseStack.mulPoseMatrix(matrix);
     }
 
 

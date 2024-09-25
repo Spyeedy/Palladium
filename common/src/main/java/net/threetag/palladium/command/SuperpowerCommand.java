@@ -19,7 +19,6 @@ import net.minecraft.world.entity.LivingEntity;
 import net.threetag.palladium.power.Power;
 import net.threetag.palladium.power.SuperpowerUtil;
 import net.threetag.palladium.registry.PalladiumRegistryKeys;
-import net.threetag.palladium.util.property.PalladiumProperties;
 
 import java.util.Collection;
 import java.util.Collections;
@@ -39,16 +38,16 @@ public class SuperpowerCommand {
             entities = Collections.singleton(context.getSource().getPlayerOrException());
         }
         for (Entity entity : entities) {
-            for (ResourceLocation id : PalladiumProperties.SUPERPOWER_IDS.get(entity)) {
-                var allId = ResourceLocation.fromNamespaceAndPath(id.getNamespace(), "all");
-                if (!superpowers.contains(allId)) {
-                    superpowers.add(allId);
-                }
-
-                if (!superpowers.contains(id)) {
-                    superpowers.add(id);
-                }
-            }
+//            for (ResourceLocation id : PalladiumProperties.SUPERPOWER_IDS.get(entity)) {
+//                var allId = ResourceLocation.fromNamespaceAndPath(id.getNamespace(), "all");
+//                if (!superpowers.contains(allId)) {
+//                    superpowers.add(allId);
+//                }
+//
+//                if (!superpowers.contains(id)) {
+//                    superpowers.add(id);
+//                }
+//            }
         }
 
         return SharedSuggestionProvider.suggestResource(superpowers, builder);

@@ -13,10 +13,10 @@ public class ScoreboardUtil {
         var obj = scoreboard.getObjective(objective);
 
         if (obj != null) {
-            var score = scoreboard.getPlayerScores(entity.getScoreboardName()).get(obj);
+            var score = scoreboard.getPlayerScoreInfo(entity, obj);
 
             if (score != null) {
-                return score.getScore();
+                return score.value();
             }
         }
 
@@ -28,12 +28,9 @@ public class ScoreboardUtil {
         var obj = scoreboard.getObjective(objective);
 
         if (obj != null) {
-            var score = scoreboard.getPlayerScores(entity.getScoreboardName()).get(obj);
-
-            if (score != null) {
-                score.setScore(value);
-                return score.getScore();
-            }
+            var score = scoreboard.getOrCreatePlayerScore(entity, obj);
+            score.set(value);
+            return score.get();
         }
 
         return 0;
@@ -44,12 +41,9 @@ public class ScoreboardUtil {
         var obj = scoreboard.getObjective(objective);
 
         if (obj != null) {
-            var score = scoreboard.getPlayerScores(entity.getScoreboardName()).get(obj);
-
-            if (score != null) {
-                score.add(amount);
-                return score.getScore();
-            }
+            var score = scoreboard.getOrCreatePlayerScore(entity, obj);
+            score.add(amount);
+            return score.get();
         }
 
         return 0;
@@ -60,12 +54,9 @@ public class ScoreboardUtil {
         var obj = scoreboard.getObjective(objective);
 
         if (obj != null) {
-            var score = scoreboard.getPlayerScores(entity.getScoreboardName()).get(obj);
-
-            if (score != null) {
-                score.add(-amount);
-                return score.getScore();
-            }
+            var score = scoreboard.getOrCreatePlayerScore(entity, obj);
+            score.add(-amount);
+            return score.get();
         }
 
         return 0;

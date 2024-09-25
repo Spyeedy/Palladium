@@ -3,7 +3,6 @@ package net.threetag.palladium.power;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.LivingEntity;
 import net.threetag.palladium.registry.PalladiumRegistryKeys;
-import net.threetag.palladium.util.property.PalladiumProperties;
 
 import java.util.*;
 import java.util.function.Predicate;
@@ -19,13 +18,13 @@ public class SuperpowerUtil {
      */
     public static Collection<Power> getSuperpowers(LivingEntity entity) {
         List<Power> powers = new ArrayList<>();
-        for (ResourceLocation id : PalladiumProperties.SUPERPOWER_IDS.get(entity)) {
-            var power = entity.registryAccess().registryOrThrow(PalladiumRegistryKeys.POWER).get(id);
-
-            if (power != null) {
-                powers.add(power);
-            }
-        }
+//        for (ResourceLocation id : PalladiumProperties.SUPERPOWER_IDS.get(entity)) {
+//            var power = entity.registryAccess().registryOrThrow(PalladiumRegistryKeys.POWER).get(id);
+//
+//            if (power != null) {
+//                powers.add(power);
+//            }
+//        }
         return powers;
     }
 
@@ -36,7 +35,8 @@ public class SuperpowerUtil {
      * @return {@link Collection} of {@link ResourceLocation}s for the superpowers of the entity
      */
     public static Collection<ResourceLocation> getSuperpowerIds(LivingEntity entity) {
-        return PalladiumProperties.SUPERPOWER_IDS.get(entity);
+        // TODO
+        return Collections.emptyList();
     }
 
     /**
@@ -46,7 +46,7 @@ public class SuperpowerUtil {
      * @param powerId ID of the {@link Power} being given to the {@link LivingEntity}
      */
     public static void setSuperpower(LivingEntity entity, ResourceLocation powerId) {
-        PalladiumProperties.SUPERPOWER_IDS.set(entity, Collections.singletonList(powerId));
+//        PalladiumProperties.SUPERPOWER_IDS.set(entity, Collections.singletonList(powerId));
     }
 
     /**
@@ -66,7 +66,7 @@ public class SuperpowerUtil {
      * @param powerIds {@link List} of IDs of the {@link Power}s being given to the {@link LivingEntity}
      */
     public static void setSuperpowerIds(LivingEntity entity, List<ResourceLocation> powerIds) {
-        PalladiumProperties.SUPERPOWER_IDS.set(entity, powerIds);
+//        PalladiumProperties.SUPERPOWER_IDS.set(entity, powerIds);
     }
 
     /**
@@ -87,7 +87,7 @@ public class SuperpowerUtil {
      * @param powerIds Array of IDs of the {@link Power}s being given to the {@link LivingEntity}
      */
     public static void setSuperpowerIds(LivingEntity entity, ResourceLocation... powerIds) {
-        PalladiumProperties.SUPERPOWER_IDS.set(entity, Arrays.asList(powerIds));
+//        PalladiumProperties.SUPERPOWER_IDS.set(entity, Arrays.asList(powerIds));
     }
 
     /**
@@ -109,7 +109,8 @@ public class SuperpowerUtil {
      * @return true if the entity has the superpower
      */
     public static boolean hasSuperpower(LivingEntity entity, ResourceLocation powerId) {
-        return PalladiumProperties.SUPERPOWER_IDS.get(entity).contains(powerId);
+        return false;
+//        return PalladiumProperties.SUPERPOWER_IDS.get(entity).contains(powerId);
     }
 
     /**
@@ -138,9 +139,9 @@ public class SuperpowerUtil {
             return false;
         }
 
-        List<ResourceLocation> powerIds = new ArrayList<>(PalladiumProperties.SUPERPOWER_IDS.get(entity));
-        powerIds.add(powerId);
-        PalladiumProperties.SUPERPOWER_IDS.set(entity, powerIds);
+//        List<ResourceLocation> powerIds = new ArrayList<>(PalladiumProperties.SUPERPOWER_IDS.get(entity));
+//        powerIds.add(powerId);
+//        PalladiumProperties.SUPERPOWER_IDS.set(entity, powerIds);
         return true;
     }
 
@@ -170,9 +171,9 @@ public class SuperpowerUtil {
             return false;
         }
 
-        List<ResourceLocation> powerIds = new ArrayList<>(PalladiumProperties.SUPERPOWER_IDS.get(entity));
-        powerIds.remove(powerId);
-        PalladiumProperties.SUPERPOWER_IDS.set(entity, powerIds);
+//        List<ResourceLocation> powerIds = new ArrayList<>(PalladiumProperties.SUPERPOWER_IDS.get(entity));
+//        powerIds.remove(powerId);
+//        PalladiumProperties.SUPERPOWER_IDS.set(entity, powerIds);
         return true;
     }
 
@@ -246,7 +247,7 @@ public class SuperpowerUtil {
      * @param entity {@link LivingEntity} having all superpowers removed
      */
     public static void removeAllSuperpowers(LivingEntity entity) {
-        PalladiumProperties.SUPERPOWER_IDS.set(entity, Collections.emptyList());
+//        PalladiumProperties.SUPERPOWER_IDS.set(entity, Collections.emptyList());
     }
 
 }

@@ -43,21 +43,9 @@ Fallback Value</th>
 <tbody>
 <tr>
 <td>
-durability_multiplier</td>
+defense</td>
 <td>
-Integer</td>
-<td>
-A value that gets multiplied with 13, 15, 16 or 11 (feet, legs, chest, head) depending on the slot. Used for the durability value of the item.</td>
-<td style="background-color: lightgreen">
-true</td>
-<td>
-/</td>
-</tr>
-<tr>
-<td>
-slot_protections</td>
-<td>
-JsonObject</td>
+Entry</td>
 <td>
 Protection values for the armor pieces, determines the defense value of each slot. For reference (Order: feet, legs, chest, head), iron has [2, 5, 6, 2], diamond is in the example.</td>
 <td style="background-color: lightgreen">
@@ -69,7 +57,7 @@ true</td>
 <td>
 enchantment_value</td>
 <td>
-Integer</td>
+Entry</td>
 <td>
 Determines the enchantibility of the item. For reference: iron has 9, diamond 10, gold 25.</td>
 <td style="background-color: lightgreen">
@@ -81,7 +69,7 @@ true</td>
 <td>
 equip_sound</td>
 <td>
-ResourceLocation</td>
+Entry</td>
 <td>
 Sound that is played when equipping the item into the slot.</td>
 <td style="background-color: lightgreen">
@@ -93,7 +81,7 @@ true</td>
 <td>
 toughness</td>
 <td>
-Float</td>
+Entry</td>
 <td>
 Adds additional armor toughness. For reference: diamond has 2.0, netherite has 3.0, rest has 0.</td>
 <td style="background-color: lightcoral">
@@ -105,7 +93,7 @@ false</td>
 <td>
 knockback_resistance</td>
 <td>
-Float</td>
+Entry</td>
 <td>
 Adds knockback resistance. For reference: netherite has 0.1, rest has 0.</td>
 <td style="background-color: lightcoral">
@@ -117,7 +105,7 @@ false</td>
 <td>
 repair_ingredient</td>
 <td>
-Ingredient</td>
+Entry</td>
 <td>
 Ingredient definition for repairing the item in an anvil. Can be defined like in recipes.</td>
 <td style="background-color: lightcoral">
@@ -130,7 +118,7 @@ empty ingredient</td>
 <h3>
 Example:</h3>
 <pre class="json-snippet">
-{"durability_multiplier":12,"slot_protections":{"helmet":3,"chestplate":8,"leggings":6,"boots":3},"enchantment_value":12,"equip_sound":"minecraft:item.armor.equip_iron","toughness":1.5,"knockback_resistance":0.1,"repair_ingredient":{"tag":"minecraft:dirt"}}</pre>
+{"defense":{"helmet":3,"chestplate":8,"leggings":6,"boots":3},"enchantment_value":12,"equip_sound":"minecraft:item.armor.equip_iron","toughness":1.5,"knockback_resistance":0.1,"repair_ingredient":["minecraft:dirt"]}</pre>
 </div>
 <script>
 function syntaxHighlight(json) {

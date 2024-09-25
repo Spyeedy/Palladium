@@ -49,7 +49,7 @@ Fallback Value</th>
 <td>
 type</td>
 <td>
-ResourceLocation</td>
+Entry</td>
 <td>
 Item Type, each come with new different settings. Listed below on this page.</td>
 <td style="background-color: lightcoral">
@@ -59,35 +59,11 @@ palladium:default</td>
 </tr>
 <tr>
 <td>
-max_stack_size</td>
-<td>
-Integer</td>
-<td>
-Max stack size for an itemstack. Range: 1-64</td>
-<td style="background-color: lightcoral">
-false</td>
-<td>
-64</td>
-</tr>
-<tr>
-<td>
-max_damage</td>
-<td>
-Integer</td>
-<td>
-Max damage for an item. Must be greater then or equal 0.</td>
-<td style="background-color: lightcoral">
-false</td>
-<td>
-0</td>
-</tr>
-<tr>
-<td>
 creative_mode_tab</td>
 <td>
-ResourceLocation</td>
+Entry</td>
 <td>
-ID of the creative mode tab the item is supposed to appear in. Fore more precise placements, check the "Custom Items" page on the wiki. Possible values: [geckolib:geckolib_examples, kubejs:tab, minecraft:building_blocks, minecraft:colored_blocks, minecraft:combat, minecraft:food_and_drinks, minecraft:functional_blocks, minecraft:hotbar, minecraft:ingredients, minecraft:inventory, minecraft:natural_blocks, minecraft:op_blocks, minecraft:redstone_blocks, minecraft:search, minecraft:spawn_eggs, minecraft:tools_and_utilities, palladium:palladium_mods, palladium:technology, test:test_tab]</td>
+ID of the creative mode tab the item is supposed to appear in. Fore more precise placements, check the "Custom Items" page on the wiki. Possible values: [minecraft:building_blocks, minecraft:colored_blocks, minecraft:combat, minecraft:food_and_drinks, minecraft:functional_blocks, minecraft:hotbar, minecraft:ingredients, minecraft:inventory, minecraft:natural_blocks, minecraft:op_blocks, minecraft:redstone_blocks, minecraft:search, minecraft:spawn_eggs, minecraft:tools_and_utilities, palladium:palladium_mods, palladium:technology]</td>
 <td style="background-color: lightcoral">
 false</td>
 <td>
@@ -95,59 +71,11 @@ false</td>
 </tr>
 <tr>
 <td>
-rarity</td>
+components</td>
 <td>
-String</td>
+Entry</td>
 <td>
-Rarity of the item, influences the item name's color. Possible values: [common, uncommon, rare, epic]</td>
-<td style="background-color: lightcoral">
-false</td>
-<td>
-/</td>
-</tr>
-<tr>
-<td>
-is_fire_resistant</td>
-<td>
-Boolean</td>
-<td>
-Whether or not the item will survive being thrown into fire/lava.</td>
-<td style="background-color: lightcoral">
-false</td>
-<td>
-false</td>
-</tr>
-<tr>
-<td>
-tooltip</td>
-<td>
-Component[]</td>
-<td>
-Tooltip lines. Can be array of primitive strings or more complex text component</td>
-<td style="background-color: lightcoral">
-false</td>
-<td>
-/</td>
-</tr>
-<tr>
-<td>
-attribute_modifiers</td>
-<td>
-AttributeModifier[]</td>
-<td>
-Attribute modifiers when having the item equipped. You first specify the slot ("all" for every slot, other options: [mainhand, offhand, feet, legs, chest, head]), then an array for different modifiers. Possible attributes: minecraft:generic.armor, minecraft:generic.armor_toughness, minecraft:generic.attack_damage, minecraft:generic.attack_knockback, minecraft:generic.attack_speed, minecraft:generic.flying_speed, minecraft:generic.follow_range, minecraft:generic.knockback_resistance, minecraft:generic.luck, minecraft:generic.max_health, minecraft:generic.movement_speed, minecraft:horse.jump_strength, minecraft:zombie.spawn_reinforcements, palladium:destroy_speed, palladium:fall_resistance, palladium:flight_flexibility, palladium:flight_speed, palladium:heroic_flight_type, palladium:jump_power, palladium:leaping, palladium:levitation_speed, palladium:punch_damage, porting_lib:attack_range, porting_lib:entity_gravity, porting_lib:reach_distance, porting_lib:step_height_addition, porting_lib:swim_speed</td>
-<td style="background-color: lightcoral">
-false</td>
-<td>
-/</td>
-</tr>
-<tr>
-<td>
-food</td>
-<td>
-FoodProperties</td>
-<td>
-Settings to make this item edible. The only required field in this json part is the mob_effect IF you add any effect</td>
+Map of data components for this item. Check Minecraft Wiki</td>
 <td style="background-color: lightcoral">
 false</td>
 <td>
@@ -158,7 +86,7 @@ false</td>
 <h3>
 Example:</h3>
 <pre class="json-snippet">
-{"max_stack_size":64,"creative_mode_tab":"minecraft:decorations","rarity":"epic","is_fire_resistant":false,"tooltip":["Line 1",{"translate":"example.line2.translation_key","color":"#BCD42A","underlined":true}],"attribute_modifiers":{"all":[{"attribute":"minecraft:generic.max_health","amount":2,"operation":0,"uuid":"f98db25e-91cb-45ca-ba40-5526ff2cd180"}],"chest":[{"attribute":"minecraft:generic.movement_speed","amount":4,"operation":1,"uuid":"3a4df804-2be2-4002-a829-eaf29a629cac"}]},"food":{"nutrition":5,"saturation_modifier":0.6,"meat":false,"can_always_eat":false,"fast":false,"effects":[{"mob_effect":"minecraft:strength","duration":40,"amplifier":1,"ambient":false,"visible":true,"show_icon":true,"probability":1.0}]}}</pre>
+{"creative_mode_tab":"minecraft:decorations"}</pre>
 </div>
 <hr>
 
@@ -177,52 +105,56 @@ GeckoLib Armor</a>
 Palladium</h3>
 <ul>
 <li>
-<a href="#palladium:default">
-Default Item</a>
+<a href="#palladium:energy">
+Energy Item</a>
+</li>
+</ul>
+<h3>
+Minecraft</h3>
+<ul>
+<li>
+<a href="#minecraft:item">
+Item</a>
 </li>
 <li>
-<a href="#palladium:block_item">
+<a href="#minecraft:block_item">
 Block Item</a>
 </li>
 <li>
-<a href="#palladium:armor">
+<a href="#minecraft:armor">
 Armor</a>
 </li>
 <li>
-<a href="#palladium:sword">
+<a href="#minecraft:sword">
 Sword</a>
 </li>
 <li>
-<a href="#palladium:pickaxe">
+<a href="#minecraft:pickaxe">
 Pickaxe</a>
 </li>
 <li>
-<a href="#palladium:axe">
+<a href="#minecraft:axe">
 Axe</a>
 </li>
 <li>
-<a href="#palladium:shovel">
+<a href="#minecraft:shovel">
 Shovel</a>
 </li>
 <li>
-<a href="#palladium:hoe">
+<a href="#minecraft:hoe">
 Hoe</a>
 </li>
 <li>
-<a href="#palladium:shield">
+<a href="#minecraft:shield">
 Shield</a>
 </li>
 <li>
-<a href="#palladium:bow">
+<a href="#minecraft:bow">
 Bow</a>
 </li>
 <li>
-<a href="#palladium:crossbow">
+<a href="#minecraft:crossbow">
 Crossbow</a>
-</li>
-<li>
-<a href="#palladium:flux_capacitor">
-Flux Capacitor (Energy Containing Item)</a>
 </li>
 </ul>
 </p>
@@ -253,9 +185,9 @@ Fallback Value</th>
 <td>
 slot</td>
 <td>
-Type</td>
+Entry</td>
 <td>
-The slot the item will fit in. Possible values: [helmet, chestplate, leggings, boots]</td>
+The slot the item will fit in. Possible values: [helmet, chestplate, leggings, boots, body]</td>
 <td style="background-color: lightgreen">
 true</td>
 <td>
@@ -265,9 +197,9 @@ true</td>
 <td>
 armor_material</td>
 <td>
-ArmorMaterial</td>
+Entry</td>
 <td>
-Armor material, which defines certain characteristics about the armor. Open armor_materials.html for seeing how to make custom ones. Possible values: [minecraft:diamond, test:wood, minecraft:gold, minecraft:leather, test:dirt, minecraft:turtle, minecraft:chainmail, minecraft:iron, minecraft:netherite]</td>
+Armor material, which defines certain characteristics about the armor. Open armor_materials.html for seeing how to make custom ones. Possible values: [minecraft:diamond, minecraft:gold, minecraft:leather, minecraft:turtle, minecraft:chainmail, minecraft:iron, minecraft:netherite, minecraft:armadillo, palladium:vibranium_weave]</td>
 <td style="background-color: lightgreen">
 true</td>
 <td>
@@ -277,7 +209,7 @@ true</td>
 <td>
 armor_model</td>
 <td>
-ResourceLocation</td>
+Entry</td>
 <td>
 Path to geckolib model file. Required bones: [armorHead, armorBody, armorRightArm, armorLeftArm, armorRightLeg, armorLeftLeg, armorRightBoot, armorLeftBoot].</td>
 <td style="background-color: lightcoral">
@@ -289,7 +221,7 @@ false</td>
 <td>
 armor_texture</td>
 <td>
-TextureReference</td>
+Entry</td>
 <td>
 Location of the armor texture. Can also use a dynamic texture using #.</td>
 <td style="background-color: lightcoral">
@@ -301,7 +233,7 @@ false</td>
 <td>
 armor_animations</td>
 <td>
-ResourceLocation</td>
+Entry</td>
 <td>
 ID of the animations that will be used.</td>
 <td style="background-color: lightcoral">
@@ -313,7 +245,7 @@ false</td>
 <td>
 armor_animation_controller</td>
 <td>
-List</td>
+Entry</td>
 <td>
 Names of controllers for the animation.</td>
 <td style="background-color: lightcoral">
@@ -325,7 +257,7 @@ false</td>
 <td>
 hide_second_player_layer</td>
 <td>
-Boolean</td>
+Entry</td>
 <td>
 If enabled, the second player layer will be hidden when worn (only on the corresponding body part)</td>
 <td style="background-color: lightcoral">
@@ -342,19 +274,85 @@ Example:</h3>
 </div>
 <hr>
 
-<div id="palladium:default">
+<div id="palladium:energy">
 <h2>
-Default Item</h2>
+Energy Item</h2>
+<h3>
+Settings:</h3>
+<table>
+<thead>
+<tr>
+<th>
+Setting</th>
+<th>
+Type</th>
+<th>
+Description</th>
+<th>
+Required</th>
+<th>
+Fallback Value</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>
+capacity</td>
+<td>
+Entry</td>
+<td>
+Max amount of energy the item can hold</td>
+<td style="background-color: lightgreen">
+true</td>
+<td>
+/</td>
+</tr>
+<tr>
+<td>
+max_input</td>
+<td>
+Entry</td>
+<td>
+Maximum amount of energy the item can be inserted with during one insertion. Using 0 makes the item not accept any energy</td>
+<td style="background-color: lightgreen">
+true</td>
+<td>
+/</td>
+</tr>
+<tr>
+<td>
+max_output</td>
+<td>
+Entry</td>
+<td>
+Maximum amount of energy the item can extract with during one withdrawal. Using 0 makes the item not extract any energy</td>
+<td style="background-color: lightgreen">
+true</td>
+<td>
+/</td>
+</tr>
+</tbody>
+</table>
+<h3>
+Example:</h3>
+<pre class="json-snippet">
+{"type":"palladium:energy","capacity":500000,"max_input":1000,"max_output":1000}</pre>
+</div>
+<hr>
+
+<div id="minecraft:item">
+<h2>
+Item</h2>
 <p>
 Default Item Type, you don't need to specify that you want this one, leaving 'type' out of the json will make it fall back to this one.</p>
 <h3>
 Example:</h3>
 <pre class="json-snippet">
-{"type":"palladium:default"}</pre>
+{"type":"minecraft:item"}</pre>
 </div>
 <hr>
 
-<div id="palladium:block_item">
+<div id="minecraft:block_item">
 <h2>
 Block Item</h2>
 <p>
@@ -381,7 +379,7 @@ Fallback Value</th>
 <td>
 block</td>
 <td>
-ResourceLocation</td>
+Entry</td>
 <td>
 ID of the block that this item is for</td>
 <td style="background-color: lightgreen">
@@ -394,11 +392,11 @@ true</td>
 <h3>
 Example:</h3>
 <pre class="json-snippet">
-{"type":"palladium:block_item","block":"test:test_block"}</pre>
+{"type":"minecraft:block_item","block":"test:test_block"}</pre>
 </div>
 <hr>
 
-<div id="palladium:armor">
+<div id="minecraft:armor">
 <h2>
 Armor</h2>
 <h3>
@@ -423,9 +421,9 @@ Fallback Value</th>
 <td>
 slot</td>
 <td>
-Type</td>
+Entry</td>
 <td>
-The slot the item will fit in. Possible values: [helmet, chestplate, leggings, boots]</td>
+The slot the item will fit in. Possible values: [helmet, chestplate, leggings, boots, body]</td>
 <td style="background-color: lightgreen">
 true</td>
 <td>
@@ -435,9 +433,9 @@ true</td>
 <td>
 armor_material</td>
 <td>
-ArmorMaterial</td>
+Entry</td>
 <td>
-Armor material, which defines certain characteristics about the armor. Open armor_materials.html for seeing how to make custom ones. Possible values: [minecraft:diamond, test:wood, minecraft:gold, minecraft:leather, test:dirt, minecraft:turtle, minecraft:chainmail, minecraft:iron, minecraft:netherite]</td>
+Armor material, which defines certain characteristics about the armor. Open armor_materials.html for seeing how to make custom ones. Possible values: [minecraft:diamond, minecraft:gold, minecraft:leather, minecraft:turtle, minecraft:chainmail, minecraft:iron, minecraft:netherite, minecraft:armadillo, palladium:vibranium_weave]</td>
 <td style="background-color: lightgreen">
 true</td>
 <td>
@@ -447,7 +445,7 @@ true</td>
 <td>
 armor_renderer</td>
 <td>
-ResourceLocation</td>
+Entry</td>
 <td>
 Location of the armor renderer file. Doesn't need to be specified, it will automatically look for one in a path corresponding to the item's ID: A 'test:item' will look for the armor renderer file at 'assets/test/palladium/armor_renderers/item.json'.</td>
 <td style="background-color: lightcoral">
@@ -459,7 +457,7 @@ false</td>
 <td>
 openable</td>
 <td>
-Boolean</td>
+Entry</td>
 <td>
 Marks the armor piece as openable.</td>
 <td style="background-color: lightcoral">
@@ -471,7 +469,7 @@ false</td>
 <td>
 opening_time</td>
 <td>
-Integer</td>
+Entry</td>
 <td>
 Determines the time the item needs for it to be fully opened. Leave at 0 for instant. Needs 'openable' to be enabled to take effect.</td>
 <td style="background-color: lightcoral">
@@ -483,7 +481,7 @@ false</td>
 <td>
 opened_sound</td>
 <td>
-ResourceLocation</td>
+Entry</td>
 <td>
 Sound that is played when the suit has been fully opened.</td>
 <td style="background-color: lightcoral">
@@ -495,7 +493,7 @@ false</td>
 <td>
 closed_sound</td>
 <td>
-ResourceLocation</td>
+Entry</td>
 <td>
 Sound that is played when the suit has been fully closed.</td>
 <td style="background-color: lightcoral">
@@ -507,7 +505,7 @@ false</td>
 <td>
 opening_toggle_sound</td>
 <td>
-ResourceLocation</td>
+Entry</td>
 <td>
 Sound that is played when opening button has been pressed.</td>
 <td style="background-color: lightcoral">
@@ -520,11 +518,11 @@ false</td>
 <h3>
 Example:</h3>
 <pre class="json-snippet">
-{"type":"palladium:armor","slot":"chest","armor_material":"minecraft:diamond","armor_renderer":"test:item_renderer","openable":false,"opening_time":10,"opened_sound":"minecraft:item.armor.equip_leather","closed_sound":"minecraft:item.armor.equip_leather","opening_toggle_sound":"minecraft:item.armor.equip_leather"}</pre>
+{"type":"minecraft:armor","slot":"chest","armor_material":"minecraft:diamond","armor_renderer":"test:item_renderer","openable":false,"opening_time":10,"opened_sound":"minecraft:item.armor.equip_leather","closed_sound":"minecraft:item.armor.equip_leather","opening_toggle_sound":"minecraft:item.armor.equip_leather"}</pre>
 </div>
 <hr>
 
-<div id="palladium:sword">
+<div id="minecraft:sword">
 <h2>
 Sword</h2>
 <h3>
@@ -549,33 +547,9 @@ Fallback Value</th>
 <td>
 tier</td>
 <td>
-Tier</td>
+Entry</td>
 <td>
-Tool tier, which defines certain characteristics about the tool. Open tool_tiers.html for seeing how to make custom ones. Possible values: [minecraft:diamond, minecraft:gold, minecraft:stone, minecraft:wood, minecraft:iron, minecraft:netherite]</td>
-<td style="background-color: lightgreen">
-true</td>
-<td>
-/</td>
-</tr>
-<tr>
-<td>
-base_damage</td>
-<td>
-Integer</td>
-<td>
-Base value for the damage. For reference: swords usually have 3</td>
-<td style="background-color: lightgreen">
-true</td>
-<td>
-/</td>
-</tr>
-<tr>
-<td>
-attack_speed</td>
-<td>
-Float</td>
-<td>
-Base value for the attack speed. For reference: swords usually have -2.4</td>
+Tool tier, which defines certain characteristics about the tool. Open tool_tiers.html for seeing how to make custom ones. Possible values: []</td>
 <td style="background-color: lightgreen">
 true</td>
 <td>
@@ -586,11 +560,11 @@ true</td>
 <h3>
 Example:</h3>
 <pre class="json-snippet">
-{"type":"palladium:sword","tier":"minecraft:diamond","base_damage":3,"attack_speed":-2.4}</pre>
+{"type":"minecraft:sword","tier":"minecraft:diamond"}</pre>
 </div>
 <hr>
 
-<div id="palladium:pickaxe">
+<div id="minecraft:pickaxe">
 <h2>
 Pickaxe</h2>
 <h3>
@@ -615,33 +589,9 @@ Fallback Value</th>
 <td>
 tier</td>
 <td>
-Tier</td>
+Entry</td>
 <td>
-Tool tier, which defines certain characteristics about the tool. Open tool_tiers.html for seeing how to make custom ones. Possible values: [minecraft:diamond, minecraft:gold, minecraft:stone, minecraft:wood, minecraft:iron, minecraft:netherite]</td>
-<td style="background-color: lightgreen">
-true</td>
-<td>
-/</td>
-</tr>
-<tr>
-<td>
-base_damage</td>
-<td>
-Integer</td>
-<td>
-Base value for the damage. For reference: pickaxes usually have 1</td>
-<td style="background-color: lightgreen">
-true</td>
-<td>
-/</td>
-</tr>
-<tr>
-<td>
-attack_speed</td>
-<td>
-Float</td>
-<td>
-Base value for the attack speed. For reference: pickaxes usually have -2.8</td>
+Tool tier, which defines certain characteristics about the tool. Open tool_tiers.html for seeing how to make custom ones. Possible values: []</td>
 <td style="background-color: lightgreen">
 true</td>
 <td>
@@ -652,11 +602,11 @@ true</td>
 <h3>
 Example:</h3>
 <pre class="json-snippet">
-{"type":"palladium:pickaxe","tier":"minecraft:diamond","base_damage":1,"attack_speed":-2.8}</pre>
+{"type":"minecraft:pickaxe","tier":"minecraft:diamond"}</pre>
 </div>
 <hr>
 
-<div id="palladium:axe">
+<div id="minecraft:axe">
 <h2>
 Axe</h2>
 <h3>
@@ -681,33 +631,9 @@ Fallback Value</th>
 <td>
 tier</td>
 <td>
-Tier</td>
+Entry</td>
 <td>
-Tool tier, which defines certain characteristics about the tool. Open tool_tiers.html for seeing how to make custom ones. Possible values: [minecraft:diamond, minecraft:gold, minecraft:stone, minecraft:wood, minecraft:iron, minecraft:netherite]</td>
-<td style="background-color: lightgreen">
-true</td>
-<td>
-/</td>
-</tr>
-<tr>
-<td>
-base_damage</td>
-<td>
-Integer</td>
-<td>
-Base value for the damage. For reference: axes usually have roughly 6</td>
-<td style="background-color: lightgreen">
-true</td>
-<td>
-/</td>
-</tr>
-<tr>
-<td>
-attack_speed</td>
-<td>
-Float</td>
-<td>
-Base value for the attack speed. For reference: axes usually have roughly -3.0</td>
+Tool tier, which defines certain characteristics about the tool. Open tool_tiers.html for seeing how to make custom ones. Possible values: []</td>
 <td style="background-color: lightgreen">
 true</td>
 <td>
@@ -718,11 +644,11 @@ true</td>
 <h3>
 Example:</h3>
 <pre class="json-snippet">
-{"type":"palladium:axe","tier":"minecraft:diamond","base_damage":6,"attack_speed":-3.0}</pre>
+{"type":"minecraft:axe","tier":"minecraft:diamond"}</pre>
 </div>
 <hr>
 
-<div id="palladium:shovel">
+<div id="minecraft:shovel">
 <h2>
 Shovel</h2>
 <h3>
@@ -747,33 +673,9 @@ Fallback Value</th>
 <td>
 tier</td>
 <td>
-Tier</td>
+Entry</td>
 <td>
-Tool tier, which defines certain characteristics about the tool. Open tool_tiers.html for seeing how to make custom ones. Possible values: [minecraft:diamond, minecraft:gold, minecraft:stone, minecraft:wood, minecraft:iron, minecraft:netherite]</td>
-<td style="background-color: lightgreen">
-true</td>
-<td>
-/</td>
-</tr>
-<tr>
-<td>
-base_damage</td>
-<td>
-Integer</td>
-<td>
-Base value for the damage. For reference: shovels usually have 1.5</td>
-<td style="background-color: lightgreen">
-true</td>
-<td>
-/</td>
-</tr>
-<tr>
-<td>
-attack_speed</td>
-<td>
-Float</td>
-<td>
-Base value for the attack speed. For reference: shovels usually have -3.0</td>
+Tool tier, which defines certain characteristics about the tool. Open tool_tiers.html for seeing how to make custom ones. Possible values: []</td>
 <td style="background-color: lightgreen">
 true</td>
 <td>
@@ -784,11 +686,11 @@ true</td>
 <h3>
 Example:</h3>
 <pre class="json-snippet">
-{"type":"palladium:shovel","tier":"minecraft:diamond","base_damage":1.5,"attack_speed":-3.0}</pre>
+{"type":"minecraft:shovel","tier":"minecraft:diamond"}</pre>
 </div>
 <hr>
 
-<div id="palladium:hoe">
+<div id="minecraft:hoe">
 <h2>
 Hoe</h2>
 <h3>
@@ -813,33 +715,9 @@ Fallback Value</th>
 <td>
 tier</td>
 <td>
-Tier</td>
+Entry</td>
 <td>
-Tool tier, which defines certain characteristics about the tool. Open tool_tiers.html for seeing how to make custom ones. Possible values: [minecraft:diamond, minecraft:gold, minecraft:stone, minecraft:wood, minecraft:iron, minecraft:netherite]</td>
-<td style="background-color: lightgreen">
-true</td>
-<td>
-/</td>
-</tr>
-<tr>
-<td>
-base_damage</td>
-<td>
-Integer</td>
-<td>
-Base value for the damage. For reference: iron has -2, diamond has -3</td>
-<td style="background-color: lightgreen">
-true</td>
-<td>
-/</td>
-</tr>
-<tr>
-<td>
-attack_speed</td>
-<td>
-Float</td>
-<td>
-Base value for the attack speed. For reference: iron has -1.0, diamond has 0.0</td>
+Tool tier, which defines certain characteristics about the tool. Open tool_tiers.html for seeing how to make custom ones. Possible values: []</td>
 <td style="background-color: lightgreen">
 true</td>
 <td>
@@ -850,11 +728,11 @@ true</td>
 <h3>
 Example:</h3>
 <pre class="json-snippet">
-{"type":"palladium:hoe","tier":"minecraft:diamond","base_damage":-2,"attack_speed":-1.0}</pre>
+{"type":"minecraft:hoe","tier":"minecraft:diamond"}</pre>
 </div>
 <hr>
 
-<div id="palladium:shield">
+<div id="minecraft:shield">
 <h2>
 Shield</h2>
 <h3>
@@ -879,7 +757,7 @@ Fallback Value</th>
 <td>
 use_duration</td>
 <td>
-Integer</td>
+Entry</td>
 <td>
 Amount of ticks the shield can be actively held for</td>
 <td style="background-color: lightcoral">
@@ -891,11 +769,11 @@ false</td>
 <td>
 repair_ingredient</td>
 <td>
-Ingredient</td>
+Entry</td>
 <td>
 The ingredient needed to repair the shield in an anvil. Can be null for making it non-repairable</td>
-<td style="background-color: lightcoral">
-false</td>
+<td style="background-color: lightgreen">
+true</td>
 <td>
 /</td>
 </tr>
@@ -904,11 +782,11 @@ false</td>
 <h3>
 Example:</h3>
 <pre class="json-snippet">
-{"type":"palladium:shield","use_duration":72000,"repair_ingredient":{"tag":"minecraft:wool"}}</pre>
+{"type":"minecraft:shield","use_duration":72000,"repair_ingredient":{"tag":"minecraft:planks"}}</pre>
 </div>
 <hr>
 
-<div id="palladium:bow">
+<div id="minecraft:bow">
 <h2>
 Bow</h2>
 <h3>
@@ -933,7 +811,7 @@ Fallback Value</th>
 <td>
 velocity</td>
 <td>
-Float</td>
+Entry</td>
 <td>
 Velocity multiplier for the shot projectile</td>
 <td style="background-color: lightcoral">
@@ -945,7 +823,7 @@ false</td>
 <td>
 inaccuracy</td>
 <td>
-Float</td>
+Entry</td>
 <td>
 Inaccuracy for the shot projectile</td>
 <td style="background-color: lightcoral">
@@ -957,7 +835,7 @@ false</td>
 <td>
 use_duration</td>
 <td>
-Integer</td>
+Entry</td>
 <td>
 Amount of ticks the bow can be used for</td>
 <td style="background-color: lightcoral">
@@ -969,7 +847,7 @@ false</td>
 <td>
 projectiles</td>
 <td>
-ResourceLocation</td>
+Entry</td>
 <td>
 Item tag which contains all items that can be shot. By default all Minecraft arrows</td>
 <td style="background-color: lightcoral">
@@ -981,7 +859,7 @@ minecraft:arrows</td>
 <td>
 held_projectiles</td>
 <td>
-ResourceLocation</td>
+Entry</td>
 <td>
 Item tag which contains all items that can be shot by being in the off hand. Can be left out to fallback to the 'projectiles' option</td>
 <td style="background-color: lightcoral">
@@ -994,11 +872,11 @@ false</td>
 <h3>
 Example:</h3>
 <pre class="json-snippet">
-{"type":"palladium:bow","velocity":3.0,"inaccuracy":1.0,"use_duration":72000,"projectiles":"minecraft:arrows","held_projectiles":"minecraft:arrows"}</pre>
+{"type":"minecraft:bow","velocity":3.0,"inaccuracy":1.0,"use_duration":72000,"projectiles":"minecraft:arrows","held_projectiles":"minecraft:arrows"}</pre>
 </div>
 <hr>
 
-<div id="palladium:crossbow">
+<div id="minecraft:crossbow">
 <h2>
 Crossbow</h2>
 <h3>
@@ -1023,7 +901,7 @@ Fallback Value</th>
 <td>
 velocity_multiplier</td>
 <td>
-Float</td>
+Entry</td>
 <td>
 Velocity multiplier for the shot projectile, works differently to the bow one.</td>
 <td style="background-color: lightcoral">
@@ -1035,7 +913,7 @@ false</td>
 <td>
 inaccuracy</td>
 <td>
-Float</td>
+Entry</td>
 <td>
 Inaccuracy for the shot projectile</td>
 <td style="background-color: lightcoral">
@@ -1047,7 +925,7 @@ false</td>
 <td>
 use_duration</td>
 <td>
-Integer</td>
+Entry</td>
 <td>
 Amount of ticks the bow can be used for</td>
 <td style="background-color: lightcoral">
@@ -1059,7 +937,7 @@ false</td>
 <td>
 projectiles</td>
 <td>
-ResourceLocation</td>
+Entry</td>
 <td>
 Item tag which contains all items that can be shot. By default all Minecraft arrows</td>
 <td style="background-color: lightcoral">
@@ -1071,7 +949,7 @@ minecraft:arrows</td>
 <td>
 held_projectiles</td>
 <td>
-ResourceLocation</td>
+Entry</td>
 <td>
 Item tag which contains all items that can be shot by being in the off hand. Can be left out to fallback to the 'projectiles' option</td>
 <td style="background-color: lightcoral">
@@ -1084,73 +962,7 @@ false</td>
 <h3>
 Example:</h3>
 <pre class="json-snippet">
-{"type":"palladium:crossbow","velocity_multiplier":1.0,"inaccuracy":1.0,"use_duration":72000,"projectiles":"minecraft:arrows","held_projectiles":"minecraft:arrows"}</pre>
-</div>
-<hr>
-
-<div id="palladium:flux_capacitor">
-<h2>
-Flux Capacitor (Energy Containing Item)</h2>
-<h3>
-Settings:</h3>
-<table>
-<thead>
-<tr>
-<th>
-Setting</th>
-<th>
-Type</th>
-<th>
-Description</th>
-<th>
-Required</th>
-<th>
-Fallback Value</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td>
-capacity</td>
-<td>
-Integer</td>
-<td>
-Max amount of energy the item can hold</td>
-<td style="background-color: lightgreen">
-true</td>
-<td>
-/</td>
-</tr>
-<tr>
-<td>
-max_input</td>
-<td>
-Integer</td>
-<td>
-Maximum amount of energy the item can be inserted with during one insertion. Using 0 makes the item not accept any energy</td>
-<td style="background-color: lightgreen">
-true</td>
-<td>
-/</td>
-</tr>
-<tr>
-<td>
-max_output</td>
-<td>
-Integer</td>
-<td>
-Maximum amount of energy the item can extract with during one withdrawal. Using 0 makes the item not extract any energy</td>
-<td style="background-color: lightgreen">
-true</td>
-<td>
-/</td>
-</tr>
-</tbody>
-</table>
-<h3>
-Example:</h3>
-<pre class="json-snippet">
-{"type":"palladium:flux_capacitor","capacity":500000,"max_input":1000,"max_output":1000}</pre>
+{"type":"minecraft:crossbow","velocity_multiplier":1.0,"inaccuracy":1.0,"use_duration":72000,"projectiles":"minecraft:arrows","held_projectiles":"minecraft:arrows"}</pre>
 </div>
 <script>
 function syntaxHighlight(json) {

@@ -1,6 +1,5 @@
 package net.threetag.palladium.condition;
 
-import com.mojang.serialization.Codec;
 import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import net.minecraft.network.RegistryFriendlyByteBuf;
@@ -11,7 +10,6 @@ import net.minecraft.util.ExtraCodecs;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
 import net.threetag.palladium.power.ability.Ability;
-import net.threetag.palladium.power.ability.AbilityConfiguration;
 import net.threetag.palladium.util.icon.ExperienceIcon;
 
 public class ExperienceLevelBuyableCondition extends BuyableCondition {

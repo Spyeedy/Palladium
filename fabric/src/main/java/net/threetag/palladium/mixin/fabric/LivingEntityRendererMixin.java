@@ -16,7 +16,7 @@ public class LivingEntityRendererMixin {
 
     @Inject(at = @At("HEAD"), method = "render(Lnet/minecraft/world/entity/LivingEntity;FFLcom/mojang/blaze3d/vertex/PoseStack;Lnet/minecraft/client/renderer/MultiBufferSource;I)V", cancellable = true)
     public void render(LivingEntity pEntity, float pEntityYaw, float pPartialTicks, PoseStack pMatrixStack, MultiBufferSource pBuffer, int pPackedLight, CallbackInfo ci) {
-        if (!AbilityUtil.getEnabledEntries(pEntity, AbilitySerializers.INVISIBILITY.get()).isEmpty()) {
+        if (AbilityUtil.isTypeUnlocked(pEntity, AbilitySerializers.INVISIBILITY.get())) {
             ci.cancel();
         }
     }

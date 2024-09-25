@@ -5,14 +5,15 @@ import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.renderer.texture.OverlayTexture;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.item.ItemDisplayContext;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.level.ItemLike;
 import net.threetag.palladium.documentation.JsonDocumentationBuilder;
-import net.threetag.palladium.util.GuiUtil;
 import net.threetag.palladium.util.context.DataContext;
 
 public class ItemIcon implements Icon {
@@ -56,7 +57,7 @@ public class ItemIcon implements Icon {
             }
         }
 
-        GuiUtil.drawItem(guiGraphics, item, 0, true, null);
+        mc.getItemRenderer().renderStatic(item, ItemDisplayContext.FIXED, 240, OverlayTexture.NO_OVERLAY, guiGraphics.pose(), mc.renderBuffers().bufferSource(), mc.level, 0);
         guiGraphics.pose().popPose();
     }
 

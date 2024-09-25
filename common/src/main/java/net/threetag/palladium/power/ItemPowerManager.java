@@ -1,10 +1,9 @@
 package net.threetag.palladium.power;
 
 import com.google.gson.*;
-import net.minecraft.core.Holder;
+import net.minecraft.core.HolderLookup;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraft.server.packs.PackType;
 import net.minecraft.server.packs.resources.ResourceManager;
 import net.minecraft.server.packs.resources.SimpleJsonResourceReloadListener;
 import net.minecraft.util.GsonHelper;
@@ -27,13 +26,16 @@ public class ItemPowerManager extends SimpleJsonResourceReloadListener {
     private static ItemPowerManager INSTANCE;
 
     private final Map<String, Map<Item, List<ResourceLocation>>> itemPowers = new HashMap<>();
+    private final HolderLookup.Provider registries;
 
     public static void init() {
-        ReloadListenerRegistry.register(PackType.SERVER_DATA, Palladium.id("item_powers"), INSTANCE = new ItemPowerManager());
+        ReloadListenerRegistry.registerServerListener(Palladium.id("item_powers"), ItemPowerManager::new);
     }
 
-    public ItemPowerManager() {
+    public ItemPowerManager(HolderLookup.Provider registries) {
         super(GSON, "palladium/item_powers");
+        this.registries = registries;
+        INSTANCE = this;
     }
 
     @Override
@@ -48,7 +50,7 @@ public class ItemPowerManager extends SimpleJsonResourceReloadListener {
                 GsonUtil.forEachInListOrPrimitive(jsonObject.get("power"), js -> powers.add(GsonUtil.convertToResourceLocation(js, "power[]")));
 
                 final List<Item> items = new ArrayList<>();
-                GsonUtil.forEachInListOrPrimitive(jsonObject.get("power"), js -> {
+                GsonUtil.forEachInListOrPrimitive(jsonObject.get("item"), js -> {
                     ResourceLocation itemId = GsonUtil.convertToResourceLocation(js, "item[]");
 
                     if (!BuiltInRegistries.ITEM.containsKey(itemId)) {

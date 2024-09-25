@@ -55,13 +55,13 @@ public class PowerEventHandler implements EntityEvents.Tick, ChatEvents.ServerSu
     @Override
     public EventResult chatMessageSubmitted(ServerPlayer player, String rawMessage, Component message) {
         if (CHECK_FOR_CHAT_MESSAGES.contains(rawMessage.trim().toLowerCase(Locale.ROOT))) {
-            for (AbilityInstance entry : AbilityUtil.getInstances(player)) {
-                for (Condition condition : entry.getConfiguration().getConditions().getUnlockingConditions()) {
+            for (AbilityInstance<?> entry : AbilityUtil.getInstances(player)) {
+                for (Condition condition : entry.getAbility().getConditions().getUnlockingConditions()) {
                     if (condition instanceof ChatMessageCondition chat && chat.chatMessage.trim().equalsIgnoreCase(rawMessage.trim())) {
                         chat.onChat(player, entry);
                     }
                 }
-                for (Condition condition : entry.getConfiguration().getConditions().getEnablingConditions()) {
+                for (Condition condition : entry.getAbility().getConditions().getEnablingConditions()) {
                     if (condition instanceof ChatMessageCondition chat && chat.chatMessage.trim().equalsIgnoreCase(rawMessage.trim())) {
                         chat.onChat(player, entry);
                     }

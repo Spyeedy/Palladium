@@ -31,16 +31,8 @@ Overview</h2>
 Palladium</h3>
 <ul>
 <li>
-<a href="#palladium:ability_float_property">
-Ability Float-Property</a>
-</li>
-<li>
 <a href="#palladium:ability_id">
 Ability Id</a>
-</li>
-<li>
-<a href="#palladium:ability_integer_property">
-Ability Integer-Property</a>
 </li>
 <li>
 <a href="#palladium:ability_ticks">
@@ -110,158 +102,6 @@ String Property</a>
 </p>
 <hr>
 
-<div id="palladium:ability_float_property">
-<h2>
-Ability Float-Property</h2>
-<p>
-Returns the value of a float property of an ability (e.g. the 'value' of an animation timer). The math operations can be arranged in any order and are fully optional!</p>
-<h3>
-Settings:</h3>
-<table>
-<thead>
-<tr>
-<th>
-Setting</th>
-<th>
-Type</th>
-<th>
-Description</th>
-<th>
-Required</th>
-<th>
-Fallback Value</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td>
-power</td>
-<td>
-ResourceLocation</td>
-<td>
-ID of the power the ability is in.</td>
-<td style="background-color: lightgreen">
-true</td>
-<td>
-/</td>
-</tr>
-<tr>
-<td>
-ability</td>
-<td>
-String</td>
-<td>
-Key of the ability that is being looked for.</td>
-<td style="background-color: lightgreen">
-true</td>
-<td>
-/</td>
-</tr>
-<tr>
-<td>
-property</td>
-<td>
-String</td>
-<td>
-Name of the property you want the value from. It's 'value' for animation timer ablities.</td>
-<td style="background-color: lightgreen">
-true</td>
-<td>
-/</td>
-</tr>
-<tr>
-<td>
-add</td>
-<td>
-Float</td>
-<td>
-This value will be added on top of the returned value.</td>
-<td style="background-color: lightcoral">
-false</td>
-<td>
-/</td>
-</tr>
-<tr>
-<td>
-subtract</td>
-<td>
-Float</td>
-<td>
-This value will be subtracted from the returned value.</td>
-<td style="background-color: lightcoral">
-false</td>
-<td>
-/</td>
-</tr>
-<tr>
-<td>
-multiply</td>
-<td>
-Float</td>
-<td>
-This value will be subtracted with the returned value.</td>
-<td style="background-color: lightcoral">
-false</td>
-<td>
-/</td>
-</tr>
-<tr>
-<td>
-divide</td>
-<td>
-Float</td>
-<td>
-This value will be divided to the returned value.</td>
-<td style="background-color: lightcoral">
-false</td>
-<td>
-/</td>
-</tr>
-<tr>
-<td>
-min</td>
-<td>
-Float</td>
-<td>
-Using this value will set a minimum limit for the returned value.</td>
-<td style="background-color: lightcoral">
-false</td>
-<td>
-/</td>
-</tr>
-<tr>
-<td>
-max</td>
-<td>
-Float</td>
-<td>
-Using this value will set a maximum limit for the returned value.</td>
-<td style="background-color: lightcoral">
-false</td>
-<td>
-/</td>
-</tr>
-<tr>
-<td>
-modulo</td>
-<td>
-Float</td>
-<td>
-Using this value will apply a modulo operation to the returned value.</td>
-<td style="background-color: lightcoral">
-false</td>
-<td>
-/</td>
-</tr>
-</tbody>
-</table>
-<h3>
-Example:</h3>
-<pre class="json-snippet">
-{"type":"palladium:ability_float_property","power":"example:power_id","ability":"ability_key","property":"value","add":5.2,"subtract":3.1,"multiply":2.5,"divide":7.5,"min":5.5,"max":123.4,"modulo":5.0}</pre>
-</div>
-<hr>
-
 <div id="palladium:ability_id">
 <h2>
 Ability Id</h2>
@@ -271,158 +111,6 @@ When used in an ability-context (e.g. ability icons, render layers, gui overlay,
 Example:</h3>
 <pre class="json-snippet">
 {"type":"palladium:ability_id"}</pre>
-</div>
-<hr>
-
-<div id="palladium:ability_integer_property">
-<h2>
-Ability Integer-Property</h2>
-<p>
-Returns the value of an integer property of an ability (e.g. the 'value' of an animation timer). The math operations can be arranged in any order and are fully optional!</p>
-<h3>
-Settings:</h3>
-<table>
-<thead>
-<tr>
-<th>
-Setting</th>
-<th>
-Type</th>
-<th>
-Description</th>
-<th>
-Required</th>
-<th>
-Fallback Value</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td>
-power</td>
-<td>
-ResourceLocation</td>
-<td>
-ID of the power the ability is in.</td>
-<td style="background-color: lightgreen">
-true</td>
-<td>
-/</td>
-</tr>
-<tr>
-<td>
-ability</td>
-<td>
-String</td>
-<td>
-Key of the ability that is being looked for.</td>
-<td style="background-color: lightgreen">
-true</td>
-<td>
-/</td>
-</tr>
-<tr>
-<td>
-property</td>
-<td>
-String</td>
-<td>
-Name of the property you want the value from. It's 'value' for animation timer ablities.</td>
-<td style="background-color: lightgreen">
-true</td>
-<td>
-/</td>
-</tr>
-<tr>
-<td>
-add</td>
-<td>
-Integer</td>
-<td>
-This value will be added on top of the returned value.</td>
-<td style="background-color: lightcoral">
-false</td>
-<td>
-/</td>
-</tr>
-<tr>
-<td>
-subtract</td>
-<td>
-Integer</td>
-<td>
-This value will be subtracted from the returned value.</td>
-<td style="background-color: lightcoral">
-false</td>
-<td>
-/</td>
-</tr>
-<tr>
-<td>
-multiply</td>
-<td>
-Integer</td>
-<td>
-This value will be subtracted with the returned value.</td>
-<td style="background-color: lightcoral">
-false</td>
-<td>
-/</td>
-</tr>
-<tr>
-<td>
-divide</td>
-<td>
-Integer</td>
-<td>
-This value will be divided to the returned value.</td>
-<td style="background-color: lightcoral">
-false</td>
-<td>
-/</td>
-</tr>
-<tr>
-<td>
-min</td>
-<td>
-Integer</td>
-<td>
-Using this value will set a minimum limit for the returned value.</td>
-<td style="background-color: lightcoral">
-false</td>
-<td>
-/</td>
-</tr>
-<tr>
-<td>
-max</td>
-<td>
-Integer</td>
-<td>
-Using this value will set a maximum limit for the returned value.</td>
-<td style="background-color: lightcoral">
-false</td>
-<td>
-/</td>
-</tr>
-<tr>
-<td>
-modulo</td>
-<td>
-Integer</td>
-<td>
-Using this value will apply a modulo operation to the returned value.</td>
-<td style="background-color: lightcoral">
-false</td>
-<td>
-/</td>
-</tr>
-</tbody>
-</table>
-<h3>
-Example:</h3>
-<pre class="json-snippet">
-{"type":"palladium:ability_integer_property","power":"example:power_id","ability":"ability_key","property":"value","add":5,"subtract":3,"multiply":10,"divide":10,"min":1,"max":100,"modulo":5}</pre>
 </div>
 <hr>
 
@@ -453,7 +141,7 @@ Fallback Value</th>
 <td>
 power</td>
 <td>
-ResourceLocation</td>
+Entry</td>
 <td>
 ID of the power the ability is in.</td>
 <td style="background-color: lightgreen">
@@ -465,7 +153,7 @@ true</td>
 <td>
 ability</td>
 <td>
-String</td>
+Entry</td>
 <td>
 Key of the ability that is being looked for.</td>
 <td style="background-color: lightgreen">
@@ -477,7 +165,7 @@ true</td>
 <td>
 add</td>
 <td>
-Integer</td>
+Entry</td>
 <td>
 This value will be added on top of the returned value.</td>
 <td style="background-color: lightcoral">
@@ -489,7 +177,7 @@ false</td>
 <td>
 subtract</td>
 <td>
-Integer</td>
+Entry</td>
 <td>
 This value will be subtracted from the returned value.</td>
 <td style="background-color: lightcoral">
@@ -501,7 +189,7 @@ false</td>
 <td>
 multiply</td>
 <td>
-Integer</td>
+Entry</td>
 <td>
 This value will be subtracted with the returned value.</td>
 <td style="background-color: lightcoral">
@@ -513,7 +201,7 @@ false</td>
 <td>
 divide</td>
 <td>
-Integer</td>
+Entry</td>
 <td>
 This value will be divided to the returned value.</td>
 <td style="background-color: lightcoral">
@@ -525,7 +213,7 @@ false</td>
 <td>
 min</td>
 <td>
-Integer</td>
+Entry</td>
 <td>
 Using this value will set a minimum limit for the returned value.</td>
 <td style="background-color: lightcoral">
@@ -537,7 +225,7 @@ false</td>
 <td>
 max</td>
 <td>
-Integer</td>
+Entry</td>
 <td>
 Using this value will set a maximum limit for the returned value.</td>
 <td style="background-color: lightcoral">
@@ -549,7 +237,7 @@ false</td>
 <td>
 modulo</td>
 <td>
-Integer</td>
+Entry</td>
 <td>
 Using this value will apply a modulo operation to the returned value.</td>
 <td style="background-color: lightcoral">
@@ -593,7 +281,7 @@ Fallback Value</th>
 <td>
 accessory_slot</td>
 <td>
-String</td>
+Entry</td>
 <td>
 The ID of the accessory slot to read from</td>
 <td style="background-color: lightgreen">
@@ -605,7 +293,7 @@ true</td>
 <td>
 fallback_value</td>
 <td>
-String</td>
+Entry</td>
 <td>
 If an accessory isn't chosen for the specified accessory slot, this value will be returned instead</td>
 <td style="background-color: lightcoral">
@@ -617,7 +305,7 @@ false</td>
 <td>
 split_value</td>
 <td>
-String</td>
+Entry</td>
 <td>
 If multiple accessories are selected, they'll be returned in a list in alphabetical order separated by this string</td>
 <td style="background-color: lightcoral">
@@ -629,7 +317,7 @@ _</td>
 <td>
 use_path</td>
 <td>
-Boolean</td>
+Entry</td>
 <td>
 Determines if the namespace or the path will be returned from the accessory ID. Example: the accessory ID is 'test:stone_hat'. If 'use_path' is set to true, you'll get 'stone_hat'. If it's set to false, you'll get 'test'.</td>
 <td style="background-color: lightcoral">
@@ -673,7 +361,7 @@ Fallback Value</th>
 <td>
 power</td>
 <td>
-ResourceLocation</td>
+Entry</td>
 <td>
 ID of the power the ability is in.</td>
 <td style="background-color: lightgreen">
@@ -685,7 +373,7 @@ true</td>
 <td>
 ability</td>
 <td>
-String</td>
+Entry</td>
 <td>
 Key of the ability that is being looked for.</td>
 <td style="background-color: lightgreen">
@@ -697,7 +385,7 @@ true</td>
 <td>
 add</td>
 <td>
-Integer</td>
+Entry</td>
 <td>
 This value will be added on top of the returned value.</td>
 <td style="background-color: lightcoral">
@@ -709,7 +397,7 @@ false</td>
 <td>
 subtract</td>
 <td>
-Integer</td>
+Entry</td>
 <td>
 This value will be subtracted from the returned value.</td>
 <td style="background-color: lightcoral">
@@ -721,7 +409,7 @@ false</td>
 <td>
 multiply</td>
 <td>
-Integer</td>
+Entry</td>
 <td>
 This value will be subtracted with the returned value.</td>
 <td style="background-color: lightcoral">
@@ -733,7 +421,7 @@ false</td>
 <td>
 divide</td>
 <td>
-Integer</td>
+Entry</td>
 <td>
 This value will be divided to the returned value.</td>
 <td style="background-color: lightcoral">
@@ -745,7 +433,7 @@ false</td>
 <td>
 min</td>
 <td>
-Integer</td>
+Entry</td>
 <td>
 Using this value will set a minimum limit for the returned value.</td>
 <td style="background-color: lightcoral">
@@ -757,7 +445,7 @@ false</td>
 <td>
 max</td>
 <td>
-Integer</td>
+Entry</td>
 <td>
 Using this value will set a maximum limit for the returned value.</td>
 <td style="background-color: lightcoral">
@@ -769,7 +457,7 @@ false</td>
 <td>
 modulo</td>
 <td>
-Integer</td>
+Entry</td>
 <td>
 Using this value will apply a modulo operation to the returned value.</td>
 <td style="background-color: lightcoral">
@@ -813,7 +501,7 @@ Fallback Value</th>
 <td>
 bobbing</td>
 <td>
-Boolean</td>
+Entry</td>
 <td>
 Determines of bobbing should be taken into account when doing the calculation</td>
 <td style="background-color: lightcoral">
@@ -825,7 +513,7 @@ true</td>
 <td>
 add</td>
 <td>
-Float</td>
+Entry</td>
 <td>
 This value will be added on top of the returned value.</td>
 <td style="background-color: lightcoral">
@@ -837,7 +525,7 @@ false</td>
 <td>
 subtract</td>
 <td>
-Float</td>
+Entry</td>
 <td>
 This value will be subtracted from the returned value.</td>
 <td style="background-color: lightcoral">
@@ -849,7 +537,7 @@ false</td>
 <td>
 multiply</td>
 <td>
-Float</td>
+Entry</td>
 <td>
 This value will be subtracted with the returned value.</td>
 <td style="background-color: lightcoral">
@@ -861,7 +549,7 @@ false</td>
 <td>
 divide</td>
 <td>
-Float</td>
+Entry</td>
 <td>
 This value will be divided to the returned value.</td>
 <td style="background-color: lightcoral">
@@ -873,7 +561,7 @@ false</td>
 <td>
 min</td>
 <td>
-Float</td>
+Entry</td>
 <td>
 Using this value will set a minimum limit for the returned value.</td>
 <td style="background-color: lightcoral">
@@ -885,7 +573,7 @@ false</td>
 <td>
 max</td>
 <td>
-Float</td>
+Entry</td>
 <td>
 Using this value will set a maximum limit for the returned value.</td>
 <td style="background-color: lightcoral">
@@ -897,7 +585,7 @@ false</td>
 <td>
 modulo</td>
 <td>
-Float</td>
+Entry</td>
 <td>
 Using this value will apply a modulo operation to the returned value.</td>
 <td style="background-color: lightcoral">
@@ -941,7 +629,7 @@ Fallback Value</th>
 <td>
 conditions</td>
 <td>
-Condition[]</td>
+Entry</td>
 <td>
 Array of conditions that will be checked</td>
 <td style="background-color: lightgreen">
@@ -953,7 +641,7 @@ true</td>
 <td>
 true_value</td>
 <td>
-Boolean</td>
+Entry</td>
 <td>
 If the variable turns out to be true, this value will be inserted into the texture path</td>
 <td style="background-color: lightcoral">
@@ -965,7 +653,7 @@ true</td>
 <td>
 false_value</td>
 <td>
-Boolean</td>
+Entry</td>
 <td>
 If the variable turns out to be false, this value will be inserted into the texture path</td>
 <td style="background-color: lightcoral">
@@ -1009,7 +697,7 @@ Fallback Value</th>
 <td>
 true_value</td>
 <td>
-Boolean</td>
+Entry</td>
 <td>
 If the variable turns out to be true, this value will be inserted into the texture path</td>
 <td style="background-color: lightcoral">
@@ -1021,7 +709,7 @@ true</td>
 <td>
 false_value</td>
 <td>
-Boolean</td>
+Entry</td>
 <td>
 If the variable turns out to be false, this value will be inserted into the texture path</td>
 <td style="background-color: lightcoral">
@@ -1065,7 +753,7 @@ Fallback Value</th>
 <td>
 power</td>
 <td>
-ResourceLocation</td>
+Entry</td>
 <td>
 ID of the power the energy bar is in.</td>
 <td style="background-color: lightgreen">
@@ -1077,7 +765,7 @@ true</td>
 <td>
 energy_bar</td>
 <td>
-String</td>
+Entry</td>
 <td>
 Name of the energy bar that is being looked for.</td>
 <td style="background-color: lightgreen">
@@ -1089,7 +777,7 @@ true</td>
 <td>
 add</td>
 <td>
-Integer</td>
+Entry</td>
 <td>
 This value will be added on top of the returned value.</td>
 <td style="background-color: lightcoral">
@@ -1101,7 +789,7 @@ false</td>
 <td>
 subtract</td>
 <td>
-Integer</td>
+Entry</td>
 <td>
 This value will be subtracted from the returned value.</td>
 <td style="background-color: lightcoral">
@@ -1113,7 +801,7 @@ false</td>
 <td>
 multiply</td>
 <td>
-Integer</td>
+Entry</td>
 <td>
 This value will be subtracted with the returned value.</td>
 <td style="background-color: lightcoral">
@@ -1125,7 +813,7 @@ false</td>
 <td>
 divide</td>
 <td>
-Integer</td>
+Entry</td>
 <td>
 This value will be divided to the returned value.</td>
 <td style="background-color: lightcoral">
@@ -1137,7 +825,7 @@ false</td>
 <td>
 min</td>
 <td>
-Integer</td>
+Entry</td>
 <td>
 Using this value will set a minimum limit for the returned value.</td>
 <td style="background-color: lightcoral">
@@ -1149,7 +837,7 @@ false</td>
 <td>
 max</td>
 <td>
-Integer</td>
+Entry</td>
 <td>
 Using this value will set a maximum limit for the returned value.</td>
 <td style="background-color: lightcoral">
@@ -1161,7 +849,7 @@ false</td>
 <td>
 modulo</td>
 <td>
-Integer</td>
+Entry</td>
 <td>
 Using this value will apply a modulo operation to the returned value.</td>
 <td style="background-color: lightcoral">
@@ -1205,7 +893,7 @@ Fallback Value</th>
 <td>
 add</td>
 <td>
-Float</td>
+Entry</td>
 <td>
 This value will be added on top of the returned value.</td>
 <td style="background-color: lightcoral">
@@ -1217,7 +905,7 @@ false</td>
 <td>
 subtract</td>
 <td>
-Float</td>
+Entry</td>
 <td>
 This value will be subtracted from the returned value.</td>
 <td style="background-color: lightcoral">
@@ -1229,7 +917,7 @@ false</td>
 <td>
 multiply</td>
 <td>
-Float</td>
+Entry</td>
 <td>
 This value will be subtracted with the returned value.</td>
 <td style="background-color: lightcoral">
@@ -1241,7 +929,7 @@ false</td>
 <td>
 divide</td>
 <td>
-Float</td>
+Entry</td>
 <td>
 This value will be divided to the returned value.</td>
 <td style="background-color: lightcoral">
@@ -1253,7 +941,7 @@ false</td>
 <td>
 min</td>
 <td>
-Float</td>
+Entry</td>
 <td>
 Using this value will set a minimum limit for the returned value.</td>
 <td style="background-color: lightcoral">
@@ -1265,7 +953,7 @@ false</td>
 <td>
 max</td>
 <td>
-Float</td>
+Entry</td>
 <td>
 Using this value will set a maximum limit for the returned value.</td>
 <td style="background-color: lightcoral">
@@ -1277,7 +965,7 @@ false</td>
 <td>
 modulo</td>
 <td>
-Float</td>
+Entry</td>
 <td>
 Using this value will apply a modulo operation to the returned value.</td>
 <td style="background-color: lightcoral">
@@ -1321,7 +1009,7 @@ Fallback Value</th>
 <td>
 add</td>
 <td>
-Integer</td>
+Entry</td>
 <td>
 This value will be added on top of the returned value.</td>
 <td style="background-color: lightcoral">
@@ -1333,7 +1021,7 @@ false</td>
 <td>
 subtract</td>
 <td>
-Integer</td>
+Entry</td>
 <td>
 This value will be subtracted from the returned value.</td>
 <td style="background-color: lightcoral">
@@ -1345,7 +1033,7 @@ false</td>
 <td>
 multiply</td>
 <td>
-Integer</td>
+Entry</td>
 <td>
 This value will be subtracted with the returned value.</td>
 <td style="background-color: lightcoral">
@@ -1357,7 +1045,7 @@ false</td>
 <td>
 divide</td>
 <td>
-Integer</td>
+Entry</td>
 <td>
 This value will be divided to the returned value.</td>
 <td style="background-color: lightcoral">
@@ -1369,7 +1057,7 @@ false</td>
 <td>
 min</td>
 <td>
-Integer</td>
+Entry</td>
 <td>
 Using this value will set a minimum limit for the returned value.</td>
 <td style="background-color: lightcoral">
@@ -1381,7 +1069,7 @@ false</td>
 <td>
 max</td>
 <td>
-Integer</td>
+Entry</td>
 <td>
 Using this value will set a maximum limit for the returned value.</td>
 <td style="background-color: lightcoral">
@@ -1393,7 +1081,7 @@ false</td>
 <td>
 modulo</td>
 <td>
-Integer</td>
+Entry</td>
 <td>
 Using this value will apply a modulo operation to the returned value.</td>
 <td style="background-color: lightcoral">
@@ -1437,7 +1125,7 @@ Fallback Value</th>
 <td>
 property</td>
 <td>
-String</td>
+Entry</td>
 <td>
 Name of the property you want the value from.</td>
 <td style="background-color: lightgreen">
@@ -1449,7 +1137,7 @@ true</td>
 <td>
 add</td>
 <td>
-Float</td>
+Entry</td>
 <td>
 This value will be added on top of the returned value.</td>
 <td style="background-color: lightcoral">
@@ -1461,7 +1149,7 @@ false</td>
 <td>
 subtract</td>
 <td>
-Float</td>
+Entry</td>
 <td>
 This value will be subtracted from the returned value.</td>
 <td style="background-color: lightcoral">
@@ -1473,7 +1161,7 @@ false</td>
 <td>
 multiply</td>
 <td>
-Float</td>
+Entry</td>
 <td>
 This value will be subtracted with the returned value.</td>
 <td style="background-color: lightcoral">
@@ -1485,7 +1173,7 @@ false</td>
 <td>
 divide</td>
 <td>
-Float</td>
+Entry</td>
 <td>
 This value will be divided to the returned value.</td>
 <td style="background-color: lightcoral">
@@ -1497,7 +1185,7 @@ false</td>
 <td>
 min</td>
 <td>
-Float</td>
+Entry</td>
 <td>
 Using this value will set a minimum limit for the returned value.</td>
 <td style="background-color: lightcoral">
@@ -1509,7 +1197,7 @@ false</td>
 <td>
 max</td>
 <td>
-Float</td>
+Entry</td>
 <td>
 Using this value will set a maximum limit for the returned value.</td>
 <td style="background-color: lightcoral">
@@ -1521,7 +1209,7 @@ false</td>
 <td>
 modulo</td>
 <td>
-Float</td>
+Entry</td>
 <td>
 Using this value will apply a modulo operation to the returned value.</td>
 <td style="background-color: lightcoral">
@@ -1565,7 +1253,7 @@ Fallback Value</th>
 <td>
 property</td>
 <td>
-String</td>
+Entry</td>
 <td>
 Name of the property you want the value from.</td>
 <td style="background-color: lightgreen">
@@ -1577,7 +1265,7 @@ true</td>
 <td>
 add</td>
 <td>
-Integer</td>
+Entry</td>
 <td>
 This value will be added on top of the returned value.</td>
 <td style="background-color: lightcoral">
@@ -1589,7 +1277,7 @@ false</td>
 <td>
 subtract</td>
 <td>
-Integer</td>
+Entry</td>
 <td>
 This value will be subtracted from the returned value.</td>
 <td style="background-color: lightcoral">
@@ -1601,7 +1289,7 @@ false</td>
 <td>
 multiply</td>
 <td>
-Integer</td>
+Entry</td>
 <td>
 This value will be subtracted with the returned value.</td>
 <td style="background-color: lightcoral">
@@ -1613,7 +1301,7 @@ false</td>
 <td>
 divide</td>
 <td>
-Integer</td>
+Entry</td>
 <td>
 This value will be divided to the returned value.</td>
 <td style="background-color: lightcoral">
@@ -1625,7 +1313,7 @@ false</td>
 <td>
 min</td>
 <td>
-Integer</td>
+Entry</td>
 <td>
 Using this value will set a minimum limit for the returned value.</td>
 <td style="background-color: lightcoral">
@@ -1637,7 +1325,7 @@ false</td>
 <td>
 max</td>
 <td>
-Integer</td>
+Entry</td>
 <td>
 Using this value will set a maximum limit for the returned value.</td>
 <td style="background-color: lightcoral">
@@ -1649,7 +1337,7 @@ false</td>
 <td>
 modulo</td>
 <td>
-Integer</td>
+Entry</td>
 <td>
 Using this value will apply a modulo operation to the returned value.</td>
 <td style="background-color: lightcoral">
@@ -1693,7 +1381,7 @@ Fallback Value</th>
 <td>
 add</td>
 <td>
-Integer</td>
+Entry</td>
 <td>
 This value will be added on top of the returned value.</td>
 <td style="background-color: lightcoral">
@@ -1705,7 +1393,7 @@ false</td>
 <td>
 subtract</td>
 <td>
-Integer</td>
+Entry</td>
 <td>
 This value will be subtracted from the returned value.</td>
 <td style="background-color: lightcoral">
@@ -1717,7 +1405,7 @@ false</td>
 <td>
 multiply</td>
 <td>
-Integer</td>
+Entry</td>
 <td>
 This value will be subtracted with the returned value.</td>
 <td style="background-color: lightcoral">
@@ -1729,7 +1417,7 @@ false</td>
 <td>
 divide</td>
 <td>
-Integer</td>
+Entry</td>
 <td>
 This value will be divided to the returned value.</td>
 <td style="background-color: lightcoral">
@@ -1741,7 +1429,7 @@ false</td>
 <td>
 min</td>
 <td>
-Integer</td>
+Entry</td>
 <td>
 Using this value will set a minimum limit for the returned value.</td>
 <td style="background-color: lightcoral">
@@ -1753,7 +1441,7 @@ false</td>
 <td>
 max</td>
 <td>
-Integer</td>
+Entry</td>
 <td>
 Using this value will set a maximum limit for the returned value.</td>
 <td style="background-color: lightcoral">
@@ -1765,7 +1453,7 @@ false</td>
 <td>
 modulo</td>
 <td>
-Integer</td>
+Entry</td>
 <td>
 Using this value will apply a modulo operation to the returned value.</td>
 <td style="background-color: lightcoral">
@@ -1809,7 +1497,7 @@ Fallback Value</th>
 <td>
 objective</td>
 <td>
-String</td>
+Entry</td>
 <td>
 Name of the objective.</td>
 <td style="background-color: lightgreen">
@@ -1821,7 +1509,7 @@ true</td>
 <td>
 add</td>
 <td>
-Integer</td>
+Entry</td>
 <td>
 This value will be added on top of the returned value.</td>
 <td style="background-color: lightcoral">
@@ -1833,7 +1521,7 @@ false</td>
 <td>
 subtract</td>
 <td>
-Integer</td>
+Entry</td>
 <td>
 This value will be subtracted from the returned value.</td>
 <td style="background-color: lightcoral">
@@ -1845,7 +1533,7 @@ false</td>
 <td>
 multiply</td>
 <td>
-Integer</td>
+Entry</td>
 <td>
 This value will be subtracted with the returned value.</td>
 <td style="background-color: lightcoral">
@@ -1857,7 +1545,7 @@ false</td>
 <td>
 divide</td>
 <td>
-Integer</td>
+Entry</td>
 <td>
 This value will be divided to the returned value.</td>
 <td style="background-color: lightcoral">
@@ -1869,7 +1557,7 @@ false</td>
 <td>
 min</td>
 <td>
-Integer</td>
+Entry</td>
 <td>
 Using this value will set a minimum limit for the returned value.</td>
 <td style="background-color: lightcoral">
@@ -1881,7 +1569,7 @@ false</td>
 <td>
 max</td>
 <td>
-Integer</td>
+Entry</td>
 <td>
 Using this value will set a maximum limit for the returned value.</td>
 <td style="background-color: lightcoral">
@@ -1893,7 +1581,7 @@ false</td>
 <td>
 modulo</td>
 <td>
-Integer</td>
+Entry</td>
 <td>
 Using this value will apply a modulo operation to the returned value.</td>
 <td style="background-color: lightcoral">
@@ -1937,7 +1625,7 @@ Fallback Value</th>
 <td>
 add</td>
 <td>
-Integer</td>
+Entry</td>
 <td>
 This value will be added on top of the returned value.</td>
 <td style="background-color: lightcoral">
@@ -1949,7 +1637,7 @@ false</td>
 <td>
 subtract</td>
 <td>
-Integer</td>
+Entry</td>
 <td>
 This value will be subtracted from the returned value.</td>
 <td style="background-color: lightcoral">
@@ -1961,7 +1649,7 @@ false</td>
 <td>
 multiply</td>
 <td>
-Integer</td>
+Entry</td>
 <td>
 This value will be subtracted with the returned value.</td>
 <td style="background-color: lightcoral">
@@ -1973,7 +1661,7 @@ false</td>
 <td>
 divide</td>
 <td>
-Integer</td>
+Entry</td>
 <td>
 This value will be divided to the returned value.</td>
 <td style="background-color: lightcoral">
@@ -1985,7 +1673,7 @@ false</td>
 <td>
 min</td>
 <td>
-Integer</td>
+Entry</td>
 <td>
 Using this value will set a minimum limit for the returned value.</td>
 <td style="background-color: lightcoral">
@@ -1997,7 +1685,7 @@ false</td>
 <td>
 max</td>
 <td>
-Integer</td>
+Entry</td>
 <td>
 Using this value will set a maximum limit for the returned value.</td>
 <td style="background-color: lightcoral">
@@ -2009,7 +1697,7 @@ false</td>
 <td>
 modulo</td>
 <td>
-Integer</td>
+Entry</td>
 <td>
 Using this value will apply a modulo operation to the returned value.</td>
 <td style="background-color: lightcoral">
@@ -2053,7 +1741,7 @@ Fallback Value</th>
 <td>
 true_value</td>
 <td>
-Boolean</td>
+Entry</td>
 <td>
 If the variable turns out to be true, this value will be inserted into the texture path</td>
 <td style="background-color: lightcoral">
@@ -2065,7 +1753,7 @@ true</td>
 <td>
 false_value</td>
 <td>
-Boolean</td>
+Entry</td>
 <td>
 If the variable turns out to be false, this value will be inserted into the texture path</td>
 <td style="background-color: lightcoral">
@@ -2109,7 +1797,7 @@ Fallback Value</th>
 <td>
 property</td>
 <td>
-String</td>
+Entry</td>
 <td>
 Name of the property you want the value from.</td>
 <td style="background-color: lightgreen">

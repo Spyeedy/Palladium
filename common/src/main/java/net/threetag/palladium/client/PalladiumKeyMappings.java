@@ -6,10 +6,11 @@ import net.minecraft.client.KeyMapping;
 import net.minecraft.client.Minecraft;
 import net.threetag.palladium.client.screen.AbilityBarRenderer;
 import net.threetag.palladium.network.AbilityKeyPressedPacket;
-import net.threetag.palladium.network.NotifyMovementKeyListenerPacket;
 import net.threetag.palladium.network.ToggleOpenableEquipmentPacket;
-import net.threetag.palladium.power.ability.*;
-import net.threetag.palladium.util.property.PalladiumProperties;
+import net.threetag.palladium.power.ability.Ability;
+import net.threetag.palladium.power.ability.AbilityConditions;
+import net.threetag.palladium.power.ability.AbilityInstance;
+import net.threetag.palladium.power.ability.AbilityUtil;
 import net.threetag.palladiumcore.event.ClientTickEvents;
 import net.threetag.palladiumcore.event.EventResult;
 import net.threetag.palladiumcore.event.InputEvents;
@@ -75,27 +76,6 @@ public class PalladiumKeyMappings implements InputEvents.KeyPressed, ClientTickE
                         }
                     }
                 }
-            }
-
-            // Sync jump key
-            if (PalladiumProperties.JUMP_KEY_DOWN.isRegistered(client.player) && client.options.keyJump.isDown() != PalladiumProperties.JUMP_KEY_DOWN.get(client.player)) {
-                NetworkManager.get().sendToServer(new NotifyMovementKeyListenerPacket(0, client.options.keyJump.isDown()));
-            }
-
-            if (PalladiumProperties.LEFT_KEY_DOWN.isRegistered(client.player) && client.options.keyLeft.isDown() != PalladiumProperties.LEFT_KEY_DOWN.get(client.player)) {
-                NetworkManager.get().sendToServer(new NotifyMovementKeyListenerPacket(1, client.options.keyLeft.isDown()));
-            }
-
-            if (PalladiumProperties.RIGHT_KEY_DOWN.isRegistered(client.player) && client.options.keyRight.isDown() != PalladiumProperties.RIGHT_KEY_DOWN.get(client.player)) {
-                NetworkManager.get().sendToServer(new NotifyMovementKeyListenerPacket(2, client.options.keyRight.isDown()));
-            }
-
-            if (PalladiumProperties.FORWARD_KEY_DOWN.isRegistered(client.player) && client.options.keyUp.isDown() != PalladiumProperties.FORWARD_KEY_DOWN.get(client.player)) {
-                NetworkManager.get().sendToServer(new NotifyMovementKeyListenerPacket(3, client.options.keyUp.isDown()));
-            }
-
-            if (PalladiumProperties.BACKWARDS_KEY_DOWN.isRegistered(client.player) && client.options.keyDown.isDown() != PalladiumProperties.BACKWARDS_KEY_DOWN.get(client.player)) {
-                NetworkManager.get().sendToServer(new NotifyMovementKeyListenerPacket(4, client.options.keyDown.isDown()));
             }
         }
     }

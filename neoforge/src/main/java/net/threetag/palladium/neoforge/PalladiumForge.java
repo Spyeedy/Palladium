@@ -9,11 +9,8 @@ import net.neoforged.api.distmarker.OnlyIn;
 import net.neoforged.bus.api.EventPriority;
 import net.neoforged.bus.api.IEventBus;
 import net.neoforged.bus.api.SubscribeEvent;
-import net.neoforged.fml.ModList;
-import net.neoforged.fml.ModLoadingContext;
 import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.fml.common.Mod;
-import net.neoforged.fml.config.ModConfig;
 import net.neoforged.fml.event.lifecycle.FMLCommonSetupEvent;
 import net.neoforged.fml.event.lifecycle.FMLConstructModEvent;
 import net.neoforged.neoforge.client.event.RegisterClientReloadListenersEvent;
@@ -22,12 +19,9 @@ import net.neoforged.neoforge.event.AddPackFindersEvent;
 import net.neoforged.neoforge.registries.NewRegistryEvent;
 import net.threetag.palladium.Palladium;
 import net.threetag.palladium.PalladiumClient;
-import net.threetag.palladium.PalladiumConfig;
 import net.threetag.palladium.addonpack.AddonPackManager;
 import net.threetag.palladium.block.PalladiumBlocks;
 import net.threetag.palladium.client.model.ModelLayerManager;
-import net.threetag.palladium.compat.curios.neoforge.CuriosCompat;
-import net.threetag.palladium.compat.geckolib.neoforge.GeckoLibCompatImpl;
 import net.threetag.palladium.data.neoforge.*;
 import net.threetag.palladium.energy.neoforge.EnergyHelperImpl;
 import net.threetag.palladium.mixin.ReloadableResourceManagerMixin;
@@ -42,23 +36,11 @@ public class PalladiumForge {
     public PalladiumForge(IEventBus modBus) {
         Palladium.init();
         EnergyHelperImpl.COMPONENTS.register(modBus);
-        ModLoadingContext.get().registerConfig(ModConfig.Type.CLIENT, PalladiumConfig.Client.generateConfig());
-        ModLoadingContext.get().registerConfig(ModConfig.Type.SERVER, PalladiumConfig.Server.generateConfig());
-
-        if (ModList.get().isLoaded("curios")) {
-            CuriosCompat.init();
-        }
-
-        if (Platform.isModLoaded("geckolib")) {
-            GeckoLibCompatImpl.init();
-        }
+//        ModLoadingContext.get().registerConfig(ModConfig.Type.CLIENT, PalladiumConfig.Client.generateConfig());
+//        ModLoadingContext.get().registerConfig(ModConfig.Type.SERVER, PalladiumConfig.Server.generateConfig());
 
         if (Platform.isClient()) {
             PalladiumClient.init();
-
-            if (ModList.get().isLoaded("curios")) {
-                CuriosCompat.initClient();
-            }
         }
     }
 
@@ -85,8 +67,8 @@ public class PalladiumForge {
         PalladiumBlockTagsProvider blockTagsProvider = new PalladiumBlockTagsProvider(output, e.getLookupProvider(), e.getExistingFileHelper());
         e.getGenerator().addProvider(e.includeServer(), blockTagsProvider);
         e.getGenerator().addProvider(e.includeServer(), new PalladiumItemTagsProvider(output, e.getLookupProvider(), e.getExistingFileHelper()));
-        e.getGenerator().addProvider(e.includeServer(), new PalladiumRecipeProvider(output));
-        e.getGenerator().addProvider(e.includeServer(), new PalladiumLootTableProvider(output));
+        e.getGenerator().addProvider(e.includeServer(), new PalladiumRecipeProvider(output, e.getLookupProvider()));
+        e.getGenerator().addProvider(e.includeServer(), new PalladiumLootTableProvider(output, e.getLookupProvider()));
         e.getGenerator().addProvider(e.includeServer(), new PalladiumWorldGenProvider(output, e.getLookupProvider()));
 
         e.getGenerator().addProvider(e.includeClient(), new PalladiumBlockStateProvider(output, e.getExistingFileHelper()));

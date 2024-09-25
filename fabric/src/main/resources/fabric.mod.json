@@ -35,10 +35,9 @@
   ],
   "depends": {
     "fabric": "*",
-    "minecraft": ">=1.20.1",
-    "palladiumcore": ">=1.0.0",
-    "forgeconfigapiport": "*",
-    "porting_lib_attributes": "*"
+    "minecraft": ">=1.21",
+    "palladiumcore": ">=2.2.0",
+    "forgeconfigapiport": "*"
   },
   "custom": {
     "catalogue": {

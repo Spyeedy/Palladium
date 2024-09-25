@@ -16,6 +16,11 @@ public class PalladiumDataComponents {
 
     public static final DeferredRegister<DataComponentType<?>> DATA_COMPONENTS = DeferredRegister.create(Palladium.MOD_ID, Registries.DATA_COMPONENT_TYPE);
 
+    static {
+        Items.RENDER_LAYERS.get();
+        Abilities.UNLOCKED.get();
+    }
+
     public static class Items {
 
         public static final RegistryHolder<DataComponentType<?>, DataComponentType<ItemRenderLayers>> RENDER_LAYERS = DATA_COMPONENTS.register("render_layers", () -> DataComponentType.<ItemRenderLayers>builder()

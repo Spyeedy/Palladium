@@ -30,10 +30,10 @@ import net.threetag.palladium.item.PalladiumItems;
 import net.threetag.palladium.network.PalladiumNetwork;
 import net.threetag.palladium.power.ItemPowerManager;
 import net.threetag.palladium.power.PowerEventHandler;
+import net.threetag.palladium.power.PowerUtil;
 import net.threetag.palladium.power.SuitSetPowerManager;
-import net.threetag.palladium.power.ability.AbilitySerializers;
-import net.threetag.palladium.power.ability.AbilitySerializer;
 import net.threetag.palladium.power.ability.AbilityEventHandler;
+import net.threetag.palladium.power.ability.AbilitySerializers;
 import net.threetag.palladium.power.provider.PowerProviders;
 import net.threetag.palladium.registry.PalladiumRegistries;
 import net.threetag.palladium.sound.PalladiumSoundEvents;
@@ -41,7 +41,6 @@ import net.threetag.palladium.util.SupporterHandler;
 import net.threetag.palladium.util.icon.IconSerializer;
 import net.threetag.palladium.util.icon.IconSerializers;
 import net.threetag.palladium.util.property.EntityPropertyHandler;
-import net.threetag.palladium.util.property.PalladiumProperties;
 import net.threetag.palladium.world.PalladiumFeatures;
 import net.threetag.palladium.world.TrackedScoresManager;
 import net.threetag.palladiumcore.event.CommandEvents;
@@ -92,7 +91,6 @@ public class Palladium {
         SuitSetPowerManager.init();
         AbilityEventHandler.init();
         AbilitySerializers.init();
-        PalladiumProperties.init();
         PalladiumAttributes.init();
         EntityEffects.init();
         SupporterHandler.init();
@@ -119,9 +117,9 @@ public class Palladium {
 
         // Carry over data from old players to new
         PlayerEvents.CLONE.register((oldPlayer, newPlayer, wasDeath) -> {
-            PowerEventHandler.getPowerHandler(oldPlayer).ifPresent(handlerOld -> {
-                PowerEventHandler.getPowerHandler(newPlayer).ifPresent(handlerNew -> {
-                    handlerNew.fromNBT(handlerOld.toNBT());
+            PowerUtil.getPowerHandler(oldPlayer).ifPresent(handlerOld -> {
+                PowerUtil.getPowerHandler(newPlayer).ifPresent(handlerNew -> {
+                    handlerNew.load(handlerOld.save());
                 });
             });
 
@@ -142,7 +140,7 @@ public class Palladium {
     public static void generateDocumentation() {
         if (Platform.isClient()) {
             Consumer<HTMLBuilder> consumer = HTMLBuilder::save;
-            consumer.accept(AbilitySerializer.documentationBuilder());
+//            consumer.accept(AbilitySerializer.documentationBuilder());
             consumer.accept(ConditionSerializer.documentationBuilder());
             consumer.accept(CreativeModeTabParser.documentationBuilder());
             consumer.accept(ArmorMaterialParser.documentationBuilder());
