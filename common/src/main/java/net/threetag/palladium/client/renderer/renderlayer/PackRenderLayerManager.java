@@ -98,6 +98,7 @@ public class PackRenderLayerManager extends SimpleJsonResourceReloadListener {
         registerParser(new ResourceLocation(Palladium.MOD_ID, "thrusters"), ThrusterPackRenderLayer::parse);
 
         registerRenderType(new ResourceLocation("minecraft", "solid"), (source, texture, glint) -> ItemRenderer.getArmorFoilBuffer(source, RenderType.entityTranslucent(texture), false, glint));
+        registerRenderType(new ResourceLocation("minecraft", "cutout"), (source, texture, glint) -> ItemRenderer.getArmorFoilBuffer(source, RenderType.entityCutout(texture), false, glint));
         registerRenderType(new ResourceLocation("minecraft", "glow"), new RenderTypeFunction() {
             @Override
             public VertexConsumer createVertexConsumer(MultiBufferSource buffer, ResourceLocation texture, boolean withGlint) {
