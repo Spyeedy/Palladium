@@ -23,15 +23,16 @@
     "client.PlayerRendererMixin",
     "client.RenderTypeMixin",
     "client.ScreenEffectRendererMixin",
+    "client.SodiumFixMixin",
     "client.SplashManagerMixin",
-    "client.TextureManagerMixin",
-    "client.SodiumFixMixin"
+    "client.TextureManagerMixin"
   ],
   "mixins": [
     "AbstractContainerMenuMixin",
     "ArmorStandMixin",
     "BlockBehaviourMixin",
     "BlockStateBaseMixin",
+    "CrossbowItemMixin",
     "EntityMixin",
     "EntitySelectorOptionsInvoker",
     "EntitySelectorParserMixin",

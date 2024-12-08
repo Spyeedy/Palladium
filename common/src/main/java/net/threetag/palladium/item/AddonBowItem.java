@@ -3,8 +3,6 @@ package net.threetag.palladium.item;
 import com.google.common.collect.Multimap;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonPrimitive;
-import net.minecraft.core.Registry;
-import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
@@ -28,7 +26,6 @@ import net.threetag.palladium.addonpack.parser.ItemParser;
 import net.threetag.palladium.documentation.JsonDocumentationBuilder;
 import net.threetag.palladium.util.PlayerSlot;
 import net.threetag.palladium.util.json.GsonUtil;
-import net.threetag.palladiumcore.registry.client.ItemPropertyRegistry;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
@@ -84,33 +81,49 @@ public class AddonBowItem extends BowItem implements IAddonItem {
                 if (!((double) f < 0.1)) {
                     boolean bl2 = bl && itemStack.is(Items.ARROW);
                     if (!level.isClientSide) {
-                        ArrowItem arrowItem = (ArrowItem) (itemStack.getItem() instanceof ArrowItem ? itemStack.getItem() : Items.ARROW);
-                        AbstractArrow abstractArrow = arrowItem.createArrow(level, itemStack, player);
-                        abstractArrow.shootFromRotation(player, player.getXRot(), player.getYRot(), 0.0F, f * this.velocity, this.inaccuracy);
-                        if (f == 1.0F) {
-                            abstractArrow.setCritArrow(true);
-                        }
+                        var item = itemStack.getItem();
 
-                        int j = EnchantmentHelper.getItemEnchantmentLevel(Enchantments.POWER_ARROWS, stack);
-                        if (j > 0) {
-                            abstractArrow.setBaseDamage(abstractArrow.getBaseDamage() + (double) j * 0.5 + 0.5);
-                        }
+                        if (item instanceof AddonProjectileItem projectileItem) {
+                            var entity = projectileItem.createProjectile(level, itemStack, livingEntity);
 
-                        int k = EnchantmentHelper.getItemEnchantmentLevel(Enchantments.PUNCH_ARROWS, stack);
-                        if (k > 0) {
-                            abstractArrow.setKnockback(k);
-                        }
+                            if (entity != null) {
+                                entity.shootFromRotation(player, player.getXRot(), player.getYRot(), 0.0F, f * this.velocity, this.inaccuracy);
 
-                        if (EnchantmentHelper.getItemEnchantmentLevel(Enchantments.FLAMING_ARROWS, stack) > 0) {
-                            abstractArrow.setSecondsOnFire(100);
-                        }
+                                if (EnchantmentHelper.getItemEnchantmentLevel(Enchantments.FLAMING_ARROWS, stack) > 0) {
+                                    entity.setSecondsOnFire(100);
+                                }
 
-                        stack.hurtAndBreak(1, player, player2 -> player2.broadcastBreakEvent(player.getUsedItemHand()));
-                        if (bl2 || player.getAbilities().instabuild && (itemStack.is(Items.SPECTRAL_ARROW) || itemStack.is(Items.TIPPED_ARROW))) {
-                            abstractArrow.pickup = AbstractArrow.Pickup.CREATIVE_ONLY;
-                        }
+                                level.addFreshEntity(entity);
+                            }
+                        } else {
+                            ArrowItem arrowItem = (ArrowItem) (itemStack.getItem() instanceof ArrowItem ? itemStack.getItem() : Items.ARROW);
+                            AbstractArrow abstractArrow = arrowItem.createArrow(level, itemStack, player);
+                            abstractArrow.shootFromRotation(player, player.getXRot(), player.getYRot(), 0.0F, f * this.velocity, this.inaccuracy);
+                            if (f == 1.0F) {
+                                abstractArrow.setCritArrow(true);
+                            }
 
-                        level.addFreshEntity(abstractArrow);
+                            int j = EnchantmentHelper.getItemEnchantmentLevel(Enchantments.POWER_ARROWS, stack);
+                            if (j > 0) {
+                                abstractArrow.setBaseDamage(abstractArrow.getBaseDamage() + (double) j * 0.5 + 0.5);
+                            }
+
+                            int k = EnchantmentHelper.getItemEnchantmentLevel(Enchantments.PUNCH_ARROWS, stack);
+                            if (k > 0) {
+                                abstractArrow.setKnockback(k);
+                            }
+
+                            if (EnchantmentHelper.getItemEnchantmentLevel(Enchantments.FLAMING_ARROWS, stack) > 0) {
+                                abstractArrow.setSecondsOnFire(100);
+                            }
+
+                            stack.hurtAndBreak(1, player, player2 -> player2.broadcastBreakEvent(player.getUsedItemHand()));
+                            if (bl2 || player.getAbilities().instabuild && (itemStack.is(Items.SPECTRAL_ARROW) || itemStack.is(Items.TIPPED_ARROW))) {
+                                abstractArrow.pickup = AbstractArrow.Pickup.CREATIVE_ONLY;
+                            }
+
+                            level.addFreshEntity(abstractArrow);
+                        }
                     }
 
                     level.playSound(
