@@ -3,9 +3,12 @@ package net.threetag.palladium.power.ability;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.registries.Registries;
+import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.Mth;
 import net.minecraft.world.SimpleContainer;
+import net.minecraft.world.damagesource.DamageTypes;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
@@ -30,6 +33,7 @@ import net.threetag.palladiumcore.util.Platform;
 public class EnergyBeamAbility extends Ability implements AnimationTimer {
 
     public static final PalladiumProperty<ResourceLocation> BEAM = new ResourceLocationProperty("energy_beam").configurable("Configuration for the look of the beam. Check wiki for information.");
+    public static final PalladiumProperty<ResourceLocation> DAMAGE_TYPE = new ResourceLocationProperty("damage_type").configurable("Damage type which is applied when an entity is hit. Uses normal player/mob attack if null/unchanged.");
     public static final PalladiumProperty<Float> DAMAGE = new FloatProperty("damage").configurable("The damage dealt with aiming for entities (per tick)");
     public static final PalladiumProperty<Float> MAX_DISTANCE = new FloatProperty("max_distance").configurable("The maximum distance you can reach with your heat vision");
     public static final PalladiumProperty<Float> SPEED = new FloatProperty("speed").configurable("Speed at which the energy beam extends from the player. Use 0 for instant extension.");
@@ -43,6 +47,7 @@ public class EnergyBeamAbility extends Ability implements AnimationTimer {
 
     public EnergyBeamAbility() {
         this.withProperty(BEAM, new ResourceLocation("example:energy_beam"))
+                .withProperty(DAMAGE_TYPE, null)
                 .withProperty(DAMAGE, 5F)
                 .withProperty(MAX_DISTANCE, 30F)
                 .withProperty(SPEED, 0.5F)
@@ -96,7 +101,9 @@ public class EnergyBeamAbility extends Ability implements AnimationTimer {
 
                 var dmg = entry.getProperty(DAMAGE);
                 if (dmg > 0) {
-                    var damageSrc = entity instanceof Player player ? entity.level().damageSources().playerAttack(player) : entity.damageSources().mobAttack(entity);
+                    var dmgSources = entity.level().damageSources();
+                    var customType = entry.getProperty(DAMAGE_TYPE);
+                    var damageSrc = dmgSources.source(customType != null ? ResourceKey.create(Registries.DAMAGE_TYPE, customType) : (entity instanceof Player ? DamageTypes.PLAYER_ATTACK : DamageTypes.MOB_ATTACK), entity, null);
                     entityHitResult.getEntity().hurt(damageSrc, dmg);
                 }
 
