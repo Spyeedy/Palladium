@@ -1,2 +1,4 @@
-- Fixed glowing render layers not working with Iris
-- Updated porting lib attributes to avoid Crash with Create
+- Added Sodium and Iris compat fixes for Forge versions aswell
+- Added "minecraft:cutout" render type for render layers
+- Added "projectile" item type
+- Added "damage_type" setting to energy beam ability
