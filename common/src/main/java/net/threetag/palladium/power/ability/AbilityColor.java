@@ -8,7 +8,7 @@ public enum AbilityColor {
     LIGHT_BLUE(104, 72),
     YELLOW(104, 96),
     LIME(104, 120),
-    PINK(104, 133),
+    PINK(104, 144),
     GRAY(104, 168),
     LIGHT_GRAY(128, 0),
     CYAN(128, 24),
