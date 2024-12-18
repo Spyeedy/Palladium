@@ -1,15 +1,16 @@
 package net.threetag.palladium.network;
 
+import dev.architectury.networking.NetworkManager;
+import dev.architectury.utils.Env;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.minecraft.client.Minecraft;
-import net.minecraft.core.Registry;
+import net.minecraft.core.Holder;
 import net.minecraft.nbt.CompoundTag;
-import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.RegistryFriendlyByteBuf;
+import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
-import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.level.Level;
 import net.threetag.palladium.Palladium;
@@ -17,76 +18,116 @@ import net.threetag.palladium.power.Power;
 import net.threetag.palladium.power.PowerHolder;
 import net.threetag.palladium.power.PowerUtil;
 import net.threetag.palladium.power.PowerValidator;
-import net.threetag.palladium.power.energybar.EnergyBarReference;
 import net.threetag.palladium.registry.PalladiumRegistryKeys;
-import net.threetag.palladiumcore.network.NetworkManager;
 import org.apache.commons.lang3.tuple.Triple;
 import org.jetbrains.annotations.NotNull;
 
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
-public record SyncEntityPowersPacket(int entityId, List<ResourceLocation> toRemove, List<ResourceLocation> toAdd,
-                                     List<Triple<EnergyBarReference, Integer, Integer>> energyBars) implements CustomPacketPayload {
+public record SyncEntityPowersPacket(int entityId, List<Holder<Power>> remove,
+                                     List<NewPowerChange> add) implements CustomPacketPayload {
 
     public static final CustomPacketPayload.Type<SyncEntityPowersPacket> TYPE = new CustomPacketPayload.Type<>(Palladium.id("sync_entity_powers"));
-    public static final StreamCodec<RegistryFriendlyByteBuf, SyncEntityPowersPacket> STREAM_CODEC = StreamCodec.of((buf, packet) -> {
-        buf.writeInt(packet.entityId);
-        buf.writeCollection(packet.toRemove, FriendlyByteBuf::writeResourceLocation);
-        buf.writeCollection(packet.toAdd, FriendlyByteBuf::writeResourceLocation);
-        buf.writeCollection(packet.energyBars, (buf1, pair) -> {
-            pair.getLeft().toBuffer(buf1);
-            buf1.writeInt(pair.getMiddle());
-            buf1.writeInt(pair.getRight());
-        });
-    }, buf -> {
-        var entityId = buf.readInt();
-        var toRemove = buf.readList(FriendlyByteBuf::readResourceLocation);
-        var toAdd = buf.readList(FriendlyByteBuf::readResourceLocation);
-        var energyBars = buf.readList(buf1 -> {
-            var ref = EnergyBarReference.fromBuffer(buf1);
-            int val = buf1.readInt();
-            int max = buf1.readInt();
-            return Triple.of(ref, val, max);
-        });
 
-        return new SyncEntityPowersPacket(entityId, toRemove, toAdd, energyBars);
-    });
+    public static final StreamCodec<RegistryFriendlyByteBuf, SyncEntityPowersPacket> STREAM_CODEC = StreamCodec.composite(
+            ByteBufCodecs.VAR_INT, SyncEntityPowersPacket::entityId,
+            ByteBufCodecs.holderRegistry(PalladiumRegistryKeys.POWER).apply(ByteBufCodecs.list()), SyncEntityPowersPacket::remove,
+            NewPowerChange.STREAM_CODEC.apply(ByteBufCodecs.list()), SyncEntityPowersPacket::add,
+            SyncEntityPowersPacket::new
+    );
 
-    public static void handle(SyncEntityPowersPacket packet, NetworkManager.Context context) {
-        if (context.isClient()) {
+    @Override
+    public @NotNull Type<SyncEntityPowersPacket> type() {
+        return TYPE;
+    }
+
+    public static void handle(SyncEntityPowersPacket packet, NetworkManager.PacketContext context) {
+        if (context.getEnvironment() == Env.CLIENT) {
             handleClient(packet, context);
         }
     }
 
+    public static SyncEntityPowersPacket create(LivingEntity entity, List<PowerHolder> removed, List<PowerHolder> added) {
+        List<NewPowerChange> add = new ArrayList<>();
+        added.forEach((powerHolder) -> add.add(new NewPowerChange(powerHolder)));
+        return new SyncEntityPowersPacket(entity.getId(), removed.stream().map(PowerHolder::getPower).toList(), add);
+    }
+
+    public static SyncEntityPowersPacket create(LivingEntity entity) {
+        List<NewPowerChange> add = new ArrayList<>();
+        PowerUtil.getPowerHandler(entity).getPowerHolders().forEach((resourceLocation, powerHolder) -> {
+            add.add(new NewPowerChange(powerHolder));
+        });
+        return new SyncEntityPowersPacket(entity.getId(), Collections.emptyList(), add);
+    }
+
     @Environment(EnvType.CLIENT)
-    public static void handleClient(SyncEntityPowersPacket packet, NetworkManager.Context context) {
+    public static void handleClient(SyncEntityPowersPacket packet, NetworkManager.PacketContext context) {
         Level level = Minecraft.getInstance().level;
         if (level != null && level.getEntity(packet.entityId) instanceof LivingEntity livingEntity) {
-            Registry<Power> registry = level.registryAccess().registryOrThrow(PalladiumRegistryKeys.POWER);
-            PowerUtil.getPowerHandler(livingEntity).ifPresent(handler -> {
-                for (ResourceLocation powerId : packet.toRemove) {
-                    handler.removePowerHolder(powerId);
-                }
+            var handler = PowerUtil.getPowerHandler(livingEntity);
 
-                for (ResourceLocation powerId : packet.toAdd) {
-                    // TODO component tag
-                    handler.setPowerHolder(new PowerHolder(livingEntity, registry.getHolder(powerId).orElseThrow(), PowerValidator.ALWAYS_ACTIVE, new CompoundTag()));
-                }
-            });
+            for (Holder<Power> power : packet.remove) {
+                handler.removePowerHolder(power);
+            }
 
-            for (Triple<EnergyBarReference, Integer, Integer> pair : packet.energyBars) {
-                var bar = pair.getLeft().getBar(livingEntity);
+            for (NewPowerChange add : packet.add) {
+                // TODO component tag
+                var powerHolder = new PowerHolder(livingEntity, add.power, PowerValidator.ALWAYS_ACTIVE, new CompoundTag());
+                handler.addPowerHolder(powerHolder);
 
-                if (bar != null) {
-                    bar.set(pair.getMiddle());
-                    bar.setMax(pair.getRight());
+                for (Triple<String, Integer, Integer> pair : add.energyBars) {
+                    var bar = powerHolder.getEnergyBars().get(pair.getLeft());
+
+                    if (bar != null) {
+                        bar.set(pair.getMiddle());
+                        bar.setMax(pair.getRight());
+                    }
                 }
             }
         }
     }
 
-    @Override
-    public @NotNull Type<? extends CustomPacketPayload> type() {
-        return TYPE;
+    public static class NewPowerChange {
+
+        private static final StreamCodec<RegistryFriendlyByteBuf, Triple<String, Integer, Integer>> TRIPLE_STREAM_CODEC = StreamCodec.composite(
+                ByteBufCodecs.STRING_UTF8, Triple::getLeft,
+                ByteBufCodecs.VAR_INT, Triple::getMiddle,
+                ByteBufCodecs.VAR_INT, Triple::getMiddle,
+                Triple::of
+        );
+
+        public static final StreamCodec<RegistryFriendlyByteBuf, NewPowerChange> STREAM_CODEC = StreamCodec.composite(
+                ByteBufCodecs.holderRegistry(PalladiumRegistryKeys.POWER), NewPowerChange::getPower,
+                TRIPLE_STREAM_CODEC.apply(ByteBufCodecs.list()), NewPowerChange::getEnergyBars,
+                NewPowerChange::new
+        );
+
+        public final Holder<Power> power;
+        public final List<Triple<String, Integer, Integer>> energyBars;
+
+        public NewPowerChange(Holder<Power> power, List<Triple<String, Integer, Integer>> energyBars) {
+            this.power = power;
+            this.energyBars = energyBars;
+        }
+
+        public NewPowerChange(PowerHolder powerHolder) {
+            this.power = powerHolder.getPower();
+            this.energyBars = new ArrayList<>();
+            powerHolder.getEnergyBars().forEach((s, energyBar) -> {
+                this.energyBars.add(Triple.of(energyBar.getReference().energyBarKey(), energyBar.get(), energyBar.getMax()));
+            });
+        }
+
+        public Holder<Power> getPower() {
+            return power;
+        }
+
+        public List<Triple<String, Integer, Integer>> getEnergyBars() {
+            return energyBars;
+        }
     }
+
 }

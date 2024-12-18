@@ -9,7 +9,7 @@ import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.world.effect.MobEffect;
-import net.threetag.palladium.util.context.DataContext;
+import net.threetag.palladium.data.DataContext;
 
 public record HasEffectCondition(Holder<MobEffect> mobEffect) implements Condition {
 

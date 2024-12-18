@@ -6,7 +6,7 @@ import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.codec.StreamCodec;
 import net.threetag.palladium.power.ability.AbilityInstance;
 import net.threetag.palladium.power.ability.AbilityReference;
-import net.threetag.palladium.util.context.DataContext;
+import net.threetag.palladium.data.DataContext;
 
 public record AbilityLastTickCondition(AbilityReference ability) implements Condition {
 
@@ -27,7 +27,7 @@ public record AbilityLastTickCondition(AbilityReference ability) implements Cond
             return false;
         }
 
-        AbilityInstance dependency = this.ability.getInstance(entity, holder);
+        AbilityInstance<?> dependency = this.ability.getInstance(entity, holder);
 
         if (dependency == null) {
             return false;

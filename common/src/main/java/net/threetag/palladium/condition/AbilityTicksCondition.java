@@ -8,7 +8,7 @@ import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
 import net.threetag.palladium.power.ability.AbilityInstance;
 import net.threetag.palladium.power.ability.AbilityReference;
-import net.threetag.palladium.util.context.DataContext;
+import net.threetag.palladium.data.DataContext;
 
 public record AbilityTicksCondition(AbilityReference ability, String propertyKey, int min,
                                     int max) implements Condition {

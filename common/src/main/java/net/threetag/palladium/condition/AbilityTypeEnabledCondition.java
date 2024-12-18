@@ -9,7 +9,7 @@ import net.threetag.palladium.power.ability.AbilitySerializer;
 import net.threetag.palladium.power.ability.AbilityUtil;
 import net.threetag.palladium.registry.PalladiumRegistries;
 import net.threetag.palladium.registry.PalladiumRegistryKeys;
-import net.threetag.palladium.util.context.DataContext;
+import net.threetag.palladium.data.DataContext;
 
 public record AbilityTypeEnabledCondition(AbilitySerializer ability) implements Condition {
 

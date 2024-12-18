@@ -29,7 +29,8 @@ public class AbilityUtil {
     @NotNull
     public static <T extends Ability> Collection<AbilityInstance<T>> getInstances(LivingEntity entity) {
         List<AbilityInstance<T>> instances = new ArrayList<>();
-        PowerUtil.getPowerHandler(entity).ifPresent(handler -> handler.getPowerHolders().values().stream().map(holder -> holder.getAbilities().values()).forEach(abilityInstances -> abilityInstances.forEach(i -> instances.add((AbilityInstance<T>) i))));
+        var handler = PowerUtil.getPowerHandler(entity);
+        handler.getPowerHolders().values().stream().map(holder -> holder.getAbilities().values()).forEach(abilityInstances -> abilityInstances.forEach(i -> instances.add((AbilityInstance<T>) i)));
         return instances;
     }
 
@@ -41,9 +42,10 @@ public class AbilityUtil {
      * @return List of all ability instances of the given ability type
      */
     @NotNull
-    public static <T extends Ability> Collection<AbilityInstance<T>> getInstances(LivingEntity entity, AbilitySerializer<?> ability) {
+    public static <T extends Ability> Collection<AbilityInstance<T>> getInstances(LivingEntity entity, AbilitySerializer<T> ability) {
         List<AbilityInstance<T>> instances = new ArrayList<>();
-        PowerUtil.getPowerHandler(entity).ifPresent(handler -> handler.getPowerHolders().values().stream().map(holder -> holder.getAbilities().values().stream().filter(instance -> instance.getAbility().getSerializer() == ability).collect(Collectors.toList())).forEach(abilityInstances -> abilityInstances.forEach(i -> instances.add((AbilityInstance<T>) i))));
+        var handler = PowerUtil.getPowerHandler(entity);
+        handler.getPowerHolders().values().stream().map(holder -> holder.getAbilities().values().stream().filter(instance -> instance.getAbility().getSerializer() == ability).collect(Collectors.toList())).forEach(abilityInstances -> abilityInstances.forEach(i -> instances.add((AbilityInstance<T>) i)));
         return instances;
     }
 
@@ -56,16 +58,15 @@ public class AbilityUtil {
     @NotNull
     public static Collection<AbilityInstance<?>> getEnabledInstances(LivingEntity entity) {
         List<AbilityInstance<?>> instances = new ArrayList<>();
-        PowerUtil.getPowerHandler(entity).ifPresent(handler -> {
-            for (PowerHolder holder : handler.getPowerHolders().values()) {
-                Collection<AbilityInstance<?>> values = holder.getAbilities().values();
-                for (AbilityInstance<?> value : values) {
-                    if (value.isEnabled()) {
-                        instances.add(value);
-                    }
+        var handler = PowerUtil.getPowerHandler(entity);
+        for (PowerHolder holder : handler.getPowerHolders().values()) {
+            Collection<AbilityInstance<?>> values = holder.getAbilities().values();
+            for (AbilityInstance<?> value : values) {
+                if (value.isEnabled()) {
+                    instances.add(value);
                 }
             }
-        });
+        }
         return instances;
     }
 
@@ -78,16 +79,15 @@ public class AbilityUtil {
     @NotNull
     public static Collection<AbilityInstance<RenderLayerAbility>> getEnabledRenderLayerInstances(LivingEntity entity) {
         List<AbilityInstance<RenderLayerAbility>> instances = new ArrayList<>();
-        PowerUtil.getPowerHandler(entity).ifPresent(handler -> {
-            for (PowerHolder holder : handler.getPowerHolders().values()) {
-                Collection<AbilityInstance<?>> values = holder.getAbilities().values();
-                for (AbilityInstance<?> value : values) {
-                    if (value.getAbility() instanceof RenderLayerProviderAbility && value.isEnabled()) {
-                        instances.add((AbilityInstance<RenderLayerAbility>) value);
-                    }
+        var handler = PowerUtil.getPowerHandler(entity);
+        for (PowerHolder holder : handler.getPowerHolders().values()) {
+            Collection<AbilityInstance<?>> values = holder.getAbilities().values();
+            for (AbilityInstance<?> value : values) {
+                if (value.getAbility() instanceof RenderLayerProviderAbility && value.isEnabled()) {
+                    instances.add((AbilityInstance<RenderLayerAbility>) value);
                 }
             }
-        });
+        }
         return instances;
     }
 
@@ -101,7 +101,8 @@ public class AbilityUtil {
     @NotNull
     public static <T extends Ability> Collection<AbilityInstance<T>> getEnabledInstances(LivingEntity entity, AbilitySerializer<T> ability) {
         List<AbilityInstance<T>> instances = new ArrayList<>();
-        PowerUtil.getPowerHandler(entity).ifPresent(handler -> handler.getPowerHolders().values().stream().map(holder -> holder.getAbilities().values().stream().filter(instance -> instance.isEnabled() && instance.getAbility().getSerializer() == ability).collect(Collectors.toList())).forEach(abilityInstances -> abilityInstances.forEach(i -> instances.add((AbilityInstance<T>) i))));
+        var handler = PowerUtil.getPowerHandler(entity);
+        handler.getPowerHolders().values().stream().map(holder -> holder.getAbilities().values().stream().filter(instance -> instance.isEnabled() && instance.getAbility().getSerializer() == ability).collect(Collectors.toList())).forEach(abilityInstances -> abilityInstances.forEach(i -> instances.add((AbilityInstance<T>) i)));
         return instances;
     }
 
@@ -115,13 +116,13 @@ public class AbilityUtil {
      */
     @Nullable
     public static <T extends Ability> AbilityInstance<T> getInstance(LivingEntity entity, ResourceLocation powerId, String abilityKey) {
-        Power power = entity.registryAccess().registry(PalladiumRegistryKeys.POWER).orElseThrow().get(powerId);
+        Power power = entity.registryAccess().lookupOrThrow(PalladiumRegistryKeys.POWER).getValue(powerId);
 
         if (power == null) {
             return null;
         }
 
-        EntityPowerHandler handler = PowerUtil.getPowerHandler(entity).orElse(null);
+        EntityPowerHandler handler = PowerUtil.getPowerHandler(entity);
 
         if (handler == null) {
             return null;

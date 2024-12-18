@@ -7,7 +7,7 @@ import net.minecraft.client.player.AbstractClientPlayer;
 import net.minecraft.client.resources.PlayerSkin;
 import net.minecraft.resources.ResourceLocation;
 import net.threetag.palladium.power.ability.SkinChangeAbility;
-import net.threetag.palladium.util.PlayerModelChangeType;
+import net.threetag.palladium.entity.PlayerModelChangeType;
 
 import java.util.ArrayList;
 import java.util.List;

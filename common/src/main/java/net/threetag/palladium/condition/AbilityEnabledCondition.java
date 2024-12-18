@@ -4,9 +4,9 @@ import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.codec.StreamCodec;
+import net.threetag.palladium.data.DataContext;
 import net.threetag.palladium.power.ability.AbilityInstance;
 import net.threetag.palladium.power.ability.AbilityReference;
-import net.threetag.palladium.util.context.DataContext;
 
 public record AbilityEnabledCondition(AbilityReference ability) implements Condition {
 
@@ -27,7 +27,7 @@ public record AbilityEnabledCondition(AbilityReference ability) implements Condi
             return false;
         }
 
-        AbilityInstance dependency = this.ability.getInstance(entity, holder);
+        AbilityInstance<?> dependency = this.ability.getInstance(entity, holder);
         return dependency != null && dependency.isEnabled();
     }
 

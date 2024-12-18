@@ -1,14 +1,15 @@
 package net.threetag.palladium.condition;
 
 import com.mojang.serialization.MapCodec;
+import dev.architectury.platform.Platform;
+import dev.architectury.utils.Env;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.world.entity.player.Player;
+import net.threetag.palladium.data.DataContext;
 import net.threetag.palladium.util.PlayerUtil;
-import net.threetag.palladium.util.context.DataContext;
-import net.threetag.palladiumcore.util.Platform;
 
 public class SmallArmsCondition implements Condition {
 
@@ -19,7 +20,7 @@ public class SmallArmsCondition implements Condition {
 
     @Override
     public boolean active(DataContext context) {
-        if (Platform.isClient()) {
+        if (Platform.getEnvironment() == Env.CLIENT) {
             return this.has(context.getPlayer());
         } else {
             return false;

@@ -1,12 +1,9 @@
 package net.threetag.palladium.power.energybar;
 
 import net.minecraft.nbt.CompoundTag;
-import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.util.Mth;
 import net.minecraft.world.entity.LivingEntity;
-import net.threetag.palladium.network.SyncEnergyBarPacket;
 import net.threetag.palladium.power.PowerHolder;
-import net.threetag.palladiumcore.network.NetworkManager;
 
 public class EnergyBar {
 
@@ -108,15 +105,16 @@ public class EnergyBar {
     }
 
     private void sync() {
-        if (!this.powerHolder.getEntity().level().isClientSide) {
-            var msg = new SyncEnergyBarPacket(this.powerHolder.getEntity().getId(), new EnergyBarReference(this.powerHolder.getPowerId(), this.configuration.getKey()), this.value, this.maxValue);
-
-            if (this.powerHolder.getEntity() instanceof ServerPlayer player) {
-                NetworkManager.get().sendToPlayersTrackingEntityAndSelf(player, msg);
-            } else {
-                NetworkManager.get().sendToPlayersTrackingEntity(this.powerHolder.getEntity(), msg);
-            }
-        }
+        // TODO
+//        if (!this.powerHolder.getEntity().level().isClientSide) {
+//            var msg = new SyncEnergyBarPacket(this.powerHolder.getEntity().getId(), new EnergyBarReference(this.powerHolder.getPowerId(), this.configuration.getKey()), this.value, this.maxValue);
+//
+//            if (this.powerHolder.getEntity() instanceof ServerPlayer player) {
+//                NetworkManager.get().sendToPlayersTrackingEntityAndSelf(player, msg);
+//            } else {
+//                NetworkManager.get().sendToPlayersTrackingEntity(this.powerHolder.getEntity(), msg);
+//            }
+//        }
     }
 
     public CompoundTag save() {

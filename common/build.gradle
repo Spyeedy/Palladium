@@ -1,58 +1,16 @@
+loom {
+    accessWidenerPath = file("src/main/resources/palladium.accessWidener")
+}
+
 architectury {
     common(rootProject.enabled_platforms.split(","))
 }
 
-loom {
-    accessWidenerPath = file("src/main/resources/palladium.accesswidener")
-
-    mixin {
-        defaultRefmapName = "palladium-common-refmap.json"
-    }
-}
-
 dependencies {
-    modImplementation "net.fabricmc:fabric-loader:${rootProject.fabric_loader_version}"
-    modApi "net.threetag:palladiumcore-common:${rootProject.palladiumcore_version}"
-
-    // Forge Config API Port
-    modApi "fuzs.forgeconfigapiport:forgeconfigapiport-common-neoforgeapi:${rootProject.forge_config_api_port_version}"
-
-    // Accessories
-    modImplementation("io.wispforest:accessories-common:${rootProject.accessories_version}")
-
-    // Player Animator
-//    modCompileOnly("dev.kosmx.player-anim:player-animation-lib-fabric:${rootProject.player_anim_version}")
-
-    // GeckoLib
-    modCompileOnly("software.bernie.geckolib:geckolib-common-${rootProject.minecraft_version}:${rootProject.geckolib_version}")
-
-    // Pehkui
-    modCompileOnly("com.github.Virtuoel:Pehkui:${rootProject.pehkui_fabric_version}", {
-        exclude group: "net.fabricmc.fabric-api"
-    })
-
-    // JEI
-    modCompileOnly "mezz.jei:jei-${rootProject.minecraft_version}-common-api:${rootProject.jei_version}"
-
-    // Condensed Creative
-    modCompileOnly "io.wispforest:condensed_creative-common:${rootProject.condensed_creative_version}"
+    modImplementation "net.fabricmc:fabric-loader:$rootProject.fabric_loader_version"
+    modApi "dev.architectury:architectury:${rootProject.architectury_version}"
 }
 
-publishing {
-    publications {
-        mavenCommon(MavenPublication) {
-            artifactId = rootProject.archives_base_name + "-" + project.name
-            from components.java
-        }
-    }
-
-    repositories {
-        maven {
-            url 'https://maven.threetag.net'
-            credentials {
-                username System.getenv('MAVEN_USERNAME')
-                password System.getenv('MAVEN_PASSWORD')
-            }
-        }
-    }
+sourceSets.main.resources {
+    srcDir project(":common").file("src/generated/resources").absolutePath
 }

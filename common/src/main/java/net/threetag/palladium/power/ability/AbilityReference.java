@@ -7,7 +7,9 @@ import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.LivingEntity;
-import net.threetag.palladium.power.*;
+import net.threetag.palladium.power.EntityPowerHandler;
+import net.threetag.palladium.power.PowerHolder;
+import net.threetag.palladium.power.PowerUtil;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -52,7 +54,7 @@ public record AbilityReference(@Nullable ResourceLocation powerId, @NotNull Stri
     @Nullable
     public AbilityInstance<?> getInstance(LivingEntity entity, @Nullable PowerHolder powerHolder) {
         if (this.powerId != null) {
-            EntityPowerHandler handler = PowerUtil.getPowerHandler(entity).orElse(null);
+            EntityPowerHandler handler = PowerUtil.getPowerHandler(entity);
 
             if (handler != null) {
                 powerHolder = handler.getPowerHolder(this.powerId);

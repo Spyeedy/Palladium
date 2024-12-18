@@ -3,10 +3,10 @@ package net.threetag.palladium.condition;
 import net.minecraft.core.component.DataComponentMap;
 import net.minecraft.world.entity.LivingEntity;
 import net.threetag.palladium.component.PalladiumDataComponents;
+import net.threetag.palladium.data.DataContext;
+import net.threetag.palladium.data.DataContextType;
 import net.threetag.palladium.power.ability.Ability;
 import net.threetag.palladium.power.ability.AbilityInstance;
-import net.threetag.palladium.util.context.DataContext;
-import net.threetag.palladium.util.context.DataContextType;
 
 public abstract class BuyableCondition implements Condition {
 

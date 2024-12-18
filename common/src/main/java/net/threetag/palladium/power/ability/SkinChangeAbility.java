@@ -7,12 +7,12 @@ import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.minecraft.client.player.AbstractClientPlayer;
 import net.minecraft.resources.ResourceLocation;
-import net.threetag.palladium.client.dynamictexture.TextureReference;
 import net.threetag.palladium.client.renderer.entity.PlayerSkinHandler;
+import net.threetag.palladium.client.texture.TextureReference;
+import net.threetag.palladium.data.DataContext;
 import net.threetag.palladium.power.energybar.EnergyBarUsage;
-import net.threetag.palladium.util.PlayerModelChangeType;
-import net.threetag.palladium.util.SkinTypedValue;
-import net.threetag.palladium.util.context.DataContext;
+import net.threetag.palladium.entity.PlayerModelChangeType;
+import net.threetag.palladium.entity.SkinTypedValue;
 
 import java.util.List;
 

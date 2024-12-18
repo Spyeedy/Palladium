@@ -12,8 +12,8 @@ import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.server.level.ServerLevel;
 import net.threetag.palladium.addonpack.log.AddonPackLog;
 import net.threetag.palladium.util.ParsedCommands;
-import net.threetag.palladium.util.context.DataContext;
-import net.threetag.palladium.util.context.DataContextType;
+import net.threetag.palladium.data.DataContext;
+import net.threetag.palladium.data.DataContextType;
 
 import java.util.Objects;
 

@@ -8,8 +8,8 @@ import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.tags.TagKey;
 import net.minecraft.world.entity.EntityType;
-import net.threetag.palladium.util.context.DataContext;
-import net.threetag.palladium.util.context.DataContextType;
+import net.threetag.palladium.data.DataContext;
+import net.threetag.palladium.data.DataContextType;
 
 public record EntityTypeTagCondition(TagKey<EntityType<?>> tag) implements Condition {
 

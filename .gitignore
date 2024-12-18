@@ -19,19 +19,8 @@ classes/
 .settings
 *.launch
 
-run/*
-
-!run/addonpacks
-run/addonpacks/*
-!run/addonpacks/Test Pack
-
-!run/mods
-run/mods/*
-!run/mods/documentation
-
-!run/config
-run/config/*
-!run/config/fabric_loader_dependencies.json
+run/
+!run/palladium/
 
 .architectury-transformer/*
 common/.architectury-transformer/*

@@ -1,30 +1,23 @@
 package net.threetag.palladium.power.provider;
 
+import net.minecraft.core.Holder;
 import net.minecraft.world.entity.LivingEntity;
-import net.threetag.palladium.power.EntityPowerHandler;
-import net.threetag.palladium.power.PowerCollector;
+import net.threetag.palladium.power.*;
 
 public class SuperpowerProvider extends PowerProvider {
 
     @Override
     public void providePowers(LivingEntity entity, EntityPowerHandler handler, PowerCollector collector) {
-//        for (ResourceLocation id : PalladiumProperties.SUPERPOWER_IDS.get(entity)) {
-//            Power power = entity.registryAccess().registryOrThrow(PalladiumRegistryKeys.POWER).get(id);
-//
-//            if (power != null) {
-//                collector.addPower(power, Validator::new);
-//            }
-//        }
+        collector.addPower(SuperpowerUtil.getHandler(entity).getSuperpower(), Validator::new);
     }
 
-//    public static class Validator implements PowerValidator {
-//
-//        @Override
-//        public boolean stillValid(LivingEntity entity, Holder<Power> power) {
-//            var stored = PalladiumProperties.SUPERPOWER_IDS.get(entity);
-//            var powerId = entity.registryAccess().registryOrThrow(PalladiumRegistryKeys.POWER).getKey(power);
-//            return stored != null && stored.contains(powerId);
-//        }
-//    }
+    public static class Validator implements PowerValidator {
+
+        @Override
+        public boolean stillValid(LivingEntity entity, Holder<Power> power) {
+            var current = SuperpowerUtil.getHandler(entity).getSuperpower();
+            return current != null && current.is(power);
+        }
+    }
 
 }

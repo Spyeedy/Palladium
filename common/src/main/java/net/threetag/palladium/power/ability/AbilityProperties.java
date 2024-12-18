@@ -6,31 +6,32 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.ComponentSerialization;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.phys.Vec2;
-import net.threetag.palladium.util.CodecUtils;
-import net.threetag.palladium.util.icon.Icon;
-import net.threetag.palladium.util.icon.ItemIcon;
+import net.threetag.palladium.client.icon.Icon;
+import net.threetag.palladium.client.icon.ItemIcon;
+import net.threetag.palladium.util.CodecExtras;
 import org.jetbrains.annotations.Nullable;
+
+import java.util.Optional;
 
 public class AbilityProperties {
 
     public static final AbilityProperties BASIC = new AbilityProperties();
-    private static final Component EMPTY_TITLE = Component.empty();
 
-    public static final Codec<AbilityProperties> CODEC = RecordCodecBuilder.create(instance ->
-            instance.group(
-                    ComponentSerialization.CODEC.optionalFieldOf("title", EMPTY_TITLE).forGetter(AbilityProperties::getTitle),
-                    Icon.CODEC.optionalFieldOf("icon", new ItemIcon(Items.BARRIER)).forGetter(AbilityProperties::getIcon),
-                    AbilityDescription.CODEC.optionalFieldOf("description", AbilityDescription.EMPTY).forGetter(AbilityProperties::getDescription),
-                    AbilityColor.CODEC.optionalFieldOf("color", AbilityColor.GRAY).forGetter(AbilityProperties::getColor),
-                    Codec.BOOL.optionalFieldOf("hidden_in_gui", false).forGetter(AbilityProperties::isHiddenInGUI),
-                    Codec.BOOL.optionalFieldOf("hidden_in_bar", false).forGetter(AbilityProperties::isHiddenInBar),
-                    Codec.intRange(-1, Integer.MAX_VALUE).optionalFieldOf("list_index", -1).forGetter(AbilityProperties::getListIndex),
-                    CodecUtils.VEC2_CODEC.optionalFieldOf("gui_position", Vec2.MIN).forGetter(AbilityProperties::getGuiPosition),
-                    AnimationTimerSetting.CODEC.optionalFieldOf("animation_timer", null).forGetter(AbilityProperties::getAnimationTimerSetting)
-            ).apply(instance, AbilityProperties::new));
+    public static final Codec<AbilityProperties> CODEC = RecordCodecBuilder.create(instance -> instance.group(
+            ComponentSerialization.CODEC.optionalFieldOf("title").forGetter(p -> Optional.ofNullable(p.title)),
+            Icon.CODEC.optionalFieldOf("icon", new ItemIcon(Items.BARRIER)).forGetter(AbilityProperties::getIcon),
+            AbilityDescription.CODEC.optionalFieldOf("description").forGetter(p -> Optional.ofNullable(p.description)),
+            AbilityColor.CODEC.optionalFieldOf("color", AbilityColor.GRAY).forGetter(AbilityProperties::getColor),
+            Codec.BOOL.optionalFieldOf("hidden_in_gui", false).forGetter(AbilityProperties::isHiddenInGUI),
+            Codec.BOOL.optionalFieldOf("hidden_in_bar", false).forGetter(AbilityProperties::isHiddenInBar),
+            Codec.intRange(-1, Integer.MAX_VALUE).optionalFieldOf("list_index", -1).forGetter(AbilityProperties::getListIndex),
+            CodecExtras.VEC2_CODEC.optionalFieldOf("gui_position").forGetter(p -> Optional.ofNullable(p.guiPosition)),
+            AnimationTimerSetting.CODEC.optionalFieldOf("animation_timer").forGetter(p -> Optional.ofNullable(p.animationTimerSetting))
+    ).apply(instance, (title, icon, desc, color, hiddenGui, hiddenBar, listIndex, guiPos, timer) ->
+            new AbilityProperties(title.orElse(null), icon, desc.orElse(null), color, hiddenGui, hiddenBar, listIndex, guiPos.orElse(null), timer.orElse(null))));
 
-    private Component title = Component.empty();
-    private Icon icon = null;
+    private Component title = null;
+    private Icon icon = new ItemIcon(Items.BARRIER);
     private AbilityDescription description = null;
     private AbilityColor color = AbilityColor.GRAY;
     private boolean hiddenInGUI = false;
@@ -102,38 +103,38 @@ public class AbilityProperties {
 
     @Nullable
     public Component getTitle() {
-        return this.title == EMPTY_TITLE ? null : title;
+        return this.title;
     }
 
     public Icon getIcon() {
-        return icon;
+        return this.icon;
     }
 
     public AbilityDescription getDescription() {
-        return description;
+        return this.description;
     }
 
     public AbilityColor getColor() {
-        return color;
+        return this.color;
     }
 
     public boolean isHiddenInGUI() {
-        return hiddenInGUI;
+        return this.hiddenInGUI;
     }
 
     public boolean isHiddenInBar() {
-        return hiddenInBar;
+        return this.hiddenInBar;
     }
 
     public int getListIndex() {
-        return listIndex;
+        return this.listIndex;
     }
 
     public Vec2 getGuiPosition() {
-        return guiPosition;
+        return this.guiPosition;
     }
 
     public AnimationTimerSetting getAnimationTimerSetting() {
-        return animationTimerSetting;
+        return this.animationTimerSetting;
     }
 }

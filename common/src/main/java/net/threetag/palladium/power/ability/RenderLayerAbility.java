@@ -2,17 +2,14 @@ package net.threetag.palladium.power.ability;
 
 import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
-import net.fabricmc.api.EnvType;
-import net.fabricmc.api.Environment;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraft.world.entity.LivingEntity;
-import net.threetag.palladium.client.renderer.renderlayer.IPackRenderLayer;
-import net.threetag.palladium.client.renderer.renderlayer.PackRenderLayerManager;
 import net.threetag.palladium.power.energybar.EnergyBarUsage;
 
 import java.util.List;
 
 public class RenderLayerAbility extends Ability implements RenderLayerProviderAbility<RenderLayerAbility> {
+
+    // TODO
 
     public static final MapCodec<RenderLayerAbility> CODEC = RecordCodecBuilder.mapCodec(instance ->
             instance.group(
@@ -27,11 +24,11 @@ public class RenderLayerAbility extends Ability implements RenderLayerProviderAb
         this.renderLayerId = renderLayerId;
     }
 
-    @Override
-    @Environment(EnvType.CLIENT)
-    public IPackRenderLayer getRenderLayer(AbilityInstance<RenderLayerAbility> instance, LivingEntity entity, PackRenderLayerManager manager) {
-        return manager.getLayer(this.renderLayerId);
-    }
+//    @Override
+//    @Environment(EnvType.CLIENT)
+//    public IPackRenderLayer getRenderLayer(AbilityInstance<RenderLayerAbility> instance, LivingEntity entity, PackRenderLayerManager manager) {
+//        return manager.getLayer(this.renderLayerId);
+//    }
 
     @Override
     public AbilitySerializer<RenderLayerAbility> getSerializer() {

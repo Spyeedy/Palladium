@@ -1,14 +1,11 @@
 package net.threetag.palladium.power.energybar;
 
-import com.google.gson.JsonObject;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
-import net.minecraft.util.GsonHelper;
 import net.threetag.palladium.power.PowerHolder;
-import net.threetag.palladium.util.json.GsonUtil;
 
 public record EnergyBarUsage(EnergyBarReference energyBar, int amount) {
 
@@ -27,16 +24,5 @@ public record EnergyBarUsage(EnergyBarReference energyBar, int amount) {
         if (energyBar != null) {
             energyBar.add(-this.amount);
         }
-    }
-
-    public static EnergyBarUsage fromJson(JsonObject json) {
-        return new EnergyBarUsage(GsonUtil.getAsEnergyBarReference(json, "energy_bar"), GsonHelper.getAsInt(json, "amount"));
-    }
-
-    public JsonObject toJson() {
-        var json = new JsonObject();
-        json.addProperty("energy_bar", this.energyBar.toString());
-        json.addProperty("amount", this.amount);
-        return json;
     }
 }

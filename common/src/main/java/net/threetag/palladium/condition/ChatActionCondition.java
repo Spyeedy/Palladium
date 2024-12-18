@@ -10,8 +10,8 @@ import net.minecraft.util.ExtraCodecs;
 import net.minecraft.world.entity.LivingEntity;
 import net.threetag.palladium.component.PalladiumDataComponents;
 import net.threetag.palladium.power.ability.AbilityInstance;
-import net.threetag.palladium.util.context.DataContext;
-import net.threetag.palladium.util.context.DataContextType;
+import net.threetag.palladium.data.DataContext;
+import net.threetag.palladium.data.DataContextType;
 
 import java.util.Objects;
 

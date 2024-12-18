@@ -9,35 +9,35 @@ import net.minecraft.util.ExtraCodecs;
 import net.minecraft.world.item.component.CustomData;
 import net.minecraft.world.phys.Vec3;
 import net.threetag.palladium.Palladium;
-import net.threetag.palladiumcore.registry.DeferredRegister;
-import net.threetag.palladiumcore.registry.RegistryHolder;
+import net.threetag.palladium.core.registry.DeferredRegister;
+import net.threetag.palladium.core.registry.RegistryHolder;
 
 public class PalladiumDataComponents {
 
     public static final DeferredRegister<DataComponentType<?>> DATA_COMPONENTS = DeferredRegister.create(Palladium.MOD_ID, Registries.DATA_COMPONENT_TYPE);
 
     static {
-        Items.RENDER_LAYERS.get();
-        Abilities.UNLOCKED.get();
+        Items.RENDER_LAYERS.getId();
+        Abilities.UNLOCKED.getId();
     }
 
     public static class Items {
 
-        public static final RegistryHolder<DataComponentType<?>, DataComponentType<ItemRenderLayers>> RENDER_LAYERS = DATA_COMPONENTS.register("render_layers", () -> DataComponentType.<ItemRenderLayers>builder()
+        public static final RegistryHolder<DataComponentType<ItemRenderLayers>> RENDER_LAYERS = DATA_COMPONENTS.register("render_layers", () -> DataComponentType.<ItemRenderLayers>builder()
                 .persistent(ItemRenderLayers.CODEC)
                 .networkSynchronized(ItemRenderLayers.STREAM_CODEC)
                 .build());
 
-        public static final RegistryHolder<DataComponentType<?>, DataComponentType<CustomData>> BOTTLE_ENTITY_DATA = DATA_COMPONENTS.register("bottle_entity_data", () -> DataComponentType.<CustomData>builder()
+        public static final RegistryHolder<DataComponentType<CustomData>> BOTTLE_ENTITY_DATA = DATA_COMPONENTS.register("bottle_entity_data", () -> DataComponentType.<CustomData>builder()
                 .persistent(CustomData.CODEC)
                 .networkSynchronized(CustomData.STREAM_CODEC)
                 .build());
 
-        public static final RegistryHolder<DataComponentType<?>, DataComponentType<Integer>> OPENING = DATA_COMPONENTS.register("opening", () -> DataComponentType.<Integer>builder()
+        public static final RegistryHolder<DataComponentType<Integer>> OPENING = DATA_COMPONENTS.register("opening", () -> DataComponentType.<Integer>builder()
                 .persistent(ExtraCodecs.NON_NEGATIVE_INT)
                 .networkSynchronized(ByteBufCodecs.VAR_INT)
                 .build());
-        public static final RegistryHolder<DataComponentType<?>, DataComponentType<Boolean>> OPENED = DATA_COMPONENTS.register("opened", () -> DataComponentType.<Boolean>builder()
+        public static final RegistryHolder<DataComponentType<Boolean>> OPENED = DATA_COMPONENTS.register("opened", () -> DataComponentType.<Boolean>builder()
                 .persistent(Codec.BOOL)
                 .networkSynchronized(ByteBufCodecs.BOOL)
                 .build());
@@ -45,44 +45,44 @@ public class PalladiumDataComponents {
 
     public static class Abilities {
 
-        public static final RegistryHolder<DataComponentType<?>, DataComponentType<Boolean>> UNLOCKED = DATA_COMPONENTS.register("unlocked", () -> DataComponentType.<Boolean>builder()
+        public static final RegistryHolder<DataComponentType<Boolean>> UNLOCKED = DATA_COMPONENTS.register("unlocked", () -> DataComponentType.<Boolean>builder()
                 .networkSynchronized(ByteBufCodecs.BOOL)
                 .build());
 
-        public static final RegistryHolder<DataComponentType<?>, DataComponentType<Boolean>> ENABLED = DATA_COMPONENTS.register("enabled", () -> DataComponentType.<Boolean>builder()
+        public static final RegistryHolder<DataComponentType<Boolean>> ENABLED = DATA_COMPONENTS.register("enabled", () -> DataComponentType.<Boolean>builder()
                 .networkSynchronized(ByteBufCodecs.BOOL)
                 .build());
 
-        public static final RegistryHolder<DataComponentType<?>, DataComponentType<Boolean>> KEY_PRESSED = DATA_COMPONENTS.register("key_pressed", () -> DataComponentType.<Boolean>builder()
+        public static final RegistryHolder<DataComponentType<Boolean>> KEY_PRESSED = DATA_COMPONENTS.register("key_pressed", () -> DataComponentType.<Boolean>builder()
                 .persistent(Codec.BOOL)
                 .build());
 
-        public static final RegistryHolder<DataComponentType<?>, DataComponentType<Integer>> COOLDOWN = DATA_COMPONENTS.register("cooldown", () -> DataComponentType.<Integer>builder()
+        public static final RegistryHolder<DataComponentType<Integer>> COOLDOWN = DATA_COMPONENTS.register("cooldown", () -> DataComponentType.<Integer>builder()
                 .networkSynchronized(ByteBufCodecs.VAR_INT)
                 .build());
 
-        public static final RegistryHolder<DataComponentType<?>, DataComponentType<Integer>> MAX_COOLDOWN = DATA_COMPONENTS.register("max_cooldown", () -> DataComponentType.<Integer>builder()
+        public static final RegistryHolder<DataComponentType<Integer>> MAX_COOLDOWN = DATA_COMPONENTS.register("max_cooldown", () -> DataComponentType.<Integer>builder()
                 .networkSynchronized(ByteBufCodecs.VAR_INT)
                 .build());
 
-        public static final RegistryHolder<DataComponentType<?>, DataComponentType<Integer>> ACTIVATED_TIME = DATA_COMPONENTS.register("activated_time", () -> DataComponentType.<Integer>builder()
+        public static final RegistryHolder<DataComponentType<Integer>> ACTIVATED_TIME = DATA_COMPONENTS.register("activated_time", () -> DataComponentType.<Integer>builder()
                 .networkSynchronized(ByteBufCodecs.VAR_INT)
                 .build());
 
-        public static final RegistryHolder<DataComponentType<?>, DataComponentType<Integer>> MAX_ACTIVATED_TIME = DATA_COMPONENTS.register("max_activated_time", () -> DataComponentType.<Integer>builder()
+        public static final RegistryHolder<DataComponentType<Integer>> MAX_ACTIVATED_TIME = DATA_COMPONENTS.register("max_activated_time", () -> DataComponentType.<Integer>builder()
                 .networkSynchronized(ByteBufCodecs.VAR_INT)
                 .build());
 
-        public static final RegistryHolder<DataComponentType<?>, DataComponentType<Boolean>> BOUGHT = DATA_COMPONENTS.register("bought", () -> DataComponentType.<Boolean>builder()
+        public static final RegistryHolder<DataComponentType<Boolean>> BOUGHT = DATA_COMPONENTS.register("bought", () -> DataComponentType.<Boolean>builder()
                 .persistent(Codec.BOOL)
                 .networkSynchronized(ByteBufCodecs.BOOL)
                 .build());
 
-        public static final RegistryHolder<DataComponentType<?>, DataComponentType<Vec3>> ENERGY_BEAM_TARGET = DATA_COMPONENTS.register("energy_beam_target", () -> DataComponentType.<Vec3>builder()
+        public static final RegistryHolder<DataComponentType<Vec3>> ENERGY_BEAM_TARGET = DATA_COMPONENTS.register("energy_beam_target", () -> DataComponentType.<Vec3>builder()
                 .networkSynchronized(ByteBufCodecs.VECTOR3F.map(Vec3::new, Vec3::toVector3f))
                 .build());
 
-        public static final RegistryHolder<DataComponentType<?>, DataComponentType<Boolean>> NAME_CHANGE_ACTIVE = DATA_COMPONENTS.register("name_change_active", () -> DataComponentType.<Boolean>builder()
+        public static final RegistryHolder<DataComponentType<Boolean>> NAME_CHANGE_ACTIVE = DATA_COMPONENTS.register("name_change_active", () -> DataComponentType.<Boolean>builder()
                 .networkSynchronized(ByteBufCodecs.BOOL)
                 .build());
 

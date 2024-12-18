@@ -9,7 +9,7 @@ import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.util.StringRepresentable;
 import net.threetag.palladium.condition.*;
-import net.threetag.palladium.util.CodecUtils;
+import net.threetag.palladium.util.CodecExtras;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -21,8 +21,8 @@ public final class AbilityConditions {
 
     public static final Codec<AbilityConditions> CODEC = RecordCodecBuilder.create(instance ->
             instance.group(
-                    CodecUtils.listOrPrimitive(Condition.CODEC).optionalFieldOf("unlocking", Collections.emptyList()).forGetter(AbilityConditions::getUnlockingConditions),
-                    CodecUtils.listOrPrimitive(Condition.CODEC).optionalFieldOf("enabling", Collections.emptyList()).forGetter(AbilityConditions::getEnablingConditions)
+                    CodecExtras.listOrPrimitive(Condition.CODEC).optionalFieldOf("unlocking", Collections.emptyList()).forGetter(AbilityConditions::getUnlockingConditions),
+                    CodecExtras.listOrPrimitive(Condition.CODEC).optionalFieldOf("enabling", Collections.emptyList()).forGetter(AbilityConditions::getEnablingConditions)
             ).apply(instance, AbilityConditions::new));
 
     public static final StreamCodec<FriendlyByteBuf, AbilityConditions> STREAM_CODEC = StreamCodec.of((buf, conditions) -> {

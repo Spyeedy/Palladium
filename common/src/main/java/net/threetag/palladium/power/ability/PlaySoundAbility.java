@@ -3,6 +3,8 @@ package net.threetag.palladium.power.ability;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
+import dev.architectury.platform.Platform;
+import dev.architectury.utils.Env;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.minecraft.client.Minecraft;
@@ -11,10 +13,8 @@ import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
 import net.threetag.palladium.power.PowerHolder;
 import net.threetag.palladium.power.energybar.EnergyBarUsage;
-import net.threetag.palladium.sound.AbilitySound;
-import net.threetag.palladium.util.CodecUtils;
+import net.threetag.palladium.util.CodecExtras;
 import net.threetag.palladium.util.PlayerUtil;
-import net.threetag.palladiumcore.util.Platform;
 
 import java.util.List;
 
@@ -23,8 +23,8 @@ public class PlaySoundAbility extends Ability {
     public static final MapCodec<PlaySoundAbility> CODEC = RecordCodecBuilder.mapCodec(instance ->
             instance.group(
                     ResourceLocation.CODEC.fieldOf("sound").forGetter(ab -> ab.sound),
-                    CodecUtils.NON_NEGATIVE_FLOAT.optionalFieldOf("volume", 1F).forGetter(ab -> ab.volume),
-                    CodecUtils.NON_NEGATIVE_FLOAT.optionalFieldOf("pitch", 1F).forGetter(ab -> ab.pitch),
+                    CodecExtras.NON_NEGATIVE_FLOAT.optionalFieldOf("volume", 1F).forGetter(ab -> ab.volume),
+                    CodecExtras.NON_NEGATIVE_FLOAT.optionalFieldOf("pitch", 1F).forGetter(ab -> ab.pitch),
                     Codec.BOOL.optionalFieldOf("looping", false).forGetter(ab -> ab.looping),
                     Codec.BOOL.optionalFieldOf("play_self", false).forGetter(ab -> ab.playSelf),
                     propertiesCodec(), conditionsCodec(), energyBarUsagesCodec()
@@ -52,7 +52,7 @@ public class PlaySoundAbility extends Ability {
     public void firstTick(LivingEntity entity, AbilityInstance<?> instance, PowerHolder holder, boolean enabled) {
         if (enabled) {
             if (this.looping) {
-                if (Platform.isClient()) {
+                if (Platform.getEnvironment() == Env.CLIENT) {
                     this.startSound(entity, instance);
                 }
             } else if (!entity.level().isClientSide) {
@@ -70,7 +70,8 @@ public class PlaySoundAbility extends Ability {
     @Environment(EnvType.CLIENT)
     public void startSound(LivingEntity entity, AbilityInstance<?> instance) {
         if (!this.playSelf || Minecraft.getInstance().player == entity) {
-            Minecraft.getInstance().getSoundManager().play(new AbilitySound(instance.getReference(), entity, this.sound, entity.getSoundSource(), this.volume, this.pitch));
+            // TODO
+//            Minecraft.getInstance().getSoundManager().play(new AbilitySound(instance.getReference(), entity, this.sound, entity.getSoundSource(), this.volume, this.pitch));
         }
     }
 

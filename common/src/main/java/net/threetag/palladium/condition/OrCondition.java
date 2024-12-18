@@ -5,8 +5,7 @@ import com.mojang.serialization.codecs.RecordCodecBuilder;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
-import net.threetag.palladium.util.CodecUtils;
-import net.threetag.palladium.util.context.DataContext;
+import net.threetag.palladium.data.DataContext;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -14,7 +13,7 @@ import java.util.List;
 public record OrCondition(List<Condition> conditions) implements Condition {
 
     public static final MapCodec<OrCondition> CODEC = RecordCodecBuilder.mapCodec(instance -> instance
-            .group(CodecUtils.listOrPrimitive(Condition.CODEC).fieldOf("conditions").forGetter(OrCondition::conditions)
+            .group(Condition.LIST_CODEC.fieldOf("conditions").forGetter(OrCondition::conditions)
             ).apply(instance, OrCondition::new)
     );
     public static final StreamCodec<RegistryFriendlyByteBuf, OrCondition> STREAM_CODEC = StreamCodec.composite(

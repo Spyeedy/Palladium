@@ -3,7 +3,6 @@ package net.threetag.palladium.power;
 import net.minecraft.core.Holder;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.world.entity.LivingEntity;
-import net.threetag.palladium.registry.PalladiumRegistryKeys;
 
 import java.util.ArrayList;
 import java.util.List;

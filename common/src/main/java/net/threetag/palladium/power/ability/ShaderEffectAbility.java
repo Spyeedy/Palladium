@@ -2,6 +2,8 @@ package net.threetag.palladium.power.ability;
 
 import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
+import dev.architectury.platform.Platform;
+import dev.architectury.utils.Env;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.minecraft.client.Minecraft;
@@ -10,7 +12,6 @@ import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
 import net.threetag.palladium.power.PowerHolder;
 import net.threetag.palladium.power.energybar.EnergyBarUsage;
-import net.threetag.palladiumcore.util.Platform;
 
 import java.util.List;
 
@@ -36,14 +37,14 @@ public class ShaderEffectAbility extends Ability {
 
     @Override
     public void firstTick(LivingEntity entity, AbilityInstance<?> entry, PowerHolder holder, boolean enabled) {
-        if (enabled && Platform.isClient()) {
+        if (enabled && Platform.getEnvironment() == Env.CLIENT) {
             this.applyShader(entity, this.shader);
         }
     }
 
     @Override
     public void lastTick(LivingEntity entity, AbilityInstance<?> entry, PowerHolder holder, boolean enabled) {
-        if (enabled && Platform.isClient()) {
+        if (enabled && Platform.getEnvironment() == Env.CLIENT) {
             this.removeShader(entity, this.shader);
         }
     }
@@ -53,16 +54,18 @@ public class ShaderEffectAbility extends Ability {
         var mc = Minecraft.getInstance();
 
         if (entity == mc.player) {
-            mc.gameRenderer.loadEffect(shader);
+            // TODO mixin into checkPostEffect
+            mc.gameRenderer.setPostEffect(shader);
         }
     }
 
     @Environment(EnvType.CLIENT)
     public void removeShader(LivingEntity entity, ResourceLocation shader) {
         var mc = Minecraft.getInstance();
+        var current = mc.gameRenderer.currentPostEffect();
 
-        if (entity == mc.player && mc.gameRenderer.currentEffect() != null && mc.gameRenderer.currentEffect().getName().equals(shader.toString())) {
-            mc.gameRenderer.shutdownEffect();
+        if (entity == mc.player && current != null && current.equals(shader)) {
+            mc.gameRenderer.clearPostEffect();
         }
     }
 

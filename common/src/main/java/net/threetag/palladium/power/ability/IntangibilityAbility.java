@@ -8,7 +8,7 @@ import net.minecraft.tags.TagKey;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.state.BlockState;
 import net.threetag.palladium.power.energybar.EnergyBarUsage;
-import net.threetag.palladium.tags.PalladiumBlockTags;
+import net.threetag.palladium.tag.PalladiumBlockTags;
 
 import java.util.List;
 

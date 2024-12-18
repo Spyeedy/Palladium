@@ -5,16 +5,17 @@ import com.mojang.serialization.codecs.RecordCodecBuilder;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.ComponentSerialization;
 import net.minecraft.util.StringRepresentable;
-import net.threetag.palladium.client.dynamictexture.TextureReference;
+import net.threetag.palladium.client.icon.Icon;
+import net.threetag.palladium.client.texture.TextureReference;
 import net.threetag.palladium.power.ability.Ability;
 import net.threetag.palladium.power.energybar.EnergyBarConfiguration;
-import net.threetag.palladium.util.CodecUtils;
-import net.threetag.palladium.util.icon.Icon;
+import net.threetag.palladium.util.CodecExtras;
 import org.jetbrains.annotations.NotNull;
 
 import java.awt.*;
 import java.util.Collections;
 import java.util.Map;
+import java.util.Optional;
 
 public class Power {
 
@@ -22,17 +23,18 @@ public class Power {
             .group(
                     ComponentSerialization.CODEC.fieldOf("name").forGetter(Power::getName),
                     Icon.CODEC.fieldOf("icon").forGetter(Power::getIcon),
-                    TextureReference.CODEC.optionalFieldOf("background", null).forGetter(Power::getBackground),
-                    TextureReference.CODEC.optionalFieldOf("ability_bar_texture", null).forGetter(Power::getBackground),
-                    CodecUtils.COLOR_CODEC.optionalFieldOf("primary_color", new Color(210, 112, 49)).forGetter(Power::getPrimaryColor),
-                    CodecUtils.COLOR_CODEC.optionalFieldOf("secondary_color", new Color(126, 97, 86)).forGetter(Power::getSecondaryColor),
+                    TextureReference.CODEC.optionalFieldOf("background").forGetter(p -> Optional.ofNullable(p.background)),
+                    TextureReference.CODEC.optionalFieldOf("ability_bar_texture").forGetter(p -> Optional.ofNullable(p.abilityBar)),
+                    CodecExtras.COLOR_CODEC.optionalFieldOf("primary_color", new Color(210, 112, 49)).forGetter(Power::getPrimaryColor),
+                    CodecExtras.COLOR_CODEC.optionalFieldOf("secondary_color", new Color(126, 97, 86)).forGetter(Power::getSecondaryColor),
                     Codec.BOOL.optionalFieldOf("persistent_data", false).forGetter(Power::hasPersistentData),
                     Codec.BOOL.optionalFieldOf("hidden", false).forGetter(Power::isHidden),
                     GuiDisplayType.CODEC.optionalFieldOf("gui_display_type", GuiDisplayType.AUTO).forGetter(Power::getGuiDisplayType),
                     Codec.unboundedMap(Codec.STRING, Ability.CODEC).optionalFieldOf("abilities", Collections.emptyMap()).forGetter(Power::getAbilities),
                     Codec.unboundedMap(Codec.STRING, EnergyBarConfiguration.CODEC).optionalFieldOf("energy_bars", Collections.emptyMap()).forGetter(Power::getEnergyBars)
             )
-            .apply(instance, Power::new));
+            .apply(instance, (name, icon, background, barTexture, primColor, secondColor, persistentData, hidden, guiDisplayType, abilities, energyBars) ->
+                    new Power(name, icon, background.orElse(null), barTexture.orElse(null), primColor, secondColor, persistentData, hidden, guiDisplayType, abilities, energyBars)));
 
 
     private final Component name;

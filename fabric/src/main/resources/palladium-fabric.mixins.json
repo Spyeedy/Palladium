@@ -1,0 +1,17 @@
+{
+  "required": true,
+  "package": "net.threetag.palladium.fabric.mixin",
+  "compatibilityLevel": "JAVA_21",
+  "minVersion": "0.8",
+  "client": [
+    "ClientLevelMixin"
+  ],
+  "mixins": [
+    "EntityMixin",
+    "PackRepositoryMixin",
+    "ServerLevelMixin"
+  ],
+  "injectors": {
+    "defaultRequire": 1
+  }
+}

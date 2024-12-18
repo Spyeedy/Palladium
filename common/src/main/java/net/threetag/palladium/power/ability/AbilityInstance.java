@@ -8,9 +8,9 @@ import net.minecraft.world.entity.LivingEntity;
 import net.threetag.palladium.component.PalladiumDataComponents;
 import net.threetag.palladium.condition.Condition;
 import net.threetag.palladium.condition.CooldownType;
+import net.threetag.palladium.data.DataContext;
 import net.threetag.palladium.power.PowerHolder;
 import net.threetag.palladium.power.energybar.EnergyBarUsage;
-import net.threetag.palladium.util.context.DataContext;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -32,7 +32,7 @@ public class AbilityInstance<T extends Ability> implements DataComponentHolder {
         this.ability = ability;
         this.holder = holder;
         this.reference = new AbilityReference(holder.getPowerId(), ability.getKey());
-        this.animationTimer = ability.getProperties().getAnimationTimerSetting() != null ? new AnimationTimer(ability.getProperties().getAnimationTimerSetting(), ability.getProperties().getAnimationTimerSetting().min()) : null;
+        this.animationTimer = ability.getProperties().getAnimationTimerSetting() != null ? ability.getProperties().getAnimationTimerSetting().create() : null;
 
         var componentsBuilder = DataComponentMap.builder().addAll(PalladiumDataComponents.Abilities.getCommonComponents());
         this.ability.registerDataComponents(componentsBuilder);

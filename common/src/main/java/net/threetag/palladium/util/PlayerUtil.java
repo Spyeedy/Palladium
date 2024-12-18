@@ -51,8 +51,8 @@ public class PlayerUtil {
     }
 
     public static void playSound(Player player, double x, double y, double z, ResourceLocation sound, SoundSource category, float volume, float pitch) {
-        if (player instanceof ServerPlayer) {
-            ((ServerPlayer) player).connection.send(new ClientboundSoundPacket(Holder.direct(BuiltInRegistries.SOUND_EVENT.get(sound)), category, x, y, z, volume, pitch, player.getRandom().nextLong()));
+        if (player instanceof ServerPlayer serverPlayer) {
+            BuiltInRegistries.SOUND_EVENT.get(sound).ifPresent(ref -> serverPlayer.connection.send(new ClientboundSoundPacket(ref, category, x, y, z, volume, pitch, player.getRandom().nextLong())));
         }
     }
 
@@ -80,7 +80,7 @@ public class PlayerUtil {
 
     public static <T extends ParticleOptions> void spawnParticle(Player player, T particleIn, boolean longDistanceIn, double xIn, double yIn, double zIn, float xOffsetIn, float yOffsetIn, float zOffsetIn, float speedIn, int countIn) {
         if (player instanceof ServerPlayer serverPlayer) {
-            serverPlayer.connection.send(new ClientboundLevelParticlesPacket(particleIn, longDistanceIn, xIn, yIn, zIn, xOffsetIn, yOffsetIn, zOffsetIn, speedIn, countIn));
+            serverPlayer.connection.send(new ClientboundLevelParticlesPacket(particleIn, false, longDistanceIn, xIn, yIn, zIn, xOffsetIn, yOffsetIn, zOffsetIn, speedIn, countIn));
         }
     }
 

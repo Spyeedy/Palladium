@@ -5,17 +5,15 @@ import com.mojang.serialization.codecs.RecordCodecBuilder;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
-import net.threetag.palladium.util.CodecUtils;
-import net.threetag.palladium.util.context.DataContext;
+import net.threetag.palladium.data.DataContext;
 
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.List;
 
 public record NotCondition(List<Condition> conditions) implements Condition {
 
     public static final MapCodec<NotCondition> CODEC = RecordCodecBuilder.mapCodec(instance -> instance
-            .group(CodecUtils.listOrPrimitive(Condition.CODEC).fieldOf("conditions").forGetter(NotCondition::conditions)
+            .group(Condition.LIST_CODEC.fieldOf("conditions").forGetter(NotCondition::conditions)
             ).apply(instance, NotCondition::new)
     );
     public static final StreamCodec<RegistryFriendlyByteBuf, NotCondition> STREAM_CODEC = StreamCodec.composite(

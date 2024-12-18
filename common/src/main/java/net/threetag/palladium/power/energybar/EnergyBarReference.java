@@ -54,7 +54,7 @@ public record EnergyBarReference(@Nullable ResourceLocation powerId, @NotNull St
     @Nullable
     public EnergyBar getBar(LivingEntity entity, @Nullable PowerHolder powerHolder) {
         if (this.powerId != null) {
-            EntityPowerHandler handler = PowerUtil.getPowerHandler(entity).orElse(null);
+            EntityPowerHandler handler = PowerUtil.getPowerHandler(entity);
 
             if (handler != null) {
                 powerHolder = handler.getPowerHolder(this.powerId);

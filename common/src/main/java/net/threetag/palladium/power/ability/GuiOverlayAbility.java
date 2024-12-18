@@ -10,13 +10,14 @@ import net.minecraft.client.DeltaTracker;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.LayeredDraw;
+import net.minecraft.client.renderer.RenderType;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.ExtraCodecs;
 import net.minecraft.world.phys.Vec3;
-import net.threetag.palladium.client.dynamictexture.TextureReference;
+import net.threetag.palladium.client.texture.TextureReference;
+import net.threetag.palladium.data.DataContext;
 import net.threetag.palladium.power.energybar.EnergyBarUsage;
 import net.threetag.palladium.util.HudElementAlignment;
-import net.threetag.palladium.util.context.DataContext;
 
 import java.util.List;
 
@@ -117,7 +118,7 @@ public class GuiOverlayAbility extends Ability {
 
         private void renderImage(GuiGraphics guiGraphics, ResourceLocation texture, Vec3 scale, int textureWidth, int textureHeight) {
             guiGraphics.pose().scale((float) scale.x, (float) scale.y, (float) scale.z);
-            guiGraphics.blit(texture, -textureWidth / 2, -textureHeight / 2, 0, 0, 0, textureWidth, textureHeight, textureWidth, textureHeight);
+            guiGraphics.blit(RenderType::guiTextured, texture, -textureWidth / 2, -textureHeight / 2, 0, 0, 0, textureWidth, textureHeight, textureWidth, textureHeight);
         }
 
     }

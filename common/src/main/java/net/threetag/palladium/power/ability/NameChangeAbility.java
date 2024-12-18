@@ -10,8 +10,7 @@ import net.minecraft.world.entity.player.Player;
 import net.threetag.palladium.component.PalladiumDataComponents;
 import net.threetag.palladium.power.PowerHolder;
 import net.threetag.palladium.power.energybar.EnergyBarUsage;
-import net.threetag.palladium.util.property.PropertyManager;
-import net.threetag.palladiumcore.util.PlayerUtil;
+//import net.threetag.palladiumcore.util.PlayerUtil;
 
 import java.util.List;
 
@@ -44,7 +43,8 @@ public class NameChangeAbility extends Ability {
     public void firstTick(LivingEntity entity, AbilityInstance<?> instance, PowerHolder holder, boolean enabled) {
         if (entity instanceof Player player) {
             instance.set(PalladiumDataComponents.Abilities.NAME_CHANGE_ACTIVE.get(), true);
-            PlayerUtil.refreshDisplayName(player);
+            // TODO
+//            PlayerUtil.refreshDisplayName(player);
         }
     }
 
@@ -52,7 +52,7 @@ public class NameChangeAbility extends Ability {
     public void lastTick(LivingEntity entity, AbilityInstance<?> instance, PowerHolder holder, boolean enabled) {
         if (entity instanceof Player player) {
             instance.set(PalladiumDataComponents.Abilities.NAME_CHANGE_ACTIVE.get(), false);
-            PlayerUtil.refreshDisplayName(player);
+//            PlayerUtil.refreshDisplayName(player);
         }
     }
 

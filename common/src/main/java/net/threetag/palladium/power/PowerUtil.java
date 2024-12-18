@@ -2,25 +2,20 @@ package net.threetag.palladium.power;
 
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.LivingEntity;
-import net.threetag.palladium.entity.PalladiumLivingEntityExtension;
+import net.threetag.palladium.entity.data.PalladiumEntityData;
+import net.threetag.palladium.entity.data.PalladiumEntityDataTypes;
 import net.threetag.palladium.registry.PalladiumRegistryKeys;
 
-import java.util.ArrayList;
 import java.util.Collection;
-import java.util.List;
-import java.util.Optional;
+import java.util.Objects;
 
 public class PowerUtil {
 
     /**
      * Returns the power handler for the given entity
      */
-    public static Optional<EntityPowerHandler> getPowerHandler(LivingEntity entity) {
-        if (entity instanceof PalladiumLivingEntityExtension ext) {
-            return Optional.of(ext.palladium$getPowerHandler());
-        } else {
-            return Optional.empty();
-        }
+    public static EntityPowerHandler getPowerHandler(LivingEntity entity) {
+        return PalladiumEntityData.get(entity, PalladiumEntityDataTypes.POWER_HANDLER.value());
     }
 
     /**
@@ -30,11 +25,8 @@ public class PowerUtil {
      * @return {@link Collection} of powers of the entity
      */
     public static Collection<Power> getPowers(LivingEntity entity) {
-        List<Power> powers = new ArrayList<>();
-        getPowerHandler(entity).ifPresent(powerHandler -> {
-            powers.addAll(powerHandler.getPowerHolders().values().stream().map(powerHolder -> powerHolder.getPower().value()).toList());
-        });
-        return powers;
+        var powerHandler = getPowerHandler(entity);
+        return powerHandler.getPowerHolders().values().stream().map(powerHolder -> powerHolder.getPower().value()).toList();
     }
 
     /**
@@ -44,13 +36,10 @@ public class PowerUtil {
      * @return {@link Collection} of IDs of powers of the entity
      */
     public static Collection<ResourceLocation> getPowerIds(LivingEntity entity) {
-        List<ResourceLocation> powers = new ArrayList<>();
-        getPowerHandler(entity).ifPresent(powerHandler -> {
-            powers.addAll(powerHandler.getPowerHolders().values().stream()
-                    .map(h -> entity.registryAccess().registryOrThrow(PalladiumRegistryKeys.POWER).getKey(h.getPower().value()))
-                    .toList());
-        });
-        return powers;
+        var powerHandler = getPowerHandler(entity);
+        return powerHandler.getPowerHolders().values().stream()
+                .map(h -> entity.registryAccess().lookupOrThrow(PalladiumRegistryKeys.POWER).getKey(h.getPower().value()))
+                .toList();
     }
 
     /**
@@ -61,13 +50,13 @@ public class PowerUtil {
      * @return True if the entity has the power
      */
     public static boolean hasPower(LivingEntity entity, ResourceLocation powerId) {
-        Power power = entity.registryAccess().registry(PalladiumRegistryKeys.POWER).orElseThrow().get(powerId);
+        Power power = entity.registryAccess().lookupOrThrow(PalladiumRegistryKeys.POWER).getValue(powerId);
 
         if (power == null) {
             return false;
         }
 
-        EntityPowerHandler handler = PowerUtil.getPowerHandler(entity).orElse(null);
+        EntityPowerHandler handler = PowerUtil.getPowerHandler(entity);
 
         if (handler == null) {
             return false;
@@ -83,14 +72,11 @@ public class PowerUtil {
      * @return {@link Collection} of powers of the entity
      */
     public static Collection<Power> getPowersForNamespace(LivingEntity entity, String namespace) {
-        List<Power> powers = new ArrayList<>();
-        getPowerHandler(entity).ifPresent(powerHandler -> {
-            powers.addAll(powerHandler.getPowerHolders().values().stream()
-                    .map(powerHolder -> powerHolder.getPower().value())
-                    .filter(p -> entity.registryAccess().registryOrThrow(PalladiumRegistryKeys.POWER).getKey(p).getNamespace().equals(namespace))
-                    .toList());
-        });
-        return powers;
+        var powerHandler = getPowerHandler(entity);
+        return powerHandler.getPowerHolders().values().stream()
+                .map(powerHolder -> powerHolder.getPower().value())
+                .filter(p -> entity.registryAccess().lookupOrThrow(PalladiumRegistryKeys.POWER).getKey(p).getNamespace().equals(namespace))
+                .toList();
     }
 
     /**
@@ -100,14 +86,11 @@ public class PowerUtil {
      * @return {@link Collection} of IDs of powers of the entity
      */
     public static Collection<ResourceLocation> getPowerIdsForNamespace(LivingEntity entity, String namespace) {
-        List<ResourceLocation> powers = new ArrayList<>();
-        getPowerHandler(entity).ifPresent(powerHandler -> {
-            powers.addAll(powerHandler.getPowerHolders().values().stream()
-                    .map(h -> entity.registryAccess().registryOrThrow(PalladiumRegistryKeys.POWER).getKey(h.getPower().value()))
-                    .filter(id -> id.getNamespace().equals(namespace))
-                    .toList());
-        });
-        return powers;
+        var powerHandler = getPowerHandler(entity);
+        return powerHandler.getPowerHolders().values().stream()
+                .map(h -> entity.registryAccess().lookupOrThrow(PalladiumRegistryKeys.POWER).getKey(h.getPower().value()))
+                .filter(id -> Objects.requireNonNull(id).getNamespace().equals(namespace))
+                .toList();
     }
 
 }

@@ -10,11 +10,11 @@ import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.LivingEntity;
+import net.threetag.palladium.client.icon.Icon;
 import net.threetag.palladium.power.PowerHolder;
 import net.threetag.palladium.power.energybar.EnergyBarUsage;
 import net.threetag.palladium.registry.PalladiumRegistries;
-import net.threetag.palladium.util.CodecUtils;
-import net.threetag.palladium.util.icon.Icon;
+import net.threetag.palladium.util.CodecExtras;
 
 import java.util.Collections;
 import java.util.List;
@@ -96,7 +96,7 @@ public abstract class Ability {
     }
 
     protected static <B extends Ability> RecordCodecBuilder<B, List<EnergyBarUsage>> energyBarUsagesCodec() {
-        return CodecUtils.listOrPrimitive(EnergyBarUsage.CODEC).optionalFieldOf("energy_bar_usage", Collections.emptyList()).forGetter(Ability::getEnergyBarUsages);
+        return CodecExtras.listOrPrimitive(EnergyBarUsage.CODEC).optionalFieldOf("energy_bar_usage", Collections.emptyList()).forGetter(Ability::getEnergyBarUsages);
     }
 
     public record UnlockData(Icon icon, int amount, Component description) {

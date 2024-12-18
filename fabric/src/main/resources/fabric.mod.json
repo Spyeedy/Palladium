@@ -3,45 +3,36 @@
   "id": "palladium",
   "version": "${version}",
   "name": "Palladium",
-  "description": "Core mod for all ThreeTAG mods.",
+  "description": "This is an example description! Tell everyone what your mod is about!",
   "authors": [
-    "Lucraft"
+    "Me!"
   ],
   "contact": {
-    "homepage": "https://modrinth.com/project/threetag-palladium",
-    "sources": "https://github.com/ThreeTAG/Palladium",
-    "issues": "https://github.com/ThreeTAG/Palladium/issues"
+    "homepage": "https://fabricmc.net/",
+    "sources": "https://github.com/FabricMC/fabric-example-mod"
   },
-  "license": "All rights reserved",
-  "icon": "palladium_icon.png",
+  "license": "CC0-1.0",
+  "icon": "assets/palladium/icon.png",
   "environment": "*",
   "entrypoints": {
     "main": [
       "net.threetag.palladium.fabric.PalladiumFabric"
     ],
     "client": [
-      "net.threetag.palladium.fabric.PalladiumFabricClient"
-    ],
-    "server": [
-      "net.threetag.palladium.fabric.PalladiumFabricServer"
-    ],
-    "condensed_creative": [
-      "net.threetag.palladium.compat.condensedcreative.CondensedCreativeCompat"
+      "net.threetag.palladium.fabric.client.PalladiumFabricClient"
     ]
   },
   "mixins": [
     "palladium.mixins.json",
-    "palladium-common.mixins.json"
+    "palladium-fabric.mixins.json"
   ],
   "depends": {
-    "fabric": "*",
-    "minecraft": ">=1.21",
-    "palladiumcore": ">=2.2.0",
-    "forgeconfigapiport": "*"
+    "fabricloader": ">=0.16.5",
+    "minecraft": "~1.21",
+    "java": ">=21",
+    "fabric-api": "*"
   },
-  "custom": {
-    "catalogue": {
-      "banner": "palladium_banner.png"
-    }
+  "suggests": {
+    "another-mod": "*"
   }
 }

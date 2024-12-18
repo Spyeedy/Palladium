@@ -11,9 +11,9 @@ import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.util.ExtraCodecs;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
+import net.threetag.palladium.client.icon.Icon;
 import net.threetag.palladium.power.ability.Ability;
 import net.threetag.palladium.util.ScoreboardUtil;
-import net.threetag.palladium.util.icon.Icon;
 
 public class ScoreboardScoreBuyableCondition extends BuyableCondition {
 

@@ -4,7 +4,7 @@ import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import net.minecraft.world.entity.LivingEntity;
 import net.threetag.palladium.power.energybar.EnergyBarUsage;
-import net.threetag.palladium.util.ArmSetting;
+import net.threetag.palladium.entity.ArmSetting;
 
 import java.util.List;
 
@@ -26,8 +26,8 @@ public class AimAbility extends Ability {
     public static float getTimer(LivingEntity entity, float partialTicks, boolean right) {
         float f = 0;
 
-        for (AbilityInstance instance : AbilityUtil.getInstances(entity, AbilitySerializers.AIM.value())) {
-            var armType = ((AimAbility) instance.getAbility()).arm;
+        for (AbilityInstance<AimAbility> instance : AbilityUtil.getInstances(entity, AbilitySerializers.AIM.get())) {
+            var armType = instance.getAbility().arm;
             var timer = instance.getAnimationTimer();
             var progress = timer != null ? timer.progress(partialTicks) : 1F;
 

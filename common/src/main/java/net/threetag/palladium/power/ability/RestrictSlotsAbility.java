@@ -2,14 +2,15 @@ package net.threetag.palladium.power.ability;
 
 import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
+import net.threetag.palladium.entity.PlayerSlot;
 import net.threetag.palladium.power.PowerHolder;
 import net.threetag.palladium.power.energybar.EnergyBarUsage;
-import net.threetag.palladium.util.CodecUtils;
-import net.threetag.palladium.util.PlayerSlot;
+import net.threetag.palladium.util.CodecExtras;
 
 import java.util.List;
 
@@ -17,7 +18,7 @@ public class RestrictSlotsAbility extends Ability {
 
     public static final MapCodec<RestrictSlotsAbility> CODEC = RecordCodecBuilder.mapCodec(instance ->
             instance.group(
-                    CodecUtils.listOrPrimitive(PlayerSlot.CODEC).fieldOf("slots").forGetter(ab -> ab.slots),
+                    CodecExtras.listOrPrimitive(PlayerSlot.CODEC).fieldOf("slots").forGetter(ab -> ab.slots),
                     propertiesCodec(), conditionsCodec(), energyBarUsagesCodec()
             ).apply(instance, RestrictSlotsAbility::new));
 
@@ -54,7 +55,7 @@ public class RestrictSlotsAbility extends Ability {
                 player.drop(stack, true);
             }
         } else {
-            entity.spawnAtLocation(stack);
+            entity.spawnAtLocation((ServerLevel) entity.level(), stack);
         }
     }
 

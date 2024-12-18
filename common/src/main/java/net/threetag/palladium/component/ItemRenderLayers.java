@@ -5,8 +5,8 @@ import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.resources.ResourceLocation;
-import net.threetag.palladium.util.CodecUtils;
-import net.threetag.palladium.util.PlayerSlot;
+import net.threetag.palladium.entity.PlayerSlot;
+import net.threetag.palladium.util.CodecExtras;
 import net.threetag.palladium.util.Utils;
 
 import java.util.*;
@@ -15,7 +15,7 @@ public record ItemRenderLayers(Map<PlayerSlot, List<ResourceLocation>> entries) 
 
     public static final Codec<ItemRenderLayers> CODEC = Codec.unboundedMap(
             PlayerSlot.CODEC,
-            CodecUtils.listOrPrimitive(ResourceLocation.CODEC)
+            CodecExtras.listOrPrimitive(ResourceLocation.CODEC)
     ).xmap(ItemRenderLayers::new, ItemRenderLayers::entries);
     public static final StreamCodec<FriendlyByteBuf, ItemRenderLayers> STREAM_CODEC = ByteBufCodecs.map(
             Utils::newMap,

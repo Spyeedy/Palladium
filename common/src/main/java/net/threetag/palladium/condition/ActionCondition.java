@@ -11,8 +11,8 @@ import net.threetag.palladium.component.PalladiumDataComponents;
 import net.threetag.palladium.power.PowerHolder;
 import net.threetag.palladium.power.ability.AbilityConditions;
 import net.threetag.palladium.power.ability.AbilityInstance;
-import net.threetag.palladium.util.context.DataContext;
-import net.threetag.palladium.util.context.DataContextType;
+import net.threetag.palladium.data.DataContext;
+import net.threetag.palladium.data.DataContextType;
 
 import java.util.Objects;
 

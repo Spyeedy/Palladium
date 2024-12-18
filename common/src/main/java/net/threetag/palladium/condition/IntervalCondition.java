@@ -6,17 +6,11 @@ import com.mojang.serialization.codecs.RecordCodecBuilder;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
-import net.threetag.palladium.power.ability.AbilityInstance;
-import net.threetag.palladium.util.context.DataContext;
-import net.threetag.palladium.util.context.DataContextType;
-import net.threetag.palladium.util.property.*;
-
-import java.util.Objects;
+import net.threetag.palladium.data.DataContext;
 
 public record IntervalCondition(int activeTicks, int disabledTicks) implements Condition {
 
-    public static final PalladiumProperty<Integer> TICKS = PalladiumPropertyBuilder.create("interval_ticks", PalladiumPropertyType.INTEGER).sync(SyncOption.NONE).build();
-    public static final PalladiumProperty<Boolean> ACTIVE = PalladiumPropertyBuilder.create("interval_active", PalladiumPropertyType.BOOLEAN).sync(SyncOption.NONE).build();
+    // TODO
 
     public static final MapCodec<IntervalCondition> CODEC = RecordCodecBuilder.mapCodec(instance -> instance
             .group(

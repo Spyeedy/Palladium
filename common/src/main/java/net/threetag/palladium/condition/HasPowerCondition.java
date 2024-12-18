@@ -7,7 +7,7 @@ import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.resources.ResourceLocation;
 import net.threetag.palladium.power.EntityPowerHandler;
 import net.threetag.palladium.power.PowerUtil;
-import net.threetag.palladium.util.context.DataContext;
+import net.threetag.palladium.data.DataContext;
 
 public record HasPowerCondition(ResourceLocation powerId) implements Condition {
 
@@ -27,7 +27,7 @@ public record HasPowerCondition(ResourceLocation powerId) implements Condition {
             return false;
         }
 
-        EntityPowerHandler handler = PowerUtil.getPowerHandler(entity).orElse(null);
+        EntityPowerHandler handler = PowerUtil.getPowerHandler(entity);
         return handler != null && handler.getPowerHolders().containsKey(this.powerId);
     }
 

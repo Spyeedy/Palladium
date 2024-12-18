@@ -1,50 +1,29 @@
 package net.threetag.palladium.power.ability;
 
-import net.minecraft.network.chat.Component;
+import dev.architectury.event.EventResult;
+import dev.architectury.event.events.common.EntityEvent;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.damagesource.DamageTypes;
 import net.minecraft.world.entity.LivingEntity;
-import net.minecraft.world.entity.player.Player;
-import net.threetag.palladium.component.PalladiumDataComponents;
-import net.threetag.palladiumcore.event.EventResult;
-import net.threetag.palladiumcore.event.LivingEntityEvents;
-import net.threetag.palladiumcore.event.PlayerEvents;
 
-import java.util.concurrent.atomic.AtomicReference;
-
-public class AbilityEventHandler implements PlayerEvents.NameFormat, LivingEntityEvents.IncomingDamage, LivingEntityEvents.DamagePost {
+public class AbilityEventHandler implements EntityEvent.LivingHurt {
 
     public static void init() {
         AbilityEventHandler handler = new AbilityEventHandler();
-        LivingEntityEvents.INCOMING_DAMAGE.register(handler);
-        LivingEntityEvents.DAMAGE_POST.register(handler);
-        PlayerEvents.NAME_FORMAT.register(handler);
+        EntityEvent.LIVING_HURT.register(handler);
     }
 
-    @Override
-    public void playerNameFormat(Player player, Component username, AtomicReference<Component> displayName) {
-        AbilityUtil.getEnabledInstances(player, AbilitySerializers.NAME_CHANGE.get()).stream().filter(ab -> ab.get(PalladiumDataComponents.Abilities.NAME_CHANGE_ACTIVE.get())).findFirst().ifPresent(ability -> {
-            displayName.set(ability.getAbility().name);
-        });
-    }
+    // TODO
+//    @Override
+//    public void playerNameFormat(Player player, Component username, AtomicReference<Component> displayName) {
+//        AbilityUtil.getEnabledInstances(player, AbilitySerializers.NAME_CHANGE.get()).stream().filter(ab -> ab.get(PalladiumDataComponents.Abilities.NAME_CHANGE_ACTIVE.get())).findFirst().ifPresent(ability -> {
+//            displayName.set(ability.getAbility().name);
+//        });
+//    }
 
     @Override
-    public EventResult livingIncomingDamage(LivingEntity entity, DamageSource damageSource, AtomicReference<Float> amount) {
-        if (damageSource.is(DamageTypes.IN_WALL) && AbilityUtil.isTypeEnabled(entity, AbilitySerializers.INTANGIBILITY.value())) {
-            return EventResult.cancel();
-        }
-
-        for (AbilityInstance<DamageImmunityAbility> instance : AbilityUtil.getEnabledInstances(entity, AbilitySerializers.DAMAGE_IMMUNITY.get())) {
-            if (DamageImmunityAbility.isImmuneAgainst(instance, damageSource)) {
-                return EventResult.cancel();
-            }
-        }
-
-        return EventResult.pass();
-    }
-
-    @Override
-    public void livingDamagePost(LivingEntity entity, DamageSource damageSource, float amount) {
+    public EventResult hurt(LivingEntity entity, DamageSource damageSource, float amount) {
+        // Fire Aspect Ability
         if (damageSource.getEntity() instanceof LivingEntity sourceEntity && AbilityUtil.isTypeEnabled(sourceEntity, AbilitySerializers.FIRE_ASPECT.value())) {
             boolean hasAddedExistingFire = false;
             int fireSeconds = 0;
@@ -58,5 +37,19 @@ public class AbilityEventHandler implements PlayerEvents.NameFormat, LivingEntit
             }
             entity.setRemainingFireTicks(fireSeconds);
         }
+
+        // Intangibility Ability
+        if (damageSource.is(DamageTypes.IN_WALL) && AbilityUtil.isTypeEnabled(entity, AbilitySerializers.INTANGIBILITY.value())) {
+            return EventResult.interruptFalse();
+        }
+
+        // Damage Immunity Ability
+        for (AbilityInstance<DamageImmunityAbility> instance : AbilityUtil.getEnabledInstances(entity, AbilitySerializers.DAMAGE_IMMUNITY.get())) {
+            if (DamageImmunityAbility.isImmuneAgainst(instance, damageSource)) {
+                return EventResult.interruptFalse();
+            }
+        }
+
+        return EventResult.pass();
     }
 }

@@ -8,7 +8,7 @@ import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
 import net.threetag.palladium.power.energybar.EnergyBar;
 import net.threetag.palladium.power.energybar.EnergyBarReference;
-import net.threetag.palladium.util.context.DataContext;
+import net.threetag.palladium.data.DataContext;
 
 public record EnergyBarCondition(EnergyBarReference energyBar, int min, int max) implements Condition {
 

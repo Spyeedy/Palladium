@@ -3,8 +3,8 @@ package net.threetag.palladium.condition;
 import com.mojang.serialization.MapCodec;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.codec.StreamCodec;
-import net.threetag.palladium.util.context.DataContext;
-import net.threetag.palladium.util.context.DataContextType;
+import net.threetag.palladium.data.DataContext;
+import net.threetag.palladium.data.DataContextType;
 
 public class IsMovingCondition implements Condition {
 
@@ -21,11 +21,12 @@ public class IsMovingCondition implements Condition {
             return false;
         }
 
-        if (entity.level().isClientSide) {
+        // TODO
+//        if (entity.level().isClientSide) {
             return entity.xo != entity.getX() || entity.yo != entity.getY() || entity.zo != entity.getZ();
-        } else {
-            return entity.walkDist != entity.walkDistO;
-        }
+//        } else {
+//            return entity.walkDist != entity.walkDistO;
+//        }
     }
 
     @Override

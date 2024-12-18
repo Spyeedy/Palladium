@@ -4,6 +4,7 @@ import com.mojang.blaze3d.platform.Lighting;
 import com.mojang.blaze3d.platform.Window;
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.*;
+import dev.architectury.event.events.client.ClientTickEvent;
 import io.netty.util.collection.IntObjectHashMap;
 import net.minecraft.client.DeltaTracker;
 import net.minecraft.client.Minecraft;
@@ -11,13 +12,14 @@ import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.LayeredDraw;
 import net.minecraft.client.gui.screens.ChatScreen;
 import net.minecraft.client.renderer.GameRenderer;
+import net.minecraft.client.renderer.RenderType;
 import net.minecraft.core.Holder;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.FormattedText;
 import net.minecraft.resources.ResourceLocation;
 import net.threetag.palladium.Palladium;
-import net.threetag.palladium.PalladiumConfig;
 import net.threetag.palladium.client.PalladiumKeyMappings;
+import net.threetag.palladium.data.DataContext;
 import net.threetag.palladium.power.EntityPowerHandler;
 import net.threetag.palladium.power.Power;
 import net.threetag.palladium.power.PowerHolder;
@@ -26,8 +28,6 @@ import net.threetag.palladium.power.ability.AbilityColor;
 import net.threetag.palladium.power.ability.AbilityConditions;
 import net.threetag.palladium.power.ability.AbilityInstance;
 import net.threetag.palladium.power.energybar.EnergyBar;
-import net.threetag.palladium.util.context.DataContext;
-import net.threetag.palladiumcore.event.ClientTickEvents;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -40,7 +40,7 @@ public class AbilityBarRenderer implements LayeredDraw.Layer {
     public static int SELECTED = 0;
 
     public AbilityBarRenderer() {
-        ClientTickEvents.CLIENT_POST.register(instance -> updateCurrentLists());
+        ClientTickEvent.CLIENT_POST.register(instance -> updateCurrentLists());
     }
 
     public static AbilityList getSelectedList() {
@@ -62,7 +62,8 @@ public class AbilityBarRenderer implements LayeredDraw.Layer {
 
         var mc = Minecraft.getInstance();
         var poseStack = guiGraphics.pose();
-        Position position = PalladiumConfig.Client.ABILITY_BAR_POSITION.get();
+        // TODO config
+        Position position = Position.TOP_LEFT;
         AbilityList list = getSelectedList();
 
         if (position == Position.HIDDEN || list == null) {
@@ -119,7 +120,7 @@ public class AbilityBarRenderer implements LayeredDraw.Layer {
     private static void renderIndicator(AbilityList list, Minecraft minecraft, GuiGraphics guiGraphics, PoseStack poseStack, Position position, ResourceLocation texture, boolean showKey) {
         // Background
         RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
-        guiGraphics.blit(texture, 0, 0, position.left ? 52 : 0, position.top ? 28 : 0, 52, 28);
+        guiGraphics.blit(RenderType::guiTextured, texture, 0, 0, position.left ? 52 : 0, position.top ? 28 : 0, 52, 28, 256, 256);
 
         // Icon
         list.power.value().getIcon().draw(minecraft, guiGraphics, DataContext.forPower(minecraft.player, list.getPowerHolder()), showKey ? (position.left ? 30 : 6) : (position.left ? 17 : 19), position.top ? 5 : 7);
@@ -129,7 +130,7 @@ public class AbilityBarRenderer implements LayeredDraw.Layer {
             FormattedText properties = minecraft.font.substrByWidth(PalladiumKeyMappings.SWITCH_ABILITY_LIST.getTranslatedKeyMessage(), 10);
             int length = minecraft.font.width(properties) + 10;
             guiGraphics.drawString(minecraft.font, Component.literal(properties.getString()), (int) ((position.left ? 15 : 37) - length / 2F + 10), position.top ? 10 : 12, 0xffffffff, false);
-            guiGraphics.blit(texture, (position.left ? 15 : 37) - length / 2, position.top ? 9 : 11, 78, minecraft.player.isCrouching() ? 64 : 56, 8, 8);
+            guiGraphics.blit(RenderType::guiTextured, texture, (position.left ? 15 : 37) - length / 2, position.top ? 9 : 11, 78, minecraft.player.isCrouching() ? 64 : 56, 8, 8, 256, 256);
         }
     }
 
@@ -160,7 +161,7 @@ public class AbilityBarRenderer implements LayeredDraw.Layer {
             RenderSystem.enableBlend();
             RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
 
-            guiGraphics.blit(texture, 3, i * 22 + 3, 60, 56, 18, 18);
+            guiGraphics.blit(RenderType::guiTextured, texture, 3, i * 22 + 3, 60, 56, 18, 18, 256, 256);
 
             if (list != null) {
                 AbilityInstance<?> entry = list.getDisplayedAbilities()[i];
@@ -168,19 +169,19 @@ public class AbilityBarRenderer implements LayeredDraw.Layer {
                 if (entry != null) {
                     if (entry.isEnabled() && entry.getActivatedTime() != 0 && entry.getMaxActivatedTime() != 0) {
                         int height = (int) ((float) entry.getActivatedTime() / (float) entry.getMaxActivatedTime() * 18);
-                        guiGraphics.blit(texture, 3, i * 22 + 3, 24, 56, 18, 18);
-                        guiGraphics.blit(texture, 3, i * 22 + 3 + (18 - height), 42, 74 - height, 18, height);
+                        guiGraphics.blit(RenderType::guiTextured, texture, 3, i * 22 + 3, 24, 56, 18, 18, 256, 256);
+                        guiGraphics.blit(RenderType::guiTextured, texture, 3, i * 22 + 3 + (18 - height), 42, 74 - height, 18, height, 256, 256);
                     } else {
-                        guiGraphics.blit(texture, 3, i * 22 + 3, entry.isEnabled() ? 42 : 24, entry.isUnlocked() ? 56 : 74, 18, 18);
+                        guiGraphics.blit(RenderType::guiTextured, texture, 3, i * 22 + 3, entry.isEnabled() ? 42 : 24, entry.isUnlocked() ? 56 : 74, 18, 18, 256, 256);
                     }
 
                     if (entry.getCooldown() > 0) {
                         int width = (int) ((float) entry.getCooldown() / (float) entry.getMaxCooldown() * 18);
-                        guiGraphics.blit(texture, 3, i * 22 + 3, 60, 74, width, 18);
+                        guiGraphics.blit(RenderType::guiTextured, texture, 3, i * 22 + 3, 60, 74, width, 18, 256, 256);
                     }
 
                     if (!entry.isUnlocked()) {
-                        guiGraphics.blit(texture, 3, i * 22 + 3, 42, 74, 18, 18);
+                        guiGraphics.blit(RenderType::guiTextured, texture, 3, i * 22 + 3, 42, 74, 18, 18, 256, 256);
                     } else {
                         entry.getAbility().getProperties().getIcon().draw(minecraft, guiGraphics, DataContext.forAbility(minecraft.player, entry), 4, 4 + i * 22);
                     }
@@ -194,7 +195,7 @@ public class AbilityBarRenderer implements LayeredDraw.Layer {
                         guiGraphics.drawString(minecraft.font, name, position.left ? 29 : -width - 5, i * 22 + 8, 0xffffffff, false);
                     }
                 } else {
-                    guiGraphics.blit(texture, 3, i * 22 + 3, 60, 56, 18, 18);
+                    guiGraphics.blit(RenderType::guiTextured, texture, 3, i * 22 + 3, 60, 56, 18, 18, 256, 256);
                 }
             }
         }
@@ -204,9 +205,9 @@ public class AbilityBarRenderer implements LayeredDraw.Layer {
         // Overlay
         RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
         if (!simple) {
-            guiGraphics.blit(texture, 0, 0, 0, 56, 24, 112);
+            guiGraphics.blit(RenderType::guiTextured, texture, 0, 0, 0, 56, 24, 112, 256, 256);
         } else {
-            guiGraphics.blit(texture, 0, 0, 0, 168, 24, 24);
+            guiGraphics.blit(RenderType::guiTextured, texture, 0, 0, 0, 168, 24, 24, 256, 256);
         }
 
         // Colored Frames + Keys
@@ -219,11 +220,11 @@ public class AbilityBarRenderer implements LayeredDraw.Layer {
                 RenderSystem.enableBlend();
 
                 if (!ability.isUnlocked()) {
-                    guiGraphics.blit(texture, 3, i * 22 + 3, 42, 74, 18, 18);
+                    guiGraphics.blit(RenderType::guiTextured, texture, 3, i * 22 + 3, 42, 74, 18, 18, 256, 256);
                 }
 
                 AbilityColor color = ability.getAbility().getProperties().getColor();
-                guiGraphics.blit(texture, 0, i * 22, color.getX(), color.getY(), 24, 24);
+                guiGraphics.blit(RenderType::guiTextured, texture, 0, i * 22, color.getX(), color.getY(), 24, 24, 256, 256);
 
                 if (ability.getAbility().getConditions().needsKey() && ability.isUnlocked()) {
                     AbilityConditions.KeyType keyType = ability.getAbility().getConditions().getKeyType();
@@ -233,17 +234,17 @@ public class AbilityBarRenderer implements LayeredDraw.Layer {
                         Component key = PalladiumKeyMappings.ABILITY_KEYS[i].getTranslatedKeyMessage();
                         guiGraphics.drawString(minecraft.font, key, 5 + 19 - 2 - minecraft.font.width(key), 5 + i * 22 + 7, 0xffffff, false);
                     } else if (keyType == AbilityConditions.KeyType.LEFT_CLICK) {
-                        guiGraphics.blit(texture, 5 + 19 - 8, 5 + i * 22 + 8, 24, 92, 5, 7);
+                        guiGraphics.blit(RenderType::guiTextured, texture, 5 + 19 - 8, 5 + i * 22 + 8, 24, 92, 5, 7, 256, 256);
                     } else if (keyType == AbilityConditions.KeyType.RIGHT_CLICK) {
-                        guiGraphics.blit(texture, 5 + 19 - 8, 5 + i * 22 + 8, 29, 92, 5, 7);
+                        guiGraphics.blit(RenderType::guiTextured, texture, 5 + 19 - 8, 5 + i * 22 + 8, 29, 92, 5, 7, 256, 256);
                     } else if (keyType == AbilityConditions.KeyType.SPACE_BAR) {
-                        guiGraphics.blit(texture, 5 + 19 - 13, 5 + i * 22 + 10, 34, 92, 10, 5);
+                        guiGraphics.blit(RenderType::guiTextured, texture, 5 + 19 - 13, 5 + i * 22 + 10, 34, 92, 10, 5, 256, 256);
                     } else if (keyType == AbilityConditions.KeyType.SCROLL_UP) {
-                        guiGraphics.blit(texture, 5 + 19 - 8, 5 + i * 22 + 4, 24, 99, 5, 11);
+                        guiGraphics.blit(RenderType::guiTextured, texture, 5 + 19 - 8, 5 + i * 22 + 4, 24, 99, 5, 11, 256, 256);
                     } else if (keyType == AbilityConditions.KeyType.SCROLL_DOWN) {
-                        guiGraphics.blit(texture, 5 + 19 - 8, 5 + i * 22 + 4, 29, 99, 5, 11);
+                        guiGraphics.blit(RenderType::guiTextured, texture, 5 + 19 - 8, 5 + i * 22 + 4, 29, 99, 5, 11, 256, 256);
                     } else if (keyType == AbilityConditions.KeyType.SCROLL_EITHER) {
-                        guiGraphics.blit(texture, 5 + 19 - 8, 5 + i * 22 + 2, 34, 99, 5, 13);
+                        guiGraphics.blit(RenderType::guiTextured, texture, 5 + 19 - 8, 5 + i * 22 + 2, 34, 99, 5, 13, 256, 256);
                     }
 
                     poseStack.popPose();
@@ -266,17 +267,17 @@ public class AbilityBarRenderer implements LayeredDraw.Layer {
 
     public static void renderEnergyBars(GuiGraphics guiGraphics, AbilityList list, ResourceLocation texture) {
         RenderSystem.setShaderColor(1F, 1F, 1F, 1F);
-        guiGraphics.blit(texture, 0, 0, 152, 0, 1, 104);
+        guiGraphics.blit(RenderType::guiTextured, texture, 0, 0, 152, 0, 1, 104, 256, 256);
 
         int x = 1;
 
         for (EnergyBar energyBar : list.energyBars) {
-            guiGraphics.blit(texture, x, 0, 153, 0, 9, 104);
+            guiGraphics.blit(RenderType::guiTextured, texture, x, 0, 153, 0, 9, 104, 256, 256);
 
             int height = (int) ((energyBar.get() / (float) energyBar.getMax()) * 98);
             var color = energyBar.getConfiguration().color();
             RenderSystem.setShaderColor(color.getRed() / 255F, color.getGreen() / 255F, color.getBlue() / 255F, 1F);
-            guiGraphics.blit(texture, x + 2, 3 + 98 - height, 162, 98 - height, 4, height);
+            guiGraphics.blit(RenderType::guiTextured, texture, x + 2, 3 + 98 - height, 162, 98 - height, 4, height, 256, 256);
             RenderSystem.setShaderColor(1F, 1F, 1F, 1F);
             x += 9;
         }
@@ -285,7 +286,7 @@ public class AbilityBarRenderer implements LayeredDraw.Layer {
     public static void renderBlackBox(Tesselator tesselator, PoseStack matrixStack, int x, int y, int width, int height, float opacity) {
         RenderSystem.enableBlend();
         RenderSystem.defaultBlendFunc();
-        RenderSystem.setShader(GameRenderer::getPositionColorShader);
+//        RenderSystem.setShader(GameRenderer::getPositionColorShader);
 
         BufferBuilder bb = tesselator.begin(VertexFormat.Mode.QUADS, DefaultVertexFormat.POSITION_COLOR);
         bb.addVertex(matrixStack.last().pose(), x + width, y, 0).setColor(0F, 0F, 0F, opacity);
@@ -320,7 +321,7 @@ public class AbilityBarRenderer implements LayeredDraw.Layer {
 
     public static List<AbilityList> getAbilityLists() {
         List<AbilityList> lists = new ArrayList<>();
-        EntityPowerHandler handler = PowerUtil.getPowerHandler(Minecraft.getInstance().player).orElse(null);
+        EntityPowerHandler handler = PowerUtil.getPowerHandler(Minecraft.getInstance().player);
 
         if (handler == null) {
             return lists;
@@ -333,7 +334,9 @@ public class AbilityBarRenderer implements LayeredDraw.Layer {
             for (AbilityInstance<?> abilityInstance : holder.getAbilities().values()) {
                 int i = abilityInstance.getAbility().getProperties().getListIndex();
 
-                if (abilityInstance.getAbility().getConditions().needsKey() && !abilityInstance.getAbility().getProperties().isHiddenInBar()) {
+                // TODO
+                if (!abilityInstance.getAbility().getProperties().isHiddenInBar()) {
+//                if (abilityInstance.getAbility().getConditions().needsKey() && !abilityInstance.getAbility().getProperties().isHiddenInBar()) {
                     if (i >= 0) {
                         int listIndex = Math.floorDiv(i, 5);
                         int index = i % 5;

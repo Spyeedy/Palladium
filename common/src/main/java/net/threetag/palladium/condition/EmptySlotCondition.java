@@ -5,8 +5,8 @@ import com.mojang.serialization.codecs.RecordCodecBuilder;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.world.item.ItemStack;
-import net.threetag.palladium.util.PlayerSlot;
-import net.threetag.palladium.util.context.DataContext;
+import net.threetag.palladium.data.DataContext;
+import net.threetag.palladium.entity.PlayerSlot;
 
 public record EmptySlotCondition(PlayerSlot slot) implements Condition {
 

@@ -20,4 +20,8 @@ public record AnimationTimerSetting(int min, int max) {
             setting -> setting.min == 0 ? Either.right(setting.max) : Either.left(setting)
     );
 
+    public AnimationTimer create() {
+        return new AnimationTimer(this, this.min);
+    }
+
 }

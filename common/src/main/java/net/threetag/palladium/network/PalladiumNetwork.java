@@ -1,77 +1,91 @@
 package net.threetag.palladium.network;
 
+import dev.architectury.networking.NetworkManager;
+import dev.architectury.platform.Platform;
+import dev.architectury.utils.Env;
+import net.minecraft.network.RegistryFriendlyByteBuf;
+import net.minecraft.network.codec.StreamCodec;
+import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
+import net.minecraft.server.level.ChunkMap;
+import net.minecraft.server.level.ServerChunkCache;
 import net.minecraft.server.level.ServerPlayer;
-import net.minecraft.world.entity.LivingEntity;
-import net.threetag.palladium.accessory.Accessory;
-import net.threetag.palladium.power.PowerHolder;
-import net.threetag.palladium.power.PowerUtil;
-import net.threetag.palladium.power.energybar.EnergyBar;
-import net.threetag.palladium.power.energybar.EnergyBarReference;
-import net.threetag.palladium.util.property.EntityPropertyHandler;
-import net.threetag.palladiumcore.network.NetworkManager;
-import net.threetag.palladiumcore.util.DataSyncUtil;
-import org.apache.commons.lang3.tuple.Triple;
+import net.minecraft.server.network.ServerPlayerConnection;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.level.chunk.ChunkSource;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
+import java.util.*;
+import java.util.stream.Collectors;
 
 public class PalladiumNetwork {
 
     public static void init() {
-        var net = NetworkManager.get();
+        // Server -> Client
+        registerS2C(SyncEntityPowersPacket.TYPE, SyncEntityPowersPacket.STREAM_CODEC, SyncEntityPowersPacket::handle);
 
-        net.registerC2S(AbilityKeyPressedPacket.TYPE, AbilityKeyPressedPacket.STREAM_CODEC, AbilityKeyPressedPacket::handle);
-        net.registerC2S(BuyAbilityUnlockPacket.TYPE, BuyAbilityUnlockPacket.STREAM_CODEC, BuyAbilityUnlockPacket::handle);
-        net.registerC2S(SetFlyingStatePacket.TYPE, SetFlyingStatePacket.STREAM_CODEC, SetFlyingStatePacket::handle);
-        net.registerC2S(RequestAbilityBuyScreenPacket.TYPE, RequestAbilityBuyScreenPacket.STREAM_CODEC, RequestAbilityBuyScreenPacket::handle);
-        net.registerC2S(ToggleAccessoryPacket.TYPE, ToggleAccessoryPacket.STREAM_CODEC, ToggleAccessoryPacket::handle);
-        net.registerC2S(ToggleOpenableEquipmentPacket.TYPE, ToggleOpenableEquipmentPacket.STREAM_CODEC, ToggleOpenableEquipmentPacket::handle);
+        // Client -> Server
 
-        net.registerS2C(OpenAbilityBuyScreenPacket.TYPE, OpenAbilityBuyScreenPacket.STREAM_CODEC, OpenAbilityBuyScreenPacket::handle);
-        net.registerS2C(SyncEnergyBarPacket.TYPE, SyncEnergyBarPacket.STREAM_CODEC, SyncEnergyBarPacket::handle);
-        net.registerS2C(SyncAccessoriesPacket.TYPE, SyncAccessoriesPacket.STREAM_CODEC, SyncAccessoriesPacket::handle);
-        net.registerS2C(SyncFlightStatePacket.TYPE, SyncFlightStatePacket.STREAM_CODEC, SyncFlightStatePacket::handle);
-        net.registerS2C(SyncEntityPowersPacket.TYPE, SyncEntityPowersPacket.STREAM_CODEC, SyncEntityPowersPacket::handle);
-        net.registerS2C(SyncPropertyPacket.TYPE, SyncPropertyPacket.STREAM_CODEC, SyncPropertyPacket::handle);
-
+        // TODO
         // Powers
-        DataSyncUtil.registerEntitySync((entity, consumer) -> {
-            if (entity instanceof LivingEntity livingEntity) {
-                var opt = PowerUtil.getPowerHandler(livingEntity);
-
-                if (opt.isPresent()) {
-                    var handler = opt.get();
-
-                    List<Triple<EnergyBarReference, Integer, Integer>> energyBars = new ArrayList<>();
-                    for (PowerHolder holder : opt.get().getPowerHolders().values()) {
-                        for (EnergyBar energyBar : holder.getEnergyBars().values()) {
-                            energyBars.add(Triple.of(new EnergyBarReference(holder.getPowerId(), energyBar.getConfiguration().getKey()), energyBar.get(), energyBar.getMax()));
-                        }
-                    }
-
-                    consumer.accept(new SyncEntityPowersPacket(livingEntity.getId(), Collections.emptyList(), handler.getPowerHolders().keySet().stream().toList(), energyBars));
-
-//                    for (AbilityInstance<?> entry : AbilityUtil.getInstances(livingEntity)) {
-//                        consumer.accept(entry.getSyncStateMessage(livingEntity));
-//                    }
-                }
-            }
-        });
+//        DataSyncUtil.registerEntitySync((entity, consumer) -> {
+//            if (entity instanceof LivingEntity livingEntity) {
+//                consumer.accept(SyncEntityPowersPacket.create(livingEntity));
+//
+////                    for (AbilityInstance<?> entry : AbilityUtil.getInstances(livingEntity)) {
+////                        consumer.accept(entry.getSyncStateMessage(livingEntity));
+////                    }
+//            }
+//        });
 
         // Accessories
-        DataSyncUtil.registerEntitySync((entity, consumer) -> {
-            if (entity instanceof ServerPlayer serverPlayer) {
-                var opt = Accessory.getPlayerData(serverPlayer);
-                opt.ifPresent(accessoryPlayerData -> consumer.accept(new SyncAccessoriesPacket(serverPlayer.getId(), accessoryPlayerData.accessories)));
-            }
-        });
+//        DataSyncUtil.registerEntitySync((entity, consumer) -> {
+//            if (entity instanceof ServerPlayer serverPlayer) {
+//                var opt = Accessory.getPlayerData(serverPlayer);
+//                opt.ifPresent(accessoryPlayerData -> consumer.accept(new SyncAccessoriesPacket(serverPlayer.getId(), accessoryPlayerData.accessories)));
+//            }
+//        });
+//
+//        // Properties
+//        DataSyncUtil.registerEntitySync((entity, consumer) -> {
+//            EntityPropertyHandler.getHandler(entity).ifPresent(properties -> {
+//                properties.getHolders().forEach((holder) -> consumer.accept(new SyncPropertyPacket<>(entity.getId(), holder)));
+//            });
+//        });
+    }
 
-        // Properties
-        DataSyncUtil.registerEntitySync((entity, consumer) -> {
-            EntityPropertyHandler.getHandler(entity).ifPresent(properties -> {
-                properties.getHolders().forEach((holder) -> consumer.accept(new SyncPropertyPacket<>(entity.getId(), holder)));
-            });
-        });
+    public static <T extends CustomPacketPayload> void registerS2C(CustomPacketPayload.Type<T> type, StreamCodec<? super RegistryFriendlyByteBuf, T> codec, NetworkManager.NetworkReceiver<T> receiver) {
+        if (Platform.getEnvironment() == Env.SERVER) {
+            NetworkManager.registerS2CPayloadType(type, codec);
+        } else {
+            NetworkManager.registerReceiver(NetworkManager.s2c(), type, codec, receiver);
+        }
+    }
+
+    public static <T extends CustomPacketPayload> void registerC2S(CustomPacketPayload.Type<T> type, StreamCodec<? super RegistryFriendlyByteBuf, T> codec, NetworkManager.NetworkReceiver<T> receiver) {
+        NetworkManager.registerReceiver(NetworkManager.c2s(), type, codec, receiver);
+    }
+
+    public static void sendToTrackingAndSelf(Entity entity, CustomPacketPayload packet) {
+        if (entity.level().isClientSide()) {
+            throw new IllegalStateException("Cannot send clientbound payloads on the client");
+        } else {
+            if (entity instanceof ServerPlayer player) {
+                NetworkManager.sendToPlayer(player, packet);
+            }
+            for (ServerPlayer player : tracking(entity)) {
+                NetworkManager.sendToPlayer(player, packet);
+            }
+        }
+    }
+
+    public static Collection<ServerPlayer> tracking(Entity entity) {
+        Objects.requireNonNull(entity, "Entity cannot be null");
+        ChunkSource manager = entity.level().getChunkSource();
+        if (manager instanceof ServerChunkCache) {
+            ChunkMap chunkLoadingManager = ((ServerChunkCache) manager).chunkMap;
+            ChunkMap.TrackedEntity tracker = chunkLoadingManager.entityMap.get(entity.getId());
+            return (tracker != null ? tracker.seenBy.stream().map(ServerPlayerConnection::getPlayer).collect(Collectors.toUnmodifiableSet()) : Collections.emptySet());
+        } else {
+            throw new IllegalArgumentException("Only supported on server worlds!");
+        }
     }
 }

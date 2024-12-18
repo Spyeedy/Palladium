@@ -1,6 +1,7 @@
 package net.threetag.palladium.power.ability;
 
 import com.mojang.blaze3d.shaders.FogShape;
+import dev.architectury.event.EventResult;
 import net.minecraft.client.Camera;
 import net.minecraft.client.renderer.FogRenderer;
 import net.minecraft.client.renderer.GameRenderer;
@@ -9,33 +10,32 @@ import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.level.block.RenderShape;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.material.FogType;
-import net.threetag.palladiumcore.event.EventResult;
-import net.threetag.palladiumcore.event.ViewportEvents;
 
 import java.util.concurrent.atomic.AtomicReference;
 
-public class AbilityClientEventHandler implements ViewportEvents.RenderFog, ViewportEvents.ComputeFogColor {
+public class AbilityClientEventHandler {
 
     public static void init() {
+        // TODO
         AbilityClientEventHandler instance = new AbilityClientEventHandler();
-        ViewportEvents.RENDER_FOG.register(instance);
-        ViewportEvents.COMPUTE_FOG_COLOR.register(instance);
+//        ViewportEvents.RENDER_FOG.register(instance);
+//        ViewportEvents.COMPUTE_FOG_COLOR.register(instance);
     }
 
-    @Override
-    public EventResult renderFog(GameRenderer gameRenderer, Camera camera, double partialTick, FogRenderer.FogMode fogMode, FogType fogType, AtomicReference<Float> farPlaneDistance, AtomicReference<Float> nearPlaneDistance, AtomicReference<FogShape> fogShape) {
-        if (camera.getEntity() instanceof LivingEntity living) {
-            if (AbilityUtil.isTypeEnabled(living, AbilitySerializers.INTANGIBILITY.get())) {
-                if (getInWallBlockState(living) != null) {
-                    fogShape.set(FogShape.SPHERE);
-                    farPlaneDistance.set(5F);
-                    nearPlaneDistance.set(1F);
-                    return EventResult.cancel();
-                }
-            }
-        }
-        return EventResult.pass();
-    }
+//    @Override
+//    public EventResult renderFog(GameRenderer gameRenderer, Camera camera, double partialTick, FogRenderer.FogMode fogMode, FogType fogType, AtomicReference<Float> farPlaneDistance, AtomicReference<Float> nearPlaneDistance, AtomicReference<FogShape> fogShape) {
+//        if (camera.getEntity() instanceof LivingEntity living) {
+//            if (AbilityUtil.isTypeEnabled(living, AbilitySerializers.INTANGIBILITY.get())) {
+//                if (getInWallBlockState(living) != null) {
+//                    fogShape.set(FogShape.SPHERE);
+//                    farPlaneDistance.set(5F);
+//                    nearPlaneDistance.set(1F);
+//                    return EventResult.cancel();
+//                }
+//            }
+//        }
+//        return EventResult.pass();
+//    }
 
     public static BlockState getInWallBlockState(LivingEntity playerEntity) {
         BlockPos.MutableBlockPos mutable = new BlockPos.MutableBlockPos();
@@ -54,16 +54,16 @@ public class AbilityClientEventHandler implements ViewportEvents.RenderFog, View
         return null;
     }
 
-    @Override
-    public void computeFogColor(GameRenderer gameRenderer, Camera camera, double partialTick, AtomicReference<Float> red, AtomicReference<Float> green, AtomicReference<Float> blue) {
-        if (camera.getEntity() instanceof LivingEntity living) {
-            if (AbilityUtil.isTypeEnabled(living, AbilitySerializers.INTANGIBILITY.get())) {
-                if (getInWallBlockState(living) != null) {
-                    red.set(0F);
-                    green.set(0F);
-                    blue.set(0F);
-                }
-            }
-        }
-    }
+//    @Override
+//    public void computeFogColor(GameRenderer gameRenderer, Camera camera, double partialTick, AtomicReference<Float> red, AtomicReference<Float> green, AtomicReference<Float> blue) {
+//        if (camera.getEntity() instanceof LivingEntity living) {
+//            if (AbilityUtil.isTypeEnabled(living, AbilitySerializers.INTANGIBILITY.get())) {
+//                if (getInWallBlockState(living) != null) {
+//                    red.set(0F);
+//                    green.set(0F);
+//                    blue.set(0F);
+//                }
+//            }
+//        }
+//    }
 }

@@ -3,22 +3,18 @@ package net.threetag.palladium.power.ability;
 import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import net.minecraft.core.Holder;
-import net.minecraft.tags.DamageTypeTags;
-import net.minecraft.tags.TagKey;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.damagesource.DamageType;
 import net.threetag.palladium.power.energybar.EnergyBarUsage;
-import net.threetag.palladium.util.CodecUtils;
+import net.threetag.palladium.util.CodecExtras;
 
-import java.lang.reflect.Field;
-import java.util.ArrayList;
 import java.util.List;
 
 public class DamageImmunityAbility extends Ability {
 
     public static final MapCodec<DamageImmunityAbility> CODEC = RecordCodecBuilder.mapCodec(instance ->
             instance.group(
-                    CodecUtils.listOrPrimitive(DamageType.CODEC).fieldOf("damage_types").forGetter(ab -> ab.damageTypes),
+                    CodecExtras.listOrPrimitive(DamageType.CODEC).fieldOf("damage_types").forGetter(ab -> ab.damageTypes),
                     propertiesCodec(), conditionsCodec(), energyBarUsagesCodec()
             ).apply(instance, DamageImmunityAbility::new));
 

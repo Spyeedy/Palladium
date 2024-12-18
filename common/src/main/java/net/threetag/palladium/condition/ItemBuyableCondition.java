@@ -11,8 +11,8 @@ import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.crafting.Ingredient;
+import net.threetag.palladium.client.icon.IngredientIcon;
 import net.threetag.palladium.power.ability.Ability;
-import net.threetag.palladium.util.icon.IngredientIcon;
 
 public class ItemBuyableCondition extends BuyableCondition {
 
@@ -46,14 +46,15 @@ public class ItemBuyableCondition extends BuyableCondition {
 
     @Override
     public Ability.UnlockData createData() {
-        var stacks = this.ingredient.getItems();
+        var items = this.ingredient.items().toList();
         var component = Component.empty();
 
-        for (int i = 0; i < stacks.length; i++) {
-            component.append(stacks[i].getItem().getName(stacks[i]));
+        for (int i = 0; i < items.size(); i++) {
+            var item = items.get(i).value();
+            component.append(item.getName(item.getDefaultInstance()));
 
-            if (i < stacks.length - 1) {
-                if (i == stacks.length - 2) {
+            if (i < items.size() - 1) {
+                if (i == items.size() - 2) {
                     component.append(" ").append(Component.translatable("gui.palladium.powers.buy_ability.or")).append(" ");
                 } else {
                     component.append(", ");

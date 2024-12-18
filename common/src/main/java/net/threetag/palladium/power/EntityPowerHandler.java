@@ -1,33 +1,31 @@
 package net.threetag.palladium.power;
 
 import com.google.common.collect.ImmutableMap;
+import net.minecraft.core.Holder;
+import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.LivingEntity;
+import net.threetag.palladium.entity.data.PalladiumEntityData;
+import net.threetag.palladium.network.PalladiumNetwork;
 import net.threetag.palladium.network.SyncEntityPowersPacket;
-import net.threetag.palladium.power.energybar.EnergyBar;
-import net.threetag.palladium.power.energybar.EnergyBarReference;
 import net.threetag.palladium.power.provider.PowerProvider;
 import net.threetag.palladium.registry.PalladiumRegistries;
 import net.threetag.palladium.registry.PalladiumRegistryKeys;
-import net.threetag.palladiumcore.network.NetworkManager;
-import org.apache.commons.lang3.tuple.Triple;
 
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-public class EntityPowerHandler {
+public class EntityPowerHandler extends PalladiumEntityData<LivingEntity> {
 
     private final Map<ResourceLocation, PowerHolder> powers = new HashMap<>();
-    private final LivingEntity entity;
     private CompoundTag powerData = new CompoundTag();
     private boolean invalid = false;
 
     public EntityPowerHandler(LivingEntity entity) {
-        this.entity = entity;
+        super(entity);
     }
 
     public Map<ResourceLocation, PowerHolder> getPowerHolders() {
@@ -38,45 +36,46 @@ public class EntityPowerHandler {
         this.invalid = true;
     }
 
+    @Override
     public void tick() {
-        if (!this.entity.level().isClientSide) {
+        if (!this.getEntity().level().isClientSide) {
             List<PowerHolder> toRemove = new ArrayList<>();
-            PowerCollector collector = new PowerCollector(this.entity, this, toRemove);
+            PowerCollector collector = new PowerCollector(this.getEntity(), this, toRemove);
 
             // Find invalid
             if (this.invalid) {
                 toRemove.addAll(this.powers.values());
                 this.invalid = false;
+            } else {
+                for (PowerHolder holder : this.powers.values()) {
+                    if (holder.isInvalid()) {
+                        toRemove.add(holder);
+                    }
+                }
             }
 
             // Get new ones
             for (PowerProvider provider : PalladiumRegistries.POWER_PROVIDER) {
-                provider.providePowers(this.entity, this, collector);
+                provider.providePowers(this.getEntity(), this, collector);
             }
 
             // Remove old ones
             for (PowerHolder holder : toRemove) {
-                this.removePowerHolder(holder.getPowerId());
+                this.removePowerHolder(holder.getPower());
             }
 
             // Add new ones
-            List<Triple<EnergyBarReference, Integer, Integer>> energyBars = new ArrayList<>();
+            List<PowerHolder> added = new ArrayList<>();
             for (PowerCollector.PowerHolderCache holderCache : collector.getAdded()) {
-                var holder = holderCache.make(this.entity, this.powerData);
-                this.setPowerHolder(holder);
-                for (EnergyBar energyBar : holder.getEnergyBars().values()) {
-                    energyBars.add(Triple.of(new EnergyBarReference(holder.getPowerId(), energyBar.getConfiguration().getKey()), energyBar.get(), energyBar.getMax()));
-                }
+                var holder = holderCache.make(this.getEntity(), this.powerData);
+                this.addPowerHolder(holder);
+                added.add(holder);
             }
 
             // Sync
             if (!toRemove.isEmpty() || !collector.getAdded().isEmpty()) {
-                var msg = new SyncEntityPowersPacket(this.entity.getId(), toRemove.stream().map(PowerHolder::getPowerId).toList(), collector.getAdded().stream().map(powerHolderCache -> powerHolderCache.power().unwrapKey().orElseThrow().location()).toList(), energyBars);
-                if (this.entity instanceof ServerPlayer serverPlayer) {
-                    NetworkManager.get().sendToPlayersTrackingEntityAndSelf(serverPlayer, msg);
-                } else {
-                    NetworkManager.get().sendToPlayersTrackingEntity(this.entity, msg);
-                }
+                var msg = SyncEntityPowersPacket.create(this.getEntity(), toRemove, added);
+                PalladiumNetwork.sendToTrackingAndSelf(this.getEntity(), msg);
             }
         }
 
@@ -86,17 +85,18 @@ public class EntityPowerHandler {
         }
     }
 
-    public void setPowerHolder(PowerHolder holder) {
+    public void addPowerHolder(PowerHolder holder) {
         if (this.hasPower(holder.getPowerId())) {
             this.powers.put(holder.getPowerId(), holder);
         } else {
-            this.removePowerHolder(holder.getPowerId());
+            this.removePowerHolder(holder.getPower());
             this.powers.put(holder.getPowerId(), holder);
             holder.firstTick();
         }
     }
 
-    public void removePowerHolder(ResourceLocation powerId) {
+    public void removePowerHolder(Holder<Power> power) {
+        var powerId = power.unwrapKey().orElseThrow().location();
         if (this.powers.containsKey(powerId)) {
             var holder = this.powers.get(powerId);
             boolean isStillValid = !holder.getPower().value().isInvalid();
@@ -123,11 +123,13 @@ public class EntityPowerHandler {
         return this.powers.containsKey(powerId);
     }
 
-    public void load(CompoundTag nbt) {
+    @Override
+    public void load(CompoundTag nbt, HolderLookup.Provider registryLookup) {
         this.powerData = nbt;
     }
 
-    public CompoundTag save() {
+    @Override
+    public CompoundTag save(HolderLookup.Provider registryLookup) {
         for (PowerHolder holder : this.powers.values()) {
             this.powerData.put(holder.getPowerId().toString(), holder.save());
         }
@@ -138,7 +140,7 @@ public class EntityPowerHandler {
     public void cleanPowerData() {
         List<String> toRemove = new ArrayList<>();
         for (String key : this.powerData.getAllKeys()) {
-            if (!this.entity.registryAccess().registryOrThrow(PalladiumRegistryKeys.POWER).containsKey(ResourceLocation.parse(key))) {
+            if (!this.getEntity().registryAccess().lookupOrThrow(PalladiumRegistryKeys.POWER).containsKey(ResourceLocation.parse(key))) {
                 toRemove.add(key);
             }
         }
