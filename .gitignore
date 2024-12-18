@@ -19,7 +19,7 @@ classes/
 .settings
 *.launch
 
-run/
+run/*
 !run/palladium/
 
 .architectury-transformer/*

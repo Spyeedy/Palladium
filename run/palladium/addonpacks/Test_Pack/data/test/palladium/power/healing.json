@@ -1,0 +1,13 @@
+{
+  "name": "Healing Test",
+
+  "icon": "minecraft:bread",
+
+  "abilities": {
+    "healing": {
+      "type": "palladium:healing",
+      "frequency": 100,
+      "amount": 10
+    }
+  }
+}
