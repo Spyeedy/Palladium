@@ -15,20 +15,20 @@ import java.util.function.Function;
 
 public class SkinTypedValue<T> {
 
-    private final T normal;
+    private final T wide;
     private final T slim;
 
     public SkinTypedValue(T value) {
-        this.normal = this.slim = value;
+        this.wide = this.slim = value;
     }
 
-    public SkinTypedValue(T normal, T slim) {
-        this.normal = normal;
+    public SkinTypedValue(T wide, T slim) {
+        this.wide = wide;
         this.slim = slim;
     }
 
-    public T getNormal() {
-        return this.normal;
+    public T getWide() {
+        return this.wide;
     }
 
     public T getSlim() {
@@ -36,7 +36,7 @@ public class SkinTypedValue<T> {
     }
 
     public T get(boolean slim) {
-        return slim ? this.getSlim() : this.getNormal();
+        return slim ? this.getSlim() : this.getWide();
     }
 
     public T get(Entity entity) {
@@ -47,50 +47,26 @@ public class SkinTypedValue<T> {
     public boolean equals(Object o) {
         if (this == o) return true;
         if (!(o instanceof SkinTypedValue<?> that)) return false;
-        return Objects.equals(normal, that.normal) && Objects.equals(slim, that.slim);
+        return Objects.equals(wide, that.wide) && Objects.equals(slim, that.slim);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(normal, slim);
+        return Objects.hash(wide, slim);
     }
 
     @Override
     public String toString() {
         return "SkinTypedValue{" +
-                "normal=" + normal +
+                "wide=" + wide +
                 ", slim=" + slim +
                 '}';
-    }
-
-    public static <T> SkinTypedValue<T> fromJSON(JsonElement jsonElement, Function<JsonElement, T> parser) {
-        if (jsonElement.isJsonObject()) {
-            JsonObject json = jsonElement.getAsJsonObject();
-            if (GsonHelper.isValidNode(json, "normal") && GsonHelper.isValidNode(json, "slim")) {
-                return new SkinTypedValue<>(parser.apply(json.get("normal")), parser.apply(json.get("slim")));
-            } else {
-                return new SkinTypedValue<>(parser.apply(jsonElement));
-            }
-        } else {
-            return new SkinTypedValue<>(parser.apply(jsonElement));
-        }
-    }
-
-    public JsonElement toJson(Function<T, JsonElement> serializer) {
-        if (this.normal == this.slim) {
-            return serializer.apply(this.normal);
-        } else {
-            var json = new JsonObject();
-            json.add("normal", serializer.apply(this.normal));
-            json.add("slim", serializer.apply(this.slim));
-            return json;
-        }
     }
 
     public static <T> Codec<SkinTypedValue<T>> codec(Codec<T> typeCodec) {
         Codec<SkinTypedValue<T>> recordCodec = RecordCodecBuilder.create(instance ->
                 instance.group(
-                        typeCodec.fieldOf("normal").forGetter(SkinTypedValue::getNormal),
+                        typeCodec.fieldOf("wide").forGetter(SkinTypedValue::getWide),
                         typeCodec.fieldOf("slim").forGetter(SkinTypedValue::getSlim)
                 ).apply(instance, SkinTypedValue::new));
 
@@ -100,7 +76,7 @@ public class SkinTypedValue<T> {
                                 left -> left,
                                 SkinTypedValue::new
                         ),
-                        value -> value.normal == value.slim ? Either.right(value.normal) : Either.left(value)
+                        value -> value.wide == value.slim ? Either.right(value.wide) : Either.left(value)
                 );
     }
 

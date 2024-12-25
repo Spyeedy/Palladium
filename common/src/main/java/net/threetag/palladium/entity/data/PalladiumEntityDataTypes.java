@@ -1,6 +1,5 @@
 package net.threetag.palladium.entity.data;
 
-import dev.architectury.registry.registries.RegistrySupplier;
 import net.threetag.palladium.Palladium;
 import net.threetag.palladium.core.registry.DeferredRegister;
 import net.threetag.palladium.core.registry.RegistryHolder;

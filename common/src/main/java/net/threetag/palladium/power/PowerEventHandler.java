@@ -4,8 +4,10 @@ import dev.architectury.event.EventResult;
 import dev.architectury.event.events.common.ChatEvent;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.server.players.PlayerList;
 import net.threetag.palladium.condition.ChatMessageCondition;
 import net.threetag.palladium.condition.Condition;
+import net.threetag.palladium.core.event.PalladiumLifecycleEvents;
 import net.threetag.palladium.power.ability.AbilityInstance;
 import net.threetag.palladium.power.ability.AbilityUtil;
 import org.jetbrains.annotations.Nullable;
@@ -20,7 +22,6 @@ public class PowerEventHandler implements ChatEvent.Received {
 
     public static void init() {
         var instance = new PowerEventHandler();
-
         ChatEvent.RECEIVED.register(instance);
     }
 
@@ -44,4 +45,5 @@ public class PowerEventHandler implements ChatEvent.Received {
         }
         return EventResult.pass();
     }
+
 }

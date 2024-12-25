@@ -28,7 +28,7 @@ public class PowerCollector {
 
         PowerHolder found = null;
         for (PowerHolder holder : this.toRemove) {
-            if (holder.getPower() == power.value()) {
+            if (holder.getPower().is(power)) {
                 found = holder;
                 break;
             }

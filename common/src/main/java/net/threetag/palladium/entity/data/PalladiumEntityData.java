@@ -1,10 +1,14 @@
 package net.threetag.palladium.entity.data;
 
 import net.minecraft.core.HolderLookup;
+import net.minecraft.core.RegistryAccess;
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.Entity;
 import net.threetag.palladium.core.event.PalladiumEntityEvents;
+import net.threetag.palladium.core.event.PalladiumLifecycleEvents;
 import net.threetag.palladium.entity.PalladiumEntityExtension;
+import net.threetag.palladium.registry.PalladiumRegistries;
 import net.threetag.palladium.registry.PalladiumRegistryKeys;
 
 public abstract class PalladiumEntityData<T extends Entity> {
@@ -22,8 +26,15 @@ public abstract class PalladiumEntityData<T extends Entity> {
     public void tick() {
     }
 
+    public void onReload() {
+    }
+
     public T getEntity() {
         return this.entity;
+    }
+
+    public RegistryAccess registryAccess() {
+        return this.entity.registryAccess();
     }
 
     @SuppressWarnings("unchecked")
@@ -38,6 +49,20 @@ public abstract class PalladiumEntityData<T extends Entity> {
 
                 if (data != null) {
                     data.tick();
+                }
+            }
+        });
+
+        PalladiumLifecycleEvents.DATA_PACK_SYNC.register((playerList, pl) -> {
+            if (pl == null) {
+                for (PalladiumEntityDataType<?> type : PalladiumRegistries.ENTITY_DATA_TYPE) {
+                    for (ServerPlayer player : playerList.getPlayers()) {
+                        var data = PalladiumEntityData.get(player, type);
+
+                        if (data != null) {
+                            data.onReload();
+                        }
+                    }
                 }
             }
         });

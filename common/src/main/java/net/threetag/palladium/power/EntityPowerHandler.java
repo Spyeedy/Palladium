@@ -22,7 +22,6 @@ public class EntityPowerHandler extends PalladiumEntityData<LivingEntity> {
 
     private final Map<ResourceLocation, PowerHolder> powers = new HashMap<>();
     private CompoundTag powerData = new CompoundTag();
-    private boolean invalid = false;
 
     public EntityPowerHandler(LivingEntity entity) {
         super(entity);
@@ -32,25 +31,16 @@ public class EntityPowerHandler extends PalladiumEntityData<LivingEntity> {
         return ImmutableMap.copyOf(this.powers);
     }
 
-    public void invalidate() {
-        this.invalid = true;
-    }
-
     @Override
     public void tick() {
         if (!this.getEntity().level().isClientSide) {
-            List<PowerHolder> toRemove = new ArrayList<>();
-            PowerCollector collector = new PowerCollector(this.getEntity(), this, toRemove);
+            List<PowerHolder> invalidPowers = new ArrayList<>();
+            PowerCollector collector = new PowerCollector(this.getEntity(), this, invalidPowers);
 
             // Find invalid
-            if (this.invalid) {
-                toRemove.addAll(this.powers.values());
-                this.invalid = false;
-            } else {
-                for (PowerHolder holder : this.powers.values()) {
-                    if (holder.isInvalid()) {
-                        toRemove.add(holder);
-                    }
+            for (PowerHolder holder : this.powers.values()) {
+                if (holder.isInvalid()) {
+                    invalidPowers.add(holder);
                 }
             }
 
@@ -60,7 +50,7 @@ public class EntityPowerHandler extends PalladiumEntityData<LivingEntity> {
             }
 
             // Remove old ones
-            for (PowerHolder holder : toRemove) {
+            for (PowerHolder holder : invalidPowers) {
                 this.removePowerHolder(holder.getPower());
             }
 
@@ -73,8 +63,8 @@ public class EntityPowerHandler extends PalladiumEntityData<LivingEntity> {
             }
 
             // Sync
-            if (!toRemove.isEmpty() || !collector.getAdded().isEmpty()) {
-                var msg = SyncEntityPowersPacket.create(this.getEntity(), toRemove, added);
+            if (!invalidPowers.isEmpty() || !collector.getAdded().isEmpty()) {
+                var msg = SyncEntityPowersPacket.create(this.getEntity(), invalidPowers, added);
                 PalladiumNetwork.sendToTrackingAndSelf(this.getEntity(), msg);
             }
         }

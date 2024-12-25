@@ -9,6 +9,7 @@
   "mixins": [
     "EntityMixin",
     "PackRepositoryMixin",
+    "PlayerListMixin",
     "ServerLevelMixin"
   ],
   "injectors": {
