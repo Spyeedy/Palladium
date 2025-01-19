@@ -47,10 +47,12 @@ public class PackRenderLayer extends AbstractPackRenderLayer {
     public void render(DataContext context, PoseStack poseStack, MultiBufferSource bufferSource, EntityModel<Entity> parentModel, int packedLight, float limbSwing, float limbSwingAmount, float partialTicks, float ageInTicks, float netHeadYaw, float headPitch) {
         var entity = context.getEntity();
         if (IPackRenderLayer.conditionsFulfilled(entity, this.conditions, this.thirdPersonConditions) && this.modelLookup.get(entity).fitsEntity(entity, parentModel)) {
-            EntityModel<?> entityModel = this.model.get(entity).getModel(context, this.modelLookup.get(entity));
+            EntityModel entityModel = this.model.get(entity).getModel(context, this.modelLookup.get(entity));
 
             if (entityModel instanceof HumanoidModel entityHumanoidModel && parentModel instanceof HumanoidModel parentHumanoid) {
                 IPackRenderLayer.copyModelProperties(entity, parentHumanoid, entityHumanoidModel);
+            } else {
+                entityModel.setupAnim(entity, limbSwing, limbSwingAmount, ageInTicks, netHeadYaw, headPitch);
             }
 
             if (entityModel instanceof ExtraAnimatedModel extra) {
