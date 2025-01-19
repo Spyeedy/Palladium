@@ -95,6 +95,12 @@ public class FluxCapacitorItem extends EnergyItem implements IAddonItem {
         return this.renderLayerContainer;
     }
 
+    public ItemStack getEmptyInstance() {
+        var filled = this.getDefaultInstance();
+        filled.getOrCreateTag().putInt("energy", 0);
+        return filled;
+    }
+
     public ItemStack getFullyChargedInstance() {
         var filled = this.getDefaultInstance();
         filled.getOrCreateTag().putInt("energy", this.getEnergyCapacity(filled));

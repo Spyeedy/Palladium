@@ -98,12 +98,14 @@ public class PalladiumItems {
                     SUIT_STAND.get(),
                     LEAD_CIRCUIT.get(),
                     QUARTZ_CIRCUIT.get(),
-                    VIBRANIUM_CIRCUIT.get(),
-                    LEAD_FLUX_CAPACITOR.get(),
-                    LEAD_BLOCK.get(),
-                    QUARTZ_FLUX_CAPACITOR.get(),
-                    VIBRANIUM_FLUX_CAPACITOR.get(),
-                    VIBRANIUM_WEAVE_BOOTS.get()
+                    VIBRANIUM_CIRCUIT.get()
+            );
+
+            entries.add(
+                    LEAD_FLUX_CAPACITOR.get().getEmptyInstance(),
+                    QUARTZ_FLUX_CAPACITOR.get().getEmptyInstance(),
+                    VIBRANIUM_FLUX_CAPACITOR.get().getEmptyInstance(),
+                    VIBRANIUM_WEAVE_BOOTS.get().getDefaultInstance()
             );
         });
 
@@ -111,11 +113,11 @@ public class PalladiumItems {
             entries.add(LEAD_CIRCUIT.get());
             entries.add(QUARTZ_CIRCUIT.get());
             entries.add(VIBRANIUM_CIRCUIT.get());
-            entries.add(LEAD_FLUX_CAPACITOR.get());
+            entries.add(LEAD_FLUX_CAPACITOR.get().getEmptyInstance());
             entries.add(LEAD_FLUX_CAPACITOR.get().getFullyChargedInstance());
-            entries.add(QUARTZ_FLUX_CAPACITOR.get());
+            entries.add(QUARTZ_FLUX_CAPACITOR.get().getEmptyInstance());
             entries.add(QUARTZ_FLUX_CAPACITOR.get().getFullyChargedInstance());
-            entries.add(VIBRANIUM_FLUX_CAPACITOR.get());
+            entries.add(VIBRANIUM_FLUX_CAPACITOR.get().getEmptyInstance());
             entries.add(VIBRANIUM_FLUX_CAPACITOR.get().getFullyChargedInstance());
         });
 

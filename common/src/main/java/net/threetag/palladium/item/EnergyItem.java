@@ -1,7 +1,9 @@
 package net.threetag.palladium.item;
 
+import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.level.Level;
 
 public abstract class EnergyItem extends Item {
 
@@ -26,4 +28,10 @@ public abstract class EnergyItem extends Item {
         return maxOutput;
     }
 
+    @Override
+    public void onCraftedBy(ItemStack stack, Level level, Player player) {
+        if (!stack.hasTag() || !stack.getOrCreateTag().contains("energy")) {
+            stack.getOrCreateTag().putInt("energy", 0);
+        }
+    }
 }
