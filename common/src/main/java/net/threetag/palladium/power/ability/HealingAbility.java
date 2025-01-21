@@ -4,7 +4,6 @@ import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import net.minecraft.util.ExtraCodecs;
 import net.minecraft.world.entity.LivingEntity;
-import net.threetag.palladium.power.PowerHolder;
 import net.threetag.palladium.power.energybar.EnergyBarUsage;
 
 import java.util.List;
@@ -21,7 +20,7 @@ public class HealingAbility extends Ability {
     public final int frequency;
     public final float amount;
 
-    public HealingAbility(int frequency, float amount, AbilityProperties properties, AbilityConditions conditions, List<EnergyBarUsage> energyBarUsages) {
+    public HealingAbility(int frequency, float amount, AbilityProperties properties, AbilityStateManager conditions, List<EnergyBarUsage> energyBarUsages) {
         super(properties, conditions, energyBarUsages);
         this.frequency = frequency;
         this.amount = amount;
@@ -33,7 +32,7 @@ public class HealingAbility extends Ability {
     }
 
     @Override
-    public void tick(LivingEntity entity, AbilityInstance<?> entry, PowerHolder holder, boolean enabled) {
+    public void tick(LivingEntity entity, AbilityInstance<?> entry, boolean enabled) {
         if (enabled && !entity.level().isClientSide) {
             if (entity.tickCount % this.frequency == 0) {
                 entity.heal(this.amount);

@@ -1,6 +1,7 @@
 package net.threetag.palladium;
 
 import dev.architectury.event.events.common.CommandRegistrationEvent;
+import eu.midnightdust.lib.config.MidnightConfig;
 import net.minecraft.resources.ResourceLocation;
 import net.threetag.palladium.client.icon.IconSerializers;
 import net.threetag.palladium.command.SuperpowerCommand;
@@ -9,9 +10,13 @@ import net.threetag.palladium.condition.ConditionSerializers;
 import net.threetag.palladium.entity.data.PalladiumEntityData;
 import net.threetag.palladium.entity.data.PalladiumEntityDataTypes;
 import net.threetag.palladium.entity.number.EntityDependentNumberTypes;
+import net.threetag.palladium.network.DataSyncUtil;
 import net.threetag.palladium.network.PalladiumNetwork;
 import net.threetag.palladium.power.PowerEventHandler;
 import net.threetag.palladium.power.ability.AbilitySerializers;
+import net.threetag.palladium.power.ability.enabling.EnablingHandlerSerializers;
+import net.threetag.palladium.power.ability.keybind.KeyBindTypeSerializers;
+import net.threetag.palladium.power.ability.unlocking.UnlockingHandlerSerializers;
 import net.threetag.palladium.power.provider.PowerProviders;
 import net.threetag.palladium.registry.PalladiumRegistries;
 import org.apache.logging.log4j.LogManager;
@@ -23,16 +28,22 @@ public final class Palladium {
     public static final Logger LOGGER = LogManager.getLogger();
 
     public static void init() {
+        MidnightConfig.init(MOD_ID, PalladiumConfig.class);
+
         PalladiumRegistries.init();
 
         PalladiumEntityDataTypes.DATA_TYPES.register();
         PalladiumDataComponents.DATA_COMPONENTS.register();
         EntityDependentNumberTypes.TYPES.register();
+        KeyBindTypeSerializers.KEY_BIND_TYPES.register();
+        UnlockingHandlerSerializers.UNLOCKING_HANDLERS.register();
+        EnablingHandlerSerializers.ENABLING_HANDLERS.register();
         AbilitySerializers.ABILITIES.register();
         ConditionSerializers.CONDITION_SERIALIZERS.register();
         PowerProviders.PROVIDERS.register();
         IconSerializers.ICON_SERIALIZERS.register();
 
+        DataSyncUtil.init();
         PalladiumNetwork.init();
         PowerEventHandler.init();
         PalladiumEntityData.registerEvents();

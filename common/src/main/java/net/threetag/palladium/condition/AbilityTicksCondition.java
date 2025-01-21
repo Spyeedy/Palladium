@@ -30,7 +30,7 @@ public record AbilityTicksCondition(AbilityReference ability, String propertyKey
     );
 
     @Override
-    public boolean active(DataContext context) {
+    public boolean test(DataContext context) {
         var entity = context.getLivingEntity();
         var holder = context.getPowerHolder();
 

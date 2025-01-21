@@ -13,7 +13,7 @@ public class DummyAbility extends Ability {
                     propertiesCodec(), conditionsCodec(), energyBarUsagesCodec()
             ).apply(instance, DummyAbility::new));
 
-    public DummyAbility(AbilityProperties properties, AbilityConditions conditions, List<EnergyBarUsage> energyBarUsages) {
+    public DummyAbility(AbilityProperties properties, AbilityStateManager conditions, List<EnergyBarUsage> energyBarUsages) {
         super(properties, conditions, energyBarUsages);
     }
 

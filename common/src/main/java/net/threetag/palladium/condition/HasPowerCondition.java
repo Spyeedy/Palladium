@@ -20,7 +20,7 @@ public record HasPowerCondition(ResourceLocation powerId) implements Condition {
     );
 
     @Override
-    public boolean active(DataContext context) {
+    public boolean test(DataContext context) {
         var entity = context.getLivingEntity();
 
         if (entity == null) {

@@ -2,6 +2,9 @@ package net.threetag.palladium.datagen.neoforge;
 
 import net.minecraft.data.PackOutput;
 import net.threetag.palladium.Palladium;
+import net.threetag.palladium.PalladiumConfig;
+import net.threetag.palladium.client.screen.component.UiAlignment;
+import net.threetag.palladium.client.screen.abilitybar.AbilityKeyBindDisplay;
 import net.threetag.palladium.command.SuperpowerCommand;
 import net.threetag.palladium.power.ability.AbilitySerializers;
 
@@ -23,6 +26,18 @@ public abstract class PalladiumLangProvider extends ExtendedLangProvider {
 
         @Override
         protected void addTranslations() {
+            // Config
+            this.addConfigTitle("Palladium");
+            this.addConfigCategory(PalladiumConfig.CATEGORY_CLIENT, "Client");
+            this.addConfigEntry("ABILITY_BAR_ALIGNMENT", "Ability Bar - Alignment");
+            this.addConfigEnum(UiAlignment.TOP_LEFT, "Top Left");
+            this.addConfigEnum(UiAlignment.TOP_RIGHT, "Top Right");
+            this.addConfigEnum(UiAlignment.BOTTOM_LEFT, "Bottom Left");
+            this.addConfigEnum(UiAlignment.BOTTOM_RIGHT, "Bottom Right");
+            this.addConfigEntry("ABILITY_BAR_KEY_BIND_DISPLAY", "Ability Bar - Key Bind Display");
+            this.addConfigEnum(AbilityKeyBindDisplay.INSIDE, "Inside");
+            this.addConfigEnum(AbilityKeyBindDisplay.OUTSIDE, "Outside");
+
             // Abilities
             this.addAbility(AbilitySerializers.DUMMY, "Dummy");
             this.addAbility(AbilitySerializers.COMMAND, "Command");

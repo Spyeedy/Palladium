@@ -8,7 +8,6 @@ import net.minecraft.network.chat.ComponentSerialization;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
 import net.threetag.palladium.component.PalladiumDataComponents;
-import net.threetag.palladium.power.PowerHolder;
 import net.threetag.palladium.power.energybar.EnergyBarUsage;
 //import net.threetag.palladiumcore.util.PlayerUtil;
 
@@ -24,7 +23,7 @@ public class NameChangeAbility extends Ability {
 
     public final Component name;
 
-    public NameChangeAbility(Component name, AbilityProperties properties, AbilityConditions conditions, List<EnergyBarUsage> energyBarUsages) {
+    public NameChangeAbility(Component name, AbilityProperties properties, AbilityStateManager conditions, List<EnergyBarUsage> energyBarUsages) {
         super(properties, conditions, energyBarUsages);
         this.name = name;
     }
@@ -40,7 +39,7 @@ public class NameChangeAbility extends Ability {
     }
 
     @Override
-    public void firstTick(LivingEntity entity, AbilityInstance<?> instance, PowerHolder holder, boolean enabled) {
+    public void firstTick(LivingEntity entity, AbilityInstance<?> instance) {
         if (entity instanceof Player player) {
             instance.set(PalladiumDataComponents.Abilities.NAME_CHANGE_ACTIVE.get(), true);
             // TODO
@@ -49,7 +48,7 @@ public class NameChangeAbility extends Ability {
     }
 
     @Override
-    public void lastTick(LivingEntity entity, AbilityInstance<?> instance, PowerHolder holder, boolean enabled) {
+    public void lastTick(LivingEntity entity, AbilityInstance<?> instance) {
         if (entity instanceof Player player) {
             instance.set(PalladiumDataComponents.Abilities.NAME_CHANGE_ACTIVE.get(), false);
 //            PlayerUtil.refreshDisplayName(player);

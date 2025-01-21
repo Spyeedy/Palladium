@@ -30,7 +30,7 @@ public class SkinChangeAbility extends Ability {
     public final PlayerModelChangeType modelChangeType;
     public final int priority;
 
-    public SkinChangeAbility(SkinTypedValue<TextureReference> texture, PlayerModelChangeType modelChangeType, int priority, AbilityProperties properties, AbilityConditions conditions, List<EnergyBarUsage> energyBarUsages) {
+    public SkinChangeAbility(SkinTypedValue<TextureReference> texture, PlayerModelChangeType modelChangeType, int priority, AbilityProperties properties, AbilityStateManager conditions, List<EnergyBarUsage> energyBarUsages) {
         super(properties, conditions, energyBarUsages);
         this.texture = texture;
         this.modelChangeType = modelChangeType;

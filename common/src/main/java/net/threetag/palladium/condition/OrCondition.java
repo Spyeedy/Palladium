@@ -21,9 +21,9 @@ public record OrCondition(List<Condition> conditions) implements Condition {
     );
 
     @Override
-    public boolean active(DataContext context) {
+    public boolean test(DataContext context) {
         for (Condition condition : this.conditions) {
-            if (condition.active(context)) {
+            if (condition.test(context)) {
                 return true;
             }
         }

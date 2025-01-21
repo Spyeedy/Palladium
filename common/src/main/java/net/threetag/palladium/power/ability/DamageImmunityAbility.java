@@ -20,7 +20,7 @@ public class DamageImmunityAbility extends Ability {
 
     public final List<Holder<DamageType>> damageTypes;
 
-    public DamageImmunityAbility(List<Holder<DamageType>> damageTypes, AbilityProperties properties, AbilityConditions conditions, List<EnergyBarUsage> energyBarUsages) {
+    public DamageImmunityAbility(List<Holder<DamageType>> damageTypes, AbilityProperties properties, AbilityStateManager conditions, List<EnergyBarUsage> energyBarUsages) {
         super(properties, conditions, energyBarUsages);
         this.damageTypes = damageTypes;
     }

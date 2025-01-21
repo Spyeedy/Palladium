@@ -22,7 +22,7 @@ public class FireAspectAbility extends Ability {
     public final boolean shouldStackTime;
     public final int maxTime;
 
-    public FireAspectAbility(int time, boolean shouldStackTime, int maxTime, AbilityProperties properties, AbilityConditions conditions, List<EnergyBarUsage> energyBarUsages) {
+    public FireAspectAbility(int time, boolean shouldStackTime, int maxTime, AbilityProperties properties, AbilityStateManager conditions, List<EnergyBarUsage> energyBarUsages) {
         super(properties, conditions, energyBarUsages);
         this.time = time;
         this.shouldStackTime = shouldStackTime;

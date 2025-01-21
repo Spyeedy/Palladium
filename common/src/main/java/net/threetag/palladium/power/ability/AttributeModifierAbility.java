@@ -10,7 +10,6 @@ import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.ai.attributes.Attribute;
 import net.minecraft.world.entity.ai.attributes.AttributeInstance;
 import net.minecraft.world.entity.ai.attributes.AttributeModifier;
-import net.threetag.palladium.power.PowerHolder;
 import net.threetag.palladium.power.energybar.EnergyBarUsage;
 
 import java.util.Comparator;
@@ -33,7 +32,7 @@ public class AttributeModifierAbility extends Ability {
     public final AttributeModifier.Operation operation;
     public final ResourceLocation id;
 
-    public AttributeModifierAbility(Holder<Attribute> attribute, double amount, AttributeModifier.Operation operation, ResourceLocation id, AbilityProperties properties, AbilityConditions conditions, List<EnergyBarUsage> energyBarUsages) {
+    public AttributeModifierAbility(Holder<Attribute> attribute, double amount, AttributeModifier.Operation operation, ResourceLocation id, AbilityProperties properties, AbilityStateManager conditions, List<EnergyBarUsage> energyBarUsages) {
         super(properties, conditions, energyBarUsages);
         this.attribute = attribute;
         this.amount = amount;
@@ -47,7 +46,7 @@ public class AttributeModifierAbility extends Ability {
     }
 
     @Override
-    public void tick(LivingEntity entity, AbilityInstance ability, PowerHolder holder, boolean enabled) {
+    public void tick(LivingEntity entity, AbilityInstance<?> ability, boolean enabled) {
         if (enabled) {
             AttributeInstance attributeInstance = entity.getAttribute(this.attribute);
 
@@ -68,12 +67,12 @@ public class AttributeModifierAbility extends Ability {
                 attributeInstance.addTransientModifier(modifier);
             }
         } else {
-            this.lastTick(entity, ability, holder, false);
+            this.lastTick(entity, ability);
         }
     }
 
     @Override
-    public void lastTick(LivingEntity entity, AbilityInstance instance, PowerHolder holder, boolean enabled) {
+    public void lastTick(LivingEntity entity, AbilityInstance<?> instance) {
         var attributeInstance = entity.getAttribute(this.attribute);
         if (attributeInstance != null && attributeInstance.getModifier(this.id) != null) {
             attributeInstance.removeModifier(this.id);

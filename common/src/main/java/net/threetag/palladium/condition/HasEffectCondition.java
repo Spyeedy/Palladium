@@ -22,7 +22,7 @@ public record HasEffectCondition(Holder<MobEffect> mobEffect) implements Conditi
     );
 
     @Override
-    public boolean active(DataContext context) {
+    public boolean test(DataContext context) {
         var entity = context.getLivingEntity();
         return entity != null && entity.hasEffect(this.mobEffect);
     }

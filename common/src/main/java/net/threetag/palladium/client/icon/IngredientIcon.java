@@ -5,14 +5,10 @@ import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
-import net.minecraft.client.renderer.texture.OverlayTexture;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.codec.StreamCodec;
-import net.minecraft.world.item.ItemDisplayContext;
 import net.minecraft.world.item.crafting.Ingredient;
 import net.threetag.palladium.data.DataContext;
-
-import java.util.stream.Collectors;
 
 public record IngredientIcon(Ingredient ingredient) implements Icon {
 
@@ -36,7 +32,7 @@ public record IngredientIcon(Ingredient ingredient) implements Icon {
 
         var items = this.ingredient.items().toList();
         int stackIndex = (int) ((System.currentTimeMillis() / 1000) % items.size());
-        mc.getItemRenderer().renderStatic(items.get(stackIndex).value().getDefaultInstance(), ItemDisplayContext.FIXED, 240, OverlayTexture.NO_OVERLAY, guiGraphics.pose(), mc.renderBuffers().bufferSource(), mc.level, 0);
+        guiGraphics.renderItem(items.get(stackIndex).value().getDefaultInstance(), -width / 2, -height / 2);
         stack.popPose();
     }
 

@@ -11,9 +11,12 @@ import net.minecraft.server.level.ServerChunkCache;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.server.network.ServerPlayerConnection;
 import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.level.chunk.ChunkSource;
 
-import java.util.*;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
 public class PalladiumNetwork {
@@ -21,35 +24,18 @@ public class PalladiumNetwork {
     public static void init() {
         // Server -> Client
         registerS2C(SyncEntityPowersPacket.TYPE, SyncEntityPowersPacket.STREAM_CODEC, SyncEntityPowersPacket::handle);
+        registerS2C(SyncAbilityComponentPacket.TYPE, SyncAbilityComponentPacket.STREAM_CODEC, SyncAbilityComponentPacket::handle);
+        registerS2C(SyncEnergyBarPacket.TYPE, SyncEnergyBarPacket.STREAM_CODEC, SyncEnergyBarPacket::handle);
 
         // Client -> Server
+        registerC2S(AbilityKeyChangePacket.TYPE, AbilityKeyChangePacket.STREAM_CODEC, AbilityKeyChangePacket::handle);
 
-        // TODO
-        // Powers
-//        DataSyncUtil.registerEntitySync((entity, consumer) -> {
-//            if (entity instanceof LivingEntity livingEntity) {
-//                consumer.accept(SyncEntityPowersPacket.create(livingEntity));
-//
-////                    for (AbilityInstance<?> entry : AbilityUtil.getInstances(livingEntity)) {
-////                        consumer.accept(entry.getSyncStateMessage(livingEntity));
-////                    }
-//            }
-//        });
-
-        // Accessories
-//        DataSyncUtil.registerEntitySync((entity, consumer) -> {
-//            if (entity instanceof ServerPlayer serverPlayer) {
-//                var opt = Accessory.getPlayerData(serverPlayer);
-//                opt.ifPresent(accessoryPlayerData -> consumer.accept(new SyncAccessoriesPacket(serverPlayer.getId(), accessoryPlayerData.accessories)));
-//            }
-//        });
-//
-//        // Properties
-//        DataSyncUtil.registerEntitySync((entity, consumer) -> {
-//            EntityPropertyHandler.getHandler(entity).ifPresent(properties -> {
-//                properties.getHolders().forEach((holder) -> consumer.accept(new SyncPropertyPacket<>(entity.getId(), holder)));
-//            });
-//        });
+        // Data Sync
+        DataSyncUtil.registerEntitySync((entity, consumer) -> {
+            if (entity instanceof LivingEntity livingEntity) {
+                consumer.accept(SyncEntityPowersPacket.create(livingEntity));
+            }
+        });
     }
 
     public static <T extends CustomPacketPayload> void registerS2C(CustomPacketPayload.Type<T> type, StreamCodec<? super RegistryFriendlyByteBuf, T> codec, NetworkManager.NetworkReceiver<T> receiver) {

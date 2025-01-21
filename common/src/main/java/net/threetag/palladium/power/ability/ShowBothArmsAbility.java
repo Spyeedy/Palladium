@@ -12,7 +12,7 @@ public class ShowBothArmsAbility extends Ability{
             instance.group(propertiesCodec(), conditionsCodec(), energyBarUsagesCodec()
             ).apply(instance, ShowBothArmsAbility::new));
 
-    public ShowBothArmsAbility(AbilityProperties properties, AbilityConditions conditions, List<EnergyBarUsage> energyBarUsages) {
+    public ShowBothArmsAbility(AbilityProperties properties, AbilityStateManager conditions, List<EnergyBarUsage> energyBarUsages) {
         super(properties, conditions, energyBarUsages);
     }
 

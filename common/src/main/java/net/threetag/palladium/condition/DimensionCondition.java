@@ -21,7 +21,7 @@ public record DimensionCondition(ResourceKey<Level> dimension) implements Condit
     );
 
     @Override
-    public boolean active(DataContext context) {
+    public boolean test(DataContext context) {
         var level = context.get(DataContextType.LEVEL);
         return level != null && level.dimension().equals(this.dimension);
     }

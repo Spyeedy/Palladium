@@ -23,7 +23,7 @@ public record MoonPhaseCondition(int min, int max) implements Condition {
     );
 
     @Override
-    public boolean active(DataContext context) {
+    public boolean test(DataContext context) {
         var level = context.getLevel();
 
         if (level == null) {

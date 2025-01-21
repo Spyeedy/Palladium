@@ -6,14 +6,14 @@ import net.minecraft.nbt.NbtOps;
 import net.minecraft.nbt.Tag;
 import net.minecraft.world.entity.LivingEntity;
 import net.threetag.palladium.component.PalladiumDataComponents;
-import net.threetag.palladium.condition.Condition;
-import net.threetag.palladium.condition.CooldownType;
-import net.threetag.palladium.data.DataContext;
+import net.threetag.palladium.network.PalladiumNetwork;
+import net.threetag.palladium.network.SyncAbilityComponentPacket;
 import net.threetag.palladium.power.PowerHolder;
 import net.threetag.palladium.power.energybar.EnergyBarUsage;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import java.util.Objects;
 import java.util.function.BiFunction;
 import java.util.function.UnaryOperator;
 
@@ -24,7 +24,7 @@ public class AbilityInstance<T extends Ability> implements DataComponentHolder {
     private int lifetime = 0;
     private int prevEnabledTicks = 0;
     private int enabledTicks = 0;
-    private PatchedDataComponentMap components;
+    private final PatchedDataComponentMap components;
     private final AbilityReference reference;
     private final AnimationTimer animationTimer;
 
@@ -36,8 +36,6 @@ public class AbilityInstance<T extends Ability> implements DataComponentHolder {
 
         var componentsBuilder = DataComponentMap.builder().addAll(PalladiumDataComponents.Abilities.getCommonComponents());
         this.ability.registerDataComponents(componentsBuilder);
-        this.ability.getConditions().getUnlockingConditions().forEach(condition -> condition.registerDataComponents(componentsBuilder));
-        this.ability.getConditions().getEnablingConditions().forEach(condition -> condition.registerDataComponents(componentsBuilder));
         this.components = new PatchedDataComponentMap(componentsBuilder.build());
     }
 
@@ -49,8 +47,6 @@ public class AbilityInstance<T extends Ability> implements DataComponentHolder {
 
         var componentsBuilder = DataComponentMap.builder().addAll(PalladiumDataComponents.Abilities.getCommonComponents());
         this.ability.registerDataComponents(componentsBuilder);
-        this.ability.getConditions().getUnlockingConditions().forEach(condition -> condition.registerDataComponents(componentsBuilder));
-        this.ability.getConditions().getEnablingConditions().forEach(condition -> condition.registerDataComponents(componentsBuilder));
         this.components = PatchedDataComponentMap.fromPatch(componentsBuilder.build(), DataComponentPatch.CODEC.parse(this.holder.entity.registryAccess().createSerializationContext(NbtOps.INSTANCE), componentData).getOrThrow());
     }
 
@@ -74,30 +70,6 @@ public class AbilityInstance<T extends Ability> implements DataComponentHolder {
         return this.components.getOrDefault(PalladiumDataComponents.Abilities.ENABLED.get(), true);
     }
 
-    public int getCooldown() {
-        return this.components.getOrDefault(PalladiumDataComponents.Abilities.COOLDOWN.get(), 0);
-    }
-
-    public int getMaxCooldown() {
-        return this.components.getOrDefault(PalladiumDataComponents.Abilities.MAX_COOLDOWN.get(), 0);
-    }
-
-    public boolean isOnCooldown() {
-        return this.ability.getConditions().getCooldownType() == CooldownType.STATIC ? this.getOrDefault(PalladiumDataComponents.Abilities.COOLDOWN.get(), 0) > 0 : this.getOrDefault(PalladiumDataComponents.Abilities.COOLDOWN.get(), 0) < this.getOrDefault(PalladiumDataComponents.Abilities.MAX_COOLDOWN.get(), 0);
-    }
-
-    public int getActivatedTime() {
-        return this.components.getOrDefault(PalladiumDataComponents.Abilities.ACTIVATED_TIME.get(), 0);
-    }
-
-    public int getMaxActivatedTime() {
-        return this.components.getOrDefault(PalladiumDataComponents.Abilities.MAX_ACTIVATED_TIME.get(), 0);
-    }
-
-    public boolean isKeyPressed() {
-        return this.components.getOrDefault(PalladiumDataComponents.Abilities.KEY_PRESSED.get(), false);
-    }
-
     public int getEnabledTicks() {
         return this.enabledTicks;
     }
@@ -110,53 +82,25 @@ public class AbilityInstance<T extends Ability> implements DataComponentHolder {
         this.prevEnabledTicks = this.enabledTicks;
 
         if (!entity.level().isClientSide) {
-            if (this.lifetime == 0) {
-                this.ability.getConditions().getUnlockingConditions().forEach(condition -> condition.init(entity, this));
-                this.ability.getConditions().getEnablingConditions().forEach(condition -> condition.init(entity, this));
-            }
+            boolean unlocked = this.ability.getStateManager().getUnlockingHandler().check(entity, powerHolder, this) && !entity.isSpectator();
 
-            boolean unlocked = true;
-            boolean sync = false;
-
-            for (Condition unlockingCondition : this.ability.getConditions().getUnlockingConditions()) {
-                if (!unlockingCondition.active(DataContext.forAbility(entity, this))) {
-                    unlocked = false;
-                    break;
-                }
-            }
-
-            if (entity.isSpectator()) {
-                unlocked = false;
-            }
-
-            if (this.isUnlocked() != unlocked) {
+            if (unlocked != this.isUnlocked()) {
                 this.set(PalladiumDataComponents.Abilities.UNLOCKED.get(), unlocked);
-                sync = true;
-            }
 
-            boolean enabled = this.isUnlocked();
-
-            if (this.isUnlocked()) {
-                for (Condition enablingCondition : this.ability.getConditions().getEnablingConditions()) {
-                    if (!enablingCondition.active(DataContext.forAbility(entity, this))) {
-                        enabled = false;
-                        break;
-                    }
+                if (!unlocked) {
+                    this.ability.getStateManager().getEnablingHandler().onUnlocked(entity, this);
                 }
             }
 
-            if (entity.isSpectator()) {
-                enabled = false;
-            }
+            boolean enabled = unlocked && this.ability.getStateManager().getEnablingHandler().check(entity, this);
 
-            if (this.isEnabled() != enabled) {
-                if (!this.isEnabled()) {
-                    this.set(PalladiumDataComponents.Abilities.ENABLED.get(), true);
-                    this.ability.firstTick(entity, this, powerHolder, this.isEnabled());
-                } else {
-                    this.set(PalladiumDataComponents.Abilities.KEY_PRESSED.get(), false);
-                    this.ability.lastTick(entity, this, powerHolder, this.isEnabled());
-                    this.set(PalladiumDataComponents.Abilities.ENABLED.get(), false);
+            if (enabled != this.isEnabled()) {
+                this.set(PalladiumDataComponents.Abilities.ENABLED.get(), enabled);
+
+                if (enabled) {
+                    this.ability.firstTick(entity, this);
+                } else if (this.lifetime > 0) {
+                    this.ability.lastTick(entity, this);
                 }
             }
         }
@@ -171,64 +115,12 @@ public class AbilityInstance<T extends Ability> implements DataComponentHolder {
             this.enabledTicks--;
         }
 
-        int cooldown = this.getOrDefault(PalladiumDataComponents.Abilities.COOLDOWN.get(), 0);
-
-        if (this.ability.getConditions().getCooldownType() == CooldownType.STATIC) {
-            if (cooldown > 0) {
-                this.set(PalladiumDataComponents.Abilities.COOLDOWN.get(), cooldown - 1);
-            }
-        } else if (this.ability.getConditions().getCooldownType() == CooldownType.DYNAMIC) {
-            if (this.isEnabled() && cooldown > 0) {
-                this.set(PalladiumDataComponents.Abilities.COOLDOWN.get(), cooldown - 1);
-            } else if (!this.isEnabled() && this.getOrDefault(PalladiumDataComponents.Abilities.COOLDOWN.get(), 0) < this.getOrDefault(PalladiumDataComponents.Abilities.MAX_COOLDOWN.get(), 0)) {
-                this.set(PalladiumDataComponents.Abilities.COOLDOWN.get(), cooldown + 1);
-            }
-        }
-
-        var activationTimer = this.getOrDefault(PalladiumDataComponents.Abilities.ACTIVATED_TIME.get(), 0);
-        if (activationTimer > 0) {
-            this.set(PalladiumDataComponents.Abilities.ACTIVATED_TIME.get(), activationTimer - 1);
-        }
-
         this.lifetime++;
-        this.ability.tick(entity, this, powerHolder, this.isEnabled());
+        this.ability.tick(entity, this, this.isEnabled());
+        this.ability.getStateManager().getEnablingHandler().tick(entity, this, this.isEnabled());
 
         if (this.animationTimer != null) {
             this.ability.animationTimerTick(entity, this, powerHolder, this.isEnabled(), this.animationTimer);
-        }
-    }
-
-    public void startCooldown(LivingEntity entity, int cooldown) {
-        this.set(PalladiumDataComponents.Abilities.COOLDOWN.get(), cooldown);
-        this.set(PalladiumDataComponents.Abilities.MAX_COOLDOWN.get(), cooldown);
-    }
-
-    public void startActivationTimer(LivingEntity entity, int activationTimer) {
-        this.set(PalladiumDataComponents.Abilities.ACTIVATED_TIME.get(), activationTimer);
-        this.set(PalladiumDataComponents.Abilities.MAX_ACTIVATED_TIME.get(), activationTimer);
-    }
-
-    public void keyPressed(LivingEntity entity, boolean pressed) {
-        for (Condition condition : this.ability.getConditions().getUnlockingConditions()) {
-            if (condition.needsKey()) {
-                if (pressed) {
-                    condition.onKeyPressed(entity, this, holder);
-                } else {
-                    condition.onKeyReleased(entity, this, holder);
-                }
-                return;
-            }
-        }
-
-        for (Condition condition : this.ability.getConditions().getEnablingConditions()) {
-            if (condition.needsKey()) {
-                if (pressed) {
-                    condition.onKeyPressed(entity, this, holder);
-                } else {
-                    condition.onKeyReleased(entity, this, holder);
-                }
-                return;
-            }
         }
     }
 
@@ -243,42 +135,42 @@ public class AbilityInstance<T extends Ability> implements DataComponentHolder {
     }
 
     @Nullable
-    public <T> T set(DataComponentType<? super T> component, @Nullable T value) {
+    public <R> R set(DataComponentType<? super R> component, @Nullable R value) {
         var changed = this.components.set(component, value);
         if (!this.holder.getEntity().level().isClientSide) {
-            var patch = DataComponentPatch.builder().set(component, value).build();
-            // sync
+            var patch = DataComponentPatch.builder().set(Objects.requireNonNull(this.components.getTyped(component))).build();
+            PalladiumNetwork.sendToTrackingAndSelf(this.holder.getEntity(), new SyncAbilityComponentPacket(this.holder.getEntity().getId(), this.reference, patch));
         }
         return changed;
     }
 
     @Nullable
-    public <T> T setSilently(DataComponentType<? super T> component, @Nullable T value) {
+    public <R> R setSilently(DataComponentType<? super R> component, @Nullable R value) {
         return this.components.set(component, value);
     }
 
     @Nullable
-    public <T, U> T update(DataComponentType<T> component, T defaultValue, U updateValue, BiFunction<T, U, T> updater) {
+    public <R, U> R update(DataComponentType<R> component, R defaultValue, U updateValue, BiFunction<R, U, R> updater) {
         return this.set(component, updater.apply(this.getOrDefault(component, defaultValue), updateValue));
     }
 
     @Nullable
-    public <T> T update(DataComponentType<T> component, T defaultValue, UnaryOperator<T> updater) {
-        T object = this.getOrDefault(component, defaultValue);
+    public <R> R update(DataComponentType<R> component, R defaultValue, UnaryOperator<R> updater) {
+        R object = this.getOrDefault(component, defaultValue);
         return this.set(component, updater.apply(object));
     }
 
     @Nullable
-    public <T, U> T updateSilently(DataComponentType<T> component, T defaultValue, U updateValue, BiFunction<T, U, T> updater) {
+    public <R, U> R updateSilently(DataComponentType<R> component, R defaultValue, U updateValue, BiFunction<R, U, R> updater) {
         return this.setSilently(component, updater.apply(this.getOrDefault(component, defaultValue), updateValue));
     }
 
     @Nullable
-    public <T> T remove(DataComponentType<? extends T> component) {
+    public <R> R remove(DataComponentType<? extends R> component) {
         return this.components.remove(component);
     }
 
-    public void applyComponents(DataComponentPatch components) {
+    public void applyPatch(DataComponentPatch components) {
         this.components.applyPatch(components);
     }
 

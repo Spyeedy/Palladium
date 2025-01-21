@@ -12,7 +12,7 @@ public class VibrateAbility extends Ability {
             instance.group(propertiesCodec(), conditionsCodec(), energyBarUsagesCodec()
             ).apply(instance, VibrateAbility::new));
 
-    public VibrateAbility(AbilityProperties properties, AbilityConditions conditions, List<EnergyBarUsage> energyBarUsages) {
+    public VibrateAbility(AbilityProperties properties, AbilityStateManager conditions, List<EnergyBarUsage> energyBarUsages) {
         super(properties, conditions, energyBarUsages);
     }
 

@@ -19,7 +19,7 @@ public record AbilityFirstTickCondition(AbilityReference ability) implements Con
     );
 
     @Override
-    public boolean active(DataContext context) {
+    public boolean test(DataContext context) {
         var entity = context.getLivingEntity();
         var holder = context.getPowerHolder();
 

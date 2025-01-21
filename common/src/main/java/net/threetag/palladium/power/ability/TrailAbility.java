@@ -17,7 +17,7 @@ public class TrailAbility extends Ability {
 
     public final ResourceLocation trailRendererId;
 
-    public TrailAbility(ResourceLocation trailRendererId, AbilityProperties properties, AbilityConditions conditions, List<EnergyBarUsage> energyBarUsages) {
+    public TrailAbility(ResourceLocation trailRendererId, AbilityProperties properties, AbilityStateManager conditions, List<EnergyBarUsage> energyBarUsages) {
         super(properties, conditions, energyBarUsages);
         this.trailRendererId = trailRendererId;
     }

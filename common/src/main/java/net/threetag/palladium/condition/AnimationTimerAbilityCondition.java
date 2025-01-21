@@ -27,7 +27,7 @@ public record AnimationTimerAbilityCondition(AbilityReference ability, int min, 
     );
 
     @Override
-    public boolean active(DataContext context) {
+    public boolean test(DataContext context) {
         var entity = context.getLivingEntity();
         var holder = context.getPowerHolder();
 

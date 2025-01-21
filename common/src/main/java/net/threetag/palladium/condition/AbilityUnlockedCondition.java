@@ -21,7 +21,7 @@ public record AbilityUnlockedCondition(AbilityReference ability) implements Cond
     );
 
     @Override
-    public boolean active(DataContext context) {
+    public boolean test(DataContext context) {
         var entity = context.getLivingEntity();
         var holder = context.getPowerHolder();
 
@@ -29,7 +29,7 @@ public record AbilityUnlockedCondition(AbilityReference ability) implements Cond
             return false;
         }
 
-        AbilityInstance dependency = this.ability.getInstance(entity, holder);
+        AbilityInstance<?> dependency = this.ability.getInstance(entity, holder);
         return dependency != null && dependency.isUnlocked();
     }
 

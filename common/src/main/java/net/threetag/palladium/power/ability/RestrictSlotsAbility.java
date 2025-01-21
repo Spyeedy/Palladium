@@ -8,7 +8,6 @@ import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.threetag.palladium.entity.PlayerSlot;
-import net.threetag.palladium.power.PowerHolder;
 import net.threetag.palladium.power.energybar.EnergyBarUsage;
 import net.threetag.palladium.util.CodecExtras;
 
@@ -24,7 +23,7 @@ public class RestrictSlotsAbility extends Ability {
 
     public final List<PlayerSlot> slots;
 
-    public RestrictSlotsAbility(List<PlayerSlot> slots, AbilityProperties properties, AbilityConditions conditions, List<EnergyBarUsage> energyBarUsages) {
+    public RestrictSlotsAbility(List<PlayerSlot> slots, AbilityProperties properties, AbilityStateManager conditions, List<EnergyBarUsage> energyBarUsages) {
         super(properties, conditions, energyBarUsages);
         this.slots = slots;
     }
@@ -35,7 +34,7 @@ public class RestrictSlotsAbility extends Ability {
     }
 
     @Override
-    public void tick(LivingEntity entity, AbilityInstance<?> entry, PowerHolder holder, boolean enabled) {
+    public void tick(LivingEntity entity, AbilityInstance<?> entry, boolean enabled) {
         if (enabled && !entity.level().isClientSide) {
             for (PlayerSlot slot : this.slots) {
                 var items = slot.getItems(entity);

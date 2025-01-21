@@ -19,7 +19,7 @@ public record EmptySlotCondition(PlayerSlot slot) implements Condition {
     );
 
     @Override
-    public boolean active(DataContext context) {
+    public boolean test(DataContext context) {
         var entity = context.getLivingEntity();
 
         if (entity == null) {

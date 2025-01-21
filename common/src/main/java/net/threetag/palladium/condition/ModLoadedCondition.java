@@ -31,7 +31,7 @@ public final class ModLoadedCondition implements Condition {
     }
 
     @Override
-    public boolean active(DataContext context) {
+    public boolean test(DataContext context) {
         var entity = context.get(DataContextType.ENTITY);
 
         if (entity == null) {

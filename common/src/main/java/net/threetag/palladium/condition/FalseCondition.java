@@ -13,7 +13,7 @@ public class FalseCondition implements Condition {
     public static final StreamCodec<RegistryFriendlyByteBuf, FalseCondition> STREAM_CODEC = StreamCodec.unit(INSTANCE);
 
     @Override
-    public boolean active(DataContext context) {
+    public boolean test(DataContext context) {
         return false;
     }
 

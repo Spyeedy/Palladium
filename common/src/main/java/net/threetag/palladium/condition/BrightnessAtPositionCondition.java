@@ -24,7 +24,7 @@ public record BrightnessAtPositionCondition(int min, int max) implements Conditi
     );
 
     @Override
-    public boolean active(DataContext context) {
+    public boolean test(DataContext context) {
         var entity = context.get(DataContextType.ENTITY);
 
         if (entity == null) {

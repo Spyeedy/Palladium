@@ -4,10 +4,8 @@ import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
-import net.minecraft.client.renderer.texture.OverlayTexture;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.codec.StreamCodec;
-import net.minecraft.world.item.ItemDisplayContext;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.level.ItemLike;
@@ -54,7 +52,7 @@ public class ItemIcon implements Icon {
             }
         }
 
-        mc.getItemRenderer().renderStatic(item, ItemDisplayContext.FIXED, 240, OverlayTexture.NO_OVERLAY, guiGraphics.pose(), mc.renderBuffers().bufferSource(), mc.level, 0);
+        guiGraphics.renderItem(item, -width / 2, -height / 2);
         guiGraphics.pose().popPose();
     }
 

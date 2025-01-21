@@ -70,7 +70,7 @@ public record AbilityReference(@Nullable ResourceLocation powerId, @NotNull Stri
         return null;
     }
 
-    public Optional<AbilityInstance> optional(LivingEntity entity, @Nullable PowerHolder powerHolder) {
+    public Optional<AbilityInstance<?>> optional(LivingEntity entity, @Nullable PowerHolder powerHolder) {
         return Optional.ofNullable(this.getInstance(entity, powerHolder));
     }
 

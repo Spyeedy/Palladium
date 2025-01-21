@@ -30,6 +30,11 @@ subprojects {
                 includeGroup 'org.parchmentmc.data'
             }
         }
+
+        // Maven
+        maven {
+            url = 'https://api.modrinth.com/maven'
+        }
     }
 
     loom {

@@ -19,7 +19,7 @@ public class SmallArmsCondition implements Condition {
     public static final StreamCodec<RegistryFriendlyByteBuf, SmallArmsCondition> STREAM_CODEC = StreamCodec.unit(INSTANCE);
 
     @Override
-    public boolean active(DataContext context) {
+    public boolean test(DataContext context) {
         if (Platform.getEnvironment() == Env.CLIENT) {
             return this.has(context.getPlayer());
         } else {

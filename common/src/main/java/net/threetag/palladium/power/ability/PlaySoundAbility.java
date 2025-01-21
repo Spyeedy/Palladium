@@ -11,7 +11,6 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
-import net.threetag.palladium.power.PowerHolder;
 import net.threetag.palladium.power.energybar.EnergyBarUsage;
 import net.threetag.palladium.util.CodecExtras;
 import net.threetag.palladium.util.PlayerUtil;
@@ -34,7 +33,7 @@ public class PlaySoundAbility extends Ability {
     public final float volume, pitch;
     public final boolean looping, playSelf;
 
-    public PlaySoundAbility(ResourceLocation sound, float volume, float pitch, boolean looping, boolean playSelf, AbilityProperties properties, AbilityConditions conditions, List<EnergyBarUsage> energyBarUsages) {
+    public PlaySoundAbility(ResourceLocation sound, float volume, float pitch, boolean looping, boolean playSelf, AbilityProperties properties, AbilityStateManager conditions, List<EnergyBarUsage> energyBarUsages) {
         super(properties, conditions, energyBarUsages);
         this.sound = sound;
         this.volume = volume;
@@ -49,20 +48,18 @@ public class PlaySoundAbility extends Ability {
     }
 
     @Override
-    public void firstTick(LivingEntity entity, AbilityInstance<?> instance, PowerHolder holder, boolean enabled) {
-        if (enabled) {
-            if (this.looping) {
-                if (Platform.getEnvironment() == Env.CLIENT) {
-                    this.startSound(entity, instance);
+    public void firstTick(LivingEntity entity, AbilityInstance<?> instance) {
+        if (this.looping) {
+            if (Platform.getEnvironment() == Env.CLIENT) {
+                this.startSound(entity, instance);
+            }
+        } else if (!entity.level().isClientSide) {
+            if (this.playSelf) {
+                if (entity instanceof Player player) {
+                    PlayerUtil.playSound(player, entity.getX(), entity.getEyeY(), entity.getZ(), this.sound, entity.getSoundSource(), this.volume, this.pitch);
                 }
-            } else if (!entity.level().isClientSide) {
-                if (this.playSelf) {
-                    if (entity instanceof Player player) {
-                        PlayerUtil.playSound(player, entity.getX(), entity.getEyeY(), entity.getZ(), this.sound, entity.getSoundSource(), this.volume, this.pitch);
-                    }
-                } else {
-                    PlayerUtil.playSoundToAll(entity.level(), entity.getX(), entity.getEyeY(), entity.getZ(), 100, this.sound, entity.getSoundSource(), this.volume, this.pitch);
-                }
+            } else {
+                PlayerUtil.playSoundToAll(entity.level(), entity.getX(), entity.getEyeY(), entity.getZ(), 100, this.sound, entity.getSoundSource(), this.volume, this.pitch);
             }
         }
     }

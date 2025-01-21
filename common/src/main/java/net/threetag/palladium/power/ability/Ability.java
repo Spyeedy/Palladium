@@ -25,13 +25,13 @@ public abstract class Ability {
     public static final Codec<Ability> CODEC = PalladiumRegistries.ABILITY_SERIALIZER.byNameCodec().dispatch(Ability::getSerializer, AbilitySerializer::codec);
 
     private final AbilityProperties properties;
-    private final AbilityConditions conditions;
+    private final AbilityStateManager stateManager;
     private final List<EnergyBarUsage> energyBarUsages;
     private String key;
 
-    public Ability(AbilityProperties properties, AbilityConditions conditions, List<EnergyBarUsage> energyBarUsages) {
+    public Ability(AbilityProperties properties, AbilityStateManager stateManager, List<EnergyBarUsage> energyBarUsages) {
         this.properties = properties;
-        this.conditions = conditions;
+        this.stateManager = stateManager;
         this.energyBarUsages = energyBarUsages;
     }
 
@@ -50,15 +50,15 @@ public abstract class Ability {
     public abstract AbilitySerializer<?> getSerializer();
 
     public void registerDataComponents(DataComponentMap.Builder components) {
-
+        this.getStateManager().getEnablingHandler().registerDataComponents(components);
     }
 
     public AbilityProperties getProperties() {
         return this.properties;
     }
 
-    public AbilityConditions getConditions() {
-        return this.conditions;
+    public AbilityStateManager getStateManager() {
+        return this.stateManager;
     }
 
     public List<EnergyBarUsage> getEnergyBarUsages() {
@@ -71,7 +71,7 @@ public abstract class Ability {
         return title != null ? title : Component.translatable("ability." + Objects.requireNonNull(id).getNamespace() + "." + id.getPath());
     }
 
-    public void tick(LivingEntity entity, AbilityInstance<?> abilityInstance, PowerHolder holder, boolean enabled) {
+    public void tick(LivingEntity entity, AbilityInstance<?> abilityInstance, boolean enabled) {
 
     }
 
@@ -79,11 +79,11 @@ public abstract class Ability {
         animationTimer.tickAndUpdate(enabled);
     }
 
-    public void firstTick(LivingEntity entity, AbilityInstance<?> abilityInstance, PowerHolder holder, boolean enabled) {
+    public void firstTick(LivingEntity entity, AbilityInstance<?> abilityInstance) {
 
     }
 
-    public void lastTick(LivingEntity entity, AbilityInstance<?> abilityInstance, PowerHolder holder, boolean enabled) {
+    public void lastTick(LivingEntity entity, AbilityInstance<?> abilityInstance) {
 
     }
 
@@ -91,8 +91,8 @@ public abstract class Ability {
         return AbilityProperties.CODEC.optionalFieldOf("properties", AbilityProperties.BASIC).forGetter(Ability::getProperties);
     }
 
-    protected static <B extends Ability> RecordCodecBuilder<B, AbilityConditions> conditionsCodec() {
-        return AbilityConditions.CODEC.optionalFieldOf("conditions", AbilityConditions.EMPTY).forGetter(Ability::getConditions);
+    protected static <B extends Ability> RecordCodecBuilder<B, AbilityStateManager> conditionsCodec() {
+        return AbilityStateManager.CODEC.optionalFieldOf("state", AbilityStateManager.EMPTY).forGetter(Ability::getStateManager);
     }
 
     protected static <B extends Ability> RecordCodecBuilder<B, List<EnergyBarUsage>> energyBarUsagesCodec() {

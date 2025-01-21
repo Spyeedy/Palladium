@@ -25,7 +25,7 @@ public class IntangibilityAbility extends Ability {
     public final boolean vertical;
     public final TagKey<Block> whitelist, blacklist;
 
-    public IntangibilityAbility(boolean vertical, TagKey<Block> whitelist, TagKey<Block> blacklist, AbilityProperties properties, AbilityConditions conditions, List<EnergyBarUsage> energyBarUsages) {
+    public IntangibilityAbility(boolean vertical, TagKey<Block> whitelist, TagKey<Block> blacklist, AbilityProperties properties, AbilityStateManager conditions, List<EnergyBarUsage> energyBarUsages) {
         super(properties, conditions, energyBarUsages);
         this.vertical = vertical;
         this.whitelist = whitelist;

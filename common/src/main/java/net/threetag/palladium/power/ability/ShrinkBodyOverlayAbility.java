@@ -12,7 +12,7 @@ public class ShrinkBodyOverlayAbility extends Ability {
             instance.group(propertiesCodec(), conditionsCodec(), energyBarUsagesCodec()
             ).apply(instance, ShrinkBodyOverlayAbility::new));
 
-    public ShrinkBodyOverlayAbility(AbilityProperties properties, AbilityConditions conditions, List<EnergyBarUsage> energyBarUsages) {
+    public ShrinkBodyOverlayAbility(AbilityProperties properties, AbilityStateManager conditions, List<EnergyBarUsage> energyBarUsages) {
         super(properties, conditions, energyBarUsages);
     }
 

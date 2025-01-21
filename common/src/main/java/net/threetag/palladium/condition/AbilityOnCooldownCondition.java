@@ -19,7 +19,7 @@ public record AbilityOnCooldownCondition(AbilityReference ability) implements Co
     );
 
     @Override
-    public boolean active(DataContext context) {
+    public boolean test(DataContext context) {
         var entity = context.getLivingEntity();
         var holder = context.getPowerHolder();
 
@@ -27,8 +27,10 @@ public record AbilityOnCooldownCondition(AbilityReference ability) implements Co
             return false;
         }
 
-        AbilityInstance dependency = this.ability.getInstance(entity, holder);
-        return dependency != null && dependency.isOnCooldown();
+        // TODO
+        AbilityInstance<?> dependency = this.ability.getInstance(entity, holder);
+//        return dependency != null && dependency.isOnCooldown();
+        return false;
     }
 
     @Override

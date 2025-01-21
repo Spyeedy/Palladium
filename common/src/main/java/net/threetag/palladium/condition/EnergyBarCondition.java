@@ -6,7 +6,7 @@ import com.mojang.serialization.codecs.RecordCodecBuilder;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
-import net.threetag.palladium.power.energybar.EnergyBar;
+import net.threetag.palladium.power.energybar.EnergyBarInstance;
 import net.threetag.palladium.power.energybar.EnergyBarReference;
 import net.threetag.palladium.data.DataContext;
 
@@ -27,14 +27,14 @@ public record EnergyBarCondition(EnergyBarReference energyBar, int min, int max)
     );
 
     @Override
-    public boolean active(DataContext context) {
+    public boolean test(DataContext context) {
         var entity = context.getLivingEntity();
-        EnergyBar energyBar = this.energyBar.getBar(entity, context.getPowerHolder());
+        EnergyBarInstance energyBarInstance = this.energyBar.getBar(entity, context.getPowerHolder());
 
-        if (energyBar == null) {
+        if (energyBarInstance == null) {
             return false;
         } else {
-            return this.min <= energyBar.get() && energyBar.get() <= this.max;
+            return this.min <= energyBarInstance.get() && energyBarInstance.get() <= this.max;
         }
     }
 

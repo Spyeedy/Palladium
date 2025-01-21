@@ -1,40 +1,79 @@
 package net.threetag.palladium.client;
 
+import com.mojang.blaze3d.platform.InputConstants;
+import dev.architectury.event.EventResult;
+import dev.architectury.event.events.client.ClientRawInputEvent;
 import dev.architectury.registry.client.keymappings.KeyMappingRegistry;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.minecraft.client.KeyMapping;
 import net.minecraft.client.Minecraft;
-import net.threetag.palladium.client.screen.AbilityBarRenderer;
-import net.threetag.palladium.power.ability.AbilityConditions;
+import net.threetag.palladium.client.screen.abilitybar.AbilityBar;
 import net.threetag.palladium.power.ability.AbilityInstance;
-import net.threetag.palladium.power.ability.AbilityUtil;
+import net.threetag.palladium.power.ability.enabling.KeyBindEnablingHandler;
+import net.threetag.palladium.power.ability.keybind.AbilityKeyBind;
 import org.lwjgl.glfw.GLFW;
 
-import java.util.Locale;
-import java.util.Objects;
-
 @Environment(EnvType.CLIENT)
-public class PalladiumKeyMappings {
+public class PalladiumKeyMappings implements ClientRawInputEvent.KeyPressed {
 
     public static final String CATEGORY = "key.palladium.categories.abilities";
     public static final KeyMapping OPEN_EQUIPMENT = new KeyMapping("key.palladium.open_equipment", GLFW.GLFW_KEY_SLASH, "key.categories.gameplay");
-    public static final KeyMapping SWITCH_ABILITY_LIST = new KeyMapping("key.palladium.switch_ability_list", 88, CATEGORY);
+    public static final KeyMapping SWITCH_ABILITY_LIST = new KeyMapping("key.palladium.switch_ability_list", GLFW.GLFW_KEY_X, CATEGORY);
     public static AbilityKeyMapping[] ABILITY_KEYS = new AbilityKeyMapping[5];
-    public static AbilityInstance<?> LEFT_CLICKED_ABILITY = null;
-    public static AbilityInstance<?> RIGHT_CLICKED_ABILITY = null;
 
     public static void init() {
         KeyMappingRegistry.register(OPEN_EQUIPMENT);
         KeyMappingRegistry.register(SWITCH_ABILITY_LIST);
         for (int i = 1; i <= ABILITY_KEYS.length; i++) {
-            KeyMappingRegistry.register(ABILITY_KEYS[i - 1] = new AbilityKeyMapping("key.palladium.ability_" + i, i == 1 ? GLFW.GLFW_KEY_V : i == 2 ? GLFW.GLFW_KEY_B : i == 3 ? GLFW.GLFW_KEY_N : i == 4 ? GLFW.GLFW_KEY_M : i == 5 ? GLFW.GLFW_KEY_COMMA : -1, CATEGORY, i));
+            KeyMappingRegistry.register(ABILITY_KEYS[i - 1] = new AbilityKeyMapping("key.palladium.ability_" + i, getKeyForIndex(i), CATEGORY, i));
         }
         var instance = new PalladiumKeyMappings();
 
-//        InputEvents.KEY_PRESSED.register(instance);
+        ClientRawInputEvent.KEY_PRESSED.register(instance);
 //        InputEvents.MOUSE_SCROLLING.register(instance);
 //        ClientTickEvents.CLIENT_POST.register(instance);
+    }
+
+    private static int getKeyForIndex(int index) {
+        return switch (index) {
+            case 1 -> GLFW.GLFW_KEY_V;
+            case 2 -> GLFW.GLFW_KEY_B;
+            case 3 -> GLFW.GLFW_KEY_N;
+            case 4 -> GLFW.GLFW_KEY_M;
+            case 5 -> GLFW.GLFW_KEY_K;
+            default -> -1;
+        };
+    }
+
+    @Override
+    public EventResult keyPressed(Minecraft client, int keyCode, int scanCode, int action, int modifiers) {
+        var abilityBar = AbilityBar.INSTANCE.getCurrentList();
+
+        if (abilityBar != null && client.player != null) {
+            if(SWITCH_ABILITY_LIST.isDown()) {
+                AbilityBar.INSTANCE.rotateList(!client.player.isCrouching());
+                return EventResult.interruptTrue();
+            }
+
+            for (AbilityKeyMapping key : ABILITY_KEYS) {
+                if (key.matches(keyCode, 0)) {
+                    AbilityInstance<?> entry = abilityBar.getAbility(key.index - 1);
+
+                    if (entry != null && entry.isUnlocked() && entry.getAbility().getStateManager().getEnablingHandler() instanceof KeyBindEnablingHandler handler) {
+                        if (handler.getKeyBindType() instanceof AbilityKeyBind) {
+                            if (action == GLFW.GLFW_PRESS) {
+                                handler.onKeyPressed(client.player, entry);
+                            } else if (action == GLFW.GLFW_RELEASE) {
+                                handler.onKeyReleased(client.player, entry);
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
+        return EventResult.pass();
     }
 
 //    @Override
@@ -133,8 +172,8 @@ public class PalladiumKeyMappings {
 //    @Override
 //    public void clientTick(Minecraft minecraft) {
 //        if (minecraft.player != null && minecraft.screen == null && !minecraft.player.isSpectator()) {
-            // Stop left-clicked ability
-            // TODO
+    // Stop left-clicked ability
+    // TODO
 //            if (LEFT_CLICKED_ABILITY != null && !minecraft.options.keyAttack.isDown()) {
 //                NetworkManager.get().sendToServer(new AbilityKeyPressedPacket(LEFT_CLICKED_ABILITY.getReference(), false));
 //                LEFT_CLICKED_ABILITY = null;
@@ -148,40 +187,12 @@ public class PalladiumKeyMappings {
 //        }
 //    }
 
-    public static AbilityInstance<?> getPrioritisedKeyedAbility(AbilityConditions.KeyType keyType) {
-        var list = AbilityBarRenderer.getSelectedList();
-
-        if (list != null) {
-            for (AbilityInstance<?> ability : list.getDisplayedAbilities()) {
-                if (ability != null && ability.isUnlocked()) {
-                    if (ability.getAbility().getConditions().getKeyType() == keyType) {
-                        if (!ability.getAbility().getConditions().getKeyType().toString().toLowerCase(Locale.ROOT).startsWith("scroll") || (!ability.getAbility().getConditions().allowScrollWhenCrouching() || !Objects.requireNonNull(Minecraft.getInstance().player).isCrouching())) {
-                            return ability;
-                        }
-                    }
-                }
-            }
-        }
-
-        for (AbilityInstance<?> entry : AbilityUtil.getInstances(Minecraft.getInstance().player)) {
-            if (entry != null && entry.isUnlocked()) {
-                if (entry.getAbility().getConditions().getKeyType() == keyType) {
-                    if (!entry.getAbility().getConditions().getKeyType().toString().toLowerCase(Locale.ROOT).startsWith("scroll") || (!entry.getAbility().getConditions().allowScrollWhenCrouching() || !Objects.requireNonNull(Minecraft.getInstance().player).isCrouching())) {
-                        return entry;
-                    }
-                }
-            }
-        }
-
-        return null;
-    }
-
     public static class AbilityKeyMapping extends KeyMapping {
 
         public final int index;
 
         public AbilityKeyMapping(String description, int keyCode, String category, int index) {
-            super(description, keyCode, category);
+            super(description, InputConstants.Type.KEYSYM, keyCode, category);
             this.index = index;
         }
     }

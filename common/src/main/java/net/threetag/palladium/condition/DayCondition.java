@@ -13,7 +13,7 @@ public class DayCondition implements Condition {
     public static final StreamCodec<RegistryFriendlyByteBuf, DayCondition> STREAM_CODEC = StreamCodec.unit(INSTANCE);
 
     @Override
-    public boolean active(DataContext context) {
+    public boolean test(DataContext context) {
         var level = context.getLevel();
         return level != null && level.isDay();
     }

@@ -76,10 +76,7 @@ public class EntityPowerHandler extends PalladiumEntityData<LivingEntity> {
     }
 
     public void addPowerHolder(PowerHolder holder) {
-        if (this.hasPower(holder.getPowerId())) {
-            this.powers.put(holder.getPowerId(), holder);
-        } else {
-            this.removePowerHolder(holder.getPower());
+        if (!this.hasPower(holder.getPowerId())) {
             this.powers.put(holder.getPowerId(), holder);
             holder.firstTick();
         }

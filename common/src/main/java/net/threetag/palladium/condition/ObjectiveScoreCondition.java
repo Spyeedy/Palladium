@@ -27,7 +27,7 @@ public record ObjectiveScoreCondition(String objectiveName, int min, int max) im
     );
 
     @Override
-    public boolean active(DataContext context) {
+    public boolean test(DataContext context) {
         var entity = context.get(DataContextType.ENTITY);
 
         if (entity == null) {

@@ -6,9 +6,10 @@ import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.Tag;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.LivingEntity;
+import net.threetag.palladium.component.PalladiumDataComponents;
 import net.threetag.palladium.power.ability.Ability;
 import net.threetag.palladium.power.ability.AbilityInstance;
-import net.threetag.palladium.power.energybar.EnergyBar;
+import net.threetag.palladium.power.energybar.EnergyBarInstance;
 import net.threetag.palladium.power.energybar.EnergyBarConfiguration;
 import net.threetag.palladium.power.energybar.EnergyBarReference;
 
@@ -22,7 +23,7 @@ public class PowerHolder {
     private final Holder<Power> power;
     private final ResourceLocation powerId;
     private final Map<String, AbilityInstance<?>> entryMap = new HashMap<>();
-    private final Map<String, EnergyBar> energyBars = new LinkedHashMap<>();
+    private final Map<String, EnergyBarInstance> energyBars = new LinkedHashMap<>();
     private PowerValidator validator;
 
     public PowerHolder(LivingEntity entity, Holder<Power> power, PowerValidator validator, CompoundTag componentTag) {
@@ -36,7 +37,7 @@ public class PowerHolder {
             this.entryMap.put(e.getKey(), entry);
         }
         for (Map.Entry<String, EnergyBarConfiguration> e : this.getPower().value().getEnergyBars().entrySet()) {
-            this.energyBars.put(e.getKey(), new EnergyBar(e.getValue(), this, new EnergyBarReference(power.unwrapKey().orElseThrow().location(), e.getKey())));
+            this.energyBars.put(e.getKey(), new EnergyBarInstance(e.getValue(), this, new EnergyBarReference(power.unwrapKey().orElseThrow().location(), e.getKey())));
         }
     }
 
@@ -84,7 +85,7 @@ public class PowerHolder {
         tag.put("abilities", abilities);
 
         CompoundTag energies = new CompoundTag();
-        for (Map.Entry<String, EnergyBar> entry : this.energyBars.entrySet()) {
+        for (Map.Entry<String, EnergyBarInstance> entry : this.energyBars.entrySet()) {
             energies.put(entry.getKey(), entry.getValue().save());
         }
         tag.put("energy_bars", energies);
@@ -96,7 +97,7 @@ public class PowerHolder {
         return ImmutableMap.copyOf(this.entryMap);
     }
 
-    public Map<String, EnergyBar> getEnergyBars() {
+    public Map<String, EnergyBarInstance> getEnergyBars() {
         return ImmutableMap.copyOf(this.energyBars);
     }
 
@@ -109,11 +110,16 @@ public class PowerHolder {
     }
 
     public void firstTick() {
-        this.entryMap.forEach((id, instance) -> instance.getAbility().firstTick(entity, instance, this, instance.isEnabled()));
+
     }
 
     public void lastTick() {
-        this.entryMap.forEach((id, instance) -> instance.getAbility().lastTick(entity, instance, this, instance.isEnabled()));
+        this.entryMap.forEach((id, instance) -> {
+            if (instance.isEnabled()) {
+                instance.set(PalladiumDataComponents.Abilities.ENABLED.get(), false);
+                instance.getAbility().lastTick(entity, instance);
+            }
+        });
     }
 
     public boolean isInvalid() {

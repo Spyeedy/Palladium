@@ -12,7 +12,7 @@ public class InvisibilityAbility extends Ability {
             instance.group(propertiesCodec(), conditionsCodec(), energyBarUsagesCodec()
             ).apply(instance, InvisibilityAbility::new));
 
-    public InvisibilityAbility(AbilityProperties properties, AbilityConditions conditions, List<EnergyBarUsage> energyBarUsages) {
+    public InvisibilityAbility(AbilityProperties properties, AbilityStateManager conditions, List<EnergyBarUsage> energyBarUsages) {
         super(properties, conditions, energyBarUsages);
     }
 

@@ -21,7 +21,7 @@ public class HideBodyPartAbility extends Ability {
     public final List<BodyPart> bodyParts;
     public final boolean affectsFirstPerson;
 
-    public HideBodyPartAbility(List<BodyPart> bodyParts, boolean affectsFirstPerson, AbilityProperties properties, AbilityConditions conditions, List<EnergyBarUsage> energyBarUsages) {
+    public HideBodyPartAbility(List<BodyPart> bodyParts, boolean affectsFirstPerson, AbilityProperties properties, AbilityStateManager conditions, List<EnergyBarUsage> energyBarUsages) {
         super(properties, conditions, energyBarUsages);
         this.bodyParts = bodyParts;
         this.affectsFirstPerson = affectsFirstPerson;

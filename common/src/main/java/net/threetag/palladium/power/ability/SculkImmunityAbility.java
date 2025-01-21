@@ -12,7 +12,7 @@ public class SculkImmunityAbility extends Ability {
             instance.group(propertiesCodec(), conditionsCodec(), energyBarUsagesCodec()
             ).apply(instance, SculkImmunityAbility::new));
 
-    public SculkImmunityAbility(AbilityProperties properties, AbilityConditions conditions, List<EnergyBarUsage> energyBarUsages) {
+    public SculkImmunityAbility(AbilityProperties properties, AbilityStateManager conditions, List<EnergyBarUsage> energyBarUsages) {
         super(properties, conditions, energyBarUsages);
     }
 

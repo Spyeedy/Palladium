@@ -25,7 +25,7 @@ public record SizeCondition(float min, float max) implements Condition {
     );
 
     @Override
-    public boolean active(DataContext context) {
+    public boolean test(DataContext context) {
         Entity entity = context.getEntity();
 
         if (entity == null) {

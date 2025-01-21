@@ -19,7 +19,7 @@ public class RenderLayerAbility extends Ability implements RenderLayerProviderAb
 
     public final ResourceLocation renderLayerId;
 
-    public RenderLayerAbility(ResourceLocation renderLayerId, AbilityProperties properties, AbilityConditions conditions, List<EnergyBarUsage> energyBarUsages) {
+    public RenderLayerAbility(ResourceLocation renderLayerId, AbilityProperties properties, AbilityStateManager conditions, List<EnergyBarUsage> energyBarUsages) {
         super(properties, conditions, energyBarUsages);
         this.renderLayerId = renderLayerId;
     }

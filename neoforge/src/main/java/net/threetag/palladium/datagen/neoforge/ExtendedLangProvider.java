@@ -12,8 +12,11 @@ import java.util.Objects;
 
 public abstract class ExtendedLangProvider extends LanguageProvider {
 
+    private final String modid;
+
     public ExtendedLangProvider(PackOutput packOutput, String modid, String locale) {
         super(packOutput, modid, locale);
+        this.modid = modid;
     }
 
     public void addAbility(Holder<? extends AbilitySerializer<?>> key, String name) {
@@ -45,6 +48,22 @@ public abstract class ExtendedLangProvider extends LanguageProvider {
 
     public void addAttribute(Holder<? extends Attribute> key, String name) {
         this.add(key.value(), name);
+    }
+
+    public void addConfigTitle(String name) {
+        this.add(this.modid + ".midnightconfig.title", name);
+    }
+
+    public void addConfigCategory(String key, String name) {
+        this.add(this.modid + ".midnightconfig.category." + key, name);
+    }
+
+    public void addConfigEntry(String key, String name) {
+        this.add(this.modid + ".midnightconfig." + key, name);
+    }
+
+    public void addConfigEnum(Enum<?> enum_, String name) {
+        this.add(this.modid + ".midnightconfig." + enum_.getDeclaringClass().getName() + "." + enum_.name(), name);
     }
 
 }

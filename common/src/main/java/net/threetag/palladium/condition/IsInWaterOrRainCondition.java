@@ -14,7 +14,7 @@ public class IsInWaterOrRainCondition implements Condition {
     public static final StreamCodec<RegistryFriendlyByteBuf, IsInWaterOrRainCondition> STREAM_CODEC = StreamCodec.unit(INSTANCE);
 
     @Override
-    public boolean active(DataContext context) {
+    public boolean test(DataContext context) {
         var entity = context.get(DataContextType.ENTITY);
 
         if (entity == null) {

@@ -17,7 +17,7 @@ public class SizeAbility extends Ability {
 
     public final float size;
 
-    public SizeAbility(float size, AbilityProperties properties, AbilityConditions conditions, List<EnergyBarUsage> energyBarUsages) {
+    public SizeAbility(float size, AbilityProperties properties, AbilityStateManager conditions, List<EnergyBarUsage> energyBarUsages) {
         super(properties, conditions, energyBarUsages);
         this.size = size;
     }

@@ -3,7 +3,6 @@ package net.threetag.palladium.power.ability;
 import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import net.minecraft.world.entity.LivingEntity;
-import net.threetag.palladium.power.PowerHolder;
 import net.threetag.palladium.power.energybar.EnergyBarUsage;
 
 import java.util.List;
@@ -14,7 +13,7 @@ public class SlowfallAbility extends Ability {
             instance.group(propertiesCodec(), conditionsCodec(), energyBarUsagesCodec()
             ).apply(instance, SlowfallAbility::new));
 
-    public SlowfallAbility(AbilityProperties properties, AbilityConditions conditions, List<EnergyBarUsage> energyBarUsages) {
+    public SlowfallAbility(AbilityProperties properties, AbilityStateManager conditions, List<EnergyBarUsage> energyBarUsages) {
         super(properties, conditions, energyBarUsages);
     }
 
@@ -24,7 +23,7 @@ public class SlowfallAbility extends Ability {
     }
 
     @Override
-    public void tick(LivingEntity entity, AbilityInstance entry, PowerHolder holder, boolean enabled) {
+    public void tick(LivingEntity entity, AbilityInstance entry, boolean enabled) {
         if (enabled && !entity.onGround() && entity.getDeltaMovement().y() < 0D) {
             entity.setDeltaMovement(entity.getDeltaMovement().x, entity.getDeltaMovement().y * 0.6D, entity.getDeltaMovement().z);
             entity.fallDistance = 0F;

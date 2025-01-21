@@ -10,7 +10,6 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
-import net.threetag.palladium.power.PowerHolder;
 import net.threetag.palladium.power.energybar.EnergyBarUsage;
 
 import java.util.List;
@@ -25,7 +24,7 @@ public class ShaderEffectAbility extends Ability {
 
     public final ResourceLocation shader;
 
-    public ShaderEffectAbility(ResourceLocation shader, AbilityProperties properties, AbilityConditions conditions, List<EnergyBarUsage> energyBarUsages) {
+    public ShaderEffectAbility(ResourceLocation shader, AbilityProperties properties, AbilityStateManager conditions, List<EnergyBarUsage> energyBarUsages) {
         super(properties, conditions, energyBarUsages);
         this.shader = shader;
     }
@@ -36,15 +35,15 @@ public class ShaderEffectAbility extends Ability {
     }
 
     @Override
-    public void firstTick(LivingEntity entity, AbilityInstance<?> entry, PowerHolder holder, boolean enabled) {
-        if (enabled && Platform.getEnvironment() == Env.CLIENT) {
+    public void firstTick(LivingEntity entity, AbilityInstance<?> entry) {
+        if (Platform.getEnvironment() == Env.CLIENT) {
             this.applyShader(entity, this.shader);
         }
     }
 
     @Override
-    public void lastTick(LivingEntity entity, AbilityInstance<?> entry, PowerHolder holder, boolean enabled) {
-        if (enabled && Platform.getEnvironment() == Env.CLIENT) {
+    public void lastTick(LivingEntity entity, AbilityInstance<?> entry) {
+        if (Platform.getEnvironment() == Env.CLIENT) {
             this.removeShader(entity, this.shader);
         }
     }

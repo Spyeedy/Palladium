@@ -14,7 +14,7 @@ public class CrouchingCondition implements Condition {
     public static final StreamCodec<RegistryFriendlyByteBuf, CrouchingCondition> STREAM_CODEC = StreamCodec.unit(INSTANCE);
 
     @Override
-    public boolean active(DataContext context) {
+    public boolean test(DataContext context) {
         var entity = context.get(DataContextType.ENTITY);
         return entity != null && entity.isCrouching();
     }

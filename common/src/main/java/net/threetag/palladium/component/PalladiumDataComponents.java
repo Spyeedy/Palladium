@@ -54,14 +54,10 @@ public class PalladiumDataComponents {
                 .build());
 
         public static final RegistryHolder<DataComponentType<Boolean>> KEY_PRESSED = DATA_COMPONENTS.register("key_pressed", () -> DataComponentType.<Boolean>builder()
-                .persistent(Codec.BOOL)
+                .networkSynchronized(ByteBufCodecs.BOOL)
                 .build());
 
         public static final RegistryHolder<DataComponentType<Integer>> COOLDOWN = DATA_COMPONENTS.register("cooldown", () -> DataComponentType.<Integer>builder()
-                .networkSynchronized(ByteBufCodecs.VAR_INT)
-                .build());
-
-        public static final RegistryHolder<DataComponentType<Integer>> MAX_COOLDOWN = DATA_COMPONENTS.register("max_cooldown", () -> DataComponentType.<Integer>builder()
                 .networkSynchronized(ByteBufCodecs.VAR_INT)
                 .build());
 
@@ -93,11 +89,6 @@ public class PalladiumDataComponents {
                 COMMON_COMPONENTS = DataComponentMap.builder()
                         .set(UNLOCKED.get(), true)
                         .set(ENABLED.get(), true)
-                        .set(KEY_PRESSED.get(), false)
-                        .set(COOLDOWN.get(), 0)
-                        .set(MAX_COOLDOWN.get(), 0)
-                        .set(ACTIVATED_TIME.get(), 0)
-                        .set(MAX_ACTIVATED_TIME.get(), 0)
                         .build();
             }
 

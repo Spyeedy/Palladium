@@ -18,7 +18,7 @@ public class AimAbility extends Ability {
 
     public final ArmSetting arm;
 
-    public AimAbility(ArmSetting arm, AbilityProperties properties, AbilityConditions conditions, List<EnergyBarUsage> energyBarUsages) {
+    public AimAbility(ArmSetting arm, AbilityProperties properties, AbilityStateManager conditions, List<EnergyBarUsage> energyBarUsages) {
         super(properties, conditions, energyBarUsages);
         this.arm = arm;
     }

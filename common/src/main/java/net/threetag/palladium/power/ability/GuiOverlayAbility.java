@@ -40,7 +40,7 @@ public class GuiOverlayAbility extends Ability {
     public final Vec3 translate, rotate, scale;
     public final HudElementAlignment alignment;
 
-    public GuiOverlayAbility(TextureReference texture, int textureWidth, int textureHeight, Vec3 translate, Vec3 rotate, Vec3 scale, HudElementAlignment alignment, AbilityProperties properties, AbilityConditions conditions, List<EnergyBarUsage> energyBarUsages) {
+    public GuiOverlayAbility(TextureReference texture, int textureWidth, int textureHeight, Vec3 translate, Vec3 rotate, Vec3 scale, HudElementAlignment alignment, AbilityProperties properties, AbilityStateManager conditions, List<EnergyBarUsage> energyBarUsages) {
         super(properties, conditions, energyBarUsages);
         this.texture = texture;
         this.textureWidth = textureWidth;

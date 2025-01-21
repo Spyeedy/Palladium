@@ -22,10 +22,6 @@ public class ConditionSerializers {
     public static final RegistryHolder<AbilityEnabledCondition.Serializer> ABILITY_ENABLED = CONDITION_SERIALIZERS.register("ability_enabled", AbilityEnabledCondition.Serializer::new);
     public static final RegistryHolder<AbilityTypeEnabledCondition.Serializer> ABILITY_TYPE_ENABLED = CONDITION_SERIALIZERS.register("ability_type_enabled", AbilityTypeEnabledCondition.Serializer::new);
     public static final RegistryHolder<AbilityOnCooldownCondition.Serializer> ABILITY_ON_COOLDOWN = CONDITION_SERIALIZERS.register("ability_on_cooldown", AbilityOnCooldownCondition.Serializer::new);
-    public static final RegistryHolder<ActionCondition.Serializer> ACTION = CONDITION_SERIALIZERS.register("action", ActionCondition.Serializer::new);
-    public static final RegistryHolder<ActivationCondition.Serializer> ACTIVATION = CONDITION_SERIALIZERS.register("activation", ActivationCondition.Serializer::new);
-    public static final RegistryHolder<ToggleCondition.Serializer> TOGGLE = CONDITION_SERIALIZERS.register("toggle", ToggleCondition.Serializer::new);
-    public static final RegistryHolder<HeldCondition.Serializer> HELD = CONDITION_SERIALIZERS.register("held", HeldCondition.Serializer::new);
     public static final RegistryHolder<HealthCondition.Serializer> HEALTH = CONDITION_SERIALIZERS.register("health", HealthCondition.Serializer::new);
     public static final RegistryHolder<ObjectiveScoreCondition.Serializer> OBJECTIVE_SCORE = CONDITION_SERIALIZERS.register("objective_score", ObjectiveScoreCondition.Serializer::new);
     public static final RegistryHolder<HasTagCondition.Serializer> HAS_TAG = CONDITION_SERIALIZERS.register("has_tag", HasTagCondition.Serializer::new);
@@ -72,9 +68,6 @@ public class ConditionSerializers {
     public static final RegistryHolder<NightCondition.Serializer> NIGHT = CONDITION_SERIALIZERS.register("night", NightCondition.Serializer::new);
 //    public static final RegistryHolder<InAccessorySlotMenuCondition.Serializer> IN_ACCESSORY_SLOT_MENU = CONDITION_SERIALIZERS.register("in_accessory_slot_menu", InAccessorySlotMenuCondition.Serializer::new);
     public static final RegistryHolder<HasEffectCondition.Serializer> HAS_EFFECT = CONDITION_SERIALIZERS.register("has_effect", HasEffectCondition.Serializer::new);
-    public static final RegistryHolder<ChatActionCondition.Serializer> CHAT_ACTION = CONDITION_SERIALIZERS.register("chat_action", ChatActionCondition.Serializer::new);
-    public static final RegistryHolder<ChatActivationCondition.Serializer> CHAT_ACTIVATION = CONDITION_SERIALIZERS.register("chat_activation", ChatActivationCondition.Serializer::new);
-    public static final RegistryHolder<ChatToggleCondition.Serializer> CHAT_TOGGLE = CONDITION_SERIALIZERS.register("chat_toggle", ChatToggleCondition.Serializer::new);
     public static final RegistryHolder<EnergyBarCondition.Serializer> ENERGY_BAR = CONDITION_SERIALIZERS.register("energy_bar", EnergyBarCondition.Serializer::new);
 //    public static final RegistryHolder<AccessorySelectedCondition.Serializer> ACCESSORY_SELECTED = CONDITION_SERIALIZERS.register("accessory_selected", AccessorySelectedCondition.Serializer::new);
     public static final RegistryHolder<SmallArmsCondition.Serializer> SMALL_ARMS = CONDITION_SERIALIZERS.register("small_arms", SmallArmsCondition.Serializer::new);

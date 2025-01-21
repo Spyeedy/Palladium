@@ -31,20 +31,20 @@ public enum AbilityColor implements StringRepresentable {
     public static final Codec<AbilityColor> CODEC = StringRepresentable.fromEnum(AbilityColor::values);
     public static final StreamCodec<ByteBuf, AbilityColor> STREAM_CODEC = ByteBufCodecs.VAR_INT.map(i -> AbilityColor.values()[i], Enum::ordinal);
 
-    private final int x;
-    private final int y;
+    private final int u;
+    private final int v;
 
-    AbilityColor(int x, int y) {
-        this.x = x;
-        this.y = y;
+    AbilityColor(int u, int v) {
+        this.u = u;
+        this.v = v;
     }
 
-    public int getX() {
-        return x;
+    public int getU() {
+        return u;
     }
 
-    public int getY() {
-        return y;
+    public int getV() {
+        return v;
     }
 
     public static AbilityColor getByName(String name) {

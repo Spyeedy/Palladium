@@ -13,7 +13,7 @@ public class OnGroundCondition implements Condition {
     public static final StreamCodec<RegistryFriendlyByteBuf, OnGroundCondition> STREAM_CODEC = StreamCodec.unit(INSTANCE);
 
     @Override
-    public boolean active(DataContext context) {
+    public boolean test(DataContext context) {
         var entity = context.getEntity();
         return entity != null && entity.onGround();
     }

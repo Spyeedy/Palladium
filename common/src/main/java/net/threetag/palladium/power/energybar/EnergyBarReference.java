@@ -47,12 +47,12 @@ public record EnergyBarReference(@Nullable ResourceLocation powerId, @NotNull St
     }
 
     @Nullable
-    public EnergyBar getBar(LivingEntity entity) {
+    public EnergyBarInstance getBar(LivingEntity entity) {
         return this.getBar(entity, null);
     }
 
     @Nullable
-    public EnergyBar getBar(LivingEntity entity, @Nullable PowerHolder powerHolder) {
+    public EnergyBarInstance getBar(LivingEntity entity, @Nullable PowerHolder powerHolder) {
         if (this.powerId != null) {
             EntityPowerHandler handler = PowerUtil.getPowerHandler(entity);
 
@@ -70,7 +70,7 @@ public record EnergyBarReference(@Nullable ResourceLocation powerId, @NotNull St
         return null;
     }
 
-    public Optional<EnergyBar> optional(LivingEntity entity, @Nullable PowerHolder powerHolder) {
+    public Optional<EnergyBarInstance> optional(LivingEntity entity, @Nullable PowerHolder powerHolder) {
         return Optional.ofNullable(this.getBar(entity, powerHolder));
     }
 

@@ -14,7 +14,6 @@ import org.jetbrains.annotations.Nullable;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
-import java.util.Map;
 import java.util.stream.Collectors;
 
 @SuppressWarnings("unchecked")
@@ -220,29 +219,4 @@ public class AbilityUtil {
 
         return easing.apply(f);
     }
-
-    public static List<AbilityInstance<?>> findParentsWithinHolder(Ability ability, PowerHolder powerHolder) {
-        List<AbilityInstance<?>> list = new ArrayList<>();
-        for (String key : ability.getConditions().getDependencies()) {
-            AbilityInstance<?> parent = powerHolder.getAbilities().get(key);
-
-            if (parent != null) {
-                list.add(parent);
-            }
-        }
-        return list;
-    }
-
-    public static List<AbilityInstance<?>> findChildrenWithinHolder(Ability ability, PowerHolder powerHolder) {
-        List<AbilityInstance<?>> list = new ArrayList<>();
-        for (Map.Entry<String, AbilityInstance<?>> entries : powerHolder.getAbilities().entrySet()) {
-            for (String key : ability.getConditions().getDependencies()) {
-                if (key.equals(entries.getKey())) {
-                    list.add(entries.getValue());
-                }
-            }
-        }
-        return list;
-    }
-
 }

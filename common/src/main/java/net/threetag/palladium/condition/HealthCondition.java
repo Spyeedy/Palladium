@@ -23,7 +23,7 @@ public record HealthCondition(float minHealth, float maxHealth) implements Condi
     );
 
     @Override
-    public boolean active(DataContext context) {
+    public boolean test(DataContext context) {
         var entity = context.getLivingEntity();
 
         if (entity == null) {

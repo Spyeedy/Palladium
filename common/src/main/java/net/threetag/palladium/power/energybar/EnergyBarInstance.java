@@ -3,9 +3,11 @@ package net.threetag.palladium.power.energybar;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.util.Mth;
 import net.minecraft.world.entity.LivingEntity;
+import net.threetag.palladium.network.PalladiumNetwork;
+import net.threetag.palladium.network.SyncEnergyBarPacket;
 import net.threetag.palladium.power.PowerHolder;
 
-public class EnergyBar {
+public class EnergyBarInstance {
 
     private final PowerHolder powerHolder;
     private final EnergyBarConfiguration configuration;
@@ -13,7 +15,7 @@ public class EnergyBar {
     private int value, maxValue;
     private int overriddenMaxValue = -1;
 
-    public EnergyBar(EnergyBarConfiguration configuration, PowerHolder powerHolder, EnergyBarReference reference) {
+    public EnergyBarInstance(EnergyBarConfiguration configuration, PowerHolder powerHolder, EnergyBarReference reference) {
         this.configuration = configuration;
         this.powerHolder = powerHolder;
         this.reference = reference;
@@ -105,16 +107,10 @@ public class EnergyBar {
     }
 
     private void sync() {
-        // TODO
-//        if (!this.powerHolder.getEntity().level().isClientSide) {
-//            var msg = new SyncEnergyBarPacket(this.powerHolder.getEntity().getId(), new EnergyBarReference(this.powerHolder.getPowerId(), this.configuration.getKey()), this.value, this.maxValue);
-//
-//            if (this.powerHolder.getEntity() instanceof ServerPlayer player) {
-//                NetworkManager.get().sendToPlayersTrackingEntityAndSelf(player, msg);
-//            } else {
-//                NetworkManager.get().sendToPlayersTrackingEntity(this.powerHolder.getEntity(), msg);
-//            }
-//        }
+        if (!this.powerHolder.getEntity().level().isClientSide) {
+            var msg = new SyncEnergyBarPacket(this.powerHolder.getEntity().getId(), this.reference, this.value, this.maxValue);
+            PalladiumNetwork.sendToTrackingAndSelf(this.powerHolder.getEntity(), msg);
+        }
     }
 
     public CompoundTag save() {

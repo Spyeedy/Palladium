@@ -22,7 +22,7 @@ public class FluidWalkingAbility extends Ability {
 
     public final TagKey<Fluid> fluidTag;
 
-    public FluidWalkingAbility(TagKey<Fluid> fluidTag, AbilityProperties properties, AbilityConditions conditions, List<EnergyBarUsage> energyBarUsages) {
+    public FluidWalkingAbility(TagKey<Fluid> fluidTag, AbilityProperties properties, AbilityStateManager conditions, List<EnergyBarUsage> energyBarUsages) {
         super(properties, conditions, energyBarUsages);
         this.fluidTag = fluidTag;
     }

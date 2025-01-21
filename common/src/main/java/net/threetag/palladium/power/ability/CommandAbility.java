@@ -7,7 +7,6 @@ import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.entity.LivingEntity;
-import net.threetag.palladium.power.PowerHolder;
 import net.threetag.palladium.power.energybar.EnergyBarUsage;
 import net.threetag.palladium.util.ParsedCommands;
 
@@ -26,7 +25,7 @@ public class CommandAbility extends Ability implements CommandSource {
 
     public final ParsedCommands commands, firstTick, lastTick;
 
-    public CommandAbility(ParsedCommands commands, ParsedCommands firstTick, ParsedCommands lastTick, AbilityProperties properties, AbilityConditions conditions, List<EnergyBarUsage> energyBarUsages) {
+    public CommandAbility(ParsedCommands commands, ParsedCommands firstTick, ParsedCommands lastTick, AbilityProperties properties, AbilityStateManager conditions, List<EnergyBarUsage> energyBarUsages) {
         super(properties, conditions, energyBarUsages);
         this.commands = commands;
         this.firstTick = firstTick;
@@ -39,15 +38,15 @@ public class CommandAbility extends Ability implements CommandSource {
     }
 
     @Override
-    public void firstTick(LivingEntity entity, AbilityInstance<?> entry, PowerHolder holder, boolean enabled) {
-        if (enabled && entity.level().getServer() != null && entity.level() instanceof ServerLevel serverLevel) {
+    public void firstTick(LivingEntity entity, AbilityInstance<?> entry) {
+        if (entity.level().getServer() != null && entity.level() instanceof ServerLevel serverLevel) {
             var source = this.createCommandSourceStack(entity, serverLevel);
             Objects.requireNonNull(entity.level().getServer()).getFunctions().execute(this.firstTick.getCommandFunction(entity.level().getServer()), source.withSuppressedOutput().withMaximumPermission(2));
         }
     }
 
     @Override
-    public void tick(LivingEntity entity, AbilityInstance<?> entry, PowerHolder holder, boolean enabled) {
+    public void tick(LivingEntity entity, AbilityInstance<?> entry, boolean enabled) {
         if (enabled && entity.level().getServer() != null && entity.level() instanceof ServerLevel serverLevel) {
             var source = this.createCommandSourceStack(entity, serverLevel);
             Objects.requireNonNull(entity.level().getServer()).getFunctions().execute(this.commands.getCommandFunction(entity.level().getServer()), source.withSuppressedOutput().withMaximumPermission(2));
@@ -55,8 +54,8 @@ public class CommandAbility extends Ability implements CommandSource {
     }
 
     @Override
-    public void lastTick(LivingEntity entity, AbilityInstance<?> entry, PowerHolder holder, boolean enabled) {
-        if (enabled && entity.level().getServer() != null && entity.level() instanceof ServerLevel serverLevel) {
+    public void lastTick(LivingEntity entity, AbilityInstance<?> entry) {
+        if (entity.level().getServer() != null && entity.level() instanceof ServerLevel serverLevel) {
             var source = this.createCommandSourceStack(entity, serverLevel);
             Objects.requireNonNull(entity.level().getServer()).getFunctions().execute(this.lastTick.getCommandFunction(entity.level().getServer()), source.withSuppressedOutput().withMaximumPermission(2));
         }

@@ -22,7 +22,7 @@ public record AbilityTypeUnlockedCondition(AbilitySerializer ability) implements
     );
 
     @Override
-    public boolean active(DataContext context) {
+    public boolean test(DataContext context) {
         var entity = context.getLivingEntity();
 
         if (entity == null) {

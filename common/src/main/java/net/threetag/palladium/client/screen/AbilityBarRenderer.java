@@ -11,7 +11,6 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.LayeredDraw;
 import net.minecraft.client.gui.screens.ChatScreen;
-import net.minecraft.client.renderer.GameRenderer;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.core.Holder;
 import net.minecraft.network.chat.Component;
@@ -25,9 +24,8 @@ import net.threetag.palladium.power.Power;
 import net.threetag.palladium.power.PowerHolder;
 import net.threetag.palladium.power.PowerUtil;
 import net.threetag.palladium.power.ability.AbilityColor;
-import net.threetag.palladium.power.ability.AbilityConditions;
 import net.threetag.palladium.power.ability.AbilityInstance;
-import net.threetag.palladium.power.energybar.EnergyBar;
+import net.threetag.palladium.power.energybar.EnergyBarInstance;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -92,9 +90,9 @@ public class AbilityBarRenderer implements LayeredDraw.Layer {
                 poseStack.popPose();
             }
 
-            if (!list.energyBars.isEmpty()) {
+            if (!list.energyBarInstances.isEmpty()) {
                 poseStack.pushPose();
-                translateEnergyBars(poseStack, mc.getWindow(), position, indicatorHeight, 24, list.energyBars.size());
+                translateEnergyBars(poseStack, mc.getWindow(), position, indicatorHeight, 24, list.energyBarInstances.size());
                 renderEnergyBars(guiGraphics, list, texture);
                 poseStack.popPose();
             }
@@ -167,18 +165,18 @@ public class AbilityBarRenderer implements LayeredDraw.Layer {
                 AbilityInstance<?> entry = list.getDisplayedAbilities()[i];
 
                 if (entry != null) {
-                    if (entry.isEnabled() && entry.getActivatedTime() != 0 && entry.getMaxActivatedTime() != 0) {
-                        int height = (int) ((float) entry.getActivatedTime() / (float) entry.getMaxActivatedTime() * 18);
-                        guiGraphics.blit(RenderType::guiTextured, texture, 3, i * 22 + 3, 24, 56, 18, 18, 256, 256);
-                        guiGraphics.blit(RenderType::guiTextured, texture, 3, i * 22 + 3 + (18 - height), 42, 74 - height, 18, height, 256, 256);
-                    } else {
-                        guiGraphics.blit(RenderType::guiTextured, texture, 3, i * 22 + 3, entry.isEnabled() ? 42 : 24, entry.isUnlocked() ? 56 : 74, 18, 18, 256, 256);
-                    }
-
-                    if (entry.getCooldown() > 0) {
-                        int width = (int) ((float) entry.getCooldown() / (float) entry.getMaxCooldown() * 18);
-                        guiGraphics.blit(RenderType::guiTextured, texture, 3, i * 22 + 3, 60, 74, width, 18, 256, 256);
-                    }
+//                    if (entry.isEnabled() && entry.getActivatedTime() != 0 && entry.getMaxActivatedTime() != 0) {
+//                        int height = (int) ((float) entry.getActivatedTime() / (float) entry.getMaxActivatedTime() * 18);
+//                        guiGraphics.blit(RenderType::guiTextured, texture, 3, i * 22 + 3, 24, 56, 18, 18, 256, 256);
+//                        guiGraphics.blit(RenderType::guiTextured, texture, 3, i * 22 + 3 + (18 - height), 42, 74 - height, 18, height, 256, 256);
+//                    } else {
+//                        guiGraphics.blit(RenderType::guiTextured, texture, 3, i * 22 + 3, entry.isEnabled() ? 42 : 24, entry.isUnlocked() ? 56 : 74, 18, 18, 256, 256);
+//                    }
+//
+//                    if (entry.getCooldown() > 0) {
+//                        int width = (int) ((float) entry.getCooldown() / (float) entry.getMaxCooldown() * 18);
+//                        guiGraphics.blit(RenderType::guiTextured, texture, 3, i * 22 + 3, 60, 74, width, 18, 256, 256);
+//                    }
 
                     if (!entry.isUnlocked()) {
                         guiGraphics.blit(RenderType::guiTextured, texture, 3, i * 22 + 3, 42, 74, 18, 18, 256, 256);
@@ -224,31 +222,31 @@ public class AbilityBarRenderer implements LayeredDraw.Layer {
                 }
 
                 AbilityColor color = ability.getAbility().getProperties().getColor();
-                guiGraphics.blit(RenderType::guiTextured, texture, 0, i * 22, color.getX(), color.getY(), 24, 24, 256, 256);
+                guiGraphics.blit(RenderType::guiTextured, texture, 0, i * 22, color.getU(), color.getV(), 24, 24, 256, 256);
 
-                if (ability.getAbility().getConditions().needsKey() && ability.isUnlocked()) {
-                    AbilityConditions.KeyType keyType = ability.getAbility().getConditions().getKeyType();
-                    poseStack.pushPose();
-                    poseStack.translate(0, 0, 200);
-                    if (keyType == AbilityConditions.KeyType.KEY_BIND) {
-                        Component key = PalladiumKeyMappings.ABILITY_KEYS[i].getTranslatedKeyMessage();
-                        guiGraphics.drawString(minecraft.font, key, 5 + 19 - 2 - minecraft.font.width(key), 5 + i * 22 + 7, 0xffffff, false);
-                    } else if (keyType == AbilityConditions.KeyType.LEFT_CLICK) {
-                        guiGraphics.blit(RenderType::guiTextured, texture, 5 + 19 - 8, 5 + i * 22 + 8, 24, 92, 5, 7, 256, 256);
-                    } else if (keyType == AbilityConditions.KeyType.RIGHT_CLICK) {
-                        guiGraphics.blit(RenderType::guiTextured, texture, 5 + 19 - 8, 5 + i * 22 + 8, 29, 92, 5, 7, 256, 256);
-                    } else if (keyType == AbilityConditions.KeyType.SPACE_BAR) {
-                        guiGraphics.blit(RenderType::guiTextured, texture, 5 + 19 - 13, 5 + i * 22 + 10, 34, 92, 10, 5, 256, 256);
-                    } else if (keyType == AbilityConditions.KeyType.SCROLL_UP) {
-                        guiGraphics.blit(RenderType::guiTextured, texture, 5 + 19 - 8, 5 + i * 22 + 4, 24, 99, 5, 11, 256, 256);
-                    } else if (keyType == AbilityConditions.KeyType.SCROLL_DOWN) {
-                        guiGraphics.blit(RenderType::guiTextured, texture, 5 + 19 - 8, 5 + i * 22 + 4, 29, 99, 5, 11, 256, 256);
-                    } else if (keyType == AbilityConditions.KeyType.SCROLL_EITHER) {
-                        guiGraphics.blit(RenderType::guiTextured, texture, 5 + 19 - 8, 5 + i * 22 + 2, 34, 99, 5, 13, 256, 256);
-                    }
-
-                    poseStack.popPose();
-                }
+//                if (ability.getAbility().getStateManager().needsKey() && ability.isUnlocked()) {
+//                    AbilityStateManager.KeyType keyType = ability.getAbility().getStateManager().getKeyType();
+//                    poseStack.pushPose();
+//                    poseStack.translate(0, 0, 200);
+//                    if (keyType == AbilityStateManager.KeyType.KEY_BIND) {
+//                        Component key = PalladiumKeyMappings.ABILITY_KEYS[i].getTranslatedKeyMessage();
+//                        guiGraphics.drawString(minecraft.font, key, 5 + 19 - 2 - minecraft.font.width(key), 5 + i * 22 + 7, 0xffffff, false);
+//                    } else if (keyType == AbilityStateManager.KeyType.LEFT_CLICK) {
+//                        guiGraphics.blit(RenderType::guiTextured, texture, 5 + 19 - 8, 5 + i * 22 + 8, 24, 92, 5, 7, 256, 256);
+//                    } else if (keyType == AbilityStateManager.KeyType.RIGHT_CLICK) {
+//                        guiGraphics.blit(RenderType::guiTextured, texture, 5 + 19 - 8, 5 + i * 22 + 8, 29, 92, 5, 7, 256, 256);
+//                    } else if (keyType == AbilityStateManager.KeyType.SPACE_BAR) {
+//                        guiGraphics.blit(RenderType::guiTextured, texture, 5 + 19 - 13, 5 + i * 22 + 10, 34, 92, 10, 5, 256, 256);
+//                    } else if (keyType == AbilityStateManager.KeyType.SCROLL_UP) {
+//                        guiGraphics.blit(RenderType::guiTextured, texture, 5 + 19 - 8, 5 + i * 22 + 4, 24, 99, 5, 11, 256, 256);
+//                    } else if (keyType == AbilityStateManager.KeyType.SCROLL_DOWN) {
+//                        guiGraphics.blit(RenderType::guiTextured, texture, 5 + 19 - 8, 5 + i * 22 + 4, 29, 99, 5, 11, 256, 256);
+//                    } else if (keyType == AbilityStateManager.KeyType.SCROLL_EITHER) {
+//                        guiGraphics.blit(RenderType::guiTextured, texture, 5 + 19 - 8, 5 + i * 22 + 2, 34, 99, 5, 13, 256, 256);
+//                    }
+//
+//                    poseStack.popPose();
+//                }
             }
         }
         RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
@@ -271,11 +269,11 @@ public class AbilityBarRenderer implements LayeredDraw.Layer {
 
         int x = 1;
 
-        for (EnergyBar energyBar : list.energyBars) {
+        for (EnergyBarInstance energyBarInstance : list.energyBarInstances) {
             guiGraphics.blit(RenderType::guiTextured, texture, x, 0, 153, 0, 9, 104, 256, 256);
 
-            int height = (int) ((energyBar.get() / (float) energyBar.getMax()) * 98);
-            var color = energyBar.getConfiguration().color();
+            int height = (int) ((energyBarInstance.get() / (float) energyBarInstance.getMax()) * 98);
+            var color = energyBarInstance.getConfiguration().color();
             RenderSystem.setShaderColor(color.getRed() / 255F, color.getGreen() / 255F, color.getBlue() / 255F, 1F);
             guiGraphics.blit(RenderType::guiTextured, texture, x + 2, 3 + 98 - height, 162, 98 - height, 4, height, 256, 256);
             RenderSystem.setShaderColor(1F, 1F, 1F, 1F);
@@ -394,14 +392,14 @@ public class AbilityBarRenderer implements LayeredDraw.Layer {
         private final IntObjectHashMap<List<AbilityInstance<?>>> abilities = new IntObjectHashMap<>();
         private final ResourceLocation texture;
         public boolean simple = false;
-        private final Collection<EnergyBar> energyBars;
+        private final Collection<EnergyBarInstance> energyBarInstances;
 
         public AbilityList(PowerHolder powerHolder) {
             this.powerHolder = powerHolder;
             this.power = powerHolder.getPower();
             var powerTex = this.power.value().getAbilityBarTexture();
             this.texture = powerTex != null ? powerTex.getTexture(DataContext.forPower(Minecraft.getInstance().player, this.powerHolder)) : null;
-            this.energyBars = powerHolder.getEnergyBars().values();
+            this.energyBarInstances = powerHolder.getEnergyBars().values();
         }
 
         public PowerHolder getPowerHolder() {
@@ -412,8 +410,8 @@ public class AbilityBarRenderer implements LayeredDraw.Layer {
             return this.power;
         }
 
-        public Collection<EnergyBar> getEnergyBars() {
-            return this.energyBars;
+        public Collection<EnergyBarInstance> getEnergyBars() {
+            return this.energyBarInstances;
         }
 
         public AbilityList addAbility(int index, AbilityInstance<?> ability) {
@@ -471,7 +469,7 @@ public class AbilityBarRenderer implements LayeredDraw.Layer {
         }
 
         public void simplify() {
-            if (!this.energyBars.isEmpty()) {
+            if (!this.energyBarInstances.isEmpty()) {
                 return;
             }
 

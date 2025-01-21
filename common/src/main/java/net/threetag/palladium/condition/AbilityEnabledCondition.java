@@ -19,7 +19,7 @@ public record AbilityEnabledCondition(AbilityReference ability) implements Condi
     );
 
     @Override
-    public boolean active(DataContext context) {
+    public boolean test(DataContext context) {
         var entity = context.getLivingEntity();
         var holder = context.getPowerHolder();
 

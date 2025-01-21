@@ -22,7 +22,7 @@ public record EntityTypeTagCondition(TagKey<EntityType<?>> tag) implements Condi
     );
 
     @Override
-    public boolean active(DataContext context) {
+    public boolean test(DataContext context) {
         var entity = context.get(DataContextType.ENTITY);
 
         if (entity == null) {
