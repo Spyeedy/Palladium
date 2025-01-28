@@ -31,6 +31,20 @@ public class TextureReference {
         this.path = path;
     }
 
+    public ResourceLocation withPath(DataContext context, String prefix, String suffix) {
+        var texture = this.getTexture(context);
+
+        if (texture == null) {
+            return null;
+        }
+
+        if (texture.getPath().endsWith(".png")) {
+            return texture;
+        }
+
+        return texture.withPrefix(prefix).withSuffix(suffix);
+    }
+
     @Nullable
     @Environment(EnvType.CLIENT)
     public ResourceLocation getTexture(DataContext context) {
@@ -39,7 +53,7 @@ public class TextureReference {
 //            var dyn = DynamicTextureManager.INSTANCE.get(this.path);
 //            return dyn != null ? dyn.getTexture(context) : null;
 //        } else {
-            return this.path;
+        return this.path;
 //        }
     }
 

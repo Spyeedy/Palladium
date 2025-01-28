@@ -41,9 +41,6 @@ public class ConditionSerializers {
     public static final RegistryHolder<BrightnessAtPositionCondition.Serializer> BRIGHTNESS_AT_POSITION = CONDITION_SERIALIZERS.register("brightness_at_position", BrightnessAtPositionCondition.Serializer::new);
     public static final RegistryHolder<OnGroundCondition.Serializer> ON_GROUND = CONDITION_SERIALIZERS.register("on_ground", OnGroundCondition.Serializer::new);
     public static final RegistryHolder<IsMovingCondition.Serializer> IS_MOVING = CONDITION_SERIALIZERS.register("is_moving", IsMovingCondition.Serializer::new);
-    public static final RegistryHolder<ItemBuyableCondition.Serializer> ITEM_BUYABLE = CONDITION_SERIALIZERS.register("item_buyable", ItemBuyableCondition.Serializer::new);
-    public static final RegistryHolder<ExperienceLevelBuyableCondition.Serializer> EXPERIENCE_LEVEL_BUYABLE = CONDITION_SERIALIZERS.register("experience_level_buyable", ExperienceLevelBuyableCondition.Serializer::new);
-    public static final RegistryHolder<ScoreboardScoreBuyableCondition.Serializer> SCOREBOARD_SCORE_BUYABLE = CONDITION_SERIALIZERS.register("scoreboard_score_buyable", ScoreboardScoreBuyableCondition.Serializer::new);
     public static final RegistryHolder<CommandResultCondition.Serializer> COMMAND_RESULT = CONDITION_SERIALIZERS.register("command_result", CommandResultCondition.Serializer::new);
     public static final RegistryHolder<IntervalCondition.Serializer> INTERVAL = CONDITION_SERIALIZERS.register("interval", IntervalCondition.Serializer::new);
     public static final RegistryHolder<SprintingCondition.Serializer> SPRINTING = CONDITION_SERIALIZERS.register("sprinting", SprintingCondition.Serializer::new);

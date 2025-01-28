@@ -13,7 +13,8 @@ import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.level.Level;
 import net.threetag.palladium.Palladium;
-import net.threetag.palladium.client.screen.abilitybar.AbilityBar;
+import net.threetag.palladium.client.gui.screen.abilitybar.AbilityBar;
+import net.threetag.palladium.client.gui.screen.power.PowersScreen;
 import net.threetag.palladium.power.ability.AbilityReference;
 
 public record SyncAbilityComponentPacket(int entityId, AbilityReference reference,
@@ -35,24 +36,26 @@ public record SyncAbilityComponentPacket(int entityId, AbilityReference referenc
 
     public static void handle(SyncAbilityComponentPacket packet, NetworkManager.PacketContext context) {
         if (context.getEnvironment() == Env.CLIENT) {
-            handleClient(packet, context);
+            context.queue(() -> handleClient(packet, context));
         }
     }
 
     @Environment(EnvType.CLIENT)
     public static void handleClient(SyncAbilityComponentPacket packet, NetworkManager.PacketContext context) {
-        context.queue(() -> {
-            Level level = Minecraft.getInstance().level;
-            if (level != null && level.getEntity(packet.entityId) instanceof LivingEntity livingEntity) {
-                packet.reference.optional(livingEntity, null).ifPresent(ability -> {
-                    ability.applyPatch(packet.patch);
+        Level level = Minecraft.getInstance().level;
+        if (level != null && level.getEntity(packet.entityId) instanceof LivingEntity livingEntity) {
+            packet.reference.optional(livingEntity, null).ifPresent(ability -> {
+                ability.applyPatch(packet.patch);
 
-                    if (livingEntity == Minecraft.getInstance().player) {
-                        AbilityBar.INSTANCE.populate();
+                if (livingEntity == Minecraft.getInstance().player) {
+                    AbilityBar.INSTANCE.populate();
+
+                    if (Minecraft.getInstance().screen instanceof PowersScreen powers && powers.selectedTab != null) {
+                        powers.selectedTab.populate();
                     }
-                });
-            }
-        });
+                }
+            });
+        }
     }
 
 }

@@ -21,3 +21,17 @@ accessible field net/minecraft/client/model/PlayerCapeModel cape Lnet/minecraft/
 accessible class net/minecraft/server/level/ChunkMap$TrackedEntity
 accessible field net/minecraft/server/level/ChunkMap entityMap Lit/unimi/dsi/fastutil/ints/Int2ObjectMap;
 accessible field net/minecraft/server/level/ChunkMap$TrackedEntity seenBy Ljava/util/Set;
+
+# AbstractSelectionList
+accessible class net/minecraft/client/gui/components/AbstractSelectionList$Entry
+transitive-accessible class net/minecraft/client/gui/components/AbstractSelectionList$Entry
+
+#AbstractContainerScreen
+accessible field net/minecraft/client/gui/screens/inventory/AbstractContainerScreen leftPos I
+accessible field net/minecraft/client/gui/screens/inventory/AbstractContainerScreen topPos I
+
+# Screen
+accessible method net/minecraft/client/gui/screens/Screen addWidget (Lnet/minecraft/client/gui/components/events/GuiEventListener;)Lnet/minecraft/client/gui/components/events/GuiEventListener;
+
+# CreativeModeInventoryScreen
+accessible field net/minecraft/client/gui/screens/inventory/CreativeModeInventoryScreen selectedTab Lnet/minecraft/world/item/CreativeModeTab;

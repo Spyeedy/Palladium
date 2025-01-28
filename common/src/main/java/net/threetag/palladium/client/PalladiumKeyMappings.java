@@ -8,7 +8,7 @@ import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.minecraft.client.KeyMapping;
 import net.minecraft.client.Minecraft;
-import net.threetag.palladium.client.screen.abilitybar.AbilityBar;
+import net.threetag.palladium.client.gui.screen.abilitybar.AbilityBar;
 import net.threetag.palladium.power.ability.AbilityInstance;
 import net.threetag.palladium.power.ability.enabling.KeyBindEnablingHandler;
 import net.threetag.palladium.power.ability.keybind.AbilityKeyBind;
@@ -63,7 +63,9 @@ public class PalladiumKeyMappings implements ClientRawInputEvent.KeyPressed {
                     if (entry != null && entry.isUnlocked() && entry.getAbility().getStateManager().getEnablingHandler() instanceof KeyBindEnablingHandler handler) {
                         if (handler.getKeyBindType() instanceof AbilityKeyBind) {
                             if (action == GLFW.GLFW_PRESS) {
-                                handler.onKeyPressed(client.player, entry);
+                                if(client.screen == null) {
+                                    handler.onKeyPressed(client.player, entry);
+                                }
                             } else if (action == GLFW.GLFW_RELEASE) {
                                 handler.onKeyReleased(client.player, entry);
                             }

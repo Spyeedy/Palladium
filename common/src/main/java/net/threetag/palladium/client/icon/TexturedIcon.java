@@ -1,33 +1,21 @@
 package net.threetag.palladium.client.icon;
 
 import com.mojang.blaze3d.systems.RenderSystem;
-import com.mojang.blaze3d.vertex.BufferUploader;
-import com.mojang.blaze3d.vertex.DefaultVertexFormat;
-import com.mojang.blaze3d.vertex.Tesselator;
-import com.mojang.blaze3d.vertex.VertexFormat;
 import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
-import net.minecraft.client.renderer.GameRenderer;
-import net.minecraft.client.renderer.LightTexture;
 import net.minecraft.client.renderer.RenderType;
-import net.minecraft.client.renderer.texture.OverlayTexture;
-import net.minecraft.client.renderer.texture.TextureAtlas;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraft.world.inventory.InventoryMenu;
-import net.minecraft.world.item.ItemDisplayContext;
-import net.threetag.palladium.Palladium;
 import net.threetag.palladium.client.texture.TextureReference;
 import net.threetag.palladium.data.DataContext;
 import net.threetag.palladium.util.CodecExtras;
 
 import java.awt.*;
-import java.util.Objects;
 
 public class TexturedIcon implements Icon {
 
@@ -42,8 +30,6 @@ public class TexturedIcon implements Icon {
             CodecExtras.COLOR_STREAM_CODEC, icon -> icon.tint,
             TexturedIcon::new
     );
-
-    public static final ResourceLocation LOCK = Palladium.id("textures/icon/lock.png");
 
     public final TextureReference texture;
     public final Color tint;
@@ -68,8 +54,7 @@ public class TexturedIcon implements Icon {
     @Override
     @Environment(EnvType.CLIENT)
     public void draw(Minecraft mc, GuiGraphics guiGraphics, DataContext context, int x, int y, int w, int h) {
-        // TODO test
-        var sprite = Minecraft.getInstance().getModelManager().getAtlas(TextureAtlas.LOCATION_BLOCKS).getSprite(Objects.requireNonNull(this.texture.getTexture(context)));
+        var texture = this.texture.withPath(context, "textures/icon/", ".png");
         var m = guiGraphics.pose().last().pose();
 
         var r = this.tint.getRed();
@@ -77,27 +62,13 @@ public class TexturedIcon implements Icon {
         var b = this.tint.getBlue();
         var a = this.tint.getAlpha();
 
-        var minU = sprite.getU0();
-        var minV = sprite.getV0();
-        var maxU = sprite.getU1();
-        var maxV = sprite.getV1();
-
-        RenderSystem.setShaderColor(1F, 1F, 1F, 1F);
-        RenderSystem.setShaderTexture(0, sprite.atlasLocation());
-        var buffer = Tesselator.getInstance().begin(VertexFormat.Mode.QUADS, DefaultVertexFormat.POSITION_TEX_COLOR);
-        buffer.addVertex(m, x, y, 0F)
-                .setUv(minU, minV)
-                .setColor(r, g, b, a);
-        buffer.addVertex(m, x, y + h, 0F)
-                .setUv(minU, maxV)
-                .setColor(r, g, b, a);
-        buffer.addVertex(m, x + w, y + h, 0F)
-                .setUv(maxU, maxV)
-                .setColor(r, g, b, a);
-        buffer.addVertex(m, x + w, y, 0F)
-                .setUv(maxU, minV)
-                .setColor(r, g, b, a);
-        BufferUploader.drawWithShader(buffer.buildOrThrow());
+        guiGraphics.pose().pushPose();
+        guiGraphics.pose().translate(x, y, 0);
+        guiGraphics.pose().scale(w / 16F, h / 16F, 1.0F);
+        RenderSystem.setShaderColor(r / 255F, g / 255F, b / 255F, a / 255F);
+        guiGraphics.blit(RenderType::guiTextured, texture, 0, 0, 0, 0, 16, 16, 16, 16);
+        RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
+        guiGraphics.pose().popPose();
     }
 
     public TextureReference getTexture() {

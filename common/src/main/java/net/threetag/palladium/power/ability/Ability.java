@@ -3,14 +3,9 @@ package net.threetag.palladium.power.ability;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import net.minecraft.core.component.DataComponentMap;
-import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.chat.Component;
-import net.minecraft.network.chat.ComponentSerialization;
-import net.minecraft.network.codec.ByteBufCodecs;
-import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.LivingEntity;
-import net.threetag.palladium.client.icon.Icon;
 import net.threetag.palladium.power.PowerHolder;
 import net.threetag.palladium.power.energybar.EnergyBarUsage;
 import net.threetag.palladium.registry.PalladiumRegistries;
@@ -50,6 +45,7 @@ public abstract class Ability {
     public abstract AbilitySerializer<?> getSerializer();
 
     public void registerDataComponents(DataComponentMap.Builder components) {
+        this.getStateManager().getUnlockingHandler().registerDataComponents(components);
         this.getStateManager().getEnablingHandler().registerDataComponents(components);
     }
 
@@ -97,17 +93,6 @@ public abstract class Ability {
 
     protected static <B extends Ability> RecordCodecBuilder<B, List<EnergyBarUsage>> energyBarUsagesCodec() {
         return CodecExtras.listOrPrimitive(EnergyBarUsage.CODEC).optionalFieldOf("energy_bar_usage", Collections.emptyList()).forGetter(Ability::getEnergyBarUsages);
-    }
-
-    public record UnlockData(Icon icon, int amount, Component description) {
-
-        public static final StreamCodec<RegistryFriendlyByteBuf, UnlockData> STREAM_CODEC = StreamCodec.composite(
-                Icon.STREAM_CODEC, UnlockData::icon,
-                ByteBufCodecs.VAR_INT, UnlockData::amount,
-                ComponentSerialization.STREAM_CODEC, UnlockData::description,
-                UnlockData::new
-        );
-
     }
 
 }

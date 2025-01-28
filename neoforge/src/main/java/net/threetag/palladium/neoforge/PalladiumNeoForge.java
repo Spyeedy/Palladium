@@ -13,7 +13,6 @@ import net.neoforged.neoforge.event.AddPackFindersEvent;
 import net.threetag.palladium.Palladium;
 import net.threetag.palladium.addonpack.AddonPackManager;
 import net.threetag.palladium.client.PalladiumClient;
-import net.threetag.palladium.datagen.neoforge.PalladiumLangProvider;
 
 import java.util.Optional;
 import java.util.function.Consumer;
@@ -51,9 +50,9 @@ public final class PalladiumNeoForge {
 //        e.getGenerator().addProvider(e.includeClient(), new PalladiumBlockStateProvider(output, e.getExistingFileHelper()));
 //        e.getGenerator().addProvider(e.includeClient(), new PalladiumItemModelProvider(output, e.getExistingFileHelper()));
 //        e.getGenerator().addProvider(e.includeClient(), new PalladiumSoundDefinitionsProvider(output, e.getExistingFileHelper()));
-        e.getGenerator().addProvider(true, new PalladiumLangProvider.English(output));
-        e.getGenerator().addProvider(true, new PalladiumLangProvider.German(output));
-        e.getGenerator().addProvider(true, new PalladiumLangProvider.Saxon(output));
+//        e.getGenerator().addProvider(true, new PalladiumLangProvider.English(output));
+//        e.getGenerator().addProvider(true, new PalladiumLangProvider.German(output));
+//        e.getGenerator().addProvider(true, new PalladiumLangProvider.Saxon(output));
     }
 
     public static Optional<IEventBus> getModEventBus(String modId) {

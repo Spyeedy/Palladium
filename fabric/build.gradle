@@ -15,6 +15,17 @@ loom {
         } else if (name == "server")
             runDir = "../run/server-fabric"
     }
+
+    runs {
+        datagen {
+            inherit server
+            name "Data Generation"
+            vmArg "-Dfabric-api.datagen"
+            vmArg "-Dfabric-api.datagen.output-dir=${project(':common').file("src/generated/resources")}"
+            vmArg "-Dfabric-api.datagen.modid=palladium"
+            runDir "build/datagen"
+        }
+    }
 }
 
 architectury {

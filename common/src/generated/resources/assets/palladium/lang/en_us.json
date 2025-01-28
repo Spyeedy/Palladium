@@ -26,5 +26,20 @@
   "ability.palladium.slowfall": "Slowfall",
   "ability.palladium.vibrate": "Vibrate",
   "ability.palladium.water_walk": "Water Walk",
-  "commands.superpower.query.success": "%s has the following superpowers: %s"
+  "commands.superpower.query.success": "%s has the following superpowers: %s",
+  "gui.palladium.powers": "Powers",
+  "gui.palladium.powers.buy_ability": "Do you want to unlock this ability?",
+  "gui.palladium.powers.buy_ability.experience_level": "%sx experience level",
+  "gui.palladium.powers.buy_ability.experience_level_plural": "%sx experience levels",
+  "gui.palladium.powers.buy_ability.or": "or",
+  "palladium.midnightconfig.ABILITY_BAR_ALIGNMENT": "Ability Bar - Alignment",
+  "palladium.midnightconfig.ABILITY_BAR_KEY_BIND_DISPLAY": "Ability Bar - Key Bind Display",
+  "palladium.midnightconfig.category.client": "Client",
+  "palladium.midnightconfig.enum.AbilityKeyBindDisplay.INSIDE": "Inside",
+  "palladium.midnightconfig.enum.AbilityKeyBindDisplay.OUTSIDE": "Outside",
+  "palladium.midnightconfig.enum.UiAlignment.BOTTOM_LEFT": "Bottom Left",
+  "palladium.midnightconfig.enum.UiAlignment.BOTTOM_RIGHT": "Bottom Right",
+  "palladium.midnightconfig.enum.UiAlignment.TOP_LEFT": "Top Left",
+  "palladium.midnightconfig.enum.UiAlignment.TOP_RIGHT": "Top Right",
+  "palladium.midnightconfig.title": "Palladium"
 }

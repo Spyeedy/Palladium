@@ -1,6 +1,8 @@
 {
   "name": "Command Test",
+
   "icon": "minecraft:command_block",
+
   "abilities": {
     "action": {
       "type": "palladium:command",

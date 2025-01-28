@@ -26,9 +26,12 @@ public class PalladiumNetwork {
         registerS2C(SyncEntityPowersPacket.TYPE, SyncEntityPowersPacket.STREAM_CODEC, SyncEntityPowersPacket::handle);
         registerS2C(SyncAbilityComponentPacket.TYPE, SyncAbilityComponentPacket.STREAM_CODEC, SyncAbilityComponentPacket::handle);
         registerS2C(SyncEnergyBarPacket.TYPE, SyncEnergyBarPacket.STREAM_CODEC, SyncEnergyBarPacket::handle);
+        registerS2C(OpenAbilityBuyScreenPacket.TYPE, OpenAbilityBuyScreenPacket.STREAM_CODEC, OpenAbilityBuyScreenPacket::handle);
 
         // Client -> Server
         registerC2S(AbilityKeyChangePacket.TYPE, AbilityKeyChangePacket.STREAM_CODEC, AbilityKeyChangePacket::handle);
+        registerC2S(AbilityClickedPacket.TYPE, AbilityClickedPacket.STREAM_CODEC, AbilityClickedPacket::handle);
+        registerC2S(BuyAbilityPacket.TYPE, BuyAbilityPacket.STREAM_CODEC, BuyAbilityPacket::handle);
 
         // Data Sync
         DataSyncUtil.registerEntitySync((entity, consumer) -> {

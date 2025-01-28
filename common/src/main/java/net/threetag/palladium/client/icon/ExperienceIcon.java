@@ -26,7 +26,7 @@ public record ExperienceIcon(int amount, boolean level) implements Icon {
             ExperienceIcon::new
     );
 
-    private static final TexturedIcon BACKGROUND_ICON = new TexturedIcon(Palladium.id("textures/icon/experience.png"));
+    private static final TexturedIcon BACKGROUND_ICON = new TexturedIcon(Palladium.id("experience"));
 
     @Override
     public void draw(Minecraft mc, GuiGraphics guiGraphics, DataContext context, int x, int y, int width, int height) {

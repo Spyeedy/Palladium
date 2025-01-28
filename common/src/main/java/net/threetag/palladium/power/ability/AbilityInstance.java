@@ -82,7 +82,7 @@ public class AbilityInstance<T extends Ability> implements DataComponentHolder {
         this.prevEnabledTicks = this.enabledTicks;
 
         if (!entity.level().isClientSide) {
-            boolean unlocked = this.ability.getStateManager().getUnlockingHandler().check(entity, powerHolder, this) && !entity.isSpectator();
+            boolean unlocked = this.ability.getStateManager().getUnlockingHandler().check(entity, this) && !entity.isSpectator();
 
             if (unlocked != this.isUnlocked()) {
                 this.set(PalladiumDataComponents.Abilities.UNLOCKED.get(), unlocked);

@@ -1,8 +1,8 @@
 package net.threetag.palladium;
 
 import eu.midnightdust.lib.config.MidnightConfig;
-import net.threetag.palladium.client.screen.component.UiAlignment;
-import net.threetag.palladium.client.screen.abilitybar.AbilityKeyBindDisplay;
+import net.threetag.palladium.client.gui.component.UiAlignment;
+import net.threetag.palladium.client.gui.screen.abilitybar.AbilityKeyBindDisplay;
 
 public class PalladiumConfig extends MidnightConfig {
 

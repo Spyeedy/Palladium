@@ -25,5 +25,20 @@
   "ability.palladium.skin_change": "Skin Änderung",
   "ability.palladium.slowfall": "Langsamer Fall",
   "ability.palladium.vibrate": "Vibrieren",
-  "ability.palladium.water_walk": "Uff Wasser Lofen"
+  "ability.palladium.water_walk": "Uff Wasser Lofen",
+  "gui.palladium.powers": "Kräfte",
+  "gui.palladium.powers.buy_ability": "Möschtest'e disse Fähischgeht freischaltn?",
+  "gui.palladium.powers.buy_ability.experience_level": "%sx Erfahrungsschdufe",
+  "gui.palladium.powers.buy_ability.experience_level_plural": "%sx Erfahrungsschdufen",
+  "gui.palladium.powers.buy_ability.or": "oder",
+  "palladium.midnightconfig.ABILITY_BAR_ALIGNMENT": "Ability Bar - Position",
+  "palladium.midnightconfig.ABILITY_BAR_KEY_BIND_DISPLAY": "Ability Bar - Anzeige der Tastenbelegung",
+  "palladium.midnightconfig.category.client": "Client",
+  "palladium.midnightconfig.enum.AbilityKeyBindDisplay.INSIDE": "Innen",
+  "palladium.midnightconfig.enum.AbilityKeyBindDisplay.OUTSIDE": "Außen",
+  "palladium.midnightconfig.enum.UiAlignment.BOTTOM_LEFT": "Unten links",
+  "palladium.midnightconfig.enum.UiAlignment.BOTTOM_RIGHT": "Unten rechts",
+  "palladium.midnightconfig.enum.UiAlignment.TOP_LEFT": "Oben links",
+  "palladium.midnightconfig.enum.UiAlignment.TOP_RIGHT": "Oben rechts",
+  "palladium.midnightconfig.title": "Palladium"
 }
