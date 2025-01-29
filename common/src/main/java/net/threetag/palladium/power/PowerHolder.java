@@ -32,10 +32,12 @@ public class PowerHolder {
         this.powerId = power.unwrapKey().orElseThrow().location();
         this.validator = validator;
 
+        var subTag = componentTag.getCompound("abilities");
         for (Map.Entry<String, Ability> e : this.getPower().value().getAbilities().entrySet()) {
-            AbilityInstance<?> entry = new AbilityInstance<>(e.getValue(), this, componentTag.getCompound(e.getKey()));
+            AbilityInstance<?> entry = new AbilityInstance<>(e.getValue(), this, subTag.getCompound(e.getKey()));
             this.entryMap.put(e.getKey(), entry);
         }
+
         for (Map.Entry<String, EnergyBarConfiguration> e : this.getPower().value().getEnergyBars().entrySet()) {
             this.energyBars.put(e.getKey(), new EnergyBarInstance(e.getValue(), this, new EnergyBarReference(power.unwrapKey().orElseThrow().location(), e.getKey())));
         }
@@ -52,27 +54,6 @@ public class PowerHolder {
     public LivingEntity getEntity() {
         return this.entity;
     }
-
-//    public void load(CompoundTag tag) {
-//        if (tag.contains("abilities", 10)) {
-//            var abilities = tag.getCompound("abilities");
-//            for (Map.Entry<String, AbilityInstance<?>> instance : this.entryMap.entrySet()) {
-//                if (abilities.contains(instance.getKey())) {
-//                    CompoundTag abData = abilities.getCompound(instance.getKey());
-//                    instance.getValue().fromNBT(abData);
-//                }
-//            }
-//        }
-//
-//        if (tag.contains("energy_bars", 10)) {
-//            var energies = tag.getCompound("energy_bars");
-//            for (String key : energies.getAllKeys()) {
-//                if (this.energyBars.containsKey(key)) {
-//                    this.energyBars.get(key).load(energies.getCompound(key));
-//                }
-//            }
-//        }
-//    }
 
     public CompoundTag save() {
         CompoundTag tag = new CompoundTag();
