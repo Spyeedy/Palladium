@@ -1,6 +1,7 @@
 package net.threetag.palladium.mixin;
 
 import net.minecraft.world.level.storage.LevelSummary;
+import net.threetag.palladium.PalladiumConfig;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
@@ -11,8 +12,9 @@ public class LevelSummaryMixin {
 
     @Inject(method = "isExperimental", at = @At(value = "RETURN"), cancellable = true)
     private void isExperimental(CallbackInfoReturnable<Boolean> cir) {
-        // TODO config
-        cir.setReturnValue(false);
+        if (PalladiumConfig.HIDE_EXPERIMENTAL_WARNING) {
+            cir.setReturnValue(false);
+        }
     }
 
 }

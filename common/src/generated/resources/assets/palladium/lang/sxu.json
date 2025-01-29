@@ -33,6 +33,7 @@
   "gui.palladium.powers.buy_ability.or": "oder",
   "palladium.midnightconfig.ABILITY_BAR_ALIGNMENT": "Ability Bar - Position",
   "palladium.midnightconfig.ABILITY_BAR_KEY_BIND_DISPLAY": "Ability Bar - Anzeige der Tastenbelegung",
+  "palladium.midnightconfig.HIDE_EXPERIMENTAL_WARNING": "Singleplayer - Experimental Settings Warnung ausblenden",
   "palladium.midnightconfig.category.client": "Client",
   "palladium.midnightconfig.enum.AbilityKeyBindDisplay.INSIDE": "Innen",
   "palladium.midnightconfig.enum.AbilityKeyBindDisplay.OUTSIDE": "Außen",

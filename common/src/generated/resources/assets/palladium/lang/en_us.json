@@ -34,6 +34,7 @@
   "gui.palladium.powers.buy_ability.or": "or",
   "palladium.midnightconfig.ABILITY_BAR_ALIGNMENT": "Ability Bar - Alignment",
   "palladium.midnightconfig.ABILITY_BAR_KEY_BIND_DISPLAY": "Ability Bar - Key Bind Display",
+  "palladium.midnightconfig.HIDE_EXPERIMENTAL_WARNING": "Singleplayer - Hide Experimental Settings Warning",
   "palladium.midnightconfig.category.client": "Client",
   "palladium.midnightconfig.enum.AbilityKeyBindDisplay.INSIDE": "Inside",
   "palladium.midnightconfig.enum.AbilityKeyBindDisplay.OUTSIDE": "Outside",

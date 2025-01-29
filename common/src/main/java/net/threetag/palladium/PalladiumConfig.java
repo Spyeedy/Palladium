@@ -14,4 +14,7 @@ public class PalladiumConfig extends MidnightConfig {
     @Entry(category = CATEGORY_CLIENT)
     public static AbilityKeyBindDisplay ABILITY_BAR_KEY_BIND_DISPLAY = AbilityKeyBindDisplay.INSIDE;
 
+    @Entry(category = CATEGORY_CLIENT)
+    public static boolean HIDE_EXPERIMENTAL_WARNING = true;
+
 }

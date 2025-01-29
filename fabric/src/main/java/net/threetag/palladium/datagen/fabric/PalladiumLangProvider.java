@@ -36,6 +36,7 @@ public abstract class PalladiumLangProvider extends ExtendedLangProvider {
             this.addConfigEntry(builder, "ABILITY_BAR_KEY_BIND_DISPLAY", "Ability Bar - Key Bind Display");
             this.addConfigEnum(builder, AbilityKeyBindDisplay.INSIDE, "Inside");
             this.addConfigEnum(builder, AbilityKeyBindDisplay.OUTSIDE, "Outside");
+            this.addConfigEntry(builder, "HIDE_EXPERIMENTAL_WARNING", "Singleplayer - Hide Experimental Settings Warning");
 
             // Abilities
             this.addAbility(builder, AbilitySerializers.DUMMY, "Dummy");
@@ -102,6 +103,7 @@ public abstract class PalladiumLangProvider extends ExtendedLangProvider {
             this.addConfigEntry(builder, "ABILITY_BAR_KEY_BIND_DISPLAY", "Ability Bar - Anzeige der Tastenbelegung");
             this.addConfigEnum(builder, AbilityKeyBindDisplay.INSIDE, "Innen");
             this.addConfigEnum(builder, AbilityKeyBindDisplay.OUTSIDE, "Außen");
+            this.addConfigEntry(builder, "HIDE_EXPERIMENTAL_WARNING", "Singleplayer - Experimental Settings Warnung ausblenden");
 
             // Abilities
             this.addAbility(builder, AbilitySerializers.DUMMY, "Dummy");
@@ -164,6 +166,7 @@ public abstract class PalladiumLangProvider extends ExtendedLangProvider {
             this.addConfigEntry(builder, "ABILITY_BAR_KEY_BIND_DISPLAY", "Ability Bar - Anzeige der Tastenbelegung");
             this.addConfigEnum(builder, AbilityKeyBindDisplay.INSIDE, "Innen");
             this.addConfigEnum(builder, AbilityKeyBindDisplay.OUTSIDE, "Außen");
+            this.addConfigEntry(builder, "HIDE_EXPERIMENTAL_WARNING", "Singleplayer - Experimental Settings Warnung ausblenden");
 
             // Abilities
             this.addAbility(builder, AbilitySerializers.DUMMY, "Dummy");
