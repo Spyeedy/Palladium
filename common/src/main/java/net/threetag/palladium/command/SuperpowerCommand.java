@@ -1,9 +1,7 @@
 package net.threetag.palladium.command;
 
 import com.google.common.collect.Lists;
-import com.mojang.brigadier.CommandDispatcher;
 import com.mojang.brigadier.suggestion.SuggestionProvider;
-import net.minecraft.commands.CommandBuildContext;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.Commands;
 import net.minecraft.commands.SharedSuggestionProvider;
@@ -63,74 +61,76 @@ public class SuperpowerCommand {
         return SharedSuggestionProvider.suggestResource(superpowers, builder);
     };
 
-    public static void register(CommandDispatcher<CommandSourceStack> dispatcher, CommandBuildContext context) {
-        dispatcher.register(Commands.literal("superpower").requires((player) -> {
-                    return player.hasPermission(2);
-                })
+    public static void register() {
+        PalladiumCommand.COMMAND_CALLBACK.register((cmd, context) -> {
+            cmd.then(Commands.literal("superpower").requires((player) -> {
+                        return player.hasPermission(2);
+                    })
 
-                .then(Commands.literal("query")
-                        .then(Commands.argument("entity", EntityArgument.entity()).executes(c -> {
-                            return querySuperpowers(c.getSource(), EntityArgument.getEntity(c, "entity"));
-                        })))
+                    .then(Commands.literal("query")
+                            .then(Commands.argument("entity", EntityArgument.entity()).executes(c -> {
+                                return querySuperpowers(c.getSource(), EntityArgument.getEntity(c, "entity"));
+                            })))
 
-                .then(Commands.literal("set")
-                        .then(Commands.argument("power", ResourceArgument.resource(context, PalladiumRegistryKeys.POWER)).executes(c -> {
-                                    return setSuperpower(c.getSource(), Collections.singleton(c.getSource().getPlayerOrException()), ResourceArgument.getResource(c, "power", PalladiumRegistryKeys.POWER));
-                                })
-                                .then(Commands.argument("entities", EntityArgument.entities()).executes(c -> {
-                                    return setSuperpower(c.getSource(), EntityArgument.getEntities(c, "entities"), ResourceArgument.getResource(c, "power", PalladiumRegistryKeys.POWER));
-                                }))))
+                    .then(Commands.literal("set")
+                            .then(Commands.argument("power", ResourceArgument.resource(context, PalladiumRegistryKeys.POWER)).executes(c -> {
+                                        return setSuperpower(c.getSource(), Collections.singleton(c.getSource().getPlayerOrException()), ResourceArgument.getResource(c, "power", PalladiumRegistryKeys.POWER));
+                                    })
+                                    .then(Commands.argument("entities", EntityArgument.entities()).executes(c -> {
+                                        return setSuperpower(c.getSource(), EntityArgument.getEntities(c, "entities"), ResourceArgument.getResource(c, "power", PalladiumRegistryKeys.POWER));
+                                    }))))
 
-                .then(Commands.literal("add")
-                        .then(Commands.argument("power", ResourceArgument.resource(context, PalladiumRegistryKeys.POWER)).executes(c -> {
-                                    return addSuperpower(c.getSource(), Collections.singleton(c.getSource().getPlayerOrException()), ResourceArgument.getResource(c, "power", PalladiumRegistryKeys.POWER));
-                                })
-                                .then(Commands.argument("entities", EntityArgument.entities()).executes(c -> {
-                                    return addSuperpower(c.getSource(), EntityArgument.getEntities(c, "entities"), ResourceArgument.getResource(c, "power", PalladiumRegistryKeys.POWER));
-                                }))))
+                    .then(Commands.literal("add")
+                            .then(Commands.argument("power", ResourceArgument.resource(context, PalladiumRegistryKeys.POWER)).executes(c -> {
+                                        return addSuperpower(c.getSource(), Collections.singleton(c.getSource().getPlayerOrException()), ResourceArgument.getResource(c, "power", PalladiumRegistryKeys.POWER));
+                                    })
+                                    .then(Commands.argument("entities", EntityArgument.entities()).executes(c -> {
+                                        return addSuperpower(c.getSource(), EntityArgument.getEntities(c, "entities"), ResourceArgument.getResource(c, "power", PalladiumRegistryKeys.POWER));
+                                    }))))
 
-                .then(Commands.literal("remove")
-                        .then(Commands.argument("power", ResourceArgument.resource(context, PalladiumRegistryKeys.POWER)).suggests(SUGGEST_OWN_POWERS_ALL).executes(c -> {
-                                    return removeSuperpower(c.getSource(), Collections.singleton(c.getSource().getPlayerOrException()), ResourceLocationArgument.getId(c, "power").toString());
-                                })
-                                .then(Commands.argument("entities", EntityArgument.entities()).executes(c -> {
-                                    return removeSuperpower(c.getSource(), EntityArgument.getEntities(c, "entities"), ResourceLocationArgument.getId(c, "power").toString());
-                                })))
-                        .then(Commands.literal("*").executes(c -> {
-                                    return removeSuperpower(c.getSource(), Collections.singleton(c.getSource().getPlayerOrException()), "all");
-                                })
-                                .then(Commands.argument("entities", EntityArgument.entities()).executes(c -> {
-                                    return removeSuperpower(c.getSource(), EntityArgument.getEntities(c, "entities"), "all");
-                                })))
-                        .then(Commands.literal("all").executes(c -> {
-                                    return removeSuperpower(c.getSource(), Collections.singleton(c.getSource().getPlayerOrException()), "all");
-                                })
-                                .then(Commands.argument("entities", EntityArgument.entities()).executes(c -> {
-                                    return removeSuperpower(c.getSource(), EntityArgument.getEntities(c, "entities"), "all");
-                                }))))
+                    .then(Commands.literal("remove")
+                            .then(Commands.argument("power", ResourceArgument.resource(context, PalladiumRegistryKeys.POWER)).suggests(SUGGEST_OWN_POWERS_ALL).executes(c -> {
+                                        return removeSuperpower(c.getSource(), Collections.singleton(c.getSource().getPlayerOrException()), ResourceLocationArgument.getId(c, "power").toString());
+                                    })
+                                    .then(Commands.argument("entities", EntityArgument.entities()).executes(c -> {
+                                        return removeSuperpower(c.getSource(), EntityArgument.getEntities(c, "entities"), ResourceLocationArgument.getId(c, "power").toString());
+                                    })))
+                            .then(Commands.literal("*").executes(c -> {
+                                        return removeSuperpower(c.getSource(), Collections.singleton(c.getSource().getPlayerOrException()), "all");
+                                    })
+                                    .then(Commands.argument("entities", EntityArgument.entities()).executes(c -> {
+                                        return removeSuperpower(c.getSource(), EntityArgument.getEntities(c, "entities"), "all");
+                                    })))
+                            .then(Commands.literal("all").executes(c -> {
+                                        return removeSuperpower(c.getSource(), Collections.singleton(c.getSource().getPlayerOrException()), "all");
+                                    })
+                                    .then(Commands.argument("entities", EntityArgument.entities()).executes(c -> {
+                                        return removeSuperpower(c.getSource(), EntityArgument.getEntities(c, "entities"), "all");
+                                    }))))
 
-                .then(Commands.literal("replace")
-                        .then(Commands.argument("replaced_power", ResourceArgument.resource(context, PalladiumRegistryKeys.POWER)).suggests(SUGGEST_OWN_POWERS_ALL)
-                                .then(Commands.argument("replacing_power", ResourceArgument.resource(context, PalladiumRegistryKeys.POWER)).executes(c -> {
-                                            return replaceSuperpower(c.getSource(), Collections.singleton(c.getSource().getPlayerOrException()), ResourceLocationArgument.getId(c, "replaced_power").toString(), ResourceArgument.getResource(c, "replacing_power", PalladiumRegistryKeys.POWER));
-                                        })
-                                        .then(Commands.argument("entities", EntityArgument.entities()).executes(c -> {
-                                            return replaceSuperpower(c.getSource(), EntityArgument.getEntities(c, "entities"), ResourceLocationArgument.getId(c, "replaced_power").toString(), ResourceArgument.getResource(c, "replacing_power", PalladiumRegistryKeys.POWER));
-                                        }))))
-                        .then(Commands.literal("*")
-                                .then(Commands.argument("replacing_power", ResourceArgument.resource(context, PalladiumRegistryKeys.POWER)).executes(c -> {
-                                            return replaceSuperpower(c.getSource(), Collections.singleton(c.getSource().getPlayerOrException()), "all", ResourceArgument.getResource(c, "replacing_power", PalladiumRegistryKeys.POWER));
-                                        })
-                                        .then(Commands.argument("entities", EntityArgument.entities()).executes(c -> {
-                                            return replaceSuperpower(c.getSource(), EntityArgument.getEntities(c, "entities"), "all", ResourceArgument.getResource(c, "replacing_power", PalladiumRegistryKeys.POWER));
-                                        }))))
-                        .then(Commands.literal("all")
-                                .then(Commands.argument("replacing_power", ResourceArgument.resource(context, PalladiumRegistryKeys.POWER)).executes(c -> {
-                                            return replaceSuperpower(c.getSource(), Collections.singleton(c.getSource().getPlayerOrException()), "all", ResourceArgument.getResource(c, "replacing_power", PalladiumRegistryKeys.POWER));
-                                        })
-                                        .then(Commands.argument("entities", EntityArgument.entities()).executes(c -> {
-                                            return replaceSuperpower(c.getSource(), EntityArgument.getEntities(c, "entities"), "all", ResourceArgument.getResource(c, "replacing_power", PalladiumRegistryKeys.POWER));
-                                        }))))));
+                    .then(Commands.literal("replace")
+                            .then(Commands.argument("replaced_power", ResourceArgument.resource(context, PalladiumRegistryKeys.POWER)).suggests(SUGGEST_OWN_POWERS_ALL)
+                                    .then(Commands.argument("replacing_power", ResourceArgument.resource(context, PalladiumRegistryKeys.POWER)).executes(c -> {
+                                                return replaceSuperpower(c.getSource(), Collections.singleton(c.getSource().getPlayerOrException()), ResourceLocationArgument.getId(c, "replaced_power").toString(), ResourceArgument.getResource(c, "replacing_power", PalladiumRegistryKeys.POWER));
+                                            })
+                                            .then(Commands.argument("entities", EntityArgument.entities()).executes(c -> {
+                                                return replaceSuperpower(c.getSource(), EntityArgument.getEntities(c, "entities"), ResourceLocationArgument.getId(c, "replaced_power").toString(), ResourceArgument.getResource(c, "replacing_power", PalladiumRegistryKeys.POWER));
+                                            }))))
+                            .then(Commands.literal("*")
+                                    .then(Commands.argument("replacing_power", ResourceArgument.resource(context, PalladiumRegistryKeys.POWER)).executes(c -> {
+                                                return replaceSuperpower(c.getSource(), Collections.singleton(c.getSource().getPlayerOrException()), "all", ResourceArgument.getResource(c, "replacing_power", PalladiumRegistryKeys.POWER));
+                                            })
+                                            .then(Commands.argument("entities", EntityArgument.entities()).executes(c -> {
+                                                return replaceSuperpower(c.getSource(), EntityArgument.getEntities(c, "entities"), "all", ResourceArgument.getResource(c, "replacing_power", PalladiumRegistryKeys.POWER));
+                                            }))))
+                            .then(Commands.literal("all")
+                                    .then(Commands.argument("replacing_power", ResourceArgument.resource(context, PalladiumRegistryKeys.POWER)).executes(c -> {
+                                                return replaceSuperpower(c.getSource(), Collections.singleton(c.getSource().getPlayerOrException()), "all", ResourceArgument.getResource(c, "replacing_power", PalladiumRegistryKeys.POWER));
+                                            })
+                                            .then(Commands.argument("entities", EntityArgument.entities()).executes(c -> {
+                                                return replaceSuperpower(c.getSource(), EntityArgument.getEntities(c, "entities"), "all", ResourceArgument.getResource(c, "replacing_power", PalladiumRegistryKeys.POWER));
+                                            }))))));
+        });
     }
 
     private static int querySuperpowers(CommandSourceStack source, Entity entity) {

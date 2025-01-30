@@ -7,8 +7,7 @@
   ],
   "mixins": [
     "EntityMixin",
-    "LevelSummaryMixin",
-    "LivingEntityMixin"
+    "LevelSummaryMixin"
   ],
   "injectors": {
     "defaultRequire": 1

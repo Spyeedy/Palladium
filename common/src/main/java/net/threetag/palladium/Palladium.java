@@ -4,6 +4,7 @@ import dev.architectury.event.events.common.CommandRegistrationEvent;
 import eu.midnightdust.lib.config.MidnightConfig;
 import net.minecraft.resources.ResourceLocation;
 import net.threetag.palladium.client.icon.IconSerializers;
+import net.threetag.palladium.command.PalladiumCommand;
 import net.threetag.palladium.command.SuperpowerCommand;
 import net.threetag.palladium.component.PalladiumDataComponents;
 import net.threetag.palladium.condition.ConditionSerializers;
@@ -48,9 +49,9 @@ public final class Palladium {
         PowerEventHandler.init();
         PalladiumEntityData.registerEvents();
 
-        CommandRegistrationEvent.EVENT.register((dispatcher, context, selection) -> {
-            SuperpowerCommand.register(dispatcher, context);
-        });
+        // Commands
+        SuperpowerCommand.register();
+        CommandRegistrationEvent.EVENT.register((dispatcher, context, selection) -> PalladiumCommand.register(dispatcher, context));
     }
 
     public static ResourceLocation id(String path) {
