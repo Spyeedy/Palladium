@@ -21,6 +21,7 @@ import net.minecraft.world.item.CreativeModeTabs;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.Blocks;
 import net.threetag.palladium.Palladium;
+import net.threetag.palladium.client.PalladiumKeyMappings;
 import net.threetag.palladium.client.gui.component.IconButton;
 import net.threetag.palladium.client.icon.Icon;
 import net.threetag.palladium.client.icon.ItemIcon;
@@ -176,14 +177,13 @@ public class PowersScreen extends Screen {
 
     @Override
     public boolean keyPressed(int keyCode, int scanCode, int modifiers) {
-        // TODO key for this?
-//        if (this.minecraft.options.keyAdvancements.matches(keyCode, scanCode)) {
-//            this.minecraft.setScreen(null);
-//            this.minecraft.mouseHandler.grabMouse();
-//            return true;
-//        } else {
-        return this.overlayScreen == null ? super.keyPressed(keyCode, scanCode, modifiers) : this.overlayScreen.keyPressed(keyCode, scanCode, modifiers);
-//        }
+        if (PalladiumKeyMappings.SHOW_POWERS.matches(keyCode, scanCode)) {
+            Objects.requireNonNull(this.minecraft).setScreen(null);
+            this.minecraft.mouseHandler.grabMouse();
+            return true;
+        } else {
+            return this.overlayScreen == null ? super.keyPressed(keyCode, scanCode, modifiers) : this.overlayScreen.keyPressed(keyCode, scanCode, modifiers);
+        }
     }
 
     @Override

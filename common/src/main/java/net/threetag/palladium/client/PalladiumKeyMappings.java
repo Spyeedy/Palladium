@@ -3,28 +3,32 @@ package net.threetag.palladium.client;
 import com.mojang.blaze3d.platform.InputConstants;
 import dev.architectury.event.EventResult;
 import dev.architectury.event.events.client.ClientRawInputEvent;
+import dev.architectury.event.events.client.ClientTickEvent;
 import dev.architectury.registry.client.keymappings.KeyMappingRegistry;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.minecraft.client.KeyMapping;
 import net.minecraft.client.Minecraft;
 import net.threetag.palladium.client.gui.screen.abilitybar.AbilityBar;
+import net.threetag.palladium.client.gui.screen.power.PowersScreen;
 import net.threetag.palladium.power.ability.AbilityInstance;
 import net.threetag.palladium.power.ability.enabling.KeyBindEnablingHandler;
 import net.threetag.palladium.power.ability.keybind.AbilityKeyBind;
 import org.lwjgl.glfw.GLFW;
 
 @Environment(EnvType.CLIENT)
-public class PalladiumKeyMappings implements ClientRawInputEvent.KeyPressed {
+public class PalladiumKeyMappings implements ClientRawInputEvent.KeyPressed, ClientTickEvent.Client {
 
-    public static final String CATEGORY = "key.palladium.categories.abilities";
-    public static final KeyMapping OPEN_EQUIPMENT = new KeyMapping("key.palladium.open_equipment", GLFW.GLFW_KEY_SLASH, "key.categories.gameplay");
-    public static final KeyMapping SWITCH_ABILITY_LIST = new KeyMapping("key.palladium.switch_ability_list", GLFW.GLFW_KEY_X, CATEGORY);
+    public static final String CATEGORY = "key.palladium.categories.powers";
+    public static final KeyMapping OPEN_EQUIPMENT = new KeyMapping("key.palladium.open_equipment", GLFW.GLFW_KEY_BACKSLASH, "key.categories.gameplay");
+    public static final KeyMapping SHOW_POWERS = new KeyMapping("key.palladium.show_powers", InputConstants.UNKNOWN.getValue(), CATEGORY);
+    public static final KeyMapping ROTATE_ABILITY_LIST = new KeyMapping("key.palladium.rotate_ability_list", GLFW.GLFW_KEY_X, CATEGORY);
     public static AbilityKeyMapping[] ABILITY_KEYS = new AbilityKeyMapping[5];
 
     public static void init() {
         KeyMappingRegistry.register(OPEN_EQUIPMENT);
-        KeyMappingRegistry.register(SWITCH_ABILITY_LIST);
+        KeyMappingRegistry.register(SHOW_POWERS);
+        KeyMappingRegistry.register(ROTATE_ABILITY_LIST);
         for (int i = 1; i <= ABILITY_KEYS.length; i++) {
             KeyMappingRegistry.register(ABILITY_KEYS[i - 1] = new AbilityKeyMapping("key.palladium.ability_" + i, getKeyForIndex(i), CATEGORY, i));
         }
@@ -32,7 +36,7 @@ public class PalladiumKeyMappings implements ClientRawInputEvent.KeyPressed {
 
         ClientRawInputEvent.KEY_PRESSED.register(instance);
 //        InputEvents.MOUSE_SCROLLING.register(instance);
-//        ClientTickEvents.CLIENT_POST.register(instance);
+        ClientTickEvent.CLIENT_POST.register(instance);
     }
 
     private static int getKeyForIndex(int index) {
@@ -51,11 +55,6 @@ public class PalladiumKeyMappings implements ClientRawInputEvent.KeyPressed {
         var abilityBar = AbilityBar.INSTANCE.getCurrentList();
 
         if (abilityBar != null && client.player != null) {
-            if(SWITCH_ABILITY_LIST.isDown()) {
-                AbilityBar.INSTANCE.rotateList(!client.player.isCrouching());
-                return EventResult.interruptTrue();
-            }
-
             for (AbilityKeyMapping key : ABILITY_KEYS) {
                 if (key.matches(keyCode, 0)) {
                     AbilityInstance<?> entry = abilityBar.getAbility(key.index - 1);
@@ -63,7 +62,7 @@ public class PalladiumKeyMappings implements ClientRawInputEvent.KeyPressed {
                     if (entry != null && entry.isUnlocked() && entry.getAbility().getStateManager().getEnablingHandler() instanceof KeyBindEnablingHandler handler) {
                         if (handler.getKeyBindType() instanceof AbilityKeyBind) {
                             if (action == GLFW.GLFW_PRESS) {
-                                if(client.screen == null) {
+                                if (client.screen == null) {
                                     handler.onKeyPressed(client.player, entry);
                                 }
                             } else if (action == GLFW.GLFW_RELEASE) {
@@ -76,6 +75,25 @@ public class PalladiumKeyMappings implements ClientRawInputEvent.KeyPressed {
         }
 
         return EventResult.pass();
+    }
+
+    @Override
+    public void tick(Minecraft client) {
+        if (client.player != null) {
+            if (client.screen == null) {
+                var abilityBar = AbilityBar.INSTANCE.getCurrentList();
+
+                if (abilityBar != null) {
+                    while (ROTATE_ABILITY_LIST.consumeClick()) {
+                        AbilityBar.INSTANCE.rotateList(!client.player.isCrouching());
+                    }
+                }
+
+                while (SHOW_POWERS.consumeClick()) {
+                    client.setScreen(new PowersScreen());
+                }
+            }
+        }
     }
 
 //    @Override

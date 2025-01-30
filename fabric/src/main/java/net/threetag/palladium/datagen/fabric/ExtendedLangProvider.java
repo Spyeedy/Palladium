@@ -45,4 +45,8 @@ public abstract class ExtendedLangProvider extends FabricLanguageProvider {
         builder.add(this.modid + ".midnightconfig.enum." + enum_.getDeclaringClass().getSimpleName() + "." + enum_.name(), name);
     }
 
+    public void addKeyMapping(TranslationBuilder builder, String key, String name) {
+        builder.add("key.palladium." + key, name);
+    }
+
 }

@@ -38,6 +38,15 @@ public abstract class PalladiumLangProvider extends ExtendedLangProvider {
             this.addConfigEnum(builder, AbilityKeyBindDisplay.OUTSIDE, "Outside");
             this.addConfigEntry(builder, "HIDE_EXPERIMENTAL_WARNING", "Singleplayer - Hide Experimental Settings Warning");
 
+            // Key Mappings
+            builder.add("key.palladium.categories.powers", "Powers");
+            this.addKeyMapping(builder, "open_equipment", "Open/Close Equipment");
+            this.addKeyMapping(builder, "show_powers", "Powers");
+            this.addKeyMapping(builder, "rotate_ability_list", "Rotate through ability bar");
+            for (int i = 1; i <= 5; i++) {
+                this.addKeyMapping(builder, "ability_" + i, "Ability #" + i);
+            }
+
             // Abilities
             this.addAbility(builder, AbilitySerializers.DUMMY, "Dummy");
             this.addAbility(builder, AbilitySerializers.COMMAND, "Command");
@@ -105,6 +114,15 @@ public abstract class PalladiumLangProvider extends ExtendedLangProvider {
             this.addConfigEnum(builder, AbilityKeyBindDisplay.OUTSIDE, "Außen");
             this.addConfigEntry(builder, "HIDE_EXPERIMENTAL_WARNING", "Singleplayer - Experimental Settings Warnung ausblenden");
 
+            // Key Mappings
+            builder.add("key.palladium.categories.powers", "Kräfte");
+            this.addKeyMapping(builder, "open_equipment", "Ausrüstung öffnen/schließen");
+            this.addKeyMapping(builder, "show_powers", "Kräfte");
+            this.addKeyMapping(builder, "rotate_ability_list", "Durch Fähigkeitenleiste rotieren");
+            for (int i = 1; i <= 5; i++) {
+                this.addKeyMapping(builder, "ability_" + i, "Fähigkeit #" + i);
+            }
+
             // Abilities
             this.addAbility(builder, AbilitySerializers.DUMMY, "Dummy");
             this.addAbility(builder, AbilitySerializers.COMMAND, "Befehl");
@@ -167,6 +185,15 @@ public abstract class PalladiumLangProvider extends ExtendedLangProvider {
             this.addConfigEnum(builder, AbilityKeyBindDisplay.INSIDE, "Innen");
             this.addConfigEnum(builder, AbilityKeyBindDisplay.OUTSIDE, "Außen");
             this.addConfigEntry(builder, "HIDE_EXPERIMENTAL_WARNING", "Singleplayer - Experimental Settings Warnung ausblenden");
+
+            // Key Mappings
+            builder.add("key.palladium.categories.powers", "Gräfte");
+            this.addKeyMapping(builder, "open_equipment", "Ohsrüstung öffnen/schließen");
+            this.addKeyMapping(builder, "show_powers", "Gräfte");
+            this.addKeyMapping(builder, "rotate_ability_list", "Durch Fähischgehtlehste rotieren");
+            for (int i = 1; i <= 5; i++) {
+                this.addKeyMapping(builder, "ability_" + i, "Fähischgeht #" + i);
+            }
 
             // Abilities
             this.addAbility(builder, AbilitySerializers.DUMMY, "Dummy");

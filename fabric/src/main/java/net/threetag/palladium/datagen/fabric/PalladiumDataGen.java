@@ -8,9 +8,10 @@ public class PalladiumDataGen implements DataGeneratorEntrypoint {
     @Override
     public void onInitializeDataGenerator(FabricDataGenerator generator) {
         FabricDataGenerator.Pack pack = generator.createPack();
-         pack.addProvider(PalladiumLangProvider.English::new);
-         pack.addProvider(PalladiumLangProvider.German::new);
-         pack.addProvider(PalladiumLangProvider.Saxon::new);
+
+        pack.addProvider(PalladiumLangProvider.English::new);
+        pack.addProvider(PalladiumLangProvider.German::new);
+        pack.addProvider(PalladiumLangProvider.Saxon::new);
     }
 
 }

@@ -24,7 +24,7 @@ public class PowerIndicatorComponent implements UiComponent {
         List<UiComponent> componentList = new ArrayList<>();
 
         if (showButton) {
-            componentList.add(new SwitchKeyComponent(PalladiumKeyMappings.SWITCH_ABILITY_LIST.getTranslatedKeyMessage()));
+            componentList.add(new SwitchKeyComponent(PalladiumKeyMappings.ROTATE_ABILITY_LIST.getTranslatedKeyMessage()));
         }
 
         componentList.add(new IconUiComponent(abilityList.getPowerHolder().getPower().value().getIcon()));
