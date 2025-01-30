@@ -30,33 +30,39 @@ public class AbilityBar implements LayeredDraw.Layer, UiComponent, ClientTickEve
     private List<AbilityList> lists = new ArrayList<>();
     private int selectedList = -1;
     private AbilityList currentList = null;
+    private UiComponent toRender = null;
 
     @Override
     public void render(GuiGraphics guiGraphics, DeltaTracker deltaTracker) {
-        if (this.currentList != null && this.currentList.completeBar != null) {
+        if (this.currentList != null) {
+            this.toRender = this.lists.size() == 1 && this.lists.getFirst().simple ? this.currentList.simplified : this.currentList.completeBar;
             var alignment = PalladiumConfig.ABILITY_BAR_ALIGNMENT;
             var pos = UiComponent.getPosition(this, Minecraft.getInstance().getWindow(), alignment);
             this.render(Minecraft.getInstance(), guiGraphics, deltaTracker, pos.x, pos.y, alignment);
+        } else {
+            this.toRender = null;
         }
     }
 
     @Override
     public int getWidth() {
-        return this.currentList.completeBar != null ? this.currentList.completeBar.getWidth() : 0;
+        return this.toRender != null ? this.toRender.getWidth() : 0;
     }
 
     @Override
     public int getHeight() {
-        return this.currentList.completeBar != null ? this.currentList.completeBar.getHeight() : 0;
+        return this.toRender != null ? this.toRender.getHeight() : 0;
     }
 
     @Override
     public void render(Minecraft minecraft, GuiGraphics gui, DeltaTracker deltaTracker, int x, int y, UiAlignment alignment) {
-        if (this.currentList.completeBar != null) {
-            this.currentList.abilitiesAndEnergyBars.reverseOrder = alignment.isLeft();
-            this.currentList.completeBar.reverseOrder = alignment.isBottom();
+        if (this.currentList != null && this.toRender != null) {
+            if (this.currentList.abilitiesAndEnergyBars != null)
+                this.currentList.abilitiesAndEnergyBars.reverseOrder = alignment.isLeft();
+            if (this.currentList.completeBar != null)
+                this.currentList.completeBar.reverseOrder = alignment.isBottom();
 
-            this.currentList.completeBar.render(minecraft, gui, deltaTracker, x, y, alignment);
+            this.toRender.render(minecraft, gui, deltaTracker, x, y, alignment);
         }
     }
 
@@ -176,6 +182,7 @@ public class AbilityBar implements LayeredDraw.Layer, UiComponent, ClientTickEve
         private final PowerHolder powerHolder;
         private final IntObjectHashMap<List<AbilityInstance<?>>> abilities = new IntObjectHashMap<>();
         public boolean simple = false;
+        public SimplifiedPowerComponent simplified = null;
         public CompoundUiComponent completeBar = null;
         public CompoundUiComponent abilitiesAndEnergyBars = null;
 
@@ -269,6 +276,7 @@ public class AbilityBar implements LayeredDraw.Layer, UiComponent, ClientTickEve
             if (this.simple) {
                 this.abilities.clear();
                 this.addAbility(0, entry);
+                this.simplified = new SimplifiedPowerComponent(entry);
             }
         }
     }
