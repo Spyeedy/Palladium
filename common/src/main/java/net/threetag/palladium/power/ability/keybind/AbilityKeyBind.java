@@ -5,6 +5,7 @@ import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.codec.StreamCodec;
+import net.minecraft.resources.ResourceLocation;
 import net.threetag.palladium.client.PalladiumKeyMappings;
 import net.threetag.palladium.client.gui.component.TextUiComponent;
 import net.threetag.palladium.client.gui.component.UiComponent;
@@ -23,7 +24,7 @@ public class AbilityKeyBind extends KeyBindType {
 
     @Override
     @Environment(EnvType.CLIENT)
-    public UiComponent getDisplayedKey(AbilityInstance<?> abilityInstance, int index, boolean inside) {
+    public UiComponent getDisplayedKey(AbilityInstance<?> abilityInstance, ResourceLocation texture, boolean inside, int index) {
         return new TextUiComponent(PalladiumKeyMappings.ABILITY_KEYS[index].getTranslatedKeyMessage(), inside);
     }
 

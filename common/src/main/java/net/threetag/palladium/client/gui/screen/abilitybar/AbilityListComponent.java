@@ -5,6 +5,7 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.screens.ChatScreen;
 import net.minecraft.client.renderer.RenderType;
+import net.minecraft.resources.ResourceLocation;
 import net.threetag.palladium.PalladiumConfig;
 import net.threetag.palladium.client.gui.component.TextUiComponent;
 import net.threetag.palladium.client.gui.component.UiAlignment;
@@ -33,23 +34,23 @@ public class AbilityListComponent implements UiComponent {
 
     @Override
     public void render(Minecraft minecraft, GuiGraphics gui, DeltaTracker deltaTracker, int x, int y, UiAlignment alignment) {
-        gui.blit(RenderType::guiTextured, AbilityBar.TEXTURE, x, y, 0, 56, this.getWidth(), this.getHeight(), 256, 256);
+        gui.blit(RenderType::guiTextured, this.abilityList.getTexture(DataContext.forPower(minecraft.player, this.abilityList.getPowerHolder())), x, y, 0, 56, this.getWidth(), this.getHeight(), 256, 256);
 
         for (int i = 0; i < AbilityBar.AbilityList.MAX_ABILITIES; i++) {
             var ability = this.abilityList.getAbility(i);
             int abilityX = x + 3;
             int abilityY = y + 3 + (i * 22);
-            renderAbility(minecraft, gui, deltaTracker, abilityX, abilityY, alignment, ability, i);
+            renderAbility(minecraft, this.abilityList.getTexture(DataContext.forAbility(minecraft.player, ability)), gui, deltaTracker, abilityX, abilityY, alignment, ability, i);
         }
     }
 
-    public static void renderAbility(Minecraft minecraft, GuiGraphics gui, DeltaTracker deltaTracker, int x, int y, UiAlignment alignment, AbilityInstance<?> ability, int index) {
+    public static void renderAbility(Minecraft minecraft, ResourceLocation texture, GuiGraphics gui, DeltaTracker deltaTracker, int x, int y, UiAlignment alignment, AbilityInstance<?> ability, int index) {
         if (ability != null) {
             if (ability.isUnlocked()) {
                 if (ability.isEnabled()) {
-                    gui.blit(RenderType::guiTextured, AbilityBar.TEXTURE, x, y, 42, 56, 18, 18, 256, 256);
+                    gui.blit(RenderType::guiTextured, texture, x, y, 42, 56, 18, 18, 256, 256);
                 } else {
-                    gui.blit(RenderType::guiTextured, AbilityBar.TEXTURE, x, y, 24, 56, 18, 18, 256, 256);
+                    gui.blit(RenderType::guiTextured, texture, x, y, 24, 56, 18, 18, 256, 256);
                 }
 
                 // Ability Icon
@@ -60,13 +61,13 @@ public class AbilityListComponent implements UiComponent {
                         && handler.displayCooldown(ability)) {
                     float percentage = handler.getCooldownPercentage(ability);
 
-                    gui.blit(RenderType::guiTextured, AbilityBar.TEXTURE, x, y, 60, 74, (int) (18 * percentage), 18, 256, 256);
+                    gui.blit(RenderType::guiTextured, texture, x, y, 60, 74, (int) (18 * percentage), 18, 256, 256);
                 }
 
                 // Key Bind (inside)
                 if (PalladiumConfig.ABILITY_BAR_KEY_BIND_DISPLAY == AbilityKeyBindDisplay.INSIDE &&
                         ability.getAbility().getStateManager().getEnablingHandler() instanceof KeyBindEnablingHandler handler) {
-                    var key = handler.getKeyBindType().getDisplayedKey(ability, index, true);
+                    var key = handler.getKeyBindType().getDisplayedKey(ability, texture, true, index);
                     gui.pose().pushPose();
                     gui.pose().translate(0, 0, 500);
                     key.render(minecraft, gui, deltaTracker, x + 19 - key.getWidth(), y + 17 - key.getHeight(), alignment);
@@ -81,7 +82,7 @@ public class AbilityListComponent implements UiComponent {
                     if (chatOpen) {
                         displayedText = new TextUiComponent(ability.getAbility().getDisplayName());
                     } else if (ability.getAbility().getStateManager().getEnablingHandler() instanceof KeyBindEnablingHandler handler) {
-                        displayedText = handler.getKeyBindType().getDisplayedKey(ability, index, false);
+                        displayedText = handler.getKeyBindType().getDisplayedKey(ability, texture, false, index);
                     }
                 } else if (chatOpen) {
                     displayedText = new TextUiComponent(ability.getAbility().getDisplayName());
@@ -99,15 +100,15 @@ public class AbilityListComponent implements UiComponent {
                     displayedText.render(minecraft, gui, deltaTracker, x + (alignment.isLeft() ? 26 : -width - 8), y + 3 + ((12 - displayedText.getHeight()) / 2), alignment);
                 }
             } else {
-                gui.blit(RenderType::guiTextured, AbilityBar.TEXTURE, x, y, 24, 74, 18, 18, 256, 256);
-                gui.blit(RenderType::guiTextured, AbilityBar.TEXTURE, x, y, 42, 74, 18, 18, 256, 256);
+                gui.blit(RenderType::guiTextured, texture, x, y, 24, 74, 18, 18, 256, 256);
+                gui.blit(RenderType::guiTextured, texture, x, y, 42, 74, 18, 18, 256, 256);
             }
 
             // Ability Color
             var color = ability.getAbility().getProperties().getColor();
-            gui.blit(RenderType::guiTextured, AbilityBar.TEXTURE, x - 3, y - 3, color.getU(), color.getV(), 24, 24, 256, 256);
+            gui.blit(RenderType::guiTextured, texture, x - 3, y - 3, color.getU(), color.getV(), 24, 24, 256, 256);
         } else {
-            gui.blit(RenderType::guiTextured, AbilityBar.TEXTURE, x, y, 60, 56, 18, 18, 256, 256);
+            gui.blit(RenderType::guiTextured, texture, x, y, 60, 56, 18, 18, 256, 256);
         }
     }
 }

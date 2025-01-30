@@ -12,6 +12,8 @@ import net.threetag.palladium.PalladiumConfig;
 import net.threetag.palladium.client.gui.component.CompoundUiComponent;
 import net.threetag.palladium.client.gui.component.UiAlignment;
 import net.threetag.palladium.client.gui.component.UiComponent;
+import net.threetag.palladium.client.texture.TextureReference;
+import net.threetag.palladium.data.DataContext;
 import net.threetag.palladium.power.PowerHolder;
 import net.threetag.palladium.power.PowerUtil;
 import net.threetag.palladium.power.ability.AbilityInstance;
@@ -23,7 +25,7 @@ import java.util.List;
 public class AbilityBar implements LayeredDraw.Layer, UiComponent, ClientTickEvent.Client {
 
     public static final AbilityBar INSTANCE = new AbilityBar();
-    public static final ResourceLocation TEXTURE = Palladium.id("textures/gui/ability_bar.png");
+    private static final ResourceLocation TEXTURE = Palladium.id("textures/gui/ability_bar.png");
     public static int KEY_ROTATION = 0;
     public static boolean KEY_ROTATION_FORWARD = true;
 
@@ -182,12 +184,22 @@ public class AbilityBar implements LayeredDraw.Layer, UiComponent, ClientTickEve
         private final PowerHolder powerHolder;
         private final IntObjectHashMap<List<AbilityInstance<?>>> abilities = new IntObjectHashMap<>();
         public boolean simple = false;
+        private TextureReference texture;
         public SimplifiedPowerComponent simplified = null;
         public CompoundUiComponent completeBar = null;
         public CompoundUiComponent abilitiesAndEnergyBars = null;
 
         public AbilityList(PowerHolder powerHolder) {
             this.powerHolder = powerHolder;
+            this.texture = powerHolder.getPower().value().getAbilityBarTexture();
+
+            if (this.texture == null) {
+                this.texture = TextureReference.normal(TEXTURE);
+            }
+        }
+
+        public ResourceLocation getTexture(DataContext context) {
+            return this.texture.getTexture(context);
         }
 
         public void build(boolean showButton) {
@@ -195,7 +207,7 @@ public class AbilityBar implements LayeredDraw.Layer, UiComponent, ClientTickEve
             components.add(new AbilityListComponent(this));
 
             for (EnergyBarInstance barInstance : this.powerHolder.getEnergyBars().values()) {
-                components.add(new EnergyBarComponent(barInstance));
+                components.add(new EnergyBarComponent(this, barInstance));
             }
 
             this.abilitiesAndEnergyBars = new CompoundUiComponent(components, false);
@@ -276,7 +288,7 @@ public class AbilityBar implements LayeredDraw.Layer, UiComponent, ClientTickEve
             if (this.simple) {
                 this.abilities.clear();
                 this.addAbility(0, entry);
-                this.simplified = new SimplifiedPowerComponent(entry);
+                this.simplified = new SimplifiedPowerComponent(this, entry);
             }
         }
     }

@@ -11,6 +11,7 @@ import net.threetag.palladium.client.gui.component.CompoundUiComponent;
 import net.threetag.palladium.client.gui.component.IconUiComponent;
 import net.threetag.palladium.client.gui.component.UiAlignment;
 import net.threetag.palladium.client.gui.component.UiComponent;
+import net.threetag.palladium.data.DataContext;
 import net.threetag.palladium.util.Easing;
 
 import java.util.ArrayList;
@@ -18,13 +19,15 @@ import java.util.List;
 
 public class PowerIndicatorComponent implements UiComponent {
 
+    private final AbilityBar.AbilityList abilityList;
     private final CompoundUiComponent keyAndIcon;
 
     public PowerIndicatorComponent(AbilityBar.AbilityList abilityList, boolean showButton) {
+        this.abilityList = abilityList;
         List<UiComponent> componentList = new ArrayList<>();
 
         if (showButton) {
-            componentList.add(new SwitchKeyComponent(PalladiumKeyMappings.ROTATE_ABILITY_LIST.getTranslatedKeyMessage()));
+            componentList.add(new SwitchKeyComponent(abilityList, PalladiumKeyMappings.ROTATE_ABILITY_LIST.getTranslatedKeyMessage()));
         }
 
         componentList.add(new IconUiComponent(abilityList.getPowerHolder().getPower().value().getIcon()));
@@ -45,7 +48,7 @@ public class PowerIndicatorComponent implements UiComponent {
 
     @Override
     public void render(Minecraft minecraft, GuiGraphics gui, DeltaTracker deltaTracker, int x, int y, UiAlignment alignment) {
-        gui.blit(RenderType::guiTextured, AbilityBar.TEXTURE, x, y, getU(alignment), getV(alignment), this.getWidth(), this.getHeight(), 256, 256);
+        gui.blit(RenderType::guiTextured, this.abilityList.getTexture(DataContext.forPower(minecraft.player, this.abilityList.getPowerHolder())), x, y, getU(alignment), getV(alignment), this.getWidth(), this.getHeight(), 256, 256);
         int width = this.keyAndIcon.getWidth();
         int height = this.keyAndIcon.getHeight();
         int offsetX = alignment.isLeft() ? 0 : 3;
@@ -77,9 +80,11 @@ public class PowerIndicatorComponent implements UiComponent {
 
     public static class SwitchKeyComponent implements UiComponent {
 
+        private final AbilityBar.AbilityList abilityList;
         private final Component keyText;
 
-        public SwitchKeyComponent(Component keyText) {
+        public SwitchKeyComponent(AbilityBar.AbilityList abilityList, Component keyText) {
+            this.abilityList = abilityList;
             this.keyText = keyText;
         }
 
@@ -109,7 +114,7 @@ public class PowerIndicatorComponent implements UiComponent {
                 );
             }
 
-            gui.blit(RenderType::guiTextured, AbilityBar.TEXTURE, -4, -4, 78, AbilityBar.KEY_ROTATION_FORWARD ? 56 : 64, 8, 8, 256, 256);
+            gui.blit(RenderType::guiTextured, this.abilityList.getTexture(DataContext.forPower(minecraft.player, this.abilityList.getPowerHolder())), -4, -4, 78, AbilityBar.KEY_ROTATION_FORWARD ? 56 : 64, 8, 8, 256, 256);
             gui.pose().popPose();
         }
     }
