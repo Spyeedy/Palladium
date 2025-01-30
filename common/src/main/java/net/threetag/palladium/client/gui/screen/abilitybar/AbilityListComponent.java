@@ -5,8 +5,8 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.screens.ChatScreen;
 import net.minecraft.client.renderer.RenderType;
-import net.minecraft.network.chat.Component;
 import net.threetag.palladium.PalladiumConfig;
+import net.threetag.palladium.client.gui.component.TextUiComponent;
 import net.threetag.palladium.client.gui.component.UiAlignment;
 import net.threetag.palladium.client.gui.component.UiComponent;
 import net.threetag.palladium.data.DataContext;
@@ -39,11 +39,11 @@ public class AbilityListComponent implements UiComponent {
             var ability = this.abilityList.getAbility(i);
             int abilityX = x + 3;
             int abilityY = y + 3 + (i * 22);
-            renderAbility(minecraft, gui, abilityX, abilityY, alignment, ability, i);
+            renderAbility(minecraft, gui, deltaTracker, abilityX, abilityY, alignment, ability, i);
         }
     }
 
-    public static void renderAbility(Minecraft minecraft, GuiGraphics gui, int x, int y, UiAlignment alignment, AbilityInstance<?> ability, int index) {
+    public static void renderAbility(Minecraft minecraft, GuiGraphics gui, DeltaTracker deltaTracker, int x, int y, UiAlignment alignment, AbilityInstance<?> ability, int index) {
         if (ability != null) {
             if (ability.isUnlocked()) {
                 if (ability.isEnabled()) {
@@ -66,40 +66,29 @@ public class AbilityListComponent implements UiComponent {
                 // Key Bind (inside)
                 if (PalladiumConfig.ABILITY_BAR_KEY_BIND_DISPLAY == AbilityKeyBindDisplay.INSIDE &&
                         ability.getAbility().getStateManager().getEnablingHandler() instanceof KeyBindEnablingHandler handler) {
-                    var key = handler.getKeyBindType().getDisplayedKey(ability, index);
+                    var key = handler.getKeyBindType().getDisplayedKey(ability, index, true);
                     gui.pose().pushPose();
                     gui.pose().translate(0, 0, 500);
-
-                    // Outline
-                    gui.drawString(minecraft.font, key, x + 18 - minecraft.font.width(key), y + 9, 0, false);
-                    gui.drawString(minecraft.font, key, x + 20 - minecraft.font.width(key), y + 9, 0, false);
-                    gui.drawString(minecraft.font, key, x + 19 - minecraft.font.width(key), y + 8, 0, false);
-                    gui.drawString(minecraft.font, key, x + 19 - minecraft.font.width(key), y + 10, 0, false);
-                    gui.drawString(minecraft.font, key, x + 18 - minecraft.font.width(key), y + 8, 0, false);
-                    gui.drawString(minecraft.font, key, x + 18 - minecraft.font.width(key), y + 10, 0, false);
-                    gui.drawString(minecraft.font, key, x + 20 - minecraft.font.width(key), y + 8, 0, false);
-                    gui.drawString(minecraft.font, key, x + 20 - minecraft.font.width(key), y + 10, 0, false);
-
-                    gui.drawString(minecraft.font, key, x + 19 - minecraft.font.width(key), y + 9, 0xffffff, false);
+                    key.render(minecraft, gui, deltaTracker, x + 19 - key.getWidth(), y + 17 - key.getHeight(), alignment);
                     gui.pose().popPose();
                 }
 
                 // Name / Key Bind (outside)
                 boolean chatOpen = minecraft.screen instanceof ChatScreen;
-                Component displayedText = null;
+                UiComponent displayedText = null;
 
                 if (PalladiumConfig.ABILITY_BAR_KEY_BIND_DISPLAY == AbilityKeyBindDisplay.OUTSIDE) {
                     if (chatOpen) {
-                        displayedText = ability.getAbility().getDisplayName();
+                        displayedText = new TextUiComponent(ability.getAbility().getDisplayName());
                     } else if (ability.getAbility().getStateManager().getEnablingHandler() instanceof KeyBindEnablingHandler handler) {
-                        displayedText = handler.getKeyBindType().getDisplayedKey(ability, index);
+                        displayedText = handler.getKeyBindType().getDisplayedKey(ability, index, false);
                     }
                 } else if (chatOpen) {
-                    displayedText = ability.getAbility().getDisplayName();
+                    displayedText = new TextUiComponent(ability.getAbility().getDisplayName());
                 }
 
                 if (displayedText != null) {
-                    int width = minecraft.font.width(displayedText);
+                    int width = displayedText.getWidth();
                     gui.fill(
                             x + (alignment.isLeft() ? 21 : -width - 10),
                             y + 3,
@@ -107,7 +96,7 @@ public class AbilityListComponent implements UiComponent {
                             y + 5 + 10,
                             0x80000000
                     );
-                    gui.drawString(minecraft.font, displayedText, x + (alignment.isLeft() ? 26 : -width - 8), y + 5, 0xffffffff, false);
+                    displayedText.render(minecraft, gui, deltaTracker, x + (alignment.isLeft() ? 26 : -width - 8), y + 3 + ((12 - displayedText.getHeight()) / 2), alignment);
                 }
             } else {
                 gui.blit(RenderType::guiTextured, AbilityBar.TEXTURE, x, y, 24, 74, 18, 18, 256, 256);

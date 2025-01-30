@@ -4,9 +4,10 @@ import com.mojang.serialization.MapCodec;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.minecraft.network.RegistryFriendlyByteBuf;
-import net.minecraft.network.chat.Component;
 import net.minecraft.network.codec.StreamCodec;
 import net.threetag.palladium.client.PalladiumKeyMappings;
+import net.threetag.palladium.client.gui.component.TextUiComponent;
+import net.threetag.palladium.client.gui.component.UiComponent;
 import net.threetag.palladium.power.ability.AbilityInstance;
 
 public class AbilityKeyBind extends KeyBindType {
@@ -22,8 +23,8 @@ public class AbilityKeyBind extends KeyBindType {
 
     @Override
     @Environment(EnvType.CLIENT)
-    public Component getDisplayedKey(AbilityInstance<?> abilityInstance, int index) {
-        return PalladiumKeyMappings.ABILITY_KEYS[index].getTranslatedKeyMessage();
+    public UiComponent getDisplayedKey(AbilityInstance<?> abilityInstance, int index, boolean inside) {
+        return new TextUiComponent(PalladiumKeyMappings.ABILITY_KEYS[index].getTranslatedKeyMessage(), inside);
     }
 
     public static class Serializer extends KeyBindTypeSerializer<AbilityKeyBind> {

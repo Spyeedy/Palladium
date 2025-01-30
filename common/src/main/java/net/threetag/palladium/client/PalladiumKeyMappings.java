@@ -54,19 +54,21 @@ public class PalladiumKeyMappings implements ClientRawInputEvent.KeyPressed, Cli
     public EventResult keyPressed(Minecraft client, int keyCode, int scanCode, int action, int modifiers) {
         var abilityBar = AbilityBar.INSTANCE.getCurrentList();
 
-        if (abilityBar != null && client.player != null) {
-            for (AbilityKeyMapping key : ABILITY_KEYS) {
-                if (key.matches(keyCode, 0)) {
-                    AbilityInstance<?> entry = abilityBar.getAbility(key.index - 1);
+        if (client.player != null) {
+            if (abilityBar != null) {
+                for (AbilityKeyMapping key : ABILITY_KEYS) {
+                    if (key.matches(keyCode, 0)) {
+                        AbilityInstance<?> ability = abilityBar.getAbility(key.index - 1);
 
-                    if (entry != null && entry.isUnlocked() && entry.getAbility().getStateManager().getEnablingHandler() instanceof KeyBindEnablingHandler handler) {
-                        if (handler.getKeyBindType() instanceof AbilityKeyBind) {
-                            if (action == GLFW.GLFW_PRESS) {
-                                if (client.screen == null) {
-                                    handler.onKeyPressed(client.player, entry);
+                        if (ability != null && ability.isUnlocked() && ability.getAbility().getStateManager().getEnablingHandler() instanceof KeyBindEnablingHandler handler) {
+                            if (handler.getKeyBindType() instanceof AbilityKeyBind) {
+                                if (action == GLFW.GLFW_PRESS) {
+                                    if (client.screen == null) {
+                                        handler.onKeyPressed(client.player, ability);
+                                    }
+                                } else if (action == GLFW.GLFW_RELEASE) {
+                                    handler.onKeyReleased(client.player, ability);
                                 }
-                            } else if (action == GLFW.GLFW_RELEASE) {
-                                handler.onKeyReleased(client.player, entry);
                             }
                         }
                     }

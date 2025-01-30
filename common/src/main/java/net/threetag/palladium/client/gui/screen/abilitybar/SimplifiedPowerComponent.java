@@ -29,6 +29,6 @@ public class SimplifiedPowerComponent implements UiComponent {
     @Override
     public void render(Minecraft minecraft, GuiGraphics gui, DeltaTracker deltaTracker, int x, int y, UiAlignment alignment) {
         gui.blit(RenderType::guiTextured, AbilityBar.TEXTURE, x, y, 0, 168, 24, 24, 256, 256);
-        AbilityListComponent.renderAbility(minecraft, gui, x + 3, y + 3, alignment, this.abilityInstance, 0);
+        AbilityListComponent.renderAbility(minecraft, gui, deltaTracker, x + 3, y + 3, alignment, this.abilityInstance, 0);
     }
 }
