@@ -4,9 +4,10 @@ import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.codec.StreamCodec;
+import net.threetag.palladium.data.DataContext;
 import net.threetag.palladium.power.ability.AbilityInstance;
 import net.threetag.palladium.power.ability.AbilityReference;
-import net.threetag.palladium.data.DataContext;
+import net.threetag.palladium.power.ability.enabling.KeyBindEnablingHandler;
 
 public record AbilityOnCooldownCondition(AbilityReference ability) implements Condition {
 
@@ -27,10 +28,11 @@ public record AbilityOnCooldownCondition(AbilityReference ability) implements Co
             return false;
         }
 
-        // TODO
         AbilityInstance<?> dependency = this.ability.getInstance(entity, holder);
-//        return dependency != null && dependency.isOnCooldown();
-        return false;
+
+        return dependency != null
+                && dependency.getAbility().getStateManager().getEnablingHandler() instanceof KeyBindEnablingHandler key
+                && key.getCooldownPercentage(dependency) > 0.0F;
     }
 
     @Override
