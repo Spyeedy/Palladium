@@ -5,11 +5,16 @@ import com.mojang.serialization.codecs.RecordCodecBuilder;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.minecraft.core.Holder;
+import net.minecraft.core.HolderLookup;
 import net.minecraft.core.particles.ParticleType;
 import net.minecraft.core.registries.BuiltInRegistries;
+import net.minecraft.core.registries.Registries;
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.LivingEntity;
+import net.threetag.palladium.documentation.CodecDocumentationBuilder;
+import net.threetag.palladium.documentation.Documented;
 import net.threetag.palladium.power.energybar.EnergyBarUsage;
 import net.threetag.palladium.util.CodecExtras;
 
@@ -69,6 +74,15 @@ public class ParticleAbility extends Ability {
         @Override
         public MapCodec<ParticleAbility> codec() {
             return CODEC;
+        }
+
+        @Override
+        public void addDocumentation(CodecDocumentationBuilder<Ability, ParticleAbility> builder, HolderLookup.Provider provider) {
+            builder.setDescription("Spawns particles around the entity.")
+                    .add("emitter", Documented.typeListOrPrimitive(TYPE_RESOURCE_LOCATION), "List of emitter IDs where the particles spawn at.")
+                    .add("particle_type", TYPE_PARTICLE_TYPE, "ID of the particle you want to spawn.")
+                    .addOptional("options", TYPE_NBT, "Additional options for the particle (like color of a dust particle).")
+                    .setExampleObject(new ParticleAbility(List.of(ResourceLocation.fromNamespaceAndPath("example", "emitter_id")), provider.get(ResourceKey.create(Registries.PARTICLE_TYPE, ResourceLocation.withDefaultNamespace("dust"))).get(), null, AbilityProperties.BASIC, AbilityStateManager.EMPTY, List.of()));
         }
     }
 }

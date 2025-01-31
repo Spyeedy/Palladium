@@ -1,16 +1,22 @@
 package net.threetag.palladium.power.ability;
 
+import com.google.gson.JsonPrimitive;
 import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import net.minecraft.core.Holder;
+import net.minecraft.core.HolderLookup;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.damagesource.DamageType;
+import net.threetag.palladium.documentation.CodecDocumentationBuilder;
+import net.threetag.palladium.documentation.Documented;
 import net.threetag.palladium.power.energybar.EnergyBarUsage;
 import net.threetag.palladium.util.CodecExtras;
 
 import java.util.List;
 
 public class DamageImmunityAbility extends Ability {
+
+    // TODO use HolderSet
 
     public static final MapCodec<DamageImmunityAbility> CODEC = RecordCodecBuilder.mapCodec(instance ->
             instance.group(
@@ -48,6 +54,15 @@ public class DamageImmunityAbility extends Ability {
         @Override
         public MapCodec<DamageImmunityAbility> codec() {
             return CODEC;
+        }
+
+        @Override
+        public void addDocumentation(CodecDocumentationBuilder<Ability, DamageImmunityAbility> builder, HolderLookup.Provider provider) {
+            builder.setName("Damage Immunity")
+                    .setDescription("Makes the entity immune against certain damage types.")
+                    .add("damage_types", Documented.typeListOrPrimitive(TYPE_DAMAGE_TYPE), "The damage types the entity is immune against.")
+                    .addToExampleJson("type", new JsonPrimitive("palladium:damage_immunity"))
+                    .addToExampleJson("damage_types", new JsonPrimitive("minecraft:cactus"));
         }
     }
 }

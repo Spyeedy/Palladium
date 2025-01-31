@@ -19,14 +19,21 @@ updateJSONURL = "https://squirrelcontrol.threetag.net/api/forge_updates/threetag
 [[dependencies.palladium]]
 modId = "neoforge"
 behaviour = "required"
-versionRange = "[21.1,)"
+versionRange = "[24.4,)"
+ordering = "NONE"
+side = "BOTH"
+
+[[dependencies.palladium]]
+modId = "architectury"
+behaviour = "required"
+versionRange = "[15.0,)"
 ordering = "NONE"
 side = "BOTH"
 
 [[dependencies.palladium]]
 modId = "minecraft"
 behaviour = "required"
-versionRange = "[1.21.1,)"
+versionRange = "[1.21.4,)"
 ordering = "NONE"
 side = "BOTH"
 

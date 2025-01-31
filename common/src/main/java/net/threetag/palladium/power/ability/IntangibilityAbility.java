@@ -3,16 +3,20 @@ package net.threetag.palladium.power.ability;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
+import net.minecraft.core.HolderLookup;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.tags.TagKey;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.state.BlockState;
+import net.threetag.palladium.documentation.CodecDocumentationBuilder;
 import net.threetag.palladium.power.energybar.EnergyBarUsage;
 import net.threetag.palladium.tag.PalladiumBlockTags;
 
 import java.util.List;
 
 public class IntangibilityAbility extends Ability {
+
+    // TODO
 
     public static final MapCodec<IntangibilityAbility> CODEC = RecordCodecBuilder.mapCodec(instance ->
             instance.group(
@@ -61,6 +65,15 @@ public class IntangibilityAbility extends Ability {
         @Override
         public MapCodec<IntangibilityAbility> codec() {
             return CODEC;
+        }
+
+        @Override
+        public void addDocumentation(CodecDocumentationBuilder<Ability, IntangibilityAbility> builder, HolderLookup.Provider provider) {
+            builder.setDescription("Makes the entity intangible to certain blocks.")
+                    .addOptional("vertical", TYPE_BOOLEAN, "Makes the player vertically intangible aswell.", false)
+                    .addOptional("whitelist", TYPE_RESOURCE_LOCATION, "Block tag which includes the block the player can phase through. Leave null for all blocks.")
+                    .addOptional("blacklist", TYPE_RESOURCE_LOCATION, "Block tag which includes the block the player can phase through. Leave null for all blocks.", PalladiumBlockTags.PREVENTS_INTANGIBILITY.location().toString())
+                    .setExampleObject(new IntangibilityAbility(false, null, PalladiumBlockTags.PREVENTS_INTANGIBILITY, AbilityProperties.BASIC, AbilityStateManager.EMPTY, List.of()));
         }
     }
 }

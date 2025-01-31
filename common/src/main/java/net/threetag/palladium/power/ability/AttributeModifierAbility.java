@@ -4,12 +4,16 @@ import com.mojang.serialization.Codec;
 import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import net.minecraft.core.Holder;
+import net.minecraft.core.HolderLookup;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.ai.attributes.Attribute;
 import net.minecraft.world.entity.ai.attributes.AttributeInstance;
 import net.minecraft.world.entity.ai.attributes.AttributeModifier;
+import net.minecraft.world.entity.ai.attributes.Attributes;
+import net.threetag.palladium.documentation.CodecDocumentationBuilder;
+import net.threetag.palladium.documentation.Documented;
 import net.threetag.palladium.power.energybar.EnergyBarUsage;
 
 import java.util.Comparator;
@@ -18,6 +22,7 @@ import java.util.stream.Collectors;
 
 public class AttributeModifierAbility extends Ability {
 
+    // TODO make "id" optional
     public static final MapCodec<AttributeModifierAbility> CODEC = RecordCodecBuilder.mapCodec(instance ->
             instance.group(
                     Attribute.CODEC.fieldOf("attribute").forGetter(ab -> ab.attribute),
@@ -88,6 +93,16 @@ public class AttributeModifierAbility extends Ability {
         @Override
         public MapCodec<AttributeModifierAbility> codec() {
             return CODEC;
+        }
+
+        @Override
+        public void addDocumentation(CodecDocumentationBuilder<Ability, AttributeModifierAbility> builder, HolderLookup.Provider provider) {
+            builder.setDescription("Adds an attribute modifier to the entity while the ability is enabled.")
+                    .add("attribute", TYPE_ATTRIBUTE, "Determines which attribute should be modified. Possible attributes: " + getAttributeList())
+                    .add("amount", TYPE_DOUBLE, "The amount for the giving attribute modifier")
+                    .add("operation", Documented.typeEnum(AttributeModifier.Operation.values()), "The operation for the attribute modifier (More: https://minecraft.gamepedia.com/Attribute#Operations)")
+                    .add("id", TYPE_STRING, "Sets the unique identifier for this attribute modifier.")
+                    .setExampleObject(new AttributeModifierAbility(Attributes.ARMOR, 1D, AttributeModifier.Operation.ADD_VALUE, ResourceLocation.fromNamespaceAndPath("example", "modifier_id"), AbilityProperties.BASIC, AbilityStateManager.EMPTY, List.of()));
         }
     }
 }

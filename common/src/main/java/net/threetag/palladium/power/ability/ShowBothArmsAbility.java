@@ -2,11 +2,16 @@ package net.threetag.palladium.power.ability;
 
 import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
+import net.minecraft.core.HolderLookup;
+import net.threetag.palladium.documentation.CodecDocumentationBuilder;
 import net.threetag.palladium.power.energybar.EnergyBarUsage;
 
+import java.util.Collections;
 import java.util.List;
 
-public class ShowBothArmsAbility extends Ability{
+public class ShowBothArmsAbility extends Ability {
+
+    // TODO
 
     public static final MapCodec<ShowBothArmsAbility> CODEC = RecordCodecBuilder.mapCodec(instance ->
             instance.group(propertiesCodec(), conditionsCodec(), energyBarUsagesCodec()
@@ -26,6 +31,12 @@ public class ShowBothArmsAbility extends Ability{
         @Override
         public MapCodec<ShowBothArmsAbility> codec() {
             return CODEC;
+        }
+
+        @Override
+        public void addDocumentation(CodecDocumentationBuilder<Ability, ShowBothArmsAbility> builder, HolderLookup.Provider provider) {
+            builder.setDescription("Enables the rendering of your off-hand in first-person.")
+                    .setExampleObject(new ShowBothArmsAbility(AbilityProperties.BASIC, AbilityStateManager.EMPTY, Collections.emptyList()));
         }
     }
 }

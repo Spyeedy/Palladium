@@ -11,7 +11,7 @@ dependencies {
     modApi "dev.architectury:architectury:${rootProject.architectury_version}"
 
     // MidnightLib
-    modImplementation include ("maven.modrinth:midnightlib:${rootProject.midnightlib_version}-fabric")
+    modImplementation ("maven.modrinth:midnightlib:${rootProject.midnightlib_version}-fabric")
 }
 
 sourceSets.main.resources {

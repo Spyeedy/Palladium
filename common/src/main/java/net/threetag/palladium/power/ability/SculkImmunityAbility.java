@@ -2,11 +2,16 @@ package net.threetag.palladium.power.ability;
 
 import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
+import net.minecraft.core.HolderLookup;
+import net.threetag.palladium.documentation.CodecDocumentationBuilder;
 import net.threetag.palladium.power.energybar.EnergyBarUsage;
 
+import java.util.Collections;
 import java.util.List;
 
 public class SculkImmunityAbility extends Ability {
+
+    // TODO
 
     public static final MapCodec<SculkImmunityAbility> CODEC = RecordCodecBuilder.mapCodec(instance ->
             instance.group(propertiesCodec(), conditionsCodec(), energyBarUsagesCodec()
@@ -26,6 +31,12 @@ public class SculkImmunityAbility extends Ability {
         @Override
         public MapCodec<SculkImmunityAbility> codec() {
             return CODEC;
+        }
+
+        @Override
+        public void addDocumentation(CodecDocumentationBuilder<Ability, SculkImmunityAbility> builder, HolderLookup.Provider provider) {
+            builder.setDescription("When enabled, the player will not cause any walk-related sculk vibrations anymore.")
+                    .setExampleObject(new SculkImmunityAbility(AbilityProperties.BASIC, AbilityStateManager.EMPTY, Collections.emptyList()));
         }
     }
 }

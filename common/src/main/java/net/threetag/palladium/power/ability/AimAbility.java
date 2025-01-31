@@ -2,13 +2,18 @@ package net.threetag.palladium.power.ability;
 
 import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
+import net.minecraft.core.HolderLookup;
 import net.minecraft.world.entity.LivingEntity;
+import net.threetag.palladium.documentation.CodecDocumentationBuilder;
+import net.threetag.palladium.documentation.Documented;
 import net.threetag.palladium.power.energybar.EnergyBarUsage;
 import net.threetag.palladium.entity.ArmSetting;
 
 import java.util.List;
 
 public class AimAbility extends Ability {
+
+    // TODO
 
     public static final MapCodec<AimAbility> CODEC = RecordCodecBuilder.mapCodec(instance ->
             instance.group(
@@ -53,6 +58,13 @@ public class AimAbility extends Ability {
         @Override
         public MapCodec<AimAbility> codec() {
             return CODEC;
+        }
+
+        @Override
+        public void addDocumentation(CodecDocumentationBuilder<Ability, AimAbility> builder, HolderLookup.Provider provider) {
+            builder.setDescription("Allows the player to aim their arms.")
+                    .addOptional("arm", Documented.typeEnum(ArmSetting.values()), "The arm(s) that should point.", ArmSetting.MAIN_ARM)
+                    .setExampleObject(new AimAbility(ArmSetting.MAIN_ARM, AbilityProperties.BASIC, AbilityStateManager.EMPTY, List.of()));
         }
     }
 }

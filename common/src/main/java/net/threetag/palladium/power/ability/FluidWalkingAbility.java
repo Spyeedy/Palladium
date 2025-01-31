@@ -2,17 +2,21 @@ package net.threetag.palladium.power.ability;
 
 import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
+import net.minecraft.core.HolderLookup;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.tags.FluidTags;
 import net.minecraft.tags.TagKey;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.level.material.Fluid;
 import net.minecraft.world.level.material.FluidState;
+import net.threetag.palladium.documentation.CodecDocumentationBuilder;
 import net.threetag.palladium.power.energybar.EnergyBarUsage;
 
 import java.util.List;
 
 public class FluidWalkingAbility extends Ability {
+
+    // TODO
 
     public static final MapCodec<FluidWalkingAbility> CODEC = RecordCodecBuilder.mapCodec(instance ->
             instance.group(
@@ -45,6 +49,13 @@ public class FluidWalkingAbility extends Ability {
         @Override
         public MapCodec<FluidWalkingAbility> codec() {
             return CODEC;
+        }
+
+        @Override
+        public void addDocumentation(CodecDocumentationBuilder<Ability, FluidWalkingAbility> builder, HolderLookup.Provider provider) {
+            builder.setDescription("Allows the entity to walk on a specific fluid.")
+                    .add("fluid_tag", TYPE_RESOURCE_LOCATION, "The fluid tag the entity can walk on.")
+                    .setExampleObject(new FluidWalkingAbility(FluidTags.WATER, AbilityProperties.BASIC, AbilityStateManager.EMPTY, List.of()));
         }
     }
 }

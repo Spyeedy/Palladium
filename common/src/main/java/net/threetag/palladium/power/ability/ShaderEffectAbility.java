@@ -7,9 +7,11 @@ import dev.architectury.utils.Env;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.minecraft.client.Minecraft;
+import net.minecraft.core.HolderLookup;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
+import net.threetag.palladium.documentation.CodecDocumentationBuilder;
 import net.threetag.palladium.power.energybar.EnergyBarUsage;
 
 import java.util.List;
@@ -81,6 +83,13 @@ public class ShaderEffectAbility extends Ability {
         @Override
         public MapCodec<ShaderEffectAbility> codec() {
             return CODEC;
+        }
+
+        @Override
+        public void addDocumentation(CodecDocumentationBuilder<Ability, ShaderEffectAbility> builder, HolderLookup.Provider provider) {
+            builder.setDescription("Applies a shader effect to the player.")
+                    .add("shader", TYPE_RESOURCE_LOCATION, "The ID of the shader that shall be applied.")
+                    .setExampleObject(new ShaderEffectAbility(ResourceLocation.withDefaultNamespace("shaders/post/creeper.json"), AbilityProperties.BASIC, AbilityStateManager.EMPTY, List.of()));
         }
     }
 }

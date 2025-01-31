@@ -4,9 +4,11 @@ import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import net.minecraft.commands.CommandSource;
 import net.minecraft.commands.CommandSourceStack;
+import net.minecraft.core.HolderLookup;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.entity.LivingEntity;
+import net.threetag.palladium.documentation.CodecDocumentationBuilder;
 import net.threetag.palladium.power.energybar.EnergyBarUsage;
 import net.threetag.palladium.util.ParsedCommands;
 
@@ -63,7 +65,7 @@ public class CommandAbility extends Ability implements CommandSource {
 
     public CommandSourceStack createCommandSourceStack(LivingEntity entity, ServerLevel serverLevel) {
         return new CommandSourceStack(this, entity.position(), entity.getRotationVector(),
-                serverLevel, 2, entity.getName().getString(), entity.getDisplayName(), entity.level().getServer(), entity)
+                serverLevel, 2, entity.getName().getString(), entity.getDisplayName(), Objects.requireNonNull(entity.level().getServer()), entity)
                 .withSuppressedOutput();
     }
 
@@ -92,6 +94,16 @@ public class CommandAbility extends Ability implements CommandSource {
         @Override
         public MapCodec<CommandAbility> codec() {
             return CODEC;
+        }
+
+        @Override
+        public void addDocumentation(CodecDocumentationBuilder<Ability, CommandAbility> builder, HolderLookup.Provider provider) {
+            builder
+                    .setDescription("An ability that executes commands.")
+                    .setExampleObject(new CommandAbility(new ParsedCommands("say Tick"), new ParsedCommands("say First Tick"), new ParsedCommands("say Last Tick"), AbilityProperties.BASIC, AbilityStateManager.EMPTY, List.of()))
+                    .addOptional("commands", TYPE_STRING_ARRAY, "The commands that are executed during each tick of the ability being active.")
+                    .addOptional("first_tick_commands", TYPE_STRING_ARRAY, "The commands that are executed upon activating the ability.")
+                    .addOptional("last_tick_commands", TYPE_STRING_ARRAY, "The commands that are executed on the last tick of the ability being active.");
         }
     }
 }

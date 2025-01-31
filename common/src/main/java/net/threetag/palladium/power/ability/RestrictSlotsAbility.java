@@ -2,11 +2,14 @@ package net.threetag.palladium.power.ability;
 
 import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
+import net.minecraft.core.HolderLookup;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
+import net.threetag.palladium.documentation.CodecDocumentationBuilder;
+import net.threetag.palladium.documentation.Documented;
 import net.threetag.palladium.entity.PlayerSlot;
 import net.threetag.palladium.power.energybar.EnergyBarUsage;
 import net.threetag.palladium.util.CodecExtras;
@@ -58,6 +61,7 @@ public class RestrictSlotsAbility extends Ability {
         }
     }
 
+    // TODO implement
     public static boolean isRestricted(LivingEntity entity, EquipmentSlot slot) {
         for (AbilityInstance<RestrictSlotsAbility> instance : AbilityUtil.getEnabledInstances(entity, AbilitySerializers.RESTRICT_SLOTS.get())) {
             for (PlayerSlot playerSlot : instance.getAbility().slots) {
@@ -87,6 +91,13 @@ public class RestrictSlotsAbility extends Ability {
         @Override
         public MapCodec<RestrictSlotsAbility> codec() {
             return CODEC;
+        }
+
+        @Override
+        public void addDocumentation(CodecDocumentationBuilder<Ability, RestrictSlotsAbility> builder, HolderLookup.Provider provider) {
+            builder.setDescription("Restricts the slots of the entity.")
+                    .add("slots", Documented.typePlayerSlots(), "The slots that should be restricted.")
+                    .setExampleObject(new RestrictSlotsAbility(List.of(PlayerSlot.get(EquipmentSlot.CHEST)), AbilityProperties.BASIC, AbilityStateManager.EMPTY, List.of()));
         }
     }
 }

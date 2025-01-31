@@ -2,9 +2,12 @@ package net.threetag.palladium.power.ability;
 
 import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
+import net.minecraft.core.HolderLookup;
 import net.minecraft.world.entity.LivingEntity;
+import net.threetag.palladium.documentation.CodecDocumentationBuilder;
 import net.threetag.palladium.power.energybar.EnergyBarUsage;
 
+import java.util.Collections;
 import java.util.List;
 
 public class SlowfallAbility extends Ability {
@@ -35,6 +38,12 @@ public class SlowfallAbility extends Ability {
         @Override
         public MapCodec<SlowfallAbility> codec() {
             return CODEC;
+        }
+
+        @Override
+        public void addDocumentation(CodecDocumentationBuilder<Ability, SlowfallAbility> builder, HolderLookup.Provider provider) {
+            builder.setDescription("Makes the entity fall slower.")
+                    .setExampleObject(new SlowfallAbility(AbilityProperties.BASIC, AbilityStateManager.EMPTY, Collections.emptyList()));
         }
     }
 }

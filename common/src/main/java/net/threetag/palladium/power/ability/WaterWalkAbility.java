@@ -2,8 +2,11 @@ package net.threetag.palladium.power.ability;
 
 import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
+import net.minecraft.core.HolderLookup;
+import net.threetag.palladium.documentation.CodecDocumentationBuilder;
 import net.threetag.palladium.power.energybar.EnergyBarUsage;
 
+import java.util.Collections;
 import java.util.List;
 
 public class WaterWalkAbility extends Ability {
@@ -26,6 +29,12 @@ public class WaterWalkAbility extends Ability {
         @Override
         public MapCodec<WaterWalkAbility> codec() {
             return CODEC;
+        }
+
+        @Override
+        public void addDocumentation(CodecDocumentationBuilder<Ability, WaterWalkAbility> builder, HolderLookup.Provider provider) {
+            builder.setDescription("Allows the player to walk on water.")
+                    .setExampleObject(new WaterWalkAbility(AbilityProperties.BASIC, AbilityStateManager.EMPTY, Collections.emptyList()));
         }
     }
 }

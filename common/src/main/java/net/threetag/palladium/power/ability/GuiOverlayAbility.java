@@ -11,17 +11,22 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.LayeredDraw;
 import net.minecraft.client.renderer.RenderType;
+import net.minecraft.core.HolderLookup;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.ExtraCodecs;
 import net.minecraft.world.phys.Vec3;
 import net.threetag.palladium.client.texture.TextureReference;
 import net.threetag.palladium.data.DataContext;
+import net.threetag.palladium.documentation.CodecDocumentationBuilder;
+import net.threetag.palladium.documentation.Documented;
 import net.threetag.palladium.power.energybar.EnergyBarUsage;
 import net.threetag.palladium.util.HudElementAlignment;
 
 import java.util.List;
 
 public class GuiOverlayAbility extends Ability {
+
+    // TODO
 
     public static final MapCodec<GuiOverlayAbility> CODEC = RecordCodecBuilder.mapCodec(instance ->
             instance.group(
@@ -128,6 +133,19 @@ public class GuiOverlayAbility extends Ability {
         @Override
         public MapCodec<GuiOverlayAbility> codec() {
             return CODEC;
+        }
+
+        @Override
+        public void addDocumentation(CodecDocumentationBuilder<Ability, GuiOverlayAbility> builder, HolderLookup.Provider provider) {
+            builder.setDescription("Renders an image on the screen.")
+                    .add("texture", TYPE_TEXTURE_REFERENCE, "The texture to render.")
+                    .addOptional("texture_width", TYPE_INT, "The width of the texture.", 256)
+                    .addOptional("texture_height", TYPE_INT, "The height of the texture.", 256)
+                    .addOptional("translate", TYPE_VECTOR3, "The translation of the texture.", Vec3.ZERO)
+                    .addOptional("rotate", TYPE_VECTOR3, "The rotation of the texture.", Vec3.ZERO)
+                    .addOptional("scale", TYPE_VECTOR3, "The scale of the texture.", new Vec3(1, 1, 1))
+                    .add("alignment", Documented.typeEnum(HudElementAlignment.values()), "Determines how the image is aligned on the screen.")
+                    .setExampleObject(new GuiOverlayAbility(TextureReference.normal(ResourceLocation.withDefaultNamespace("textures/gui/presets/isles.png")), 256, 256, Vec3.ZERO, Vec3.ZERO, new Vec3(1, 1, 1), HudElementAlignment.TOP_LEFT, AbilityProperties.BASIC, AbilityStateManager.EMPTY, List.of()));
         }
     }
 

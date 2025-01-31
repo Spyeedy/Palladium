@@ -6,10 +6,13 @@ import com.mojang.serialization.codecs.RecordCodecBuilder;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.minecraft.client.player.AbstractClientPlayer;
+import net.minecraft.core.HolderLookup;
 import net.minecraft.resources.ResourceLocation;
 import net.threetag.palladium.client.renderer.entity.PlayerSkinHandler;
 import net.threetag.palladium.client.texture.TextureReference;
 import net.threetag.palladium.data.DataContext;
+import net.threetag.palladium.documentation.CodecDocumentationBuilder;
+import net.threetag.palladium.documentation.Documented;
 import net.threetag.palladium.power.energybar.EnergyBarUsage;
 import net.threetag.palladium.entity.PlayerModelChangeType;
 import net.threetag.palladium.entity.SkinTypedValue;
@@ -17,6 +20,8 @@ import net.threetag.palladium.entity.SkinTypedValue;
 import java.util.List;
 
 public class SkinChangeAbility extends Ability {
+
+    // TODO
 
     public static final MapCodec<SkinChangeAbility> CODEC = RecordCodecBuilder.mapCodec(instance ->
             instance.group(
@@ -63,7 +68,7 @@ public class SkinChangeAbility extends Ability {
 
             if (!abilities.isEmpty()) {
                 var ability = abilities.getFirst();
-                return ((SkinChangeAbility) ability.getAbility()).modelChangeType;
+                return ability.getAbility().modelChangeType;
             }
 
             return PlayerSkinHandler.SkinProvider.super.getModelType(player);
@@ -75,6 +80,15 @@ public class SkinChangeAbility extends Ability {
         @Override
         public MapCodec<SkinChangeAbility> codec() {
             return CODEC;
+        }
+
+        @Override
+        public void addDocumentation(CodecDocumentationBuilder<Ability, SkinChangeAbility> builder, HolderLookup.Provider provider) {
+            builder.setDescription("An ability that changes the player's skin.")
+                    .add("texture", TYPE_TEXTURE_REFERENCE, "The texture that should be used for the player's skin.")
+                    .addOptional("model_type", Documented.typeEnum(PlayerModelChangeType.values()), "Model type for the player. 'default' = Wide-armed Steve model; 'slim' = Slim-armed Alex model; 'keep' = Does not change the player's default model", PlayerModelChangeType.KEEP)
+                    .addOptional("priority", TYPE_INT, "Priority for the skin (in case multiple skin changes are applied, the one with the highest priority will be used)", 50)
+                    .setExampleObject(new SkinChangeAbility(new SkinTypedValue<>(TextureReference.normal(ResourceLocation.withDefaultNamespace("textures/entity/zombie/drowned.png"))), PlayerModelChangeType.DEFAULT, 50, AbilityProperties.BASIC, AbilityStateManager.EMPTY, List.of()));
         }
     }
 

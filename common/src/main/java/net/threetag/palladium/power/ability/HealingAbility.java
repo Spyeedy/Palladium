@@ -2,10 +2,13 @@ package net.threetag.palladium.power.ability;
 
 import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
+import net.minecraft.core.HolderLookup;
 import net.minecraft.util.ExtraCodecs;
 import net.minecraft.world.entity.LivingEntity;
+import net.threetag.palladium.documentation.CodecDocumentationBuilder;
 import net.threetag.palladium.power.energybar.EnergyBarUsage;
 
+import java.util.Collections;
 import java.util.List;
 
 public class HealingAbility extends Ability {
@@ -45,6 +48,14 @@ public class HealingAbility extends Ability {
         @Override
         public MapCodec<HealingAbility> codec() {
             return CODEC;
+        }
+
+        @Override
+        public void addDocumentation(CodecDocumentationBuilder<Ability, HealingAbility> builder, HolderLookup.Provider provider) {
+            builder.setDescription("An ability that heals the entity every x ticks by y amount.")
+                    .add("frequency", TYPE_INT, "The frequency of healing (in ticks)")
+                    .add("amount", TYPE_FLOAT, "The amount of hearts for each healing")
+                    .setExampleObject(new HealingAbility(20, 1.0F, AbilityProperties.BASIC, AbilityStateManager.EMPTY, Collections.emptyList()));
         }
     }
 
