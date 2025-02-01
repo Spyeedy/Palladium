@@ -23,6 +23,7 @@ public interface Documented<T, R extends T> {
 
     JsonElement TYPE_ATTRIBUTE = new JsonPrimitive("Attribute ID");
     JsonElement TYPE_DAMAGE_TYPE = new JsonPrimitive("Damage Type ID");
+    JsonElement TYPE_DAMAGE_TYPE_ID_OR_TAG = new JsonPrimitive("Damage Type ID or Tag");
     JsonElement TYPE_PARTICLE_TYPE = new JsonPrimitive("Particle Type ID");
 
     CodecDocumentationBuilder<T, R> getDocumentation(HolderLookup.Provider provider);

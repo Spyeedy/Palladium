@@ -16,8 +16,6 @@ import java.util.List;
 
 public class DamageImmunityAbility extends Ability {
 
-    // TODO use HolderSet
-
     public static final MapCodec<DamageImmunityAbility> CODEC = RecordCodecBuilder.mapCodec(instance ->
             instance.group(
                     AdvancedHolderSet.codec(Registries.DAMAGE_TYPE).fieldOf("damage_types").forGetter(ab -> ab.damageTypes),
@@ -51,7 +49,7 @@ public class DamageImmunityAbility extends Ability {
         public void addDocumentation(CodecDocumentationBuilder<Ability, DamageImmunityAbility> builder, HolderLookup.Provider provider) {
             builder.setName("Damage Immunity")
                     .setDescription("Makes the entity immune against certain damage types.")
-                    .add("damage_types", Documented.typeListOrPrimitive(TYPE_DAMAGE_TYPE), "The damage types the entity is immune against.")
+                    .add("damage_types", Documented.typeListOrPrimitive(TYPE_DAMAGE_TYPE_ID_OR_TAG), "The damage types the entity is immune against.")
                     .addToExampleJson("type", new JsonPrimitive("palladium:damage_immunity"))
                     .addToExampleJson("damage_types", new JsonPrimitive("minecraft:cactus"));
         }
