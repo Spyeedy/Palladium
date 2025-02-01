@@ -5,6 +5,7 @@ import com.mojang.serialization.codecs.RecordCodecBuilder;
 import net.minecraft.core.HolderLookup;
 import net.threetag.palladium.documentation.CodecDocumentationBuilder;
 import net.threetag.palladium.power.energybar.EnergyBarUsage;
+import net.threetag.palladium.util.CodecExtras;
 
 import java.util.Collections;
 import java.util.List;
@@ -14,11 +15,16 @@ public class InvisibilityAbility extends Ability {
     // TODO add first person support
 
     public static final MapCodec<InvisibilityAbility> CODEC = RecordCodecBuilder.mapCodec(instance ->
-            instance.group(propertiesCodec(), conditionsCodec(), energyBarUsagesCodec()
+            instance.group(
+                    CodecExtras.NON_NEGATIVE_FLOAT.optionalFieldOf("mob_visibility_modifier", 0.0F).forGetter(a -> a.mobVisibilityModifier),
+                    propertiesCodec(), conditionsCodec(), energyBarUsagesCodec()
             ).apply(instance, InvisibilityAbility::new));
 
-    public InvisibilityAbility(AbilityProperties properties, AbilityStateManager conditions, List<EnergyBarUsage> energyBarUsages) {
+    public final float mobVisibilityModifier;
+
+    public InvisibilityAbility(float mobVisibilityModifier, AbilityProperties properties, AbilityStateManager conditions, List<EnergyBarUsage> energyBarUsages) {
         super(properties, conditions, energyBarUsages);
+        this.mobVisibilityModifier = mobVisibilityModifier;
     }
 
     @Override
@@ -36,7 +42,8 @@ public class InvisibilityAbility extends Ability {
         @Override
         public void addDocumentation(CodecDocumentationBuilder<Ability, InvisibilityAbility> builder, HolderLookup.Provider provider) {
             builder.setDescription("Makes the player invisible. Also makes mobs not see the player anymore.")
-                    .setExampleObject(new InvisibilityAbility(AbilityProperties.BASIC, AbilityStateManager.EMPTY, Collections.emptyList()));
+                    .addOptional("mob_visibility_modifier", TYPE_FLOAT, "A multiplier for how visible the player is to mobs. 0.0 means completely invisible, 1.0 means normal visibility.", 0)
+                    .setExampleObject(new InvisibilityAbility(0.5F, AbilityProperties.BASIC, AbilityStateManager.EMPTY, Collections.emptyList()));
         }
     }
 }
