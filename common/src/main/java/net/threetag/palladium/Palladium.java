@@ -14,6 +14,7 @@ import net.threetag.palladium.entity.number.EntityDependentNumberTypes;
 import net.threetag.palladium.network.DataSyncUtil;
 import net.threetag.palladium.network.PalladiumNetwork;
 import net.threetag.palladium.power.PowerEventHandler;
+import net.threetag.palladium.power.ability.AbilityEventHandler;
 import net.threetag.palladium.power.ability.AbilitySerializers;
 import net.threetag.palladium.power.ability.enabling.EnablingHandlerSerializers;
 import net.threetag.palladium.power.ability.keybind.KeyBindTypeSerializers;
@@ -47,6 +48,7 @@ public final class Palladium {
         DataSyncUtil.init();
         PalladiumNetwork.init();
         PowerEventHandler.init();
+        AbilityEventHandler.init();
         PalladiumEntityData.registerEvents();
 
         // Commands

@@ -3,14 +3,14 @@ package net.threetag.palladium.power.ability;
 import com.google.gson.JsonPrimitive;
 import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
-import net.minecraft.core.Holder;
 import net.minecraft.core.HolderLookup;
+import net.minecraft.core.registries.Registries;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.damagesource.DamageType;
 import net.threetag.palladium.documentation.CodecDocumentationBuilder;
 import net.threetag.palladium.documentation.Documented;
 import net.threetag.palladium.power.energybar.EnergyBarUsage;
-import net.threetag.palladium.util.CodecExtras;
+import net.threetag.palladium.util.AdvancedHolderSet;
 
 import java.util.List;
 
@@ -20,28 +20,19 @@ public class DamageImmunityAbility extends Ability {
 
     public static final MapCodec<DamageImmunityAbility> CODEC = RecordCodecBuilder.mapCodec(instance ->
             instance.group(
-                    CodecExtras.listOrPrimitive(DamageType.CODEC).fieldOf("damage_types").forGetter(ab -> ab.damageTypes),
+                    AdvancedHolderSet.codec(Registries.DAMAGE_TYPE).fieldOf("damage_types").forGetter(ab -> ab.damageTypes),
                     propertiesCodec(), conditionsCodec(), energyBarUsagesCodec()
             ).apply(instance, DamageImmunityAbility::new));
 
-    public final List<Holder<DamageType>> damageTypes;
+    public final AdvancedHolderSet<DamageType> damageTypes;
 
-    public DamageImmunityAbility(List<Holder<DamageType>> damageTypes, AbilityProperties properties, AbilityStateManager conditions, List<EnergyBarUsage> energyBarUsages) {
+    public DamageImmunityAbility(AdvancedHolderSet<DamageType> damageTypes, AbilityProperties properties, AbilityStateManager conditions, List<EnergyBarUsage> energyBarUsages) {
         super(properties, conditions, energyBarUsages);
         this.damageTypes = damageTypes;
     }
 
-    public static boolean isImmuneAgainst(AbilityInstance<DamageImmunityAbility> entry, DamageSource source) {
-        if (!entry.isEnabled()) {
-            return false;
-        }
-
-        for (Holder<DamageType> tag : entry.getAbility().damageTypes) {
-            if (tag.is(source.typeHolder())) {
-                return true;
-            }
-        }
-        return false;
+    public static boolean isImmuneAgainst(AbilityInstance<DamageImmunityAbility> ability, DamageSource source) {
+        return ability.isEnabled() && ability.getAbility().damageTypes.contains(source.typeHolder());
     }
 
     @Override
