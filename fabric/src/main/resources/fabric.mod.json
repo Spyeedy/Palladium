@@ -19,7 +19,7 @@
       "net.threetag.palladium.fabric.PalladiumFabric"
     ],
     "client": [
-      "net.threetag.palladium.fabric.client.PalladiumFabricClient"
+      "net.threetag.palladium.client.fabric.PalladiumFabricClient"
     ],
     "fabric-datagen": [
       "net.threetag.palladium.datagen.fabric.PalladiumDataGen"

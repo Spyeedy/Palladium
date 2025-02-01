@@ -1,4 +1,4 @@
-package net.threetag.palladium.fabric.client;
+package net.threetag.palladium.client.fabric;
 
 import net.fabricmc.api.ClientModInitializer;
 import net.threetag.palladium.client.PalladiumClient;

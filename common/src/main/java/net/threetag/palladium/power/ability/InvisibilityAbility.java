@@ -11,7 +11,7 @@ import java.util.List;
 
 public class InvisibilityAbility extends Ability {
 
-    // TODO
+    // TODO add first person support
 
     public static final MapCodec<InvisibilityAbility> CODEC = RecordCodecBuilder.mapCodec(instance ->
             instance.group(propertiesCodec(), conditionsCodec(), energyBarUsagesCodec()

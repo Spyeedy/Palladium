@@ -1,4 +1,4 @@
-package net.threetag.palladium.fabric.mixin;
+package net.threetag.palladium.mixin.client.fabric;
 
 import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.world.entity.Entity;

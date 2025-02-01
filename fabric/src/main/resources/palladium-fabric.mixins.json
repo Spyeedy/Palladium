@@ -1,17 +1,18 @@
 {
   "required": true,
-  "package": "net.threetag.palladium.fabric.mixin",
+  "package": "net.threetag.palladium.mixin",
   "compatibilityLevel": "JAVA_21",
   "minVersion": "0.8",
   "client": [
-    "ClientLevelMixin"
+    "client.fabric.ClientLevelMixin"
   ],
   "mixins": [
-    "EntityMixin",
-    "PackRepositoryMixin",
-    "PlayerListMixin",
-    "ServerEntityMixin",
-    "ServerLevelMixin"
+    "fabric.EntityMixin",
+    "fabric.LivingEntityMixin",
+    "fabric.PackRepositoryMixin",
+    "fabric.PlayerListMixin",
+    "fabric.ServerEntityMixin",
+    "fabric.ServerLevelMixin"
   ],
   "injectors": {
     "defaultRequire": 1
