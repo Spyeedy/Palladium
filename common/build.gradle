@@ -12,6 +12,9 @@ dependencies {
 
     // MidnightLib
     modImplementation ("maven.modrinth:midnightlib:${rootProject.midnightlib_version}-fabric")
+
+    // Player Animator
+    modImplementation("dev.kosmx.player-anim:player-animation-lib-fabric:${rootProject.player_animator_version}")
 }
 
 sourceSets.main.resources {

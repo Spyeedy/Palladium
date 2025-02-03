@@ -4,8 +4,9 @@
   "compatibilityLevel": "JAVA_21",
   "minVersion": "0.8",
   "client": [
-    "client.KeyboardInputMixin",
-    "client.EntityRenderDispatcherMixin"
+    "client.EntityRenderDispatcherMixin",
+    "client.HumanoidModelMixin",
+    "client.KeyboardInputMixin"
   ],
   "mixins": [
     "EntityMixin",

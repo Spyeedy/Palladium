@@ -31,9 +31,14 @@ subprojects {
             }
         }
 
-        // Maven
+        // Modrinth
         maven {
             url = 'https://api.modrinth.com/maven'
+        }
+
+        maven {
+            name = 'KosmX\'s maven'
+            url = 'https://maven.kosmx.dev/'
         }
     }
 

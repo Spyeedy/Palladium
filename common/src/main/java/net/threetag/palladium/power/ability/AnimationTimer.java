@@ -48,7 +48,7 @@ public class AnimationTimer {
     }
 
     public AnimationTimer decr() {
-        return this.incr(1);
+        return this.decr(1);
     }
 
     public int value() {
@@ -73,5 +73,9 @@ public class AnimationTimer {
 
     public float progress(float partialTick) {
         return (this.interpolated(partialTick) - this.setting.min()) / (this.setting.max() - this.setting.min());
+    }
+
+    public float eased(float partialTick) {
+        return this.setting.easing().apply(this.progress(partialTick));
     }
 }

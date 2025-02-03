@@ -56,7 +56,10 @@ dependencies {
     modApi "dev.architectury:architectury-fabric:${rootProject.architectury_version}"
 
     // MidnightLib
-    modImplementation include ("maven.modrinth:midnightlib:${rootProject.midnightlib_version}-fabric")
+    modImplementation include("maven.modrinth:midnightlib:${rootProject.midnightlib_version}-fabric")
+
+    // Player Animator
+    modImplementation include("dev.kosmx.player-anim:player-animation-lib-fabric:${rootProject.player_animator_version}")
 
     // Runtime Testing Mods
     modLocalRuntime("maven.modrinth:modmenu:${rootProject.modmenu_version}")

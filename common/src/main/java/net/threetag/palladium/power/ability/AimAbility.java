@@ -6,8 +6,8 @@ import net.minecraft.core.HolderLookup;
 import net.minecraft.world.entity.LivingEntity;
 import net.threetag.palladium.documentation.CodecDocumentationBuilder;
 import net.threetag.palladium.documentation.Documented;
-import net.threetag.palladium.power.energybar.EnergyBarUsage;
 import net.threetag.palladium.entity.ArmSetting;
+import net.threetag.palladium.power.energybar.EnergyBarUsage;
 
 import java.util.List;
 
@@ -28,19 +28,20 @@ public class AimAbility extends Ability {
         this.arm = arm;
     }
 
-    public static float getTimer(LivingEntity entity, float partialTicks, boolean right) {
-        float f = 0;
+    public static float[] getTimer(LivingEntity entity, float partialTicks) {
+        float[] f = new float[]{0F, 0F};
 
         for (AbilityInstance<AimAbility> instance : AbilityUtil.getInstances(entity, AbilitySerializers.AIM.get())) {
             var armType = instance.getAbility().arm;
-            var timer = instance.getAnimationTimer();
-            var progress = timer != null ? timer.progress(partialTicks) : 1F;
+            var progress = instance.getAnimationTimerValueEased(partialTicks);
 
             if (!armType.isNone()) {
-                if (armType.isRight(entity) && right) {
-                    f = Math.max(f, progress);
-                } else if (armType.isLeft(entity) && !right) {
-                    f = Math.max(f, progress);
+                if (armType.isRight(entity)) {
+                    f[1] = Math.max(f[1], progress);
+                }
+
+                if (armType.isLeft(entity)) {
+                    f[0] = Math.max(f[0], progress);
                 }
             }
         }

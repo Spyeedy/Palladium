@@ -6,7 +6,6 @@ import net.minecraft.core.component.DataComponentMap;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.LivingEntity;
-import net.threetag.palladium.power.PowerHolder;
 import net.threetag.palladium.power.energybar.EnergyBarUsage;
 import net.threetag.palladium.registry.PalladiumRegistries;
 import net.threetag.palladium.util.CodecExtras;
@@ -71,7 +70,7 @@ public abstract class Ability {
 
     }
 
-    public void animationTimerTick(LivingEntity entity, AbilityInstance<?> abilityInstance, PowerHolder holder, boolean enabled, AnimationTimer animationTimer) {
+    public void animationTimerTick(LivingEntity entity, AbilityInstance<?> abilityInstance, boolean enabled, AnimationTimer animationTimer) {
         animationTimer.tickAndUpdate(enabled);
     }
 

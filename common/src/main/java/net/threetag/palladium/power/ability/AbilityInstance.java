@@ -120,13 +120,21 @@ public class AbilityInstance<T extends Ability> implements DataComponentHolder {
         this.ability.getStateManager().getEnablingHandler().tick(entity, this, this.isEnabled());
 
         if (this.animationTimer != null) {
-            this.ability.animationTimerTick(entity, this, powerHolder, this.isEnabled(), this.animationTimer);
+            this.ability.animationTimerTick(entity, this, this.isEnabled(), this.animationTimer);
         }
     }
 
     @Nullable
     public AnimationTimer getAnimationTimer() {
         return this.animationTimer;
+    }
+
+    public float getAnimationTimerValue(float partialTick) {
+        return this.animationTimer != null ? this.animationTimer.progress(partialTick) : (this.isEnabled() ? 1F : 0F);
+    }
+
+    public float getAnimationTimerValueEased(float partialTick) {
+        return this.animationTimer != null ? this.animationTimer.eased(partialTick) : (this.isEnabled() ? 1F : 0F);
     }
 
     @Override

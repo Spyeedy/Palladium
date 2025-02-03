@@ -1,24 +1,41 @@
 package net.threetag.palladium.util;
 
+import com.mojang.serialization.Codec;
+import io.netty.buffer.ByteBuf;
 import it.unimi.dsi.fastutil.floats.Float2FloatFunction;
+import net.minecraft.network.codec.ByteBufCodecs;
+import net.minecraft.network.codec.StreamCodec;
+import net.minecraft.util.ByIdMap;
+import net.minecraft.util.StringRepresentable;
+import org.jetbrains.annotations.NotNull;
 
-public enum Easing {
+import java.util.function.IntFunction;
 
-    LINEAR(f -> f), CONSTANT(f -> 0f),
-    INSINE(Easing::inSine), OUTSINE(Easing::outSine), INOUTSINE(Easing::inOutSine),
-    INCUBIC(Easing::inCubic), OUTCUBIC(Easing::outCubic), INOUTCUBIC(Easing::inOutCubic),
-    INQUAD(Easing::inQuad), OUTQUAD(Easing::outQuad), INOUTQUAD(Easing::inOutQuad),
-    INQUART(Easing::inQuart), OUTQUART(Easing::outQuart), INOUTQUART(Easing::inOutQuart),
-    INQUINT(Easing::inQuint), OUTQUINT(Easing::outQuint), INOUTQUINT(Easing::inOutQuint),
-    INEXPO(Easing::inExpo), OUTEXPO(Easing::outExpo), INOUTEXPO(Easing::inOutExpo),
-    INCIRC(Easing::inCirc), OUTCIRC(Easing::outCirc), INOUTCIRC(Easing::inOutCirc),
-    INBACK(Easing::inBack), OUTBACK(Easing::outBack), INOUTBACK(Easing::inOutBack),
-    INELASTIC(Easing::inElastic), OUTELASTIC(Easing::outElastic), INOUTELASTIC(Easing::inOutElastic),
-    INBOUNCE(Easing::inBounce), OUTBOUNCE(Easing::outBack), INOUTBOUNCE(Easing::inOutBounce);
+public enum Easing implements StringRepresentable {
 
+    LINEAR(0, "linear", f -> f), CONSTANT(1, "constant", f -> 0f),
+    INSINE(2, "in_sine", Easing::inSine), OUTSINE(3, "out_sine", Easing::outSine), INOUTSINE(4, "in_out_sine", Easing::inOutSine),
+    INCUBIC(5, "in_cubic", Easing::inCubic), OUTCUBIC(6, "out_cubic", Easing::outCubic), INOUTCUBIC(7, "in_out_cubic", Easing::inOutCubic),
+    INQUAD(8, "in_quad", Easing::inQuad), OUTQUAD(9, "out_quad", Easing::outQuad), INOUTQUAD(10, "in_out_quad", Easing::inOutQuad),
+    INQUART(11, "in_quart", Easing::inQuart), OUTQUART(12, "out_quart", Easing::outQuart), INOUTQUART(13, "in_out_quart", Easing::inOutQuart),
+    INQUINT(14, "in_quint", Easing::inQuint), OUTQUINT(15, "out_quint", Easing::outQuint), INOUTQUINT(16, "in_out_quint", Easing::inOutQuint),
+    INEXPO(17, "in_expo", Easing::inExpo), OUTEXPO(18, "out_expo", Easing::outExpo), INOUTEXPO(19, "in_out_expo", Easing::inOutExpo),
+    INCIRC(20, "in_circ", Easing::inCirc), OUTCIRC(21, "out_circ", Easing::outCirc), INOUTCIRC(22, "in_out_circ", Easing::inOutCirc),
+    INBACK(23, "in_back", Easing::inBack), OUTBACK(24, "out_back", Easing::outBack), INOUTBACK(25, "in_out_back", Easing::inOutBack),
+    INELASTIC(26, "in_elastic", Easing::inElastic), OUTELASTIC(27, "out_elastic", Easing::outElastic), INOUTELASTIC(28, "in_out_elastic", Easing::inOutElastic),
+    INBOUNCE(29, "in_bounce", Easing::inBounce), OUTBOUNCE(30, "out_bounce", Easing::outBack), INOUTBOUNCE(31, "in_out_bounce", Easing::inOutBounce);
+
+    public static final IntFunction<Easing> BY_ID = ByIdMap.continuous(Easing::id, values(), ByIdMap.OutOfBoundsStrategy.ZERO);
+    public static final Codec<Easing> CODEC = StringRepresentable.fromEnum(Easing::values);
+    public static final StreamCodec<ByteBuf, Easing> STREAM_CODEC = ByteBufCodecs.idMapper(BY_ID, Easing::id);
+
+    private final int id;
+    private final String name;
     private final Float2FloatFunction function;
 
-    Easing(Float2FloatFunction function) {
+    Easing(int id, String name, Float2FloatFunction function) {
+        this.id = id;
+        this.name = name;
         this.function = function;
     }
 
@@ -26,20 +43,13 @@ public enum Easing {
         return this.function.apply(f);
     }
 
-    public static Easing fromString(String string) {
-        try {
-            if (string.equals("step")) return Easing.CONSTANT;
-            if (string.substring(0, 4).equalsIgnoreCase("EASE")) {
-                string = string.substring(4);
-            }
-            return Easing.valueOf(string.toUpperCase());
-        } catch (Exception exception) {
-            return Easing.LINEAR;
-        }
+    @Override
+    public @NotNull String getSerializedName() {
+        return this.name;
     }
 
-    public static float applyFromString(String string, float f) {
-        return fromString(string).apply(f);
+    public int id() {
+        return this.id;
     }
 
     private static final float c1 = 1.70158f;
