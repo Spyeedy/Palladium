@@ -14,7 +14,7 @@ import java.util.function.IntFunction;
 public enum PlayerModelChangeType implements StringRepresentable {
 
     KEEP(0, "keep"),
-    DEFAULT(1, "default"),
+    WIDE(1, "wide"),
     SLIM(2, "slim");
 
     public static final IntFunction<PlayerModelChangeType> BY_ID = ByIdMap.continuous(PlayerModelChangeType::id, values(), ByIdMap.OutOfBoundsStrategy.ZERO);
