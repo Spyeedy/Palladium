@@ -22,8 +22,6 @@ import java.util.List;
 
 public class SkinChangeAbility extends Ability {
 
-    // TODO
-
     public static final MapCodec<SkinChangeAbility> CODEC = RecordCodecBuilder.mapCodec(instance ->
             instance.group(
                     SkinTypedValue.codec(TextureReference.CODEC).fieldOf("texture").forGetter(ab -> ab.texture),

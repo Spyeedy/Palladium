@@ -38,7 +38,7 @@ public class JumpKeyBind extends KeyBindType {
     @Override
     @Environment(EnvType.CLIENT)
     public UiComponent getDisplayedKey(AbilityInstance<?> abilityInstance, ResourceLocation texture, boolean inside, int index) {
-        return new BlitUiComponent(texture, 34, 92, 10, 5, 256, 256);
+        return new BlitUiComponent(texture, 39, 92, 10, 5, 256, 256);
     }
 
     public static class Serializer extends KeyBindTypeSerializer<JumpKeyBind> {

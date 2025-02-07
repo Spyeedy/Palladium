@@ -11,5 +11,6 @@ public class KeyBindTypeSerializers {
 
     public static final RegistryHolder<AbilityKeyBind.Serializer> ABILITY_KEY = KEY_BIND_TYPES.register("ability_key", AbilityKeyBind.Serializer::new);
     public static final RegistryHolder<JumpKeyBind.Serializer> JUMP = KEY_BIND_TYPES.register("jump", JumpKeyBind.Serializer::new);
+    public static final RegistryHolder<MouseClickKeyBind.Serializer> MOUSE_CLICK = KEY_BIND_TYPES.register("mouse_click", MouseClickKeyBind.Serializer::new);
 
 }

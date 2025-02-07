@@ -174,7 +174,7 @@ public class KeyBindEnablingHandler extends EnablingHandler {
     }
 
     public void onKeyReleased(LivingEntity entity, AbilityInstance<?> abilityInstance) {
-        if (this.behaviour == Behaviour.HELD) {
+        if (this.behaviour == Behaviour.HELD && abilityInstance.isEnabled()) {
             if (entity.level().isClientSide) {
                 NetworkManager.sendToServer(new AbilityKeyChangePacket(abilityInstance.getReference(), false));
             } else {
