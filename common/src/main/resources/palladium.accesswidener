@@ -1,7 +1,17 @@
 accessWidener v2 named
 
+# Item
+accessible field net/minecraft/world/item/Item$Properties components Lnet/minecraft/core/component/DataComponentMap$Builder;
+
+# BlockBehaviour
+mutable field net/minecraft/world/level/block/state/BlockBehaviour$Properties CODEC Lcom/mojang/serialization/Codec;
+
 # Entity
 transitive-accessible method net/minecraft/world/entity/Entity isInRain ()Z
+
+# ReloadableResourceManager
+accessible field net/minecraft/server/packs/resources/ReloadableResourceManager listeners Ljava/util/List;
+mutable field net/minecraft/server/packs/resources/ReloadableResourceManager listeners Ljava/util/List;
 
 # Pack(s)
 accessible field net/minecraft/server/packs/repository/Pack location Lnet/minecraft/server/packs/PackLocationInfo;

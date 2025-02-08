@@ -1,6 +1,8 @@
 package net.threetag.palladium.registry;
 
+import com.mojang.serialization.MapCodec;
 import net.minecraft.core.Registry;
+import net.minecraft.world.item.Item;
 import net.threetag.palladium.client.icon.IconSerializer;
 import net.threetag.palladium.condition.ConditionSerializer;
 import net.threetag.palladium.core.registry.DataPackRegistryBuilder;
@@ -25,6 +27,7 @@ public class PalladiumRegistries {
     public static final Registry<ConditionSerializer<?>> CONDITION_SERIALIZER = RegistryBuilder.create(PalladiumRegistryKeys.CONDITION_SERIALIZER).build();
     public static final Registry<IconSerializer<?>> ICON_SERIALIZER = RegistryBuilder.create(PalladiumRegistryKeys.ICON_SERIALIZER).build();
     public static final Registry<EntityDependentNumberType<?>> ENTITY_DEPENDENT_NUMBER_TYPE = RegistryBuilder.create(PalladiumRegistryKeys.ENTITY_DEPENDENT_NUMBER_TYPE).build();
+    public static final Registry<MapCodec<? extends Item>> ITEM_TYPE = RegistryBuilder.create(PalladiumRegistryKeys.ITEM_TYPE).build();
 
     public static void init() {
         DataPackRegistryBuilder.create(PalladiumRegistryKeys.POWER, Power.CODEC, Power.CODEC);

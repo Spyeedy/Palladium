@@ -11,8 +11,12 @@
     "client.MinecraftMixin"
   ],
   "mixins": [
+    "BlockBehaviourMixin",
     "EntityMixin",
-    "LevelSummaryMixin"
+    "ItemMixin",
+    "LevelSummaryMixin",
+    "PackTypeMixin",
+    "SimpleJsonResourceReloadListenerMixin"
   ],
   "injectors": {
     "defaultRequire": 1

@@ -19,7 +19,7 @@ updateJSONURL = "https://squirrelcontrol.threetag.net/api/forge_updates/threetag
 [[dependencies.palladium]]
 modId = "neoforge"
 behaviour = "required"
-versionRange = "[24.4,)"
+versionRange = "[21.4,)"
 ordering = "NONE"
 side = "BOTH"
 
@@ -39,3 +39,6 @@ side = "BOTH"
 
 [[mixins]]
 config = "palladium.mixins.json"
+
+[[mixins]]
+config = "palladium-neoforge.mixins.json"

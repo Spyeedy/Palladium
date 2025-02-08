@@ -25,15 +25,13 @@ public class PackRepositoryMixin {
 
     @Inject(at = @At("RETURN"), method = "<init>")
     private void init(RepositorySource[] repositorySources, CallbackInfo ci) {
-        // TODO ?
-//        if (!AddonPackManager.IGNORE_INJECT) {
         for (RepositorySource source : repositorySources) {
             if (source instanceof BuiltInPackSource builtInPackSource) {
                 this.sources = new HashSet<>(sources);
                 this.sources.add(AddonPackManager.getWrappedPackFinder(builtInPackSource.packType));
+                return;
             }
         }
-//        }
     }
 
 }

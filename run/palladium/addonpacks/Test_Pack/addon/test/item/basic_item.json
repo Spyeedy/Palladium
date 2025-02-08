@@ -1,0 +1,17 @@
+{
+  "type": "minecraft:item",
+  "properties": {
+    "components": {
+      "minecraft:glider": {},
+      "minecraft:equippable": {
+        "slot": "head"
+      },
+      "minecraft:rarity": "epic"
+    },
+    "tab": {
+      "type": "add_after",
+      "tab": "minecraft:tools_and_utilities",
+      "target": "minecraft:elytra"
+    }
+  }
+}

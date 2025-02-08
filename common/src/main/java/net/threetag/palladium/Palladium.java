@@ -1,6 +1,7 @@
 package net.threetag.palladium;
 
 import dev.architectury.event.events.common.CommandRegistrationEvent;
+import dev.architectury.event.events.common.LifecycleEvent;
 import eu.midnightdust.lib.config.MidnightConfig;
 import net.minecraft.resources.ResourceLocation;
 import net.threetag.palladium.client.icon.IconSerializers;
@@ -11,6 +12,8 @@ import net.threetag.palladium.condition.ConditionSerializers;
 import net.threetag.palladium.entity.data.PalladiumEntityData;
 import net.threetag.palladium.entity.data.PalladiumEntityDataTypes;
 import net.threetag.palladium.entity.number.EntityDependentNumberTypes;
+import net.threetag.palladium.item.ItemTypes;
+import net.threetag.palladium.item.TabPlacement;
 import net.threetag.palladium.network.DataSyncUtil;
 import net.threetag.palladium.network.PalladiumNetwork;
 import net.threetag.palladium.power.PowerEventHandler;
@@ -33,6 +36,7 @@ public final class Palladium {
         MidnightConfig.init(MOD_ID, PalladiumConfig.class);
 
         PalladiumRegistries.init();
+        ItemTypes.init();
 
         PalladiumEntityDataTypes.DATA_TYPES.register();
         PalladiumDataComponents.DATA_COMPONENTS.register();
@@ -50,6 +54,7 @@ public final class Palladium {
         PowerEventHandler.init();
         AbilityEventHandler.init();
         PalladiumEntityData.registerEvents();
+        LifecycleEvent.SETUP.register(TabPlacement::loadTabs);
 
         // Commands
         SuperpowerCommand.register();

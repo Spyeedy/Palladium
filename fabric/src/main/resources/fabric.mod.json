@@ -21,6 +21,9 @@
     "client": [
       "net.threetag.palladium.client.fabric.PalladiumFabricClient"
     ],
+    "server": [
+      "net.threetag.palladium.fabric.PalladiumFabricServer"
+    ],
     "fabric-datagen": [
       "net.threetag.palladium.datagen.fabric.PalladiumDataGen"
     ]

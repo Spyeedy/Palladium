@@ -2,6 +2,7 @@ package net.threetag.palladium.neoforge;
 
 import dev.architectury.platform.Platform;
 import dev.architectury.utils.Env;
+import net.neoforged.bus.api.EventPriority;
 import net.neoforged.bus.api.IEventBus;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.ModContainer;
@@ -10,6 +11,7 @@ import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.fml.common.Mod;
 import net.neoforged.neoforge.data.event.GatherDataEvent;
 import net.neoforged.neoforge.event.AddPackFindersEvent;
+import net.neoforged.neoforge.registries.RegisterEvent;
 import net.threetag.palladium.Palladium;
 import net.threetag.palladium.addonpack.AddonPackManager;
 import net.threetag.palladium.client.PalladiumClient;
@@ -31,7 +33,14 @@ public final class PalladiumNeoForge {
 
     @SubscribeEvent
     public static void packFinder(AddPackFindersEvent e) {
-        e.addRepositorySource(AddonPackManager.getWrappedPackFinder(e.getPackType()));
+        if (e.getPackType() != AddonPackManager.getPackType()) {
+            e.addRepositorySource(AddonPackManager.getWrappedPackFinder(e.getPackType()));
+        }
+    }
+
+    @SubscribeEvent(priority = EventPriority.LOWEST)
+    public static void onRegister(RegisterEvent e) {
+        AddonPackManager.initiateFor(e.getRegistryKey(), (registry, id, object) -> e.register(registry, id, () -> object));
     }
 
     @SubscribeEvent

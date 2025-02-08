@@ -42,7 +42,7 @@ public class DeferredRegisterImpl {
 
         @Override
         public void register() {
-            this.register.register(PalladiumNeoForge.getModEventBus(this.modid).orElseThrow(() -> new IllegalStateException("Mod '" + this.modid + "' did not register event bus to PalladiumCore!")));
+            this.register.register(PalladiumNeoForge.getModEventBus(this.modid).orElseThrow(() -> new IllegalStateException("Mod '" + this.modid + "' did not register event bus to Palladium!")));
         }
 
         @SuppressWarnings("unchecked")
