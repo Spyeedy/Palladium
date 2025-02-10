@@ -1,4 +1,4 @@
-package net.threetag.palladium.mixin;
+package net.threetag.palladium.mixin.client.fabric;
 
 import net.minecraft.client.resources.model.ModelManager;
 import net.minecraft.server.packs.PackType;

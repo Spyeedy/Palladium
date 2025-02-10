@@ -55,7 +55,7 @@ dependencies {
     modImplementation include ("maven.modrinth:midnightlib:${rootProject.midnightlib_version}-neoforge")
 
     // Player Animator
-    modImplementation include("dev.kosmx.player-anim:player-animation-lib-forge:${rootProject.player_animator_version}")
+//    modImplementation include("dev.kosmx.player-anim:player-animation-lib-forge:${rootProject.player_animator_version}")
 
     common(project(path: ':common', configuration: 'namedElements')) { transitive false }
     shadowBundle(project(path: ':common', configuration: 'transformProductionNeoForge')) { transitive false }

@@ -16,7 +16,6 @@
     "ItemMixin",
     "LevelSummaryMixin",
     "PackTypeMixin",
-    "ReloadableResourceManagerMixin",
     "SimpleJsonResourceReloadListenerMixin"
   ],
   "injectors": {
