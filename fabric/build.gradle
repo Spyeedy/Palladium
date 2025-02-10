@@ -63,6 +63,7 @@ dependencies {
 
     // Runtime Testing Mods
     modLocalRuntime("maven.modrinth:modmenu:${rootProject.modmenu_version}")
+    modLocalRuntime("maven.modrinth:sodium:${rootProject.sodium_version}-fabric")
 
     common(project(path: ':common', configuration: 'namedElements')) { transitive false }
     shadowBundle project(path: ':common', configuration: 'transformProductionFabric')

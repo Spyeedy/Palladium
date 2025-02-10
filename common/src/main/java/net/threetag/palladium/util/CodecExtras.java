@@ -5,11 +5,14 @@ import com.mojang.serialization.Codec;
 import com.mojang.serialization.DataResult;
 import io.netty.buffer.ByteBuf;
 import net.minecraft.Util;
+import net.minecraft.client.model.geom.builders.UVPair;
 import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.crafting.Ingredient;
 import net.minecraft.world.phys.Vec2;
+import net.minecraft.world.phys.Vec3;
+import org.joml.Vector3f;
 
 import java.awt.*;
 import java.util.ArrayList;
@@ -47,6 +50,10 @@ public class CodecExtras {
 
     public static final Codec<Vec2> VEC2_CODEC = Codec.FLOAT.listOf().comapFlatMap((list) -> Util.fixedSize(list, 2).map((floats) -> new Vec2(floats.getFirst(), floats.get(1))), (vec2) -> List.of(vec2.x, vec2.y));
     public static final StreamCodec<ByteBuf, Vec2> VEC2_STREAM_CODEC = StreamCodec.composite(ByteBufCodecs.FLOAT, v -> v.x, ByteBufCodecs.FLOAT, v -> v.y, Vec2::new);
+
+    public static final Codec<Vector3f> VECTOR_3F_CODEC = Vec3.CODEC.xmap(Vec3::toVector3f, Vec3::new);
+
+    public static final Codec<UVPair> UV_PAIR_CODEC = Codec.FLOAT.listOf(2, 2).xmap(floats -> new UVPair(floats.getFirst(), floats.getLast()), uvPair -> List.of(uvPair.u(), uvPair.v()));
 
     public static <T> Codec<List<T>> listOrPrimitive(Codec<T> codec) {
         return Codec.either(codec.listOf(), codec).xmap(
