@@ -154,11 +154,13 @@ public class PalladiumAnimation {
 
     public static class PartAnimationData {
 
+        public static final float FULL_ROTATION = (float) Math.toRadians(360);
+
         private final Map<PartOperationTarget, List<PartOperation>> operations = new LinkedHashMap<>();
         private float multiplier = 1F;
 
         public PartAnimationData setXRot(float rot) {
-            this.operations.computeIfAbsent(PartOperationTarget.X_ROT, t -> new LinkedList<>()).add(new PartOperation(PartOperationType.SET, rot));
+            this.operations.computeIfAbsent(PartOperationTarget.X_ROT, t -> new LinkedList<>()).add(new PartOperation(PartOperationType.SET, rot % FULL_ROTATION));
             return this;
         }
 
@@ -167,7 +169,7 @@ public class PalladiumAnimation {
         }
 
         public PartAnimationData setYRot(float rot) {
-            this.operations.computeIfAbsent(PartOperationTarget.Y_ROT, t -> new LinkedList<>()).add(new PartOperation(PartOperationType.SET, rot));
+            this.operations.computeIfAbsent(PartOperationTarget.Y_ROT, t -> new LinkedList<>()).add(new PartOperation(PartOperationType.SET, rot % FULL_ROTATION));
             return this;
         }
 
@@ -176,7 +178,7 @@ public class PalladiumAnimation {
         }
 
         public PartAnimationData setZRot(float rot) {
-            this.operations.computeIfAbsent(PartOperationTarget.Z_ROT, t -> new LinkedList<>()).add(new PartOperation(PartOperationType.SET, rot));
+            this.operations.computeIfAbsent(PartOperationTarget.Z_ROT, t -> new LinkedList<>()).add(new PartOperation(PartOperationType.SET, rot % FULL_ROTATION));
             return this;
         }
 
@@ -185,7 +187,7 @@ public class PalladiumAnimation {
         }
 
         public PartAnimationData rotateX(float rot) {
-            this.operations.computeIfAbsent(PartOperationTarget.X_ROT, t -> new LinkedList<>()).add(new PartOperation(PartOperationType.ADD, rot));
+            this.operations.computeIfAbsent(PartOperationTarget.X_ROT, t -> new LinkedList<>()).add(new PartOperation(PartOperationType.ADD, rot % FULL_ROTATION));
             return this;
         }
 
@@ -194,7 +196,7 @@ public class PalladiumAnimation {
         }
 
         public PartAnimationData rotateY(float rot) {
-            this.operations.computeIfAbsent(PartOperationTarget.Y_ROT, t -> new LinkedList<>()).add(new PartOperation(PartOperationType.ADD, rot));
+            this.operations.computeIfAbsent(PartOperationTarget.Y_ROT, t -> new LinkedList<>()).add(new PartOperation(PartOperationType.ADD, rot % FULL_ROTATION));
             return this;
         }
 
@@ -203,7 +205,7 @@ public class PalladiumAnimation {
         }
 
         public PartAnimationData rotateZ(float rot) {
-            this.operations.computeIfAbsent(PartOperationTarget.Z_ROT, t -> new LinkedList<>()).add(new PartOperation(PartOperationType.ADD, rot));
+            this.operations.computeIfAbsent(PartOperationTarget.Z_ROT, t -> new LinkedList<>()).add(new PartOperation(PartOperationType.ADD, rot % FULL_ROTATION));
             return this;
         }
 

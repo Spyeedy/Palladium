@@ -52,6 +52,7 @@ public class PackRenderLayer extends AbstractPackRenderLayer {
             if (entityModel instanceof HumanoidModel entityHumanoidModel && parentModel instanceof HumanoidModel parentHumanoid) {
                 IPackRenderLayer.copyModelProperties(entity, parentHumanoid, entityHumanoidModel);
             } else {
+                entityModel.prepareMobModel(entity, limbSwing, limbSwingAmount, partialTicks);
                 entityModel.setupAnim(entity, limbSwing, limbSwingAmount, ageInTicks, netHeadYaw, headPitch);
             }
 
