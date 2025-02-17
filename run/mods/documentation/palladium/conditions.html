@@ -318,6 +318,10 @@ true</a>
 <a href="#palladium:wears_suit_set">
 wears_suit_set</a>
 </li>
+<li>
+<a href="#palladium:xor">
+xor</a>
+</li>
 </ul>
 <h3>
 KubeJS</h3>
@@ -3347,6 +3351,50 @@ false</td>
 Example:</h3>
 <pre class="json-snippet">
 {"type":"palladium:wears_suit_set","suit_set":"null"}</pre>
+</div>
+<hr>
+
+<div id="palladium:xor">
+<h2>
+xor</h2>
+<p>
+A condition that is active if one of the conditions in the array is active.<br><br>Applicable for: all</p>
+<h3>
+Settings:</h3>
+<table>
+<thead>
+<tr>
+<th>
+Setting</th>
+<th>
+Type</th>
+<th>
+Description</th>
+<th>
+Required</th>
+<th>
+Fallback Value</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>
+conditions</td>
+<td>
+Condition[]</td>
+<td>
+Array of conditions, one of which must be active</td>
+<td style="background-color: lightcoral">
+false</td>
+<td>
+0 conditions</td>
+</tr>
+</tbody>
+</table>
+<h3>
+Example:</h3>
+<pre class="json-snippet">
+{"type":"palladium:xor","conditions":[]}</pre>
 </div>
 <hr>
 

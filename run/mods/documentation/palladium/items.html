@@ -224,6 +224,10 @@ Crossbow</a>
 <a href="#palladium:flux_capacitor">
 Flux Capacitor (Energy Containing Item)</a>
 </li>
+<li>
+<a href="#palladium:projectile">
+Projectile Item</a>
+</li>
 </ul>
 </p>
 <hr>
@@ -1151,6 +1155,62 @@ true</td>
 Example:</h3>
 <pre class="json-snippet">
 {"type":"palladium:flux_capacitor","capacity":500000,"max_input":1000,"max_output":1000}</pre>
+</div>
+<hr>
+
+<div id="palladium:projectile">
+<h2>
+Projectile Item</h2>
+<p>
+If added to the item tag for a bow or a crossbow, this item type can used as ammunitation to shoot pre-defined projectiles.</p>
+<h3>
+Settings:</h3>
+<table>
+<thead>
+<tr>
+<th>
+Setting</th>
+<th>
+Type</th>
+<th>
+Description</th>
+<th>
+Required</th>
+<th>
+Fallback Value</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>
+entity_type</td>
+<td>
+ResourceLocation</td>
+<td>
+ID of the entity type that should be shot. Only projectile entity works, like arrows, snowballs, or Palladium's custom projectile</td>
+<td style="background-color: lightcoral">
+false</td>
+<td>
+palladium:custom_projectile</td>
+</tr>
+<tr>
+<td>
+entity_data</td>
+<td>
+CompoundTag</td>
+<td>
+Custom NBT data for the shot entity</td>
+<td style="background-color: lightcoral">
+false</td>
+<td>
+/</td>
+</tr>
+</tbody>
+</table>
+<h3>
+Example:</h3>
+<pre class="json-snippet">
+{"type":"palladium:projectile","entity_type":"palladium:custom_projectile","entity_data":{}}</pre>
 </div>
 <script>
 function syntaxHighlight(json) {
