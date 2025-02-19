@@ -4,6 +4,7 @@ import com.mojang.blaze3d.vertex.PoseStack;
 import net.minecraft.client.Camera;
 import net.minecraft.client.renderer.LevelRenderer;
 import net.minecraft.world.entity.LivingEntity;
+import net.threetag.palladium.client.renderer.WatcherRenderer;
 import net.threetag.palladium.power.ability.Abilities;
 import net.threetag.palladium.power.ability.AbilityClientEventHandler;
 import net.threetag.palladium.power.ability.AbilityUtil;
@@ -25,5 +26,10 @@ public class LevelRendererMixin {
                 }
             }
         }
+    }
+
+    @Inject(method = "renderSky", at = @At(value = "INVOKE", target = "Lcom/mojang/blaze3d/vertex/PoseStack;popPose()V", ordinal = 1, shift = At.Shift.AFTER), cancellable = true)
+    private void renderWatcher(PoseStack poseStack, Matrix4f projectionMatrix, float partialTick, Camera camera, boolean bl, Runnable skyFogSetup, CallbackInfo ci) {
+        WatcherRenderer.INSTANCE.render(poseStack, WatcherRenderer.INSTANCE.getVisibility(partialTick));
     }
 }
