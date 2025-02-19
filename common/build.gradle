@@ -15,6 +15,9 @@ dependencies {
 
     // Player Animator
     modImplementation("dev.kosmx.player-anim:player-animation-lib-fabric:${rootProject.player_animator_version}")
+
+    // Mocha
+    implementation ("team.unnamed:mocha:3.0.0")
 }
 
 sourceSets.main.resources {

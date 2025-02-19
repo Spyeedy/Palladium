@@ -11,7 +11,6 @@ public class AbilitySerializers {
 
     public static final RegistryHolder<DummyAbility.Serializer> DUMMY = ABILITIES.register("dummy", DummyAbility.Serializer::new);
     public static final RegistryHolder<CommandAbility.Serializer> COMMAND = ABILITIES.register("command", CommandAbility.Serializer::new);
-    public static final RegistryHolder<RenderLayerAbility.Serializer> RENDER_LAYER = ABILITIES.register("render_layer", RenderLayerAbility.Serializer::new);
 //    public static final RegistryHolder<RenderLayerByAccessorySlotAbility.Serializer> RENDER_LAYER_BY_ACCESSORY_SLOT = ABILITIES.register("render_layer_by_accessory_slot", RenderLayerByAccessorySlotAbility.Serializer::new);
     public static final RegistryHolder<ShrinkBodyOverlayAbility.Serializer> SHRINK_BODY_OVERLAY = ABILITIES.register("shrink_body_overlay", ShrinkBodyOverlayAbility.Serializer::new);
     public static final RegistryHolder<AttributeModifierAbility.Serializer> ATTRIBUTE_MODIFIER = ABILITIES.register("attribute_modifier", AttributeModifierAbility.Serializer::new);

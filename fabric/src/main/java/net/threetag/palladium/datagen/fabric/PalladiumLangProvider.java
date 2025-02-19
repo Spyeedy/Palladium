@@ -50,7 +50,6 @@ public abstract class PalladiumLangProvider extends ExtendedLangProvider {
             // Abilities
             this.addAbility(builder, AbilitySerializers.DUMMY, "Dummy");
             this.addAbility(builder, AbilitySerializers.COMMAND, "Command");
-            this.addAbility(builder, AbilitySerializers.RENDER_LAYER, "Render Layer");
 //            this.addAbility(builder, AbilitySerializers.RENDER_LAYER_BY_ACCESSORY_SLOT, "Render Layer");
             this.addAbility(builder, AbilitySerializers.SHRINK_BODY_OVERLAY, "Shrink Body Overlay");
             this.addAbility(builder, AbilitySerializers.ATTRIBUTE_MODIFIER, "Attribute Modifier");
@@ -126,7 +125,6 @@ public abstract class PalladiumLangProvider extends ExtendedLangProvider {
             // Abilities
             this.addAbility(builder, AbilitySerializers.DUMMY, "Dummy");
             this.addAbility(builder, AbilitySerializers.COMMAND, "Befehl");
-            this.addAbility(builder, AbilitySerializers.RENDER_LAYER, "Render Layer");
 //            this.addAbility(builder, AbilitySerializers.RENDER_LAYER_BY_ACCESSORY_SLOT, "Render Layer");
             this.addAbility(builder, AbilitySerializers.SHRINK_BODY_OVERLAY, "Körperoverlay schrumpfen");
             this.addAbility(builder, AbilitySerializers.ATTRIBUTE_MODIFIER, "Attributmodifikator");
@@ -198,7 +196,6 @@ public abstract class PalladiumLangProvider extends ExtendedLangProvider {
             // Abilities
             this.addAbility(builder, AbilitySerializers.DUMMY, "Dummy");
             this.addAbility(builder, AbilitySerializers.COMMAND, "Befehl");
-            this.addAbility(builder, AbilitySerializers.RENDER_LAYER, "Render Layer");
 //            this.addAbility(builder, AbilitySerializers.RENDER_LAYER_BY_ACCESSORY_SLOT, "Render Layer");
             this.addAbility(builder, AbilitySerializers.SHRINK_BODY_OVERLAY, "Körperoverlay schrumpfen");
             this.addAbility(builder, AbilitySerializers.ATTRIBUTE_MODIFIER, "Ättribütmodifikator");

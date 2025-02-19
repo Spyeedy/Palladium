@@ -40,6 +40,7 @@ accessible field net/minecraft/client/model/geom/ModelPart$Polygon normal Lorg/j
 accessible field net/minecraft/client/model/geom/ModelPart$Vertex pos Lorg/joml/Vector3f;
 accessible field net/minecraft/client/model/geom/ModelPart$Vertex u F
 accessible field net/minecraft/client/model/geom/ModelPart$Vertex v F
+accessible field net/minecraft/client/model/geom/ModelPart children Ljava/util/Map;
 
 # CubeListBuilder
 accessible field net/minecraft/client/model/geom/builders/CubeListBuilder cubes Ljava/util/List;

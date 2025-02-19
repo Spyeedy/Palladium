@@ -8,6 +8,7 @@
     "client.EntityRenderDispatcherMixin",
     "client.HumanoidModelMixin",
     "client.KeyboardInputMixin",
+    "client.LivingEntityRendererMixin",
     "client.MinecraftMixin"
   ],
   "mixins": [

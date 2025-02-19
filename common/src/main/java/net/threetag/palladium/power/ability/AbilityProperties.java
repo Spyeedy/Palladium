@@ -1,9 +1,11 @@
 package net.threetag.palladium.power.ability;
 
+import com.google.common.collect.ImmutableList;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.ComponentSerialization;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.phys.Vec2;
 import net.threetag.palladium.client.icon.Icon;
@@ -11,6 +13,8 @@ import net.threetag.palladium.client.icon.ItemIcon;
 import net.threetag.palladium.util.CodecExtras;
 import org.jetbrains.annotations.Nullable;
 
+import java.util.Collections;
+import java.util.List;
 import java.util.Optional;
 
 public class AbilityProperties {
@@ -26,9 +30,10 @@ public class AbilityProperties {
             Codec.BOOL.optionalFieldOf("hidden_in_bar", false).forGetter(AbilityProperties::isHiddenInBar),
             Codec.intRange(-1, Integer.MAX_VALUE).optionalFieldOf("list_index", -1).forGetter(AbilityProperties::getListIndex),
             CodecExtras.VEC2_CODEC.optionalFieldOf("gui_position").forGetter(p -> Optional.ofNullable(p.guiPosition)),
-            AnimationTimerSetting.CODEC.optionalFieldOf("animation_timer").forGetter(p -> Optional.ofNullable(p.animationTimerSetting))
-    ).apply(instance, (title, icon, desc, color, hiddenGui, hiddenBar, listIndex, guiPos, timer) ->
-            new AbilityProperties(title.orElse(null), icon, desc.orElse(null), color, hiddenGui, hiddenBar, listIndex, guiPos.orElse(null), timer.orElse(null))));
+            AnimationTimerSetting.CODEC.optionalFieldOf("animation_timer").forGetter(p -> Optional.ofNullable(p.animationTimerSetting)),
+            CodecExtras.listOrPrimitive(ResourceLocation.CODEC).optionalFieldOf("render_layer", Collections.emptyList()).forGetter(p -> p.renderLayers)
+    ).apply(instance, (title, icon, desc, color, hiddenGui, hiddenBar, listIndex, guiPos, timer, renderLayers) ->
+            new AbilityProperties(title.orElse(null), icon, desc.orElse(null), color, hiddenGui, hiddenBar, listIndex, guiPos.orElse(null), timer.orElse(null), renderLayers)));
 
     private Component title = null;
     private Icon icon = new ItemIcon(Items.BARRIER);
@@ -39,12 +44,13 @@ public class AbilityProperties {
     private int listIndex = -1;
     private Vec2 guiPosition = null;
     private AnimationTimerSetting animationTimerSetting = null;
+    private List<ResourceLocation> renderLayers = Collections.emptyList();
 
     private AbilityProperties() {
 
     }
 
-    private AbilityProperties(Component title, Icon icon, AbilityDescription description, AbilityColor color, boolean hiddenInGUI, boolean hiddenInBar, int listIndex, Vec2 guiPosition, AnimationTimerSetting animationTimerSetting) {
+    private AbilityProperties(Component title, Icon icon, AbilityDescription description, AbilityColor color, boolean hiddenInGUI, boolean hiddenInBar, int listIndex, Vec2 guiPosition, AnimationTimerSetting animationTimerSetting, List<ResourceLocation> renderLayers) {
         this.title = title;
         this.icon = icon;
         this.description = description;
@@ -54,6 +60,7 @@ public class AbilityProperties {
         this.listIndex = listIndex;
         this.guiPosition = guiPosition;
         this.animationTimerSetting = animationTimerSetting;
+        this.renderLayers = ImmutableList.copyOf(renderLayers);
     }
 
     public AbilityProperties title(Component title) {
@@ -99,6 +106,10 @@ public class AbilityProperties {
     public AbilityProperties animationTimer(AnimationTimerSetting setting) {
         this.animationTimerSetting = setting;
         return this;
+    }
+
+    public List<ResourceLocation> getRenderLayers() {
+        return this.renderLayers;
     }
 
     @Nullable

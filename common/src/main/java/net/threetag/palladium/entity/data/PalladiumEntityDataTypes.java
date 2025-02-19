@@ -1,6 +1,7 @@
 package net.threetag.palladium.entity.data;
 
 import net.threetag.palladium.Palladium;
+import net.threetag.palladium.client.renderer.entity.layer.EntityRenderLayers;
 import net.threetag.palladium.core.registry.DeferredRegister;
 import net.threetag.palladium.core.registry.RegistryHolder;
 import net.threetag.palladium.power.EntityPowerHandler;
@@ -16,5 +17,8 @@ public class PalladiumEntityDataTypes {
 
     public static final RegistryHolder<PalladiumLivingEntityDataType<EntitySuperpowerHandler>> SUPERPOWER_HANDLER =
             DATA_TYPES.register("superpower_handler", () -> EntitySuperpowerHandler::new);
+
+    public static final RegistryHolder<PalladiumLivingEntityDataType<EntityRenderLayers>> RENDER_LAYERS =
+            DATA_TYPES.register("render_layers", () -> EntityRenderLayers::create);
 
 }

@@ -1,0 +1,12 @@
+{
+  "name": "Render Layer Test",
+  "icon": "minecraft:bread",
+  "abilities": {
+    "render_layer": {
+      "type": "palladium:dummy",
+      "properties": {
+        "render_layer": "test:humanoid_test"
+      }
+    }
+  }
+}

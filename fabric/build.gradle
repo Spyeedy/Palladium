@@ -61,6 +61,9 @@ dependencies {
     // Player Animator
     modImplementation include("dev.kosmx.player-anim:player-animation-lib-fabric:${rootProject.player_animator_version}")
 
+    // Mocha
+    implementation include("team.unnamed:mocha:3.0.0")
+
     // Runtime Testing Mods
     modLocalRuntime("maven.modrinth:modmenu:${rootProject.modmenu_version}")
     modLocalRuntime("maven.modrinth:sodium:${rootProject.sodium_version}-fabric")

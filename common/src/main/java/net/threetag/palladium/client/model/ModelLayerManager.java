@@ -11,11 +11,14 @@ import net.minecraft.server.packs.resources.ResourceManager;
 import net.minecraft.server.packs.resources.SimpleJsonResourceReloadListener;
 import net.minecraft.util.profiling.ProfilerFiller;
 import net.threetag.palladium.Palladium;
+import net.threetag.palladium.addonpack.log.AddonPackLog;
 
 import java.util.HashMap;
 import java.util.Map;
 
 public class ModelLayerManager extends SimpleJsonResourceReloadListener<BedrockModel> {
+
+    public static final ResourceLocation ID = Palladium.id("entity_models");
 
     public ModelLayerManager() {
         super(BedrockModel.CODEC, FileToIdConverter.json("palladium/model_layers"));
@@ -42,6 +45,7 @@ public class ModelLayerManager extends SimpleJsonResourceReloadListener<BedrockM
 
         roots.putAll(jsonRoots);
         entityModels.roots = ImmutableMap.copyOf(roots);
+        AddonPackLog.info("Loaded {} model layers", object.size());
     }
 
     private static ModelLayerLocation mapPathToModelLayerLoc(ResourceLocation path) {

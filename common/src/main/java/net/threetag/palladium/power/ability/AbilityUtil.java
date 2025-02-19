@@ -70,27 +70,6 @@ public class AbilityUtil {
     }
 
     /**
-     * Returns all enabled render layer ability instances from the given entity
-     *
-     * @param entity Entity having abilities
-     * @return List of all enabled render layer ability instances
-     */
-    @NotNull
-    public static Collection<AbilityInstance<RenderLayerAbility>> getEnabledRenderLayerInstances(LivingEntity entity) {
-        List<AbilityInstance<RenderLayerAbility>> instances = new ArrayList<>();
-        var handler = PowerUtil.getPowerHandler(entity);
-        for (PowerHolder holder : handler.getPowerHolders().values()) {
-            Collection<AbilityInstance<?>> values = holder.getAbilities().values();
-            for (AbilityInstance<?> value : values) {
-                if (value.getAbility() instanceof RenderLayerProviderAbility && value.isEnabled()) {
-                    instances.add((AbilityInstance<RenderLayerAbility>) value);
-                }
-            }
-        }
-        return instances;
-    }
-
-    /**
      * Returns all enabled ability instances of the given ability type from the entity
      *
      * @param entity  Entity having abilities

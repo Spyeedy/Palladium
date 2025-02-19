@@ -46,7 +46,7 @@ public final class PalladiumNeoForge {
     @SubscribeEvent
     @OnlyIn(Dist.CLIENT)
     public static void onRegisterClientReloadListener(AddClientReloadListenersEvent e) {
-        var id = Palladium.id("entity_models");
+        var id = ModelLayerManager.ID;
         e.addListener(id, new ModelLayerManager());
         e.addDependency(e.getNameLookup().apply(Minecraft.getInstance().getModelManager()), id);
         e.addDependency(id, e.getNameLookup().apply(Minecraft.getInstance().getEntityRenderDispatcher().equipmentAssets));
