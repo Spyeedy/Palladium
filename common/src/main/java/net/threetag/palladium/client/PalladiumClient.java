@@ -7,6 +7,7 @@ import net.threetag.palladium.Palladium;
 import net.threetag.palladium.client.gui.screen.abilitybar.AbilityBar;
 import net.threetag.palladium.client.gui.screen.power.PowersScreen;
 import net.threetag.palladium.client.model.ModelLayerManager;
+import net.threetag.palladium.client.renderer.WatcherRenderer;
 import net.threetag.palladium.client.renderer.entity.layer.PackRenderLayerManager;
 import net.threetag.palladium.client.renderer.entity.layer.PackRenderLayerSerializers;
 import net.threetag.palladium.core.registry.GuiLayerRegistry;
@@ -28,6 +29,9 @@ public class PalladiumClient {
         // Render Layers
         ReloadListenerRegistry.register(PackType.CLIENT_RESOURCES, PackRenderLayerManager.INSTANCE, Palladium.id("render_layers"), Collections.singletonList(ModelLayerManager.ID));
         PackRenderLayerSerializers.init();
+
+        // Misc
+        WatcherRenderer.init();
     }
 
 }

@@ -9,7 +9,8 @@
     "client.HumanoidModelMixin",
     "client.KeyboardInputMixin",
     "client.LivingEntityRendererMixin",
-    "client.MinecraftMixin"
+    "client.MinecraftMixin",
+    "client.SkyRendererMixin"
   ],
   "mixins": [
     "BlockBehaviourMixin",
