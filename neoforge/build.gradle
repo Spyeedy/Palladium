@@ -58,7 +58,10 @@ dependencies {
 //    modImplementation include("dev.kosmx.player-anim:player-animation-lib-forge:${rootProject.player_animator_version}")
 
     // Mocha
-    implementation include("team.unnamed:mocha:3.0.0")
+    implementation include ("team.unnamed:mocha:3.0.0")
+    forgeRuntimeLibrary ("team.unnamed:mocha:3.0.0")
+    implementation include ("org.javassist:javassist:3.30.2-GA")
+    forgeRuntimeLibrary ("org.javassist:javassist:3.30.2-GA")
 
     common(project(path: ':common', configuration: 'namedElements')) { transitive false }
     shadowBundle(project(path: ':common', configuration: 'transformProductionNeoForge')) { transitive false }

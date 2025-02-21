@@ -63,6 +63,7 @@ dependencies {
 
     // Mocha
     implementation include("team.unnamed:mocha:3.0.0")
+    implementation include("org.javassist:javassist:3.30.2-GA")
 
     // Runtime Testing Mods
     modLocalRuntime("maven.modrinth:modmenu:${rootProject.modmenu_version}")

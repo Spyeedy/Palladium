@@ -43,7 +43,7 @@ public final class PalladiumNeoForge {
         }
     }
 
-    @SubscribeEvent
+    @SubscribeEvent(priority = EventPriority.HIGHEST)
     @OnlyIn(Dist.CLIENT)
     public static void onRegisterClientReloadListener(AddClientReloadListenersEvent e) {
         var id = ModelLayerManager.ID;

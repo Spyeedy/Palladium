@@ -1,20 +1,14 @@
 package net.threetag.palladium.client.renderer.entity.layer;
 
 import com.mojang.serialization.Codec;
-import net.minecraft.client.Minecraft;
+import dev.architectury.platform.Platform;
 import net.minecraft.client.model.Model;
 import net.minecraft.client.model.geom.ModelPart;
 import net.minecraft.util.StringRepresentable;
 import net.threetag.palladium.data.DataContext;
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 import team.unnamed.mocha.MochaEngine;
 import team.unnamed.mocha.runtime.MochaFunction;
-import team.unnamed.mocha.runtime.binding.Binding;
 import team.unnamed.mocha.runtime.binding.JavaObjectBinding;
-import team.unnamed.mocha.runtime.value.ObjectProperty;
-import team.unnamed.mocha.runtime.value.ObjectValue;
-import team.unnamed.mocha.runtime.value.Value;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -26,17 +20,17 @@ public class PackRenderLayerAnimations {
     public static final PackRenderLayerAnimations EMPTY = new PackRenderLayerAnimations(Map.of());
 
     private final Map<String, PartAnimation> animations;
-    private final MochaEngine<?> mocha;
 
     public PackRenderLayerAnimations(Map<String, PartAnimation> animations) {
         this.animations = animations;
 
-        if (this.animations.isEmpty()) {
-            this.mocha = null;
-        } else {
-            this.mocha = MochaEngine.createStandard();
-            this.mocha.scope().set("query", JavaObjectBinding.of(Query.class, Query.INSTANCE, null));
-            this.animations.values().forEach(partAnimation -> partAnimation.build(this.mocha));
+        if (!this.animations.isEmpty()) {
+            MochaEngine<?> mocha = MochaEngine.createStandard();
+
+            if (!Platform.isNeoForge()) {
+                mocha.scope().set("query", JavaObjectBinding.of(MoLangQuery.class, MoLangQuery.INSTANCE, null));
+                this.animations.values().forEach(partAnimation -> partAnimation.build(mocha));
+            }
         }
     }
 
@@ -46,8 +40,8 @@ public class PackRenderLayerAnimations {
                 var part = getPart(model, bone);
 
                 if (part != null) {
-                    Query.CONTEXT = context;
-                    animation.animate(part, this.mocha);
+                    MoLangQuery.CONTEXT = context;
+                    animation.animate(part);
                 }
             });
         }
@@ -110,8 +104,8 @@ public class PackRenderLayerAnimations {
             });
         }
 
-        public void animate(ModelPart part, MochaEngine<?> mocha) {
-            if (!this.animations.isEmpty()) {
+        public void animate(ModelPart part) {
+            if (this.animations != null && !this.animations.isEmpty()) {
                 this.animations.forEach((type, value) -> {
                     float val = (float) value.evaluate();
 
@@ -128,27 +122,6 @@ public class PackRenderLayerAnimations {
                     }
                 });
             }
-        }
-    }
-
-    @Binding("query")
-    public static class Query implements ObjectValue {
-
-        public static final Query INSTANCE = new Query();
-        public static DataContext CONTEXT = null;
-
-        @Binding("get_age")
-        public double get_age() {
-            var entity = CONTEXT.getEntity();
-            return entity != null ? entity.tickCount + Minecraft.getInstance().getDeltaTracker().getGameTimeDeltaTicks() : 0;
-        }
-
-        @Override
-        public @Nullable ObjectProperty getProperty(@NotNull String name) {
-            if (name.equals("get_age")) {
-                return ObjectProperty.property(Value.of(get_age()), false);
-            }
-            return null;
         }
     }
 
