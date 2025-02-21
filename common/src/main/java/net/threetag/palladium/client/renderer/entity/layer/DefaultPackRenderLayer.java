@@ -10,10 +10,12 @@ import net.minecraft.client.model.geom.ModelPart;
 import net.minecraft.client.renderer.LightTexture;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.RenderType;
+import net.minecraft.client.renderer.entity.player.PlayerRenderer;
 import net.minecraft.client.renderer.entity.state.LivingEntityRenderState;
 import net.minecraft.client.renderer.texture.OverlayTexture;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.ExtraCodecs;
+import net.minecraft.world.entity.HumanoidArm;
 import net.threetag.palladium.client.model.ModelLayerLocationCodec;
 import net.threetag.palladium.condition.PerspectiveAwareConditions;
 import net.threetag.palladium.data.DataContext;
@@ -71,33 +73,57 @@ public class DefaultPackRenderLayer extends PackRenderLayer {
     @Override
     public void render(DataContext context, PoseStack poseStack, MultiBufferSource bufferSource, EntityModel<LivingEntityRenderState> parentModel, LivingEntityRenderState state, int packedLight, float yRot, float xRot) {
         var entity = context.getEntity();
+        Model model = parentModel;
 
         if (this.modelLayers != null) {
             if (this.model == null) {
                 this.buildModels();
             }
 
-            var model = this.model.get(entity);
+            model = this.model.get(entity);
             model.allParts().forEach(ModelPart::resetPose);
             mimicModelParts(parentModel.root(), model.root());
-            this.animations.animate(model, context);
-
-            model.renderToBuffer(
-                    poseStack,
-                    this.renderType.createVertexConsumer(bufferSource, this.textures.get(entity), context.getItem().hasFoil()),
-                    LightTexture.lightCoordsWithEmission(packedLight, this.lightEmission),
-                    OverlayTexture.NO_OVERLAY
-            );
-        } else {
-            this.animations.animate(parentModel, context);
-
-            parentModel.renderToBuffer(
-                    poseStack,
-                    this.renderType.createVertexConsumer(bufferSource, this.textures.get(entity), context.getItem().hasFoil()),
-                    LightTexture.lightCoordsWithEmission(packedLight, this.lightEmission),
-                    OverlayTexture.NO_OVERLAY
-            );
         }
+
+        this.animations.animate(model, context);
+
+        model.renderToBuffer(
+                poseStack,
+                this.renderType.createVertexConsumer(bufferSource, this.textures.get(entity), context.getItem().hasFoil()),
+                LightTexture.lightCoordsWithEmission(packedLight, this.lightEmission),
+                OverlayTexture.NO_OVERLAY
+        );
+    }
+
+    @Override
+    public void renderArm(DataContext context, PoseStack poseStack, MultiBufferSource bufferSource, HumanoidArm arm, ModelPart armPart, PlayerRenderer playerRenderer, int packedLight) {
+        var entity = context.getEntity();
+        Model model = playerRenderer.getModel();
+
+        if (this.modelLayers != null) {
+            if (this.model == null) {
+                this.buildModels();
+            }
+
+            model = this.model.get(entity);
+            model.allParts().forEach(ModelPart::resetPose);
+            var partName = arm == HumanoidArm.RIGHT ? "rightArm" : "leftArm";
+
+            if (model.root().hasChild(partName)) {
+                var foundPart = model.root().getChild(partName);
+                foundPart.copyFrom(armPart);
+                armPart = foundPart;
+            }
+        }
+
+        this.animations.animate(model, context);
+
+        armPart.render(
+                poseStack,
+                this.renderType.createVertexConsumer(bufferSource, this.textures.get(entity), context.getItem().hasFoil()),
+                LightTexture.lightCoordsWithEmission(packedLight, this.lightEmission),
+                OverlayTexture.NO_OVERLAY
+        );
     }
 
     private static void mimicModelParts(ModelPart source, ModelPart target) {
