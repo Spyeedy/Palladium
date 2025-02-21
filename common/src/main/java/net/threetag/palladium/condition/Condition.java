@@ -20,15 +20,12 @@ public interface Condition {
 
     Codec<Condition> DIRECT_CODEC = PalladiumRegistries.CONDITION_SERIALIZER.byNameCodec().dispatch(Condition::getSerializer, ConditionSerializer::codec);
 
-    Codec<Condition> CODEC = Codec.either(DIRECT_CODEC, Codec.list(DIRECT_CODEC))
-            .xmap(either -> either.map(
-                            left -> left,
-                            AndCondition::new),
-                    condition -> condition instanceof AndCondition(
-                            List<Condition> conditions
-                    ) ? Either.right(conditions) : Either.left(condition));
+    Codec<Condition> FALSE_TRUE_WRAPPED_CODEC = Codec.either(DIRECT_CODEC, Codec.BOOL).xmap(either -> either.map(
+                    left -> left,
+                    right -> right ? TrueCondition.INSTANCE : FalseCondition.INSTANCE),
+            condition -> condition instanceof TrueCondition ? Either.right(true) : (condition instanceof FalseCondition ? Either.right(false) : Either.left(condition)));
 
-    Codec<List<Condition>> LIST_CODEC = CodecExtras.listOrPrimitive(CODEC);
+    Codec<List<Condition>> LIST_CODEC = CodecExtras.listOrPrimitive(FALSE_TRUE_WRAPPED_CODEC);
     StreamCodec<RegistryFriendlyByteBuf, Condition> STREAM_CODEC = ByteBufCodecs.registry(PalladiumRegistryKeys.CONDITION_SERIALIZER).dispatch(Condition::getSerializer, ConditionSerializer::streamCodec);
 
     boolean test(DataContext context);

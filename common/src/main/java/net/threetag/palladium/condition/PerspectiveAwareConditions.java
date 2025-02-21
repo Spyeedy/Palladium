@@ -3,6 +3,9 @@ package net.threetag.palladium.condition;
 import com.mojang.datafixers.util.Either;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
+import net.fabricmc.api.EnvType;
+import net.fabricmc.api.Environment;
+import net.minecraft.client.CameraType;
 import net.threetag.palladium.data.DataContext;
 
 import java.util.Collections;
@@ -48,7 +51,12 @@ public class PerspectiveAwareConditions {
 
     public enum Perspective {
         THIRD_PERSON,
-        FIRST_PERSON
+        FIRST_PERSON;
+
+        @Environment(EnvType.CLIENT)
+        public static Perspective fromCameraType(CameraType cameraType) {
+            return cameraType.isFirstPerson() ? FIRST_PERSON : THIRD_PERSON;
+        }
     }
 
 }

@@ -7,6 +7,7 @@ import net.threetag.palladium.Palladium;
 import net.threetag.palladium.client.gui.screen.abilitybar.AbilityBar;
 import net.threetag.palladium.client.gui.screen.power.PowersScreen;
 import net.threetag.palladium.client.model.ModelLayerManager;
+import net.threetag.palladium.client.particleemitter.ParticleEmitterManager;
 import net.threetag.palladium.client.renderer.WatcherRenderer;
 import net.threetag.palladium.client.renderer.entity.layer.PackRenderLayerManager;
 import net.threetag.palladium.client.renderer.entity.layer.PackRenderLayerSerializers;
@@ -31,6 +32,7 @@ public class PalladiumClient {
         PackRenderLayerSerializers.init();
 
         // Misc
+        ReloadListenerRegistry.register(PackType.CLIENT_RESOURCES, ParticleEmitterManager.INSTANCE, Palladium.id("particle_emitters"));
         WatcherRenderer.init();
     }
 

@@ -4,15 +4,20 @@ import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.player.AbstractClientPlayer;
 import net.minecraft.core.Holder;
 import net.minecraft.core.HolderLookup;
+import net.minecraft.core.particles.ParticleOptions;
 import net.minecraft.core.particles.ParticleType;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.NbtOps;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.LivingEntity;
+import net.threetag.palladium.client.particleemitter.ParticleEmitterManager;
 import net.threetag.palladium.documentation.CodecDocumentationBuilder;
 import net.threetag.palladium.documentation.Documented;
 import net.threetag.palladium.power.energybar.EnergyBarUsage;
@@ -26,7 +31,7 @@ public class ParticleAbility extends Ability {
             instance.group(
                     CodecExtras.listOrPrimitive(ResourceLocation.CODEC).fieldOf("emitter").forGetter(ab -> ab.particleEmitterIds),
                     BuiltInRegistries.PARTICLE_TYPE.holderByNameCodec().fieldOf("particle_type").forGetter(ab -> ab.particleTypeHolder),
-                    CompoundTag.CODEC.optionalFieldOf("options", null).forGetter(ab -> ab.options),
+                    CompoundTag.CODEC.optionalFieldOf("options", new CompoundTag()).forGetter(ab -> ab.options),
                     propertiesCodec(), conditionsCodec(), energyBarUsagesCodec()
             ).apply(instance, ParticleAbility::new));
 
@@ -55,18 +60,17 @@ public class ParticleAbility extends Ability {
 
     @Environment(EnvType.CLIENT)
     private void tickClient(LivingEntity entity) {
-        // TODO
-//        if (entity instanceof AbstractClientPlayer player) {
-//            ParticleType<?> type = this.particleTypeHolder.value();
-//            ParticleOptions options = type.codec().codec().parse(entity.registryAccess().createSerializationContext(NbtOps.INSTANCE), this.options).getOrThrow();
-//            for (ResourceLocation id : this.particleEmitterIds) {
-//                var emitter = ParticleEmitterManager.INSTANCE.get(id);
-//
-//                if (emitter != null) {
-//                    emitter.spawnParticles(entity.level(), player, options, Minecraft.getInstance().getTimer().getGameTimeDeltaTicks());
-//                }
-//            }
-//        }
+        if (entity instanceof AbstractClientPlayer player) {
+            ParticleType<?> type = this.particleTypeHolder.value();
+            ParticleOptions options = type.codec().codec().parse(entity.registryAccess().createSerializationContext(NbtOps.INSTANCE), this.options).getOrThrow();
+            for (ResourceLocation id : this.particleEmitterIds) {
+                var emitter = ParticleEmitterManager.INSTANCE.get(id);
+
+                if (emitter != null) {
+                    emitter.spawnParticles(entity.level(), player, options, Minecraft.getInstance().getDeltaTracker().getGameTimeDeltaTicks());
+                }
+            }
+        }
     }
 
     public static class Serializer extends AbilitySerializer<ParticleAbility> {

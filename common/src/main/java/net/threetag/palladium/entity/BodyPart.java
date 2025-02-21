@@ -13,12 +13,16 @@ import net.minecraft.client.model.PlayerModel;
 import net.minecraft.client.model.geom.ModelPart;
 import net.minecraft.client.player.AbstractClientPlayer;
 import net.minecraft.client.renderer.entity.EntityRenderer;
+import net.minecraft.client.renderer.entity.player.PlayerRenderer;
+import net.minecraft.client.renderer.entity.state.PlayerRenderState;
+import net.minecraft.core.Direction;
 import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.util.ByIdMap;
 import net.minecraft.util.StringRepresentable;
 import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.Pose;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.entity.player.PlayerModelPart;
 import net.minecraft.world.item.Item;
@@ -292,57 +296,37 @@ public enum BodyPart implements StringRepresentable {
             return poseStack.last().pose();
         }
 
-        EntityRenderer renderer = Minecraft.getInstance().getEntityRenderDispatcher().getRenderer(player);
-        // TODO
-//        if (renderer instanceof PlayerRendererInvoker invoker) {
-//            // Pehkui Compat
-//            float width = SizeUtil.getInstance().getModelWidthScale(player, partialTicks);
-//            float height = SizeUtil.getInstance().getModelHeightScale(player, partialTicks);
-//            poseStack.scale(width, height, width);
-//
-//            float f = Mth.rotLerp(partialTicks, player.yBodyRotO, player.yBodyRot);
-//            float g = Mth.rotLerp(partialTicks, player.yHeadRotO, player.yHeadRot);
-//            if (player.isPassenger() && player.getVehicle() instanceof LivingEntity livingEntity) {
-//                f = Mth.rotLerp(partialTicks, livingEntity.yBodyRotO, livingEntity.yBodyRot);
-//                float h = g - f;
-//                float i = Mth.wrapDegrees(h);
-//                if (i < -85.0F) {
-//                    i = -85.0F;
-//                }
-//
-//                if (i >= 85.0F) {
-//                    i = 85.0F;
-//                }
-//
-//                f = g - i;
-//                if (i * i > 2500.0F) {
-//                    f += i * 0.2F;
-//                }
-//            }
-//
-//            float scale = player.getScale();
-//            poseStack.scale(scale, scale, scale);
-//            invoker.invokeSetupRotations(player, poseStack, player.tickCount + partialTicks, f, partialTicks, scale);
-//            PalladiumAnimationRegistry.setupRotations((PlayerRenderer) renderer, player, poseStack, partialTicks);
-//            poseStack.scale(-1.0F, -1.0F, 1.0F);
-//            invoker.invokeScale(player, poseStack, partialTicks);
-//            poseStack.translate(0.0F, -1.501F, 0.0F);
-//            modelPart.translateAndRotate(poseStack);
-//            poseStack.translate(offset.x, offset.y, offset.z);
-//        }
+        EntityRenderer entityRenderer = Minecraft.getInstance().getEntityRenderDispatcher().getRenderer(player);
+
+        if (entityRenderer instanceof PlayerRenderer renderer && renderer.createRenderState(player, partialTicks) instanceof PlayerRenderState state) {
+            if (state.hasPose(Pose.SLEEPING)) {
+                Direction direction = state.bedOrientation;
+                if (direction != null) {
+                    float f = state.eyeHeight - 0.1F;
+                    poseStack.translate((float)(-direction.getStepX()) * f, 0.0F, (float)(-direction.getStepZ()) * f);
+                }
+            }
+
+            float g = state.scale;
+            poseStack.scale(g, g, g);
+            renderer.setupRotations(state, poseStack, state.bodyRot, g);
+            poseStack.scale(-1.0F, -1.0F, 1.0F);
+            renderer.scale(state, poseStack);
+            poseStack.translate(0.0F, -1.501F, 0.0F);
+            modelPart.translateAndRotate(poseStack);
+            poseStack.translate(offset.x, offset.y, offset.z);
+        }
 
         return poseStack.last().pose();
     }
 
     @Environment(EnvType.CLIENT)
     public static Matrix4f getTransformationMatrix(BodyPart part, Vector3f offset, AbstractClientPlayer player, float partialTicks) {
-        // TODO
-//        if (player instanceof PlayerModelCacheExtension ext) {
-//            return getTransformationMatrix(part, offset, ext.palladium$getCachedModel(), player, partialTicks);
-//        } else {
-//            return new Matrix4f();
-//        }
-        return new Matrix4f();
+        if (player instanceof PlayerModelCacheExtension ext) {
+            return getTransformationMatrix(part, offset, ext.palladium$getCachedModel(), player, partialTicks);
+        } else {
+            return new Matrix4f();
+        }
     }
 
     @Environment(EnvType.CLIENT)
@@ -354,13 +338,11 @@ public enum BodyPart implements StringRepresentable {
 
     @Environment(EnvType.CLIENT)
     public static Vec3 getInWorldPosition(BodyPart part, Vector3f offset, AbstractClientPlayer player, float partialTicks) {
-        // TODO
-//        if (player instanceof PlayerModelCacheExtension ext) {
-//            return getInWorldPosition(part, offset, ext.palladium$getCachedModel(), player, partialTicks);
-//        } else {
-//            return player.getPosition(partialTicks);
-//        }
-        return Vec3.ZERO;
+        if (player instanceof PlayerModelCacheExtension ext) {
+            return getInWorldPosition(part, offset, ext.palladium$getCachedModel(), player, partialTicks);
+        } else {
+            return player.getPosition(partialTicks);
+        }
     }
 
 }
