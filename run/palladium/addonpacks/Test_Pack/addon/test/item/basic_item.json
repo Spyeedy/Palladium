@@ -6,7 +6,10 @@
       "minecraft:equippable": {
         "slot": "head"
       },
-      "minecraft:rarity": "epic"
+      "minecraft:rarity": "epic",
+      "palladium:render_layers": {
+        "head": "test:overlay_test"
+      }
     },
     "tab": {
       "type": "add_after",

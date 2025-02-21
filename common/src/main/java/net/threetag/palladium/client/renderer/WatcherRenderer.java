@@ -10,6 +10,7 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.ARGB;
 import net.minecraft.util.Mth;
 import net.threetag.palladium.Palladium;
+import net.threetag.palladium.addonpack.log.AddonPackLog;
 import net.threetag.palladium.util.Easing;
 import org.joml.Matrix4f;
 
@@ -63,6 +64,7 @@ public class WatcherRenderer implements ClientTickEvent.ClientLevel {
             if (this.ticksTilOccurrence <= 0) {
                 if (Math.random() < OCCURRENCE_CHANCE) {
                     this.visibleTicks = OCCURRENCE_DURATION;
+                    AddonPackLog.info("Someone is watching...");
                 }
 
                 this.ticksTilOccurrence = (int) (OCCURRENCE_INTERVAL * (1 + Math.random()));
