@@ -7,11 +7,13 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.model.EntityModel;
 import net.minecraft.client.model.Model;
 import net.minecraft.client.model.geom.ModelPart;
+import net.minecraft.client.renderer.LightTexture;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.entity.state.LivingEntityRenderState;
 import net.minecraft.client.renderer.texture.OverlayTexture;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.util.ExtraCodecs;
 import net.threetag.palladium.client.model.ModelLayerLocationCodec;
 import net.threetag.palladium.condition.PerspectiveAwareConditions;
 import net.threetag.palladium.data.DataContext;
@@ -26,10 +28,11 @@ public class DefaultPackRenderLayer extends PackRenderLayer {
             SkinTypedValue.codec(ModelLayerLocationCodec.CODEC).optionalFieldOf("model_layer").forGetter(l -> Optional.ofNullable(l.modelLayers)),
             SkinTypedValue.codec(ResourceLocation.CODEC).fieldOf("texture").forGetter(l -> l.textures),
             RenderTypeFunctions.CODEC.optionalFieldOf("render_type", RenderTypeFunctions.SOLID).forGetter(l -> l.renderType),
+            ExtraCodecs.intRange(0, 15).optionalFieldOf("light_emission", 0).forGetter(l -> l.lightEmission),
             PackRenderLayerAnimations.CODEC.optionalFieldOf("animations", PackRenderLayerAnimations.EMPTY).forGetter(l -> l.animations),
             conditionsCodec()
-    ).apply(instance, (modelLayers, textures, renderType, animations, conditions) -> {
-        return new DefaultPackRenderLayer(modelLayers.orElse(null), textures, renderType, animations, conditions);
+    ).apply(instance, (modelLayers, textures, renderType, lightEmission, animations, conditions) -> {
+        return new DefaultPackRenderLayer(modelLayers.orElse(null), textures, renderType, lightEmission, animations, conditions);
     }));
 
     @Nullable
@@ -37,14 +40,16 @@ public class DefaultPackRenderLayer extends PackRenderLayer {
     private SkinTypedValue<Model.Simple> model;
     private final SkinTypedValue<ResourceLocation> textures;
     private final RenderTypeFunction renderType;
+    private final int lightEmission;
     private final PackRenderLayerAnimations animations;
 
-    public DefaultPackRenderLayer(@Nullable SkinTypedValue<ModelLayerLocationCodec> modelLayers, SkinTypedValue<ResourceLocation> textures, RenderTypeFunction renderType, PackRenderLayerAnimations animations, PerspectiveAwareConditions conditions) {
+    public DefaultPackRenderLayer(@Nullable SkinTypedValue<ModelLayerLocationCodec> modelLayers, SkinTypedValue<ResourceLocation> textures, RenderTypeFunction renderType, int lightEmission, PackRenderLayerAnimations animations, PerspectiveAwareConditions conditions) {
         super(conditions);
 
         this.modelLayers = modelLayers;
         this.textures = textures;
         this.renderType = renderType;
+        this.lightEmission = lightEmission;
         this.animations = animations;
     }
 
@@ -80,7 +85,7 @@ public class DefaultPackRenderLayer extends PackRenderLayer {
             model.renderToBuffer(
                     poseStack,
                     this.renderType.createVertexConsumer(bufferSource, this.textures.get(entity), context.getItem().hasFoil()),
-                    this.renderType.getPackedLight(packedLight),
+                    LightTexture.lightCoordsWithEmission(packedLight, this.lightEmission),
                     OverlayTexture.NO_OVERLAY
             );
         } else {
@@ -89,7 +94,7 @@ public class DefaultPackRenderLayer extends PackRenderLayer {
             parentModel.renderToBuffer(
                     poseStack,
                     this.renderType.createVertexConsumer(bufferSource, this.textures.get(entity), context.getItem().hasFoil()),
-                    this.renderType.getPackedLight(packedLight),
+                    LightTexture.lightCoordsWithEmission(packedLight, this.lightEmission),
                     OverlayTexture.NO_OVERLAY
             );
         }

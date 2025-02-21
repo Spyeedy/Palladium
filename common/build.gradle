@@ -18,6 +18,9 @@ dependencies {
 
     // Mocha
     implementation ("team.unnamed:mocha:3.0.0")
+
+    // Iris
+    modCompileOnly "maven.modrinth:iris:${rootProject.iris_version}-fabric"
 }
 
 sourceSets.main.resources {

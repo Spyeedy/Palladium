@@ -1,6 +1,8 @@
 package net.threetag.palladium.util;
 
+import dev.architectury.platform.Platform;
 import net.minecraft.world.entity.Entity;
+import net.threetag.palladium.compat.iris.IrisCompat;
 
 public class RenderUtil {
 
@@ -21,5 +23,9 @@ public class RenderUtil {
 
     public static float getCurrentlyRenderedPartialTick() {
         return CURRENTLY_RENDERED_PARTIAL_TICK;
+    }
+
+    public static boolean isIrisShaderActive() {
+        return Platform.isModLoaded("iris") && IrisCompat.isShaderPackActive();
     }
 }

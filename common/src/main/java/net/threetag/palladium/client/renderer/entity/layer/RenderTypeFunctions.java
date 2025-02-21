@@ -36,17 +36,4 @@ public class RenderTypeFunctions {
 
     public static final RenderTypeFunction SOLID = register(ResourceLocation.withDefaultNamespace("solid"), (source, texture, glint) -> ItemRenderer.getArmorFoilBuffer(source, RenderType.entityTranslucent(texture), glint));
     public static final RenderTypeFunction CUTOUT = register(ResourceLocation.withDefaultNamespace("cutout"), (source, texture, glint) -> ItemRenderer.getArmorFoilBuffer(source, RenderType.entityCutout(texture), glint));
-
-//        register(ResourceLocation.withDefaultNamespace("glow"), new RenderTypeFunction() {
-//            @Override
-//            public VertexConsumer createVertexConsumer(MultiBufferSource buffer, ResourceLocation texture, boolean withGlint) {
-//                return ItemRenderer.getArmorFoilBuffer(buffer, PalladiumRenderTypes.getGlowing(texture), false, withGlint);
-//            }
-//
-//            @Override
-//            public int getPackedLight(int packedLight) {
-//                return 15728640;
-//            }
-//        });
-
 }

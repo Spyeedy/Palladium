@@ -8,8 +8,4 @@ public interface RenderTypeFunction {
 
     VertexConsumer createVertexConsumer(MultiBufferSource buffer, ResourceLocation texture, boolean withGlint);
 
-    default int getPackedLight(int packedLight) {
-        return packedLight;
-    }
-
 }
