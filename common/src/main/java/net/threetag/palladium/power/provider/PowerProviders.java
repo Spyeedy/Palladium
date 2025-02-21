@@ -11,6 +11,7 @@ public class PowerProviders {
 
     // TODO
     public static final RegistryHolder<PowerProvider> SUPERPOWER = PROVIDERS.register("superpower", SuperpowerProvider::new);
+    public static final RegistryHolder<PowerProvider> ITEM = PROVIDERS.register("item", ItemPowerProvider::new);
 //    public static final Holder<PowerProvider> EQUIPMENT_SLOTS = PROVIDERS.register("equipment_slots", EquipmentSlotPowerProvider::new);
 //    public static final Holder<PowerProvider> SUIT_SETS = PROVIDERS.register("suit_sets", SuitSetPowerProvider::new);
 

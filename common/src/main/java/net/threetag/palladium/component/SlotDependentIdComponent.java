@@ -11,17 +11,17 @@ import net.threetag.palladium.util.Utils;
 
 import java.util.*;
 
-public record ItemRenderLayers(Map<PlayerSlot, List<ResourceLocation>> entries) {
+public record SlotDependentIdComponent(Map<PlayerSlot, List<ResourceLocation>> entries) {
 
-    public static final Codec<ItemRenderLayers> CODEC = Codec.unboundedMap(
+    public static final Codec<SlotDependentIdComponent> CODEC = Codec.unboundedMap(
             PlayerSlot.CODEC,
             CodecExtras.listOrPrimitive(ResourceLocation.CODEC)
-    ).xmap(ItemRenderLayers::new, ItemRenderLayers::entries);
-    public static final StreamCodec<FriendlyByteBuf, ItemRenderLayers> STREAM_CODEC = ByteBufCodecs.map(
+    ).xmap(SlotDependentIdComponent::new, SlotDependentIdComponent::entries);
+    public static final StreamCodec<FriendlyByteBuf, SlotDependentIdComponent> STREAM_CODEC = ByteBufCodecs.map(
             Utils::newMap,
             PlayerSlot.STREAM_CODEC,
             ByteBufCodecs.collection(Utils::newList, ResourceLocation.STREAM_CODEC)
-    ).map(ItemRenderLayers::new, ItemRenderLayers::entries);
+    ).map(SlotDependentIdComponent::new, SlotDependentIdComponent::entries);
 
     public List<ResourceLocation> forSlot(PlayerSlot slot) {
         List<ResourceLocation> list = new ArrayList<>();
@@ -40,8 +40,8 @@ public record ItemRenderLayers(Map<PlayerSlot, List<ResourceLocation>> entries) 
             return this;
         }
 
-        public ItemRenderLayers build() {
-            return new ItemRenderLayers(this.entries);
+        public SlotDependentIdComponent build() {
+            return new SlotDependentIdComponent(this.entries);
         }
     }
 

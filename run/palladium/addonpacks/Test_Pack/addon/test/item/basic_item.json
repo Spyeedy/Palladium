@@ -9,6 +9,9 @@
       "minecraft:rarity": "epic",
       "palladium:render_layers": {
         "head": "test:overlay_test"
+      },
+      "palladium:powers": {
+        "head": "test:aim_test"
       }
     },
     "tab": {

@@ -23,9 +23,14 @@ public class PalladiumDataComponents {
 
     public static class Items {
 
-        public static final RegistryHolder<DataComponentType<ItemRenderLayers>> RENDER_LAYERS = DATA_COMPONENTS.register("render_layers", () -> DataComponentType.<ItemRenderLayers>builder()
-                .persistent(ItemRenderLayers.CODEC)
-                .networkSynchronized(ItemRenderLayers.STREAM_CODEC)
+        public static final RegistryHolder<DataComponentType<SlotDependentIdComponent>> RENDER_LAYERS = DATA_COMPONENTS.register("render_layers", () -> DataComponentType.<SlotDependentIdComponent>builder()
+                .persistent(SlotDependentIdComponent.CODEC)
+                .networkSynchronized(SlotDependentIdComponent.STREAM_CODEC)
+                .build());
+
+        public static final RegistryHolder<DataComponentType<SlotDependentIdComponent>> POWERS = DATA_COMPONENTS.register("powers", () -> DataComponentType.<SlotDependentIdComponent>builder()
+                .persistent(SlotDependentIdComponent.CODEC)
+                .networkSynchronized(SlotDependentIdComponent.STREAM_CODEC)
                 .build());
 
         public static final RegistryHolder<DataComponentType<CustomData>> BOTTLE_ENTITY_DATA = DATA_COMPONENTS.register("bottle_entity_data", () -> DataComponentType.<CustomData>builder()
