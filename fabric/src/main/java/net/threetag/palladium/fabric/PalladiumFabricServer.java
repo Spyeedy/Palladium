@@ -8,6 +8,7 @@ public class PalladiumFabricServer implements DedicatedServerModInitializer {
 
     @Override
     public void onInitializeServer() {
+        AddonPackManager.initiateBasicLoaders();
         AddonPackManager.initiateAllLoaders(SimpleRegister::register);
     }
 }

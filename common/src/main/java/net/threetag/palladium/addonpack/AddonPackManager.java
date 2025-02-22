@@ -17,6 +17,7 @@ import net.minecraft.server.packs.repository.PackRepository;
 import net.minecraft.server.packs.repository.PackSource;
 import net.minecraft.server.packs.repository.RepositorySource;
 import net.minecraft.server.packs.resources.ReloadableResourceManager;
+import net.minecraft.server.packs.resources.SimpleJsonResourceReloadListener;
 import net.minecraft.util.Unit;
 import net.minecraft.world.item.crafting.RecipeManager;
 import net.minecraft.world.level.block.BlockTypes;
@@ -29,6 +30,7 @@ import org.jetbrains.annotations.NotNull;
 
 import java.nio.file.Path;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.*;
 import java.util.function.Function;
@@ -40,7 +42,8 @@ public class AddonPackManager {
     public static final PackSource PACK_SOURCE = PackSource.create(PackSource.decorateWithSource("pack.source.addonpack"), true);
     public static final String FOLDER = "palladium/addonpacks";
     public static final String LEGACY_FOLDER = "addonpacks";
-    private static final List<LoaderEntry<?>> LOADERS = new ArrayList<>();
+    private static final List<SimpleJsonResourceReloadListener<?>> BASIC_LOADERS = new ArrayList<>();
+    private static final List<LoaderEntry<?>> REGISTRY_LOADERS = new ArrayList<>();
 
     private final ReloadableResourceManager resourceManager;
     private final PackRepository packRepository;
@@ -55,8 +58,9 @@ public class AddonPackManager {
     }
 
     static {
-        registerLoader(Registries.BLOCK, callback -> new AddonObjectLoader<>(BlockTypes.CODEC.codec(), Registries.BLOCK, callback));
-        registerLoader(Registries.ITEM, callback -> new AddonObjectLoader<>(ItemTypes.CODEC, Registries.ITEM, callback));
+        registerLoader(new ToolMaterialLoader());
+        registerRegistryLoader(Registries.BLOCK, callback -> new AddonObjectLoader<>(BlockTypes.CODEC.codec(), Registries.BLOCK, callback));
+        registerRegistryLoader(Registries.ITEM, callback -> new AddonObjectLoader<>(ItemTypes.CODEC, Registries.ITEM, callback));
     }
 
     private AddonPackManager() {
@@ -71,27 +75,36 @@ public class AddonPackManager {
         this.resourceManager.registerReloadListener(getRecipeManager());
     }
 
-    public static <T> void registerLoader(ResourceKey<Registry<T>> registry, Function<RegisterCallback<T>, AddonObjectLoader<T>> registerCallback) {
-        LOADERS.add(new LoaderEntry<>(registry, registerCallback));
+    public static <T> void registerLoader(SimpleJsonResourceReloadListener<T> loader) {
+        BASIC_LOADERS.add(loader);
+    }
+
+    public static <T> void registerRegistryLoader(ResourceKey<Registry<T>> registry, Function<RegisterCallback<T>, AddonObjectLoader<T>> registerCallback) {
+        REGISTRY_LOADERS.add(new LoaderEntry<>(registry, registerCallback));
+    }
+
+    public static void initiateBasicLoaders() {
+        startLoading(BASIC_LOADERS);
+        waitForLoading();
     }
 
     public static <T> void initiateFor(ResourceKey<?> registry, RegisterCallback<T> callback) {
-        for (LoaderEntry<?> loader : LOADERS) {
+        for (LoaderEntry<?> loader : REGISTRY_LOADERS) {
             if (loader.registry.equals(registry)) {
-                startLoading(loader.get(callback));
+                startLoading(Collections.singletonList(loader.get(callback)));
                 waitForLoading();
             }
         }
     }
 
     public static void initiateAllLoaders(RegisterCallback<?> callback) {
-        for (LoaderEntry<?> loader : LOADERS) {
-            startLoading(loader.get(callback));
+        for (LoaderEntry<?> loader : REGISTRY_LOADERS) {
+            startLoading(Collections.singletonList(loader.get(callback)));
             waitForLoading();
         }
     }
 
-    private static <T> void startLoading(AddonObjectLoader<T> parser) {
+    private static void startLoading(List<SimpleJsonResourceReloadListener<?>> parser) {
         loaderFuture = getInstance().beginLoading(Util.backgroundExecutor(), parser);
     }
 
@@ -141,10 +154,12 @@ public class AddonPackManager {
         };
     }
 
-    public CompletableFuture<AddonPackManager> beginLoading(Executor backgroundExecutor, AddonObjectLoader<?> parser) {
+    public CompletableFuture<AddonPackManager> beginLoading(Executor backgroundExecutor, List<SimpleJsonResourceReloadListener<?>> parser) {
         this.resourceManager.listeners.clear();
         this.resourceManager.registerReloadListener(getRecipeManager());
-        this.resourceManager.registerReloadListener(parser);
+        for (SimpleJsonResourceReloadListener<?> listener : parser) {
+            this.resourceManager.registerReloadListener(listener);
+        }
         this.packRepository.reload();
         // Enable all packs
         this.packRepository.setSelected(this.packRepository.getAvailableIds());

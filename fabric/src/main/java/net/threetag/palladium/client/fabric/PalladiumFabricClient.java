@@ -9,6 +9,7 @@ public final class PalladiumFabricClient implements ClientModInitializer {
 
     @Override
     public void onInitializeClient() {
+        AddonPackManager.initiateBasicLoaders();
         AddonPackManager.initiateAllLoaders(SimpleRegister::register);
         PalladiumClient.init();
     }

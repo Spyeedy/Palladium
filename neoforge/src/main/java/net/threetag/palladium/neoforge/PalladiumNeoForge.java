@@ -3,6 +3,7 @@ package net.threetag.palladium.neoforge;
 import dev.architectury.platform.Platform;
 import dev.architectury.utils.Env;
 import net.minecraft.client.Minecraft;
+import net.minecraft.core.registries.Registries;
 import net.neoforged.api.distmarker.Dist;
 import net.neoforged.api.distmarker.OnlyIn;
 import net.neoforged.bus.api.EventPriority;
@@ -54,6 +55,10 @@ public final class PalladiumNeoForge {
 
     @SubscribeEvent(priority = EventPriority.LOWEST)
     public static void onRegister(RegisterEvent e) {
+        if (e.getRegistryKey() == Registries.ATTRIBUTE) {
+            AddonPackManager.initiateBasicLoaders();
+        }
+
         AddonPackManager.initiateFor(e.getRegistryKey(), (registry, id, object) -> e.register(registry, id, () -> object));
     }
 
