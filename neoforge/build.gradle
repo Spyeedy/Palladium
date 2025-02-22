@@ -57,6 +57,14 @@ dependencies {
     // Player Animator
 //    modImplementation include("dev.kosmx.player-anim:player-animation-lib-forge:${rootProject.player_animator_version}")
 
+    // Accessories
+    modImplementation("io.wispforest:accessories-neoforge:${rootProject.accessories_version}")
+    forgeRuntimeLibrary("blue.endless:jankson:1.2.2")
+    forgeRuntimeLibrary("io.wispforest:endec:0.1.9")
+    forgeRuntimeLibrary("io.wispforest.endec:gson:0.1.5")
+    forgeRuntimeLibrary("io.wispforest.endec:jankson:0.1.6")
+    forgeRuntimeLibrary("io.wispforest.endec:netty:0.1.5")
+
     // Mocha
     implementation include ("team.unnamed:mocha:3.0.0")
     forgeRuntimeLibrary ("team.unnamed:mocha:3.0.0")

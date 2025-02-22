@@ -7,6 +7,7 @@ import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
+import net.threetag.palladium.entity.PlayerSlot;
 import net.threetag.palladium.power.Power;
 import net.threetag.palladium.power.PowerHolder;
 import net.threetag.palladium.power.ability.AbilityInstance;
@@ -31,8 +32,12 @@ public class DataContext {
         return create().with(DataContextType.ENTITY, entity).with(DataContextType.LEVEL, entity.level());
     }
 
-    public static DataContext forArmorInSlot(LivingEntity entity, EquipmentSlot slot) {
-        return forEntity(entity).with(DataContextType.SLOT, slot).with(DataContextType.ITEM, entity.getItemBySlot(slot));
+    public static DataContext forItemInEquipmentSlot(LivingEntity entity, EquipmentSlot slot) {
+        return forEntity(entity).with(DataContextType.SLOT, PlayerSlot.get(slot)).with(DataContextType.ITEM, entity.getItemBySlot(slot));
+    }
+
+    public static DataContext forItemInSlot(LivingEntity entity, PlayerSlot slot, ItemStack stack) {
+        return forItem(entity, stack).with(DataContextType.SLOT, slot);
     }
 
     public static DataContext forItem(Entity entity, ItemStack stack) {
@@ -110,7 +115,7 @@ public class DataContext {
     }
 
     @Nullable
-    public EquipmentSlot getSlot() {
+    public PlayerSlot getSlot() {
         return this.get(DataContextType.SLOT);
     }
 

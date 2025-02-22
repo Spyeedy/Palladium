@@ -61,6 +61,9 @@ dependencies {
     // Player Animator
     modImplementation include("dev.kosmx.player-anim:player-animation-lib-fabric:${rootProject.player_animator_version}")
 
+    // Accessories
+    modImplementation("io.wispforest:accessories-fabric:${rootProject.accessories_version}")
+
     // Mocha
     implementation include("team.unnamed:mocha:3.0.0")
     implementation include("org.javassist:javassist:3.30.2-GA")

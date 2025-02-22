@@ -2,7 +2,6 @@ package net.threetag.palladium.client.renderer.entity.layer;
 
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.Entity;
-import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.LivingEntity;
 import net.threetag.palladium.component.PalladiumDataComponents;
 import net.threetag.palladium.data.DataContext;
@@ -47,15 +46,18 @@ public class PackRenderLayerProvider {
         // Items
         register((entity, lookup, layers) -> {
             if (entity instanceof LivingEntity living) {
-                for (EquipmentSlot slot : EquipmentSlot.values()) {
-                    var stack = living.getItemBySlot(slot);
-                    if (stack.has(PalladiumDataComponents.Items.RENDER_LAYERS.get())) {
-                        var itemLayers = stack.get(PalladiumDataComponents.Items.RENDER_LAYERS.get());
+                for (PlayerSlot slot : PlayerSlot.values(living.level())) {
+                    for (int i = 0; i < slot.getSize(living); i++) {
+                        var stack = slot.getItem(living, i);
 
-                        for (ResourceLocation layerId : Objects.requireNonNull(itemLayers).forSlot(PlayerSlot.get(slot))) {
-                            var layer = lookup.get(layerId);
-                            if (layer != null) {
-                                layers.accept(DataContext.forArmorInSlot(living, slot), layer);
+                        if (stack.has(PalladiumDataComponents.Items.RENDER_LAYERS.get())) {
+                            var itemLayers = stack.get(PalladiumDataComponents.Items.RENDER_LAYERS.get());
+
+                            for (ResourceLocation layerId : Objects.requireNonNull(itemLayers).forSlot(slot)) {
+                                var layer = lookup.get(layerId);
+                                if (layer != null) {
+                                    layers.accept(DataContext.forItemInSlot(living, slot, stack), layer);
+                                }
                             }
                         }
                     }

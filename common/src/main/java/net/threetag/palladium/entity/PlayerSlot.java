@@ -6,6 +6,8 @@ import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.level.Level;
+import net.threetag.palladium.compat.accessories.AccessoriesCompat;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -19,9 +21,15 @@ public abstract class PlayerSlot {
     private static final Map<EquipmentSlot, PlayerSlot> EQUIPMENT_SLOTS = new HashMap<>();
     private static final Map<String, PlayerSlot> SLOTS = new HashMap<>();
 
+    static {
+        for (EquipmentSlot slot : EquipmentSlot.values()) {
+            get(slot);
+        }
+    }
+
     @NotNull
     public static PlayerSlot get(EquipmentSlot slot) {
-        return Objects.requireNonNull(get(slot.getName()));
+        return Objects.requireNonNull(EQUIPMENT_SLOTS.computeIfAbsent(slot, equipmentSlot -> SLOTS.computeIfAbsent(equipmentSlot.getName(), s -> new EquipmentPlayerSlot(equipmentSlot))));
     }
 
     @Nullable
@@ -32,16 +40,33 @@ public abstract class PlayerSlot {
 
         for (EquipmentSlot slot : EquipmentSlot.values()) {
             if (slot.getName().equalsIgnoreCase(name)) {
-                return EQUIPMENT_SLOTS.computeIfAbsent(slot, EquipmentPlayerSlot::new);
+                return EQUIPMENT_SLOTS.computeIfAbsent(slot, equipmentSlot -> SLOTS.computeIfAbsent(equipmentSlot.getName(), s -> new EquipmentPlayerSlot(equipmentSlot)));
             }
+        }
+
+        if (name.startsWith("accessories:")) {
+            return SLOTS.computeIfAbsent(name, s -> new AccessoriesSlot(s.substring("accessories:".length())));
         }
 
         return null;
     }
 
+    public static Collection<PlayerSlot> values(Level level) {
+        for (String slot : AccessoriesCompat.INSTANCE.getSlots(level)) {
+            var slotName = slot.startsWith("accessories:") ? slot : "accessories:" + slot;
+            get(slotName);
+        }
+
+        return SLOTS.values();
+    }
+
     public abstract List<ItemStack> getItems(LivingEntity entity);
 
-    public abstract void setItem(LivingEntity entity, ItemStack stack);
+    public abstract ItemStack getItem(LivingEntity entity, int index);
+
+    public abstract void setItem(LivingEntity entity, int index, ItemStack stack);
+
+    public abstract int getSize(LivingEntity entity);
 
     public abstract void clear(LivingEntity entity);
 
@@ -66,8 +91,29 @@ public abstract class PlayerSlot {
         }
 
         @Override
-        public void setItem(LivingEntity entity, ItemStack stack) {
+        public ItemStack getItem(LivingEntity entity, int index) {
+            int i = 0;
+            for (ItemStack slot : entity.getAllSlots()) {
+                if (i == index) {
+                    return slot;
+                }
+                i++;
+            }
+            return ItemStack.EMPTY;
+        }
+
+        @Override
+        public void setItem(LivingEntity entity, int index, ItemStack stack) {
             // unsupported
+        }
+
+        @Override
+        public int getSize(LivingEntity entity) {
+            int i = 0;
+            for (ItemStack slot : entity.getAllSlots()) {
+                i++;
+            }
+            return i;
         }
 
         @Override
@@ -86,7 +132,7 @@ public abstract class PlayerSlot {
         }
     }
 
-    private static class EquipmentPlayerSlot extends PlayerSlot {
+    public static class EquipmentPlayerSlot extends PlayerSlot {
 
         private final EquipmentSlot slot;
 
@@ -100,8 +146,18 @@ public abstract class PlayerSlot {
         }
 
         @Override
-        public void setItem(LivingEntity entity, ItemStack stack) {
+        public ItemStack getItem(LivingEntity entity, int index) {
+            return entity.getItemBySlot(this.slot);
+        }
+
+        @Override
+        public void setItem(LivingEntity entity, int index, ItemStack stack) {
             entity.setItemSlot(this.slot, stack);
+        }
+
+        @Override
+        public int getSize(LivingEntity entity) {
+            return 1;
         }
 
         @Override
@@ -125,10 +181,55 @@ public abstract class PlayerSlot {
         }
     }
 
+    private static class AccessoriesSlot extends PlayerSlot {
+
+        private final String slotName;
+
+        private AccessoriesSlot(String slotName) {
+            this.slotName = slotName;
+        }
+
+        @Override
+        public List<ItemStack> getItems(LivingEntity entity) {
+            return AccessoriesCompat.INSTANCE.getFromSlot(entity, this.slotName);
+        }
+
+        @Override
+        public ItemStack getItem(LivingEntity entity, int index) {
+            return AccessoriesCompat.INSTANCE.getFromSlot(entity, this.slotName, index);
+        }
+
+        @Override
+        public void setItem(LivingEntity entity, int index, ItemStack stack) {
+            AccessoriesCompat.INSTANCE.setInSlot(entity, this.slotName, index, stack);
+        }
+
+        @Override
+        public int getSize(LivingEntity entity) {
+            return AccessoriesCompat.INSTANCE.getSlotSize(entity, this.slotName);
+        }
+
+        @Override
+        public void clear(LivingEntity entity) {
+            AccessoriesCompat.INSTANCE.clearSlot(entity, this.slotName);
+        }
+
+        @Override
+        public Type getType() {
+            return Type.ACCESSORIES;
+        }
+
+        @Override
+        public String toString() {
+            return "accessories:" + this.slotName;
+        }
+    }
+
     public enum Type {
 
         ANY_SLOT,
         EQUIPMENT_SLOT,
+        ACCESSORIES;
 
     }
 
