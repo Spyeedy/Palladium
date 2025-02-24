@@ -8,7 +8,7 @@ import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.world.phys.Vec2;
 import net.minecraft.world.phys.Vec3;
 import net.threetag.palladium.client.renderer.LaserRenderer;
-import net.threetag.palladium.util.SizeUtil;
+import net.threetag.palladium.util.EntityScaleUtil;
 
 public class LaserBeamRenderer extends EnergyBeamRenderer {
 
@@ -27,8 +27,8 @@ public class LaserBeamRenderer extends EnergyBeamRenderer {
         this.laserRenderer
                 .faceAndRender(poseStack, bufferSource, origin, target, player.tickCount, partialTick, lengthMultiplier, 1F,
                         new Vec2(
-                                SizeUtil.getInstance().getModelWidthScale(player, partialTick),
-                                SizeUtil.getInstance().getModelHeightScale(player, partialTick)
+                                EntityScaleUtil.getInstance().getModelWidthScale(player, partialTick),
+                                EntityScaleUtil.getInstance().getModelHeightScale(player, partialTick)
                         ));
     }
 

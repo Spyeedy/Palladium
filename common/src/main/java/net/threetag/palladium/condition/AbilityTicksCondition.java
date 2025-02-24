@@ -39,7 +39,7 @@ public record AbilityTicksCondition(AbilityReference ability, String propertyKey
             return false;
         }
 
-        AbilityInstance dependency = this.ability.getInstance(entity, holder);
+        AbilityInstance<?> dependency = this.ability.getInstance(entity, holder);
 
         if (dependency == null) {
             return false;

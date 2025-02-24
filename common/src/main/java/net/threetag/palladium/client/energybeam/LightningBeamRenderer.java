@@ -11,7 +11,7 @@ import net.minecraft.world.phys.Vec2;
 import net.minecraft.world.phys.Vec3;
 import net.threetag.palladium.client.renderer.LaserRenderer;
 import net.threetag.palladium.util.CodecExtras;
-import net.threetag.palladium.util.SizeUtil;
+import net.threetag.palladium.util.EntityScaleUtil;
 
 public class LightningBeamRenderer extends EnergyBeamRenderer {
 
@@ -36,8 +36,8 @@ public class LightningBeamRenderer extends EnergyBeamRenderer {
 
     @Override
     public void render(AbstractClientPlayer player, Vec3 origin, Vec3 target, float lengthMultiplier, PoseStack poseStack, MultiBufferSource bufferSource, int packedLightIn, boolean isFirstPerson, float partialTick) {
-        var widthScale = SizeUtil.getInstance().getModelWidthScale(player, partialTick);
-        var heightScale = SizeUtil.getInstance().getModelHeightScale(player, partialTick);
+        var widthScale = EntityScaleUtil.getInstance().getModelWidthScale(player, partialTick);
+        var heightScale = EntityScaleUtil.getInstance().getModelHeightScale(player, partialTick);
         var scale = new Vec2(widthScale, heightScale);
         var segmentPartVec = target.subtract(origin).scale(1F / this.segments);
         var randomStart = RandomSource.create(player.getId() + (player.tickCount / this.frequency));

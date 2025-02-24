@@ -7,15 +7,15 @@ import net.minecraft.world.entity.LivingEntity;
 import java.util.Collection;
 import java.util.Collections;
 
-public class SizeUtil {
+public class EntityScaleUtil {
 
-    private static SizeUtil INSTANCE = new SizeUtil();
+    private static EntityScaleUtil INSTANCE = new EntityScaleUtil();
 
-    public static void setInstance(SizeUtil sizeUtil) {
-        INSTANCE = sizeUtil;
+    public static void setInstance(EntityScaleUtil entityScaleUtil) {
+        INSTANCE = entityScaleUtil;
     }
 
-    public static SizeUtil getInstance() {
+    public static EntityScaleUtil getInstance() {
         return INSTANCE;
     }
 

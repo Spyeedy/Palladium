@@ -11,7 +11,7 @@ import net.threetag.palladium.registry.PalladiumRegistries;
 import net.threetag.palladium.registry.PalladiumRegistryKeys;
 import net.threetag.palladium.data.DataContext;
 
-public record AbilityTypeEnabledCondition(AbilitySerializer ability) implements Condition {
+public record AbilityTypeEnabledCondition(AbilitySerializer<?> ability) implements Condition {
 
     public static final MapCodec<AbilityTypeEnabledCondition> CODEC = RecordCodecBuilder.mapCodec(instance -> instance
             .group(PalladiumRegistries.ABILITY_SERIALIZER.byNameCodec().fieldOf("ability_type").forGetter(AbilityTypeEnabledCondition::ability)

@@ -68,6 +68,6 @@ public class ConditionSerializers {
     public static final RegistryHolder<EnergyBarCondition.Serializer> ENERGY_BAR = CONDITION_SERIALIZERS.register("energy_bar", EnergyBarCondition.Serializer::new);
 //    public static final RegistryHolder<AccessorySelectedCondition.Serializer> ACCESSORY_SELECTED = CONDITION_SERIALIZERS.register("accessory_selected", AccessorySelectedCondition.Serializer::new);
     public static final RegistryHolder<SmallArmsCondition.Serializer> SMALL_ARMS = CONDITION_SERIALIZERS.register("small_arms", SmallArmsCondition.Serializer::new);
-    public static final RegistryHolder<SizeCondition.Serializer> SIZE = CONDITION_SERIALIZERS.register("size", SizeCondition.Serializer::new);
+    public static final RegistryHolder<EntityScaleCondition.Serializer> ENTITY_SCALE = CONDITION_SERIALIZERS.register("entity_scale", EntityScaleCondition.Serializer::new);
 
 }
