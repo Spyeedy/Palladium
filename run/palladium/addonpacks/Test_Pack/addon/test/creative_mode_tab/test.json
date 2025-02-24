@@ -1,0 +1,10 @@
+{
+  "name": "Test Pack",
+  "icon": "test:emerald_sword",
+  "items": [
+    "test:basic_block",
+    "test:chocolate_cake",
+    "test:emerald_sword",
+    "test:basic_item"
+  ]
+}

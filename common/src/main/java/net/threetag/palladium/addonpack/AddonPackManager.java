@@ -25,6 +25,7 @@ import net.minecraft.world.level.storage.LevelStorageSource;
 import net.threetag.palladium.Palladium;
 import net.threetag.palladium.addonpack.log.AddonPackLog;
 import net.threetag.palladium.block.BlockPropertiesCodec;
+import net.threetag.palladium.item.CreativeModeTabCodec;
 import net.threetag.palladium.item.ItemTypes;
 import org.jetbrains.annotations.NotNull;
 
@@ -59,6 +60,7 @@ public class AddonPackManager {
 
     static {
         registerLoader(new ToolMaterialLoader());
+        registerRegistryLoader(Registries.CREATIVE_MODE_TAB, callback -> new AddonObjectLoader<>(CreativeModeTabCodec.CODEC, Registries.CREATIVE_MODE_TAB, callback));
         registerRegistryLoader(Registries.BLOCK, callback -> new AddonObjectLoader<>(BlockTypes.CODEC.codec(), Registries.BLOCK, callback));
         registerRegistryLoader(Registries.ITEM, callback -> new AddonObjectLoader<>(ItemTypes.CODEC, Registries.ITEM, callback));
     }
