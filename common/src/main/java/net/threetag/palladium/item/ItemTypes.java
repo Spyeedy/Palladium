@@ -6,8 +6,9 @@ import com.mojang.serialization.codecs.RecordCodecBuilder;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.ExtraCodecs;
-import net.minecraft.world.item.BlockItem;
-import net.minecraft.world.item.Item;
+import net.minecraft.world.item.*;
+import net.minecraft.world.item.equipment.ArmorMaterials;
+import net.minecraft.world.item.equipment.ArmorType;
 import net.threetag.palladium.core.registry.SimpleRegister;
 import net.threetag.palladium.registry.PalladiumRegistries;
 import net.threetag.palladium.registry.PalladiumRegistryKeys;
@@ -20,6 +21,7 @@ public class ItemTypes {
         SimpleRegister.register(PalladiumRegistryKeys.ITEM_TYPE, ResourceLocation.withDefaultNamespace("item"), ITEM_CODEC);
         SimpleRegister.register(PalladiumRegistryKeys.ITEM_TYPE, ResourceLocation.withDefaultNamespace("block_item"), BLOCK_ITEM_CODEC);
         SimpleRegister.register(PalladiumRegistryKeys.ITEM_TYPE, ResourceLocation.withDefaultNamespace("sword"), SWORD_CODEC);
+        SimpleRegister.register(PalladiumRegistryKeys.ITEM_TYPE, ResourceLocation.withDefaultNamespace("armor"), ARMOR_CODEC);
     }
 
     static <B extends Item> RecordCodecBuilder<B, Item.Properties> propertiesCodec() {
@@ -36,11 +38,16 @@ public class ItemTypes {
             propertiesCodec()
     ).apply(instance, BlockItem::new));
     public static final MapCodec<SwordItem> SWORD_CODEC = RecordCodecBuilder.mapCodec(instance -> instance.group(
-            ToolMaterialRegistry.CODEC.fieldOf("tool_material").forGetter(i -> i.material),
-            ExtraCodecs.NON_NEGATIVE_FLOAT.optionalFieldOf("attack_damage", 3F).forGetter(i -> i.attackDamage),
-            Codec.FLOAT.optionalFieldOf("attack_speed", -2.4F).forGetter(i -> i.attackSpeed),
+            ToolMaterialRegistry.CODEC.fieldOf("tool_material").forGetter(i -> ToolMaterial.IRON),
+            ExtraCodecs.NON_NEGATIVE_FLOAT.optionalFieldOf("attack_damage", 3F).forGetter(i -> 0F),
+            Codec.FLOAT.optionalFieldOf("attack_speed", -2.4F).forGetter(i -> 0F),
             propertiesCodec()
     ).apply(instance, SwordItem::new));
+    public static final MapCodec<ArmorItem> ARMOR_CODEC = RecordCodecBuilder.mapCodec(instance -> instance.group(
+            ArmorMaterialRegistry.CODEC.fieldOf("armor_material").forGetter(i -> ArmorMaterials.IRON),
+            ArmorType.CODEC.fieldOf("armor_type").forGetter(i -> ArmorType.BODY),
+            propertiesCodec()
+    ).apply(instance, ArmorItem::new));
 
     public static final Codec<Item> CODEC = PalladiumRegistries.ITEM_TYPE.byNameCodec().dispatch(i -> ITEM_CODEC, Function.identity());
 }
