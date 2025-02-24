@@ -17,7 +17,7 @@ public class HealingAbility extends Ability {
             instance.group(
                     ExtraCodecs.POSITIVE_INT.fieldOf("frequency").forGetter(ab -> ab.frequency),
                     ExtraCodecs.POSITIVE_FLOAT.fieldOf("amount").forGetter(ab -> ab.amount),
-                    propertiesCodec(), conditionsCodec(), energyBarUsagesCodec()
+                    propertiesCodec(), stateCodec(), energyBarUsagesCodec()
             ).apply(instance, HealingAbility::new));
 
     public final int frequency;

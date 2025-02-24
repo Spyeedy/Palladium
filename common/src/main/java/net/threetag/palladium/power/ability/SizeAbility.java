@@ -17,7 +17,7 @@ public class SizeAbility extends Ability {
     public static final MapCodec<SizeAbility> CODEC = RecordCodecBuilder.mapCodec(instance ->
             instance.group(
                     ExtraCodecs.POSITIVE_FLOAT.fieldOf("scale").forGetter(ab -> ab.size),
-                    propertiesCodec(), conditionsCodec(), energyBarUsagesCodec()
+                    propertiesCodec(), stateCodec(), energyBarUsagesCodec()
             ).apply(instance, SizeAbility::new));
 
     public final float size;

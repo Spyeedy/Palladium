@@ -11,8 +11,10 @@ import net.threetag.palladium.command.SuperpowerCommand;
 import net.threetag.palladium.compat.accessories.AccessoriesCompatImpl;
 import net.threetag.palladium.component.PalladiumDataComponents;
 import net.threetag.palladium.condition.ConditionSerializers;
+import net.threetag.palladium.entity.PalladiumEntityTypes;
 import net.threetag.palladium.entity.data.PalladiumEntityData;
 import net.threetag.palladium.entity.data.PalladiumEntityDataTypes;
+import net.threetag.palladium.entity.effect.EntityEffects;
 import net.threetag.palladium.entity.number.EntityDependentNumberTypes;
 import net.threetag.palladium.item.ItemTypes;
 import net.threetag.palladium.item.TabPlacement;
@@ -41,6 +43,8 @@ public final class Palladium {
         ItemTypes.init();
 
         PalladiumEntityDataTypes.DATA_TYPES.register();
+        PalladiumEntityTypes.ENTITIES.register();
+        EntityEffects.EFFECTS.register();
         PalladiumDataComponents.DATA_COMPONENTS.register();
         EntityDependentNumberTypes.TYPES.register();
         KeyBindTypeSerializers.KEY_BIND_TYPES.register();
@@ -55,6 +59,7 @@ public final class Palladium {
         PalladiumNetwork.init();
         PowerEventHandler.init();
         AbilityEventHandler.init();
+        PalladiumEntityTypes.init();
         PalladiumEntityData.registerEvents();
         LifecycleEvent.SETUP.register(TabPlacement::loadTabs);
 

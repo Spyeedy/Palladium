@@ -8,6 +8,7 @@ import net.threetag.palladium.condition.ConditionSerializer;
 import net.threetag.palladium.core.registry.DataPackRegistryBuilder;
 import net.threetag.palladium.core.registry.RegistryBuilder;
 import net.threetag.palladium.entity.data.PalladiumEntityDataType;
+import net.threetag.palladium.entity.effect.EntityEffect;
 import net.threetag.palladium.entity.number.EntityDependentNumberType;
 import net.threetag.palladium.power.Power;
 import net.threetag.palladium.power.ability.AbilitySerializer;
@@ -28,6 +29,7 @@ public class PalladiumRegistries {
     public static final Registry<IconSerializer<?>> ICON_SERIALIZER = RegistryBuilder.create(PalladiumRegistryKeys.ICON_SERIALIZER).build();
     public static final Registry<EntityDependentNumberType<?>> ENTITY_DEPENDENT_NUMBER_TYPE = RegistryBuilder.create(PalladiumRegistryKeys.ENTITY_DEPENDENT_NUMBER_TYPE).build();
     public static final Registry<MapCodec<? extends Item>> ITEM_TYPE = RegistryBuilder.create(PalladiumRegistryKeys.ITEM_TYPE).build();
+    public static final Registry<EntityEffect> ENTITY_EFFECT = RegistryBuilder.create(PalladiumRegistryKeys.ENTITY_EFFECT).build();
 
     public static void init() {
         DataPackRegistryBuilder.create(PalladiumRegistryKeys.POWER, Power.CODEC, Power.CODEC);

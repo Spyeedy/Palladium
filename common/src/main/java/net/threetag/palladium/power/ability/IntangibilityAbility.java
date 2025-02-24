@@ -23,7 +23,7 @@ public class IntangibilityAbility extends Ability {
                     Codec.BOOL.optionalFieldOf("vertical", false).forGetter(ab -> ab.vertical),
                     TagKey.codec(Registries.BLOCK).optionalFieldOf("whitelist", null).forGetter(ab -> ab.whitelist),
                     TagKey.codec(Registries.BLOCK).optionalFieldOf("blacklist", PalladiumBlockTags.PREVENTS_INTANGIBILITY).forGetter(ab -> ab.blacklist),
-                    propertiesCodec(), conditionsCodec(), energyBarUsagesCodec()
+                    propertiesCodec(), stateCodec(), energyBarUsagesCodec()
             ).apply(instance, IntangibilityAbility::new));
 
     public final boolean vertical;

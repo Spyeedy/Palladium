@@ -29,7 +29,7 @@ public class AttributeModifierAbility extends Ability {
                     Codec.DOUBLE.fieldOf("amount").forGetter(ab -> ab.amount),
                     AttributeModifier.Operation.CODEC.fieldOf("operation").forGetter(ab -> ab.operation),
                     ResourceLocation.CODEC.fieldOf("id").forGetter(ab -> ab.id),
-                    propertiesCodec(), conditionsCodec(), energyBarUsagesCodec()
+                    propertiesCodec(), stateCodec(), energyBarUsagesCodec()
             ).apply(instance, AttributeModifierAbility::new));
 
     public final Holder<Attribute> attribute;

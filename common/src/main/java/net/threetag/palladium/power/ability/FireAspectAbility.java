@@ -19,7 +19,7 @@ public class FireAspectAbility extends Ability {
                     ExtraCodecs.NON_NEGATIVE_INT.fieldOf("time").forGetter(ab -> ab.time),
                     Codec.BOOL.optionalFieldOf("should_stack_time", false).forGetter(ab -> ab.shouldStackTime),
                     ExtraCodecs.NON_NEGATIVE_INT.optionalFieldOf("max_time", 60).forGetter(ab -> ab.maxTime),
-                    propertiesCodec(), conditionsCodec(), energyBarUsagesCodec()
+                    propertiesCodec(), stateCodec(), energyBarUsagesCodec()
             ).apply(instance, FireAspectAbility::new));
 
     public final int time;

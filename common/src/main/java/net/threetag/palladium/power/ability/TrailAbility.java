@@ -16,7 +16,7 @@ public class TrailAbility extends Ability {
     public static final MapCodec<TrailAbility> CODEC = RecordCodecBuilder.mapCodec(instance ->
             instance.group(
                     ResourceLocation.CODEC.fieldOf("trail").forGetter(ab -> ab.trailRendererId),
-                    propertiesCodec(), conditionsCodec(), energyBarUsagesCodec()
+                    propertiesCodec(), stateCodec(), energyBarUsagesCodec()
             ).apply(instance, TrailAbility::new));
 
     public final ResourceLocation trailRendererId;

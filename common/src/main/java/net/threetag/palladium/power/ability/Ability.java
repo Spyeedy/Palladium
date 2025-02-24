@@ -86,7 +86,7 @@ public abstract class Ability {
         return AbilityProperties.CODEC.optionalFieldOf("properties", AbilityProperties.BASIC).forGetter(Ability::getProperties);
     }
 
-    protected static <B extends Ability> RecordCodecBuilder<B, AbilityStateManager> conditionsCodec() {
+    protected static <B extends Ability> RecordCodecBuilder<B, AbilityStateManager> stateCodec() {
         return AbilityStateManager.CODEC.optionalFieldOf("state", AbilityStateManager.EMPTY).forGetter(Ability::getStateManager);
     }
 

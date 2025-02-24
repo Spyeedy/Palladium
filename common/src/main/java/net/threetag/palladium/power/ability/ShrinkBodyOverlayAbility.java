@@ -14,7 +14,7 @@ public class ShrinkBodyOverlayAbility extends Ability {
     // TODO
 
     public static final MapCodec<ShrinkBodyOverlayAbility> CODEC = RecordCodecBuilder.mapCodec(instance ->
-            instance.group(propertiesCodec(), conditionsCodec(), energyBarUsagesCodec()
+            instance.group(propertiesCodec(), stateCodec(), energyBarUsagesCodec()
             ).apply(instance, ShrinkBodyOverlayAbility::new));
 
     public ShrinkBodyOverlayAbility(AbilityProperties properties, AbilityStateManager conditions, List<EnergyBarUsage> energyBarUsages) {

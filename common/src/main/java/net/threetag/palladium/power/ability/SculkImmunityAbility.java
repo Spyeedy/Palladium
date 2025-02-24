@@ -14,7 +14,7 @@ public class SculkImmunityAbility extends Ability {
     // TODO
 
     public static final MapCodec<SculkImmunityAbility> CODEC = RecordCodecBuilder.mapCodec(instance ->
-            instance.group(propertiesCodec(), conditionsCodec(), energyBarUsagesCodec()
+            instance.group(propertiesCodec(), stateCodec(), energyBarUsagesCodec()
             ).apply(instance, SculkImmunityAbility::new));
 
     public SculkImmunityAbility(AbilityProperties properties, AbilityStateManager conditions, List<EnergyBarUsage> energyBarUsages) {

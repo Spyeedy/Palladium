@@ -13,7 +13,7 @@ public class DummyAbility extends Ability {
 
     public static final MapCodec<DummyAbility> CODEC = RecordCodecBuilder.mapCodec(instance ->
             instance.group(
-                    propertiesCodec(), conditionsCodec(), energyBarUsagesCodec()
+                    propertiesCodec(), stateCodec(), energyBarUsagesCodec()
             ).apply(instance, DummyAbility::new));
 
     public DummyAbility(AbilityProperties properties, AbilityStateManager conditions, List<EnergyBarUsage> energyBarUsages) {

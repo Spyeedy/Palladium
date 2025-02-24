@@ -8,6 +8,7 @@ import net.threetag.palladium.Palladium;
 import net.threetag.palladium.client.icon.IconSerializer;
 import net.threetag.palladium.condition.ConditionSerializer;
 import net.threetag.palladium.entity.data.PalladiumEntityDataType;
+import net.threetag.palladium.entity.effect.EntityEffect;
 import net.threetag.palladium.entity.number.EntityDependentNumberType;
 import net.threetag.palladium.power.Power;
 import net.threetag.palladium.power.ability.AbilitySerializer;
@@ -29,6 +30,7 @@ public class PalladiumRegistryKeys {
     public static final ResourceKey<Registry<IconSerializer<?>>> ICON_SERIALIZER = createRegistryKey("icon_serializer");
     public static final ResourceKey<Registry<EntityDependentNumberType<?>>> ENTITY_DEPENDENT_NUMBER_TYPE = createRegistryKey("entity_dependent_number_type");
     public static final ResourceKey<Registry<MapCodec<? extends Item>>> ITEM_TYPE = createRegistryKey("item_type");
+    public static final ResourceKey<Registry<EntityEffect>> ENTITY_EFFECT = createRegistryKey("entity_effect");
 
     private static <T> ResourceKey<Registry<T>> createRegistryKey(String name) {
         return ResourceKey.createRegistryKey(Palladium.id(name));

@@ -2,6 +2,7 @@ package net.threetag.palladium.util;
 
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.LivingEntity;
 
 import java.util.Collection;
 import java.util.Collections;
@@ -23,43 +24,43 @@ public class SizeUtil {
     }
 
     public float getWidthScale(Entity entity) {
-        return 1F;
+        return entity instanceof LivingEntity living ? living.getScale() : 1F;
     }
 
     public float getWidthScale(Entity entity, float delta) {
-        return 1F;
+        return this.getWidthScale(entity);
     }
 
     public float getHeightScale(Entity entity) {
-        return 1F;
+        return entity instanceof LivingEntity living ? living.getScale() : 1F;
     }
 
     public float getHeightScale(Entity entity, float delta) {
-        return 1F;
+        return this.getHeightScale(entity);
     }
 
     public float getModelWidthScale(Entity entity) {
-        return 1F;
+        return this.getWidthScale(entity);
     }
 
     public float getModelWidthScale(Entity entity, float delta) {
-        return 1F;
+        return this.getWidthScale(entity, delta);
     }
 
     public float getModelHeightScale(Entity entity) {
-        return 1F;
+        return this.getHeightScale(entity);
     }
 
     public float getModelHeightScale(Entity entity, float delta) {
-        return 1F;
+        return this.getHeightScale(entity, delta);
     }
 
     public float getEyeHeightScale(Entity entity) {
-        return 1F;
+        return this.getHeightScale(entity);
     }
 
     public float getEyeHeightScale(Entity entity, float delta) {
-        return 1F;
+        return this.getHeightScale(entity, delta);
     }
 
     public Collection<ResourceLocation> getScaleTypeIds() {

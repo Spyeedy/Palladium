@@ -10,7 +10,6 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.tags.TagKey;
 import net.minecraft.util.ExtraCodecs;
 import net.minecraft.world.item.ToolMaterial;
-import net.threetag.palladium.util.CodecExtras;
 import org.jetbrains.annotations.Nullable;
 
 public class ToolMaterialRegistry {
@@ -21,8 +20,8 @@ public class ToolMaterialRegistry {
     public static final Codec<ToolMaterial> DIRECT_CODEC = RecordCodecBuilder.create(instance -> instance.group(
             TagKey.hashedCodec(Registries.BLOCK).fieldOf("incorrect_blocks_for_drops").forGetter(ToolMaterial::incorrectBlocksForDrops),
             ExtraCodecs.NON_NEGATIVE_INT.fieldOf("durability").forGetter(ToolMaterial::durability),
-            CodecExtras.NON_NEGATIVE_FLOAT.fieldOf("speed").forGetter(ToolMaterial::speed),
-            CodecExtras.NON_NEGATIVE_FLOAT.fieldOf("attack_damage_bonus").forGetter(ToolMaterial::attackDamageBonus),
+            ExtraCodecs.NON_NEGATIVE_FLOAT.fieldOf("speed").forGetter(ToolMaterial::speed),
+            ExtraCodecs.NON_NEGATIVE_FLOAT.fieldOf("attack_damage_bonus").forGetter(ToolMaterial::attackDamageBonus),
             ExtraCodecs.NON_NEGATIVE_INT.fieldOf("enchantment_value").forGetter(ToolMaterial::enchantmentValue),
             TagKey.hashedCodec(Registries.ITEM).fieldOf("repair_items").forGetter(ToolMaterial::repairItems)
     ).apply(instance, ToolMaterial::new));

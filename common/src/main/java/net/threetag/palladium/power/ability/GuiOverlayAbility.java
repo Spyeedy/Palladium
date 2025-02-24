@@ -37,7 +37,7 @@ public class GuiOverlayAbility extends Ability {
                     Vec3.CODEC.optionalFieldOf("rotate", Vec3.ZERO).forGetter(ab -> ab.rotate),
                     Vec3.CODEC.optionalFieldOf("scale", new Vec3(1, 1, 1)).forGetter(ab -> ab.scale),
                     HudElementAlignment.CODEC.fieldOf("alignment").forGetter(ab -> ab.alignment),
-                    propertiesCodec(), conditionsCodec(), energyBarUsagesCodec()
+                    propertiesCodec(), stateCodec(), energyBarUsagesCodec()
             ).apply(instance, GuiOverlayAbility::new));
 
     public final TextureReference texture;

@@ -27,7 +27,7 @@ public class SkinChangeAbility extends Ability {
                     SkinTypedValue.codec(TextureReference.CODEC).fieldOf("texture").forGetter(ab -> ab.texture),
                     PlayerModelChangeType.CODEC.optionalFieldOf("model_type", PlayerModelChangeType.KEEP).forGetter(ab -> ab.modelChangeType),
                     Codec.INT.optionalFieldOf("priority", 50).forGetter(ab -> ab.priority),
-                    propertiesCodec(), conditionsCodec(), energyBarUsagesCodec()
+                    propertiesCodec(), stateCodec(), energyBarUsagesCodec()
             ).apply(instance, SkinChangeAbility::new));
 
     public final SkinTypedValue<TextureReference> texture;

@@ -21,7 +21,7 @@ public class RestrictSlotsAbility extends Ability {
     public static final MapCodec<RestrictSlotsAbility> CODEC = RecordCodecBuilder.mapCodec(instance ->
             instance.group(
                     CodecExtras.listOrPrimitive(PlayerSlot.CODEC).fieldOf("slots").forGetter(ab -> ab.slots),
-                    propertiesCodec(), conditionsCodec(), energyBarUsagesCodec()
+                    propertiesCodec(), stateCodec(), energyBarUsagesCodec()
             ).apply(instance, RestrictSlotsAbility::new));
 
     public final List<PlayerSlot> slots;

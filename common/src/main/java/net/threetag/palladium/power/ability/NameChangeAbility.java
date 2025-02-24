@@ -22,7 +22,7 @@ public class NameChangeAbility extends Ability {
     public static final MapCodec<NameChangeAbility> CODEC = RecordCodecBuilder.mapCodec(instance ->
             instance.group(
                     ComponentSerialization.CODEC.fieldOf("name").forGetter(ab -> ab.name),
-                    propertiesCodec(), conditionsCodec(), energyBarUsagesCodec()
+                    propertiesCodec(), stateCodec(), energyBarUsagesCodec()
             ).apply(instance, NameChangeAbility::new));
 
     public final Component name;

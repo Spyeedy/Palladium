@@ -14,7 +14,7 @@ public class ShowBothArmsAbility extends Ability {
     // TODO
 
     public static final MapCodec<ShowBothArmsAbility> CODEC = RecordCodecBuilder.mapCodec(instance ->
-            instance.group(propertiesCodec(), conditionsCodec(), energyBarUsagesCodec()
+            instance.group(propertiesCodec(), stateCodec(), energyBarUsagesCodec()
             ).apply(instance, ShowBothArmsAbility::new));
 
     public ShowBothArmsAbility(AbilityProperties properties, AbilityStateManager conditions, List<EnergyBarUsage> energyBarUsages) {

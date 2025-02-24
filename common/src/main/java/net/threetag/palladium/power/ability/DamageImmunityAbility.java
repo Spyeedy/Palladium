@@ -19,7 +19,7 @@ public class DamageImmunityAbility extends Ability {
     public static final MapCodec<DamageImmunityAbility> CODEC = RecordCodecBuilder.mapCodec(instance ->
             instance.group(
                     AdvancedHolderSet.codec(Registries.DAMAGE_TYPE).fieldOf("damage_types").forGetter(ab -> ab.damageTypes),
-                    propertiesCodec(), conditionsCodec(), energyBarUsagesCodec()
+                    propertiesCodec(), stateCodec(), energyBarUsagesCodec()
             ).apply(instance, DamageImmunityAbility::new));
 
     public final AdvancedHolderSet<DamageType> damageTypes;

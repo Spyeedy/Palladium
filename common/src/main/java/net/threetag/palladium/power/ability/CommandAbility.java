@@ -22,7 +22,7 @@ public class CommandAbility extends Ability implements CommandSource {
                     ParsedCommands.CODEC.optionalFieldOf("commands", ParsedCommands.EMPTY).forGetter(ab -> ab.commands),
                     ParsedCommands.CODEC.optionalFieldOf("first_tick_commands", ParsedCommands.EMPTY).forGetter(ab -> ab.firstTick),
                     ParsedCommands.CODEC.optionalFieldOf("last_tick_commands", ParsedCommands.EMPTY).forGetter(ab -> ab.lastTick),
-                    propertiesCodec(), conditionsCodec(), energyBarUsagesCodec()
+                    propertiesCodec(), stateCodec(), energyBarUsagesCodec()
             ).apply(instance, CommandAbility::new));
 
     public final ParsedCommands commands, firstTick, lastTick;

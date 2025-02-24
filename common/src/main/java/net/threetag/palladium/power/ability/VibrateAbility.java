@@ -14,7 +14,7 @@ public class VibrateAbility extends Ability {
     // TODO
 
     public static final MapCodec<VibrateAbility> CODEC = RecordCodecBuilder.mapCodec(instance ->
-            instance.group(propertiesCodec(), conditionsCodec(), energyBarUsagesCodec()
+            instance.group(propertiesCodec(), stateCodec(), energyBarUsagesCodec()
             ).apply(instance, VibrateAbility::new));
 
     public VibrateAbility(AbilityProperties properties, AbilityStateManager conditions, List<EnergyBarUsage> energyBarUsages) {

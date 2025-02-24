@@ -20,7 +20,7 @@ public class HideBodyPartAbility extends Ability {
             instance.group(
                     CodecExtras.listOrPrimitive(BodyPart.CODEC).fieldOf("body_parts").forGetter(ab -> ab.bodyParts),
                     Codec.BOOL.optionalFieldOf("affects_first_person", true).forGetter(ab -> ab.affectsFirstPerson),
-                    propertiesCodec(), conditionsCodec(), energyBarUsagesCodec()
+                    propertiesCodec(), stateCodec(), energyBarUsagesCodec()
             ).apply(instance, HideBodyPartAbility::new));
 
     public final List<BodyPart> bodyParts;

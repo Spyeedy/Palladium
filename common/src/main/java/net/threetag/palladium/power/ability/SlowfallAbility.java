@@ -13,7 +13,7 @@ import java.util.List;
 public class SlowfallAbility extends Ability {
 
     public static final MapCodec<SlowfallAbility> CODEC = RecordCodecBuilder.mapCodec(instance ->
-            instance.group(propertiesCodec(), conditionsCodec(), energyBarUsagesCodec()
+            instance.group(propertiesCodec(), stateCodec(), energyBarUsagesCodec()
             ).apply(instance, SlowfallAbility::new));
 
     public SlowfallAbility(AbilityProperties properties, AbilityStateManager conditions, List<EnergyBarUsage> energyBarUsages) {

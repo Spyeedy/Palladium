@@ -12,7 +12,7 @@ import java.util.List;
 public class WaterWalkAbility extends Ability {
 
     public static final MapCodec<WaterWalkAbility> CODEC = RecordCodecBuilder.mapCodec(instance ->
-            instance.group(propertiesCodec(), conditionsCodec(), energyBarUsagesCodec()
+            instance.group(propertiesCodec(), stateCodec(), energyBarUsagesCodec()
             ).apply(instance, WaterWalkAbility::new));
 
     public WaterWalkAbility(AbilityProperties properties, AbilityStateManager conditions, List<EnergyBarUsage> energyBarUsages) {

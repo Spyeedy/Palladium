@@ -21,7 +21,7 @@ public class FluidWalkingAbility extends Ability {
     public static final MapCodec<FluidWalkingAbility> CODEC = RecordCodecBuilder.mapCodec(instance ->
             instance.group(
                     TagKey.codec(Registries.FLUID).fieldOf("fluid_tag").forGetter(ab -> ab.fluidTag),
-                    propertiesCodec(), conditionsCodec(), energyBarUsagesCodec()
+                    propertiesCodec(), stateCodec(), energyBarUsagesCodec()
             ).apply(instance, FluidWalkingAbility::new));
 
     public final TagKey<Fluid> fluidTag;

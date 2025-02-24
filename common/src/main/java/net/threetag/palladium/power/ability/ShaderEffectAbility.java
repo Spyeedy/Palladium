@@ -21,7 +21,7 @@ public class ShaderEffectAbility extends Ability {
     public static final MapCodec<ShaderEffectAbility> CODEC = RecordCodecBuilder.mapCodec(instance ->
             instance.group(
                     ResourceLocation.CODEC.fieldOf("shader").forGetter(ab -> ab.shader),
-                    propertiesCodec(), conditionsCodec(), energyBarUsagesCodec()
+                    propertiesCodec(), stateCodec(), energyBarUsagesCodec()
             ).apply(instance, ShaderEffectAbility::new));
 
     public final ResourceLocation shader;

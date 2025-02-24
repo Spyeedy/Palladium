@@ -3,9 +3,9 @@ package net.threetag.palladium.power.ability;
 import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import net.minecraft.core.HolderLookup;
+import net.minecraft.util.ExtraCodecs;
 import net.threetag.palladium.documentation.CodecDocumentationBuilder;
 import net.threetag.palladium.power.energybar.EnergyBarUsage;
-import net.threetag.palladium.util.CodecExtras;
 
 import java.util.Collections;
 import java.util.List;
@@ -16,8 +16,8 @@ public class InvisibilityAbility extends Ability {
 
     public static final MapCodec<InvisibilityAbility> CODEC = RecordCodecBuilder.mapCodec(instance ->
             instance.group(
-                    CodecExtras.NON_NEGATIVE_FLOAT.optionalFieldOf("mob_visibility_modifier", 0.0F).forGetter(a -> a.mobVisibilityModifier),
-                    propertiesCodec(), conditionsCodec(), energyBarUsagesCodec()
+                    ExtraCodecs.NON_NEGATIVE_FLOAT.optionalFieldOf("mob_visibility_modifier", 0.0F).forGetter(a -> a.mobVisibilityModifier),
+                    propertiesCodec(), stateCodec(), energyBarUsagesCodec()
             ).apply(instance, InvisibilityAbility::new));
 
     public final float mobVisibilityModifier;

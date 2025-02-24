@@ -18,7 +18,7 @@ public class AimAbility extends Ability {
     public static final MapCodec<AimAbility> CODEC = RecordCodecBuilder.mapCodec(instance ->
             instance.group(
                     ArmSetting.CODEC.optionalFieldOf("arm", ArmSetting.MAIN_ARM).forGetter(ab -> ab.arm),
-                    propertiesCodec(), conditionsCodec(), energyBarUsagesCodec()
+                    propertiesCodec(), stateCodec(), energyBarUsagesCodec()
             ).apply(instance, AimAbility::new));
 
     public final ArmSetting arm;

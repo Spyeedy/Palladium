@@ -7,6 +7,7 @@ import net.fabricmc.api.Environment;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.player.AbstractClientPlayer;
 import net.minecraft.core.particles.ParticleOptions;
+import net.minecraft.util.ExtraCodecs;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.Vec3;
@@ -22,6 +23,8 @@ import java.util.Optional;
 
 @Environment(EnvType.CLIENT)
 public class ParticleEmitter {
+
+    public static final ParticleEmitter DEFAULT = new ParticleEmitter(null, 1F, new PerspectiveValue<>(new Vector3f()), new PerspectiveValue<>(new Vector3f()), new PerspectiveValue<>(new Vector3f()), new PerspectiveValue<>(new Vector3f()), PerspectiveAwareConditions.EMPTY);
 
     @Nullable
     private final BodyPart anchor;
@@ -42,15 +45,13 @@ public class ParticleEmitter {
         this.conditions = conditions;
     }
 
-    public static final Codec<Vector3f> VOXEL_VECTOR = CodecExtras.VECTOR_3F_CODEC.xmap(vector3f -> vector3f.div(16, -16, 16), vector3f -> vector3f.mul(16, -16, 16));
-
     public static final Codec<ParticleEmitter> CODEC = RecordCodecBuilder.create(instance -> instance.group(
             BodyPart.CODEC.optionalFieldOf("body_part").forGetter(e -> Optional.ofNullable(e.anchor)),
-            CodecExtras.NON_NEGATIVE_FLOAT.optionalFieldOf("amount", 1F).forGetter(e -> e.amount),
-            PerspectiveValue.codec(VOXEL_VECTOR).optionalFieldOf("offset", new PerspectiveValue<>(new Vector3f())).forGetter(e -> e.offset),
-            PerspectiveValue.codec(VOXEL_VECTOR).optionalFieldOf("offset_random", new PerspectiveValue<>(new Vector3f())).forGetter(e -> e.offset),
-            PerspectiveValue.codec(VOXEL_VECTOR).optionalFieldOf("motion", new PerspectiveValue<>(new Vector3f())).forGetter(e -> e.offset),
-            PerspectiveValue.codec(VOXEL_VECTOR).optionalFieldOf("motion_random", new PerspectiveValue<>(new Vector3f())).forGetter(e -> e.offset),
+            ExtraCodecs.NON_NEGATIVE_FLOAT.optionalFieldOf("amount", 1F).forGetter(e -> e.amount),
+            PerspectiveValue.codec(CodecExtras.VOXEL_VECTOR_3F).optionalFieldOf("offset", new PerspectiveValue<>(new Vector3f())).forGetter(e -> e.offset),
+            PerspectiveValue.codec(CodecExtras.VOXEL_VECTOR_3F).optionalFieldOf("offset_random", new PerspectiveValue<>(new Vector3f())).forGetter(e -> e.offset),
+            PerspectiveValue.codec(CodecExtras.VOXEL_VECTOR_3F).optionalFieldOf("motion", new PerspectiveValue<>(new Vector3f())).forGetter(e -> e.offset),
+            PerspectiveValue.codec(CodecExtras.VOXEL_VECTOR_3F).optionalFieldOf("motion_random", new PerspectiveValue<>(new Vector3f())).forGetter(e -> e.offset),
             PerspectiveAwareConditions.CODEC.optionalFieldOf("conditions", PerspectiveAwareConditions.EMPTY).forGetter(e -> e.conditions)
     ).apply(instance, (bodyPart, amount, offset, offsetRandom, motion, motionRandom, conditions) -> {
         return new ParticleEmitter(bodyPart.orElse(null), amount, offset, offsetRandom, motion, motionRandom, conditions);

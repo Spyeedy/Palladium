@@ -5,12 +5,12 @@ import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.util.ExtraCodecs;
 import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.Item;
 import net.threetag.palladium.core.registry.SimpleRegister;
 import net.threetag.palladium.registry.PalladiumRegistries;
 import net.threetag.palladium.registry.PalladiumRegistryKeys;
-import net.threetag.palladium.util.CodecExtras;
 
 import java.util.function.Function;
 
@@ -37,7 +37,7 @@ public class ItemTypes {
     ).apply(instance, BlockItem::new));
     public static final MapCodec<SwordItem> SWORD_CODEC = RecordCodecBuilder.mapCodec(instance -> instance.group(
             ToolMaterialRegistry.CODEC.fieldOf("tool_material").forGetter(i -> i.material),
-            CodecExtras.NON_NEGATIVE_FLOAT.optionalFieldOf("attack_damage", 3F).forGetter(i -> i.attackDamage),
+            ExtraCodecs.NON_NEGATIVE_FLOAT.optionalFieldOf("attack_damage", 3F).forGetter(i -> i.attackDamage),
             Codec.FLOAT.optionalFieldOf("attack_speed", -2.4F).forGetter(i -> i.attackSpeed),
             propertiesCodec()
     ).apply(instance, SwordItem::new));
