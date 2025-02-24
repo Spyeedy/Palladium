@@ -7,7 +7,7 @@ import com.mojang.serialization.DataResult;
 import com.mojang.serialization.MapCodec;
 import net.minecraft.resources.ResourceLocation;
 
-public abstract class PackRenderLayerSerializer<T extends PackRenderLayer> {
+public abstract class PackRenderLayerSerializer<T extends PackRenderLayer<? extends PackRenderLayer.State>> {
 
     private static final BiMap<ResourceLocation, PackRenderLayerSerializer<?>> TYPES = HashBiMap.create();
 
@@ -19,7 +19,7 @@ public abstract class PackRenderLayerSerializer<T extends PackRenderLayer> {
         return layerSerializer != null ? DataResult.success(resourceLocation) : DataResult.error(() -> "Unknown type " + resourceLocation);
     });
 
-    public static <T extends PackRenderLayer> PackRenderLayerSerializer<T> register(ResourceLocation id, PackRenderLayerSerializer<T> serializer) {
+    public static <R extends PackRenderLayer.State, T extends PackRenderLayer<R>> PackRenderLayerSerializer<T> register(ResourceLocation id, PackRenderLayerSerializer<T> serializer) {
         if (TYPES.containsKey(id)) {
             throw new IllegalStateException("Duplicate registration for pack render layer serializer: " + id);
         }

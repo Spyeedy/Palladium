@@ -11,7 +11,7 @@
       "segments": 25,
       "spread": 2,
       "frequency": 200,
-      "laser": {
+      "render_settings": {
         "glow": "#652191"
       }
     }
@@ -28,7 +28,7 @@
       "segments": 10,
       "spread": 5,
       "frequency": 2,
-      "laser": {
+      "render_settings": {
         "core": {
           "opacity": 0.25,
           "pulse": {

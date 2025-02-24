@@ -29,6 +29,20 @@
           "behaviour": "toggle"
         }
       }
+    },
+    "lightning_sparks": {
+      "type": "palladium:dummy",
+      "properties": {
+        "render_layer": "test:lightning_sparks_test",
+        "title": "Lightning Sparks",
+        "list_index": 2
+      },
+      "state": {
+        "enabling": {
+          "type": "palladium:key_bind",
+          "behaviour": "toggle"
+        }
+      }
     }
   }
 }

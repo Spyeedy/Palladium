@@ -28,18 +28,23 @@ public record LaserRenderer(net.threetag.palladium.client.renderer.LaserRenderer
                             int bloom, Vector2f size, boolean normalTransparency, float rotation,
                             float rotationSpeed) {
 
+    public static final Codec<Vector2f> SIZE_CODEC = Codec.either(CodecExtras.VOXEL_VECTOR_2F, CodecExtras.NON_NEGATIVE_VOXEL_FLOAT).xmap(
+            either -> either.map(vector2f -> vector2f, aFloat -> new Vector2f(aFloat, aFloat)),
+            vector2f -> vector2f.x == vector2f.y ? Either.right(vector2f.x) : Either.left(vector2f));
+
     public static Codec<LaserRenderer> codec(int defaultBloom) {
         return RecordCodecBuilder.create(instance -> instance.group(
                 LaserPart.CODEC.optionalFieldOf("glow", LaserPart.DEFAULT).forGetter(LaserRenderer::glow),
                 LaserPart.CODEC.optionalFieldOf("core", LaserPart.DEFAULT).forGetter(LaserRenderer::core),
                 ExtraCodecs.intRange(0, 10).optionalFieldOf("bloom", defaultBloom).forGetter(LaserRenderer::bloom),
-                CodecExtras.VOXEL_VECTOR_2F.optionalFieldOf("size", new Vector2f(1 / 16F, 1 / 16F)).forGetter(LaserRenderer::size),
+                SIZE_CODEC.optionalFieldOf("size", new Vector2f(1 / 16F, 1 / 16F)).forGetter(LaserRenderer::size),
                 Codec.BOOL.optionalFieldOf("normal_transparency", false).forGetter(LaserRenderer::normalTransparency),
                 ExtraCodecs.floatRange(0F, 360F).optionalFieldOf("rotation", 0F).forGetter(LaserRenderer::rotation),
                 ExtraCodecs.NON_NEGATIVE_FLOAT.optionalFieldOf("rotation_speed", 0F).forGetter(LaserRenderer::rotationSpeed)
         ).apply(instance, LaserRenderer::new));
-    };
+    }
 
+    ;
 
     public void face(PoseStack poseStack, Vec3 origin, Vec3 target) {
         RenderUtil.faceVec(poseStack, origin, target);
@@ -48,6 +53,10 @@ public record LaserRenderer(net.threetag.palladium.client.renderer.LaserRenderer
 
     public void faceAndRender(PoseStack poseStack, MultiBufferSource bufferSource, Vec3 origin, Vec3 target, int ticks, float partialTick) {
         this.faceAndRender(poseStack, bufferSource, origin, target, ticks, partialTick, 1F, 1F, Vec2.ONE);
+    }
+
+    public void faceAndRender(PoseStack poseStack, MultiBufferSource bufferSource, Vec3 origin, Vec3 target, int ticks, float partialTick, float lengthMultiplier, float opacityMultiplier) {
+        this.faceAndRender(poseStack, bufferSource, origin, target, ticks, partialTick, lengthMultiplier, opacityMultiplier, Vec2.ONE);
     }
 
     public void faceAndRender(PoseStack poseStack, MultiBufferSource bufferSource, Vec3 origin, Vec3 target, int ticks, float partialTick, float lengthMultiplier, float opacityMultiplier, float sizeMultiplier) {

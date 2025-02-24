@@ -14,27 +14,27 @@ import net.threetag.palladium.data.DataContext;
 
 import java.util.List;
 
-public class CompoundPackRenderLayer extends PackRenderLayer {
+public class CompoundPackRenderLayer extends PackRenderLayer<PackRenderLayer.State> {
 
     public static final MapCodec<CompoundPackRenderLayer> CODEC = RecordCodecBuilder.mapCodec(instance -> instance.group(
             PackRenderLayer.CODEC.listOf().fieldOf("layers").forGetter(l -> l.layers),
             conditionsCodec()
     ).apply(instance, CompoundPackRenderLayer::new));
 
-    private final List<PackRenderLayer> layers;
+    private final List<PackRenderLayer<?>> layers;
 
-    protected CompoundPackRenderLayer(List<PackRenderLayer> layers, PerspectiveAwareConditions conditions) {
+    protected CompoundPackRenderLayer(List<PackRenderLayer<?>> layers, PerspectiveAwareConditions conditions) {
         super(conditions);
         this.layers = layers;
     }
 
     @Override
-    public void render(DataContext context, PoseStack poseStack, MultiBufferSource bufferSource, EntityModel<LivingEntityRenderState> parentModel, LivingEntityRenderState state, int packedLight, float yRot, float xRot) {
+    public void render(DataContext context, PoseStack poseStack, MultiBufferSource bufferSource, EntityModel<LivingEntityRenderState> parentModel, LivingEntityRenderState state, State layerState, int packedLight, float partialTick, float xRot, float yRot) {
         // nothing
     }
 
     @Override
-    public void renderArm(DataContext context, PoseStack poseStack, MultiBufferSource bufferSource, HumanoidArm arm, ModelPart armPart, PlayerRenderer playerRenderer, int packedLight) {
+    public void renderArm(DataContext context, PoseStack poseStack, MultiBufferSource bufferSource, HumanoidArm arm, ModelPart armPart, PlayerRenderer playerRenderer, State layerState, int packedLight) {
         // nothing
     }
 
@@ -44,12 +44,12 @@ public class CompoundPackRenderLayer extends PackRenderLayer {
     }
 
     @Override
-    public boolean isOrContains(PackRenderLayer layer) {
+    public boolean isOrContains(PackRenderLayer<?> layer) {
         if (super.isOrContains(layer)) {
             return true;
         }
 
-        for (PackRenderLayer child : this.layers) {
+        for (PackRenderLayer<?> child : this.layers) {
             if (child.isOrContains(layer)) {
                 return true;
             }
@@ -58,7 +58,7 @@ public class CompoundPackRenderLayer extends PackRenderLayer {
         return false;
     }
 
-    public List<PackRenderLayer> getLayers() {
+    public List<PackRenderLayer<?>> getLayers() {
         return this.layers;
     }
 

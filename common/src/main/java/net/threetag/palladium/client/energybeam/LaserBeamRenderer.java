@@ -13,7 +13,7 @@ import net.threetag.palladium.util.EntityScaleUtil;
 public class LaserBeamRenderer extends EnergyBeamRenderer {
 
     public static final MapCodec<LaserBeamRenderer> CODEC = RecordCodecBuilder.mapCodec(instance -> instance.group(
-            LaserRenderer.codec(2).fieldOf("laser").forGetter(beam -> beam.laserRenderer)
+            LaserRenderer.codec(2).fieldOf("render_settings").forGetter(beam -> beam.laserRenderer)
     ).apply(instance, LaserBeamRenderer::new));
 
     private final LaserRenderer laserRenderer;

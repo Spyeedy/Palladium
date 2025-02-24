@@ -24,7 +24,7 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.Optional;
 
-public class DefaultPackRenderLayer extends PackRenderLayer {
+public class DefaultPackRenderLayer extends PackRenderLayer<PackRenderLayer.State> {
 
     public static final MapCodec<DefaultPackRenderLayer> CODEC = RecordCodecBuilder.mapCodec(instance -> instance.group(
             SkinTypedValue.codec(ModelLayerLocationCodec.CODEC).optionalFieldOf("model_layer").forGetter(l -> Optional.ofNullable(l.modelLayers)),
@@ -71,7 +71,7 @@ public class DefaultPackRenderLayer extends PackRenderLayer {
     }
 
     @Override
-    public void render(DataContext context, PoseStack poseStack, MultiBufferSource bufferSource, EntityModel<LivingEntityRenderState> parentModel, LivingEntityRenderState state, int packedLight, float yRot, float xRot) {
+    public void render(DataContext context, PoseStack poseStack, MultiBufferSource bufferSource, EntityModel<LivingEntityRenderState> parentModel, LivingEntityRenderState state, State layerState, int packedLight, float partialTick, float xRot, float yRot) {
         var entity = context.getEntity();
         Model model = parentModel;
 
@@ -96,7 +96,7 @@ public class DefaultPackRenderLayer extends PackRenderLayer {
     }
 
     @Override
-    public void renderArm(DataContext context, PoseStack poseStack, MultiBufferSource bufferSource, HumanoidArm arm, ModelPart armPart, PlayerRenderer playerRenderer, int packedLight) {
+    public void renderArm(DataContext context, PoseStack poseStack, MultiBufferSource bufferSource, HumanoidArm arm, ModelPart armPart, PlayerRenderer playerRenderer, State layerState, int packedLight) {
         var entity = context.getEntity();
         Model model = playerRenderer.getModel();
 

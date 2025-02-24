@@ -7,7 +7,7 @@
   ],
   "renderer": {
     "type": "palladium:laser",
-    "laser": {
+    "render_settings": {
       "glow": {
         "rainbow": 0.1,
         "pulse": {

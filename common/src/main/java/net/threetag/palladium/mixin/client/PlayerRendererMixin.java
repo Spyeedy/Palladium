@@ -41,10 +41,11 @@ public abstract class PlayerRendererMixin {
         if (l instanceof ClientEntityRenderLayers layers) {
             boolean rightArm = armPart == playerRenderer.getModel().rightArm;
             var arm = rightArm ? HumanoidArm.RIGHT : HumanoidArm.LEFT;
+            float partialTick = Minecraft.getInstance().getDeltaTracker().getGameTimeDeltaTicks();
 
             layers.getLayerStates().forEach((layer, state) -> {
                 if (layer.shouldRender(state, PerspectiveAwareConditions.Perspective.FIRST_PERSON)) {
-                    layer.renderArm(state.getContext(), poseStack, bufferSource, arm, armPart, playerRenderer, packedLight);
+                    layer.renderArm(state.getContext(), poseStack, bufferSource, arm, armPart, playerRenderer, state, packedLight);
                 }
             });
         }

@@ -13,9 +13,9 @@ import net.minecraft.world.entity.LivingEntity;
 import net.threetag.palladium.condition.PerspectiveAwareConditions;
 import net.threetag.palladium.data.DataContext;
 
-public abstract class PackRenderLayer {
+public abstract class PackRenderLayer<T extends PackRenderLayer.State> {
 
-    public static Codec<PackRenderLayer> CODEC = PackRenderLayerSerializer.TYPE_CODEC.dispatch(PackRenderLayer::getSerializer, PackRenderLayerSerializer::codec);
+    public static Codec<PackRenderLayer<?>> CODEC = PackRenderLayerSerializer.TYPE_CODEC.dispatch(PackRenderLayer::getSerializer, PackRenderLayerSerializer::codec);
 
     protected final PerspectiveAwareConditions conditions;
 
@@ -23,9 +23,9 @@ public abstract class PackRenderLayer {
         this.conditions = conditions;
     }
 
-    public abstract void render(DataContext context, PoseStack poseStack, MultiBufferSource bufferSource, EntityModel<LivingEntityRenderState> parentModel, LivingEntityRenderState state, int packedLight, float yRot, float xRot);
+    public abstract void render(DataContext context, PoseStack poseStack, MultiBufferSource bufferSource, EntityModel<LivingEntityRenderState> parentModel, LivingEntityRenderState entityState, T layerState, int packedLight, float partialTick, float xRot, float yRot);
 
-    public abstract void renderArm(DataContext context, PoseStack poseStack, MultiBufferSource bufferSource, HumanoidArm arm, ModelPart armPart, PlayerRenderer playerRenderer, int packedLight);
+    public abstract void renderArm(DataContext context, PoseStack poseStack, MultiBufferSource bufferSource, HumanoidArm arm, ModelPart armPart, PlayerRenderer playerRenderer, T layerState, int packedLight);
 
     public boolean shouldRender(State state, PerspectiveAwareConditions.Perspective perspective) {
         return this.conditions.test(state.context, perspective);
@@ -35,13 +35,13 @@ public abstract class PackRenderLayer {
         return new State(this, context);
     }
 
-    public boolean isOrContains(PackRenderLayer layer) {
+    public boolean isOrContains(PackRenderLayer<?> layer) {
         return this == layer;
     }
 
     public abstract PackRenderLayerSerializer<?> getSerializer();
 
-    protected static <B extends PackRenderLayer> RecordCodecBuilder<B, PerspectiveAwareConditions> conditionsCodec() {
+    protected static <T extends PackRenderLayer.State, B extends PackRenderLayer<T>> RecordCodecBuilder<B, PerspectiveAwareConditions> conditionsCodec() {
         return PerspectiveAwareConditions.CODEC.optionalFieldOf("conditions", PerspectiveAwareConditions.EMPTY).forGetter(l -> l.conditions);
     }
 
@@ -50,7 +50,7 @@ public abstract class PackRenderLayer {
         public final PackRenderLayer renderLayer;
         private DataContext context;
         public int ticks = 0;
-        private boolean markedForRemoval = false;
+        protected boolean markedForRemoval = false;
 
         public State(PackRenderLayer renderLayer, DataContext context) {
             this.renderLayer = renderLayer;

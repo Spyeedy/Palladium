@@ -6,7 +6,7 @@ import java.util.*;
 
 public class ClientEntityRenderLayers extends EntityRenderLayers {
 
-    private final Map<PackRenderLayer, PackRenderLayer.State> layers = new HashMap<>();
+    private final Map<PackRenderLayer<?>, PackRenderLayer.State> layers = new HashMap<>();
 
     public ClientEntityRenderLayers(LivingEntity entity) {
         super(entity);
@@ -15,7 +15,7 @@ public class ClientEntityRenderLayers extends EntityRenderLayers {
     @Override
     public void tick() {
         // Gather current layers
-        List<PackRenderLayer> layers = new ArrayList<>();
+        List<PackRenderLayer<?>> layers = new ArrayList<>();
         PackRenderLayerProvider.forEach(this.getEntity(), (context, layer) -> {
             layers.add(layer);
 
@@ -26,7 +26,7 @@ public class ClientEntityRenderLayers extends EntityRenderLayers {
             }
 
             if (layer instanceof CompoundPackRenderLayer com) {
-                for (PackRenderLayer comLayer : com.getLayers()) {
+                for (PackRenderLayer<?> comLayer : com.getLayers()) {
                     if (!this.layers.containsKey(comLayer)) {
                         this.layers.put(comLayer, comLayer.createState(context));
                     } else {
@@ -37,10 +37,10 @@ public class ClientEntityRenderLayers extends EntityRenderLayers {
         });
 
         // Remove inactive layers
-        for (Map.Entry<PackRenderLayer, PackRenderLayer.State> e : this.layers.entrySet()) {
+        for (Map.Entry<PackRenderLayer<?>, PackRenderLayer.State> e : this.layers.entrySet()) {
             var layer = e.getKey();
             boolean found = false;
-            for (PackRenderLayer checkedLayer : layers) {
+            for (PackRenderLayer<?> checkedLayer : layers) {
                 if (checkedLayer.isOrContains(layer)) {
                     found = true;
                     break;
@@ -51,14 +51,14 @@ public class ClientEntityRenderLayers extends EntityRenderLayers {
             }
         }
 
-        List<PackRenderLayer> toRemove = new ArrayList<>();
-        for (Map.Entry<PackRenderLayer, PackRenderLayer.State> e : this.layers.entrySet()) {
+        List<PackRenderLayer<?>> toRemove = new ArrayList<>();
+        for (Map.Entry<PackRenderLayer<?>, PackRenderLayer.State> e : this.layers.entrySet()) {
             if (e.getValue().isMarkedForRemoval()) {
                 toRemove.add(e.getKey());
             }
         }
 
-        for (PackRenderLayer layer : toRemove) {
+        for (PackRenderLayer<?> layer : toRemove) {
             this.layers.remove(layer);
         }
 
@@ -67,11 +67,13 @@ public class ClientEntityRenderLayers extends EntityRenderLayers {
         }
     }
 
-    public Collection<PackRenderLayer> getLayers() {
+    public Collection<PackRenderLayer<?>> getLayers() {
         return this.layers.keySet();
     }
 
-    public Map<PackRenderLayer, PackRenderLayer.State> getLayerStates() {
-        return this.layers;
+    @SuppressWarnings({"unchecked", "rawtypes", "UnnecessaryLocalVariable"})
+    public <T extends PackRenderLayer.State> Map<PackRenderLayer<T>, T> getLayerStates() {
+        Map map = this.layers;
+        return map;
     }
 }

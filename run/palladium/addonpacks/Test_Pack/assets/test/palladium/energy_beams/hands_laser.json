@@ -8,7 +8,7 @@
     ],
     "renderer": {
       "type": "palladium:laser",
-      "laser": {
+      "render_settings": {
         "glow": "#ff0000",
         "bloom": 2
       }
@@ -23,7 +23,7 @@
     ],
     "renderer": {
       "type": "palladium:laser",
-      "laser": {
+      "render_settings": {
         "core": {
           "opacity": 0.25,
           "pulse": {

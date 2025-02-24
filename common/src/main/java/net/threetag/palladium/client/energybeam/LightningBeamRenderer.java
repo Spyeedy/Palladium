@@ -16,7 +16,7 @@ import net.threetag.palladium.util.EntityScaleUtil;
 public class LightningBeamRenderer extends EnergyBeamRenderer {
 
     public static final MapCodec<LightningBeamRenderer> CODEC = RecordCodecBuilder.mapCodec(instance -> instance.group(
-            LaserRenderer.codec(1).fieldOf("laser").forGetter(beam -> beam.laserRenderer),
+            LaserRenderer.codec(1).fieldOf("render_settings").forGetter(beam -> beam.laserRenderer),
             ExtraCodecs.POSITIVE_INT.optionalFieldOf("segments", 5).forGetter(beam -> beam.segments),
             ExtraCodecs.POSITIVE_INT.optionalFieldOf("frequency", 2).forGetter(beam -> beam.frequency),
             CodecExtras.NON_NEGATIVE_VOXEL_FLOAT.optionalFieldOf("spread", 5F).forGetter(beam -> beam.spread)
