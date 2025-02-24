@@ -1,0 +1,6 @@
+{
+  "type": "minecraft:layered_cauldron",
+  "interactions": "water",
+  "precipitation": "rain",
+  "properties": {}
+}

@@ -7,6 +7,7 @@ import eu.midnightdust.lib.config.MidnightConfig;
 import net.minecraft.resources.ResourceLocation;
 import net.threetag.palladium.client.icon.IconSerializers;
 import net.threetag.palladium.command.PalladiumCommand;
+import net.threetag.palladium.command.RegistryDumpCommand;
 import net.threetag.palladium.command.SuperpowerCommand;
 import net.threetag.palladium.compat.accessories.AccessoriesCompatImpl;
 import net.threetag.palladium.component.PalladiumDataComponents;
@@ -65,6 +66,7 @@ public final class Palladium {
 
         // Commands
         SuperpowerCommand.register();
+        RegistryDumpCommand.register();
         CommandRegistrationEvent.EVENT.register((dispatcher, context, selection) -> PalladiumCommand.register(dispatcher, context));
 
         // Compat

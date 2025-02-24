@@ -1,0 +1,10 @@
+{
+  "type": "minecraft:flower",
+  "properties": {},
+  "suspicious_stew_effects": [
+    {
+      "duration": 220,
+      "id": "minecraft:poison"
+    }
+  ]
+}

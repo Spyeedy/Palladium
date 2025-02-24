@@ -49,5 +49,5 @@ public class ItemTypes {
             propertiesCodec()
     ).apply(instance, ArmorItem::new));
 
-    public static final Codec<Item> CODEC = PalladiumRegistries.ITEM_TYPE.byNameCodec().dispatch(i -> ITEM_CODEC, Function.identity());
+    public static final Codec<Item> CODEC = PalladiumRegistries.ITEM_TYPE.byNameCodec().dispatch(i -> i instanceof BlockItem ? BLOCK_ITEM_CODEC : ITEM_CODEC, Function.identity());
 }

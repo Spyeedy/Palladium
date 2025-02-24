@@ -1,0 +1,7 @@
+{
+  "type": "minecraft:stair",
+  "base_state": {
+    "Name": "minecraft:stone"
+  },
+  "properties": {}
+}

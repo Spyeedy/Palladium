@@ -1,0 +1,5 @@
+{
+  "type": "minecraft:tripwire",
+  "hook": "minecraft:tripwire_hook",
+  "properties": {}
+}
