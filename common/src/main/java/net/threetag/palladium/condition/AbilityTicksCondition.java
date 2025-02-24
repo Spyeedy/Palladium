@@ -9,6 +9,7 @@ import net.minecraft.network.codec.StreamCodec;
 import net.threetag.palladium.power.ability.AbilityInstance;
 import net.threetag.palladium.power.ability.AbilityReference;
 import net.threetag.palladium.data.DataContext;
+import net.threetag.palladium.util.CodecExtras;
 
 public record AbilityTicksCondition(AbilityReference ability, String propertyKey, int min,
                                     int max) implements Condition {
@@ -17,8 +18,8 @@ public record AbilityTicksCondition(AbilityReference ability, String propertyKey
             .group(
                     AbilityReference.CODEC.fieldOf("ability").forGetter(AbilityTicksCondition::ability),
                     Codec.STRING.fieldOf("property").forGetter(AbilityTicksCondition::propertyKey),
-                    Codec.INT.optionalFieldOf("min", Integer.MIN_VALUE).forGetter(AbilityTicksCondition::min),
-                    Codec.INT.optionalFieldOf("max", Integer.MAX_VALUE).forGetter(AbilityTicksCondition::max)
+                    CodecExtras.TIME.optionalFieldOf("min", Integer.MIN_VALUE).forGetter(AbilityTicksCondition::min),
+                    CodecExtras.TIME.optionalFieldOf("max", Integer.MAX_VALUE).forGetter(AbilityTicksCondition::max)
             ).apply(instance, AbilityTicksCondition::new)
     );
     public static final StreamCodec<RegistryFriendlyByteBuf, AbilityTicksCondition> STREAM_CODEC = StreamCodec.composite(

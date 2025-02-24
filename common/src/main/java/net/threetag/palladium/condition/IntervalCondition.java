@@ -1,12 +1,12 @@
 package net.threetag.palladium.condition;
 
-import com.mojang.serialization.Codec;
 import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
 import net.threetag.palladium.data.DataContext;
+import net.threetag.palladium.util.CodecExtras;
 
 public record IntervalCondition(int activeTicks, int disabledTicks) implements Condition {
 
@@ -14,8 +14,8 @@ public record IntervalCondition(int activeTicks, int disabledTicks) implements C
 
     public static final MapCodec<IntervalCondition> CODEC = RecordCodecBuilder.mapCodec(instance -> instance
             .group(
-                    Codec.INT.fieldOf("active_ticks").forGetter(IntervalCondition::activeTicks),
-                    Codec.INT.fieldOf("disabled_ticks").forGetter(IntervalCondition::disabledTicks)
+                    CodecExtras.TIME.fieldOf("active_ticks").forGetter(IntervalCondition::activeTicks),
+                    CodecExtras.TIME.fieldOf("disabled_ticks").forGetter(IntervalCondition::disabledTicks)
             ).apply(instance, IntervalCondition::new)
     );
     public static final StreamCodec<RegistryFriendlyByteBuf, IntervalCondition> STREAM_CODEC = StreamCodec.composite(

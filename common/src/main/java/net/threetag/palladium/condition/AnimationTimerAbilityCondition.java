@@ -1,22 +1,22 @@
 package net.threetag.palladium.condition;
 
-import com.mojang.serialization.Codec;
 import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
+import net.threetag.palladium.data.DataContext;
 import net.threetag.palladium.power.ability.AbilityInstance;
 import net.threetag.palladium.power.ability.AbilityReference;
-import net.threetag.palladium.data.DataContext;
+import net.threetag.palladium.util.CodecExtras;
 
 public record AnimationTimerAbilityCondition(AbilityReference ability, int min, int max) implements Condition {
 
     public static final MapCodec<AnimationTimerAbilityCondition> CODEC = RecordCodecBuilder.mapCodec(instance -> instance
             .group(
                     AbilityReference.CODEC.fieldOf("ability").forGetter(AnimationTimerAbilityCondition::ability),
-                    Codec.INT.optionalFieldOf("min", Integer.MIN_VALUE).forGetter(AnimationTimerAbilityCondition::min),
-                    Codec.INT.optionalFieldOf("max", Integer.MAX_VALUE).forGetter(AnimationTimerAbilityCondition::max)
+                    CodecExtras.TIME.optionalFieldOf("min", Integer.MIN_VALUE).forGetter(AnimationTimerAbilityCondition::min),
+                    CodecExtras.TIME.optionalFieldOf("max", Integer.MAX_VALUE).forGetter(AnimationTimerAbilityCondition::max)
             ).apply(instance, AnimationTimerAbilityCondition::new)
     );
     public static final StreamCodec<RegistryFriendlyByteBuf, AnimationTimerAbilityCondition> STREAM_CODEC = StreamCodec.composite(
